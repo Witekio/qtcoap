@@ -1,3 +1,5 @@
+TEMPLATE = lib
+
 HEADERS += \
     qcoapclient.h \
     qcoapconnection.h \

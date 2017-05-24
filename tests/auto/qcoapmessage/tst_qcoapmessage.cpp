@@ -2,47 +2,61 @@
 #include <QCoreApplication>
 
 // add necessary includes here
+#include "qcoapmessage.h"
 
-class QCoapMessage : public QObject
+Q_DECLARE_METATYPE(QCoapMessage::QCoapMessageType)
+
+class tst_QCoapMessage : public QObject
 {
     Q_OBJECT
 
 public:
-    QCoapMessage();
-    ~QCoapMessage();
+    tst_QCoapMessage();
+    ~tst_QCoapMessage();
 
 private slots:
     void initTestCase();
     void cleanupTestCase();
-    void test_case1();
 
+    void setMessageType_data();
+    void setMessageType();
 };
 
-QCoapMessage::QCoapMessage()
+tst_QCoapMessage::tst_QCoapMessage()
 {
-
 }
 
-QCoapMessage::~QCoapMessage()
+tst_QCoapMessage::~tst_QCoapMessage()
 {
-
 }
 
-void QCoapMessage::initTestCase()
+void tst_QCoapMessage::initTestCase()
 {
-
 }
 
-void QCoapMessage::cleanupTestCase()
+void tst_QCoapMessage::cleanupTestCase()
 {
-
 }
 
-void QCoapMessage::test_case1()
+void tst_QCoapMessage::setMessageType_data()
 {
+    QTest::addColumn<QCoapMessage::QCoapMessageType>("type");
 
+    QTest::newRow("acknowledgment") << QCoapMessage::ACKNOWLEDGMENT;
+    QTest::newRow("confirmable") << QCoapMessage::CONFIRMABLE;
+    QTest::newRow("non-confirmable") << QCoapMessage::NONCONFIRMABLE;
+    QTest::newRow("reset") << QCoapMessage::RESET;
 }
 
-QTEST_MAIN(QCoapMessage)
+void tst_QCoapMessage::setMessageType()
+{
+    QFETCH(QCoapMessage::QCoapMessageType, type);
+
+    QCoapMessage message;
+    message.setType(type);
+    QCOMPARE(message.type(), type);
+}
+
+QTEST_MAIN(tst_QCoapMessage)
 
 #include "tst_qcoapmessage.moc"

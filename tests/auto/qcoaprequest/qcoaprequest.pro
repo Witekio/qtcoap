@@ -22,6 +22,8 @@ SOURCES += \
     ../../../src/coap/qcoapreply.cpp \
     ../../../src/coap/qcoaprequest.cpp
 
-SOURCES +=  tst_qcoapmessage.cpp
+SOURCES += \ 
+    tst_qcoaprequest.cpp
 
 INCLUDEPATH += ../../../src/coap/
+

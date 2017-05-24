@@ -1,4 +1,7 @@
 TEMPLATE = subdirs
 
 SUBDIRS += qcoapclient \
-    qcoapmessage
+    qcoapmessage \
+    qcoapconnection \
+    qcoapreply \
+    qcoaprequest
