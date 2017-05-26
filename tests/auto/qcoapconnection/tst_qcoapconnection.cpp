@@ -97,7 +97,7 @@ void tst_QCoapConnection::connectToHost()
 
     QSignalSpy spySocketHostFound(connection.socket(), SIGNAL(hostFound()));
     QSignalSpy spySocketConnected(connection.socket(), SIGNAL(connected()));
-    QSignalSpy SpySocketError(connection.socket(), SIGNAL(error()));
+    QSignalSpy spySocketError(connection.socket(), SIGNAL(error()));
 
     QCOMPARE(connection.state(), QCoapConnection::UNCONNECTED);
 
@@ -109,7 +109,7 @@ void tst_QCoapConnection::connectToHost()
         QCOMPARE(connection.state(), QCoapConnection::CONNECTED);
     }
     else {
-        QTRY_COMPARE_WITH_TIMEOUT(SpySocketError.count(), 1, 5000);
+        QTRY_COMPARE_WITH_TIMEOUT(spySocketError.count(), 1, 5000);
         QCOMPARE(connection.state(), QCoapConnection::UNCONNECTED);
     }
 }
