@@ -3,7 +3,7 @@
 
 #include <QtCore/qglobal.h>
 
-class QCoapMessage
+class Q_DECL_EXPORT QCoapMessage
 {
 public:
     enum QCoapMessageType {

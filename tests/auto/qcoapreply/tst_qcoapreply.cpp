@@ -21,7 +21,6 @@ private slots:
 
     void parseReplyPdu_data();
     void parseReplyPdu();
-
 };
 
 tst_QCoapReply::tst_QCoapReply()
@@ -72,7 +71,6 @@ void tst_QCoapReply::parseReplyPdu()
     QCOMPARE(reply.payload(), payload);
     // TODO : do other QCOMPARE()
 }
-
 QTEST_MAIN(tst_QCoapReply)
 
 #include "tst_qcoapreply.moc"
