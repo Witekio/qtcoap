@@ -19,10 +19,12 @@ private slots:
     void cleanupTestCase();
     void ctor_data();
     void ctor();
+    void connectToHost_data();
+    void connectToHost();
     void sendRequest_data();
     void sendRequest();
-    void readReply_data();
-    void readReply();
+    void writeToSocket_data();
+    void writeToSocket();
 };
 
 tst_QCoapConnection::tst_QCoapConnection()
@@ -67,9 +69,12 @@ void tst_QCoapConnection::ctor()
 
     QCOMPARE(connection->host(), host);
     QCOMPARE(connection->port(), port);
+    QVERIFY(connection->socket() != nullptr);
+
+    delete connection;
 }
 
-void tst_QCoapConnection::sendRequest_data()
+void tst_QCoapConnection::connectToHost_data()
 {
     QTest::addColumn<QString>("protocol");
     QTest::addColumn<QString>("host");
@@ -78,8 +83,47 @@ void tst_QCoapConnection::sendRequest_data()
     //QTest::addColumn<QString>("statusCode");
 
     QTest::newRow("success") << "coap://" << "test-server" << "/temperature" << 5683;
-    QTest::newRow("failure-path") << "coap://" << "test-server" << "/path-which-fail" << 5683;
-    QTest::newRow("failure-protocol") << "http://" << "test-server" << "/temperature" << 5683;
+    QTest::newRow("failure") << "coap://" << "not-a-test-server" << "/will-fail" << 5683;
+}
+
+void tst_QCoapConnection::connectToHost()
+{
+    QFETCH(QString, protocol);
+    QFETCH(QString, host);
+    QFETCH(QString, path);
+    QFETCH(int, port);
+
+    QCoapConnection connection(host, port);
+
+    QSignalSpy spySocketHostFound(connection.socket(), SIGNAL(hostFound()));
+    QSignalSpy spySocketConnected(connection.socket(), SIGNAL(connected()));
+    QSignalSpy SpySocketError(connection.socket(), SIGNAL(error()));
+
+    QCOMPARE(connection.state(), QCoapConnection::UNCONNECTED);
+
+    connection.connectToHost();
+
+    if (qstrcmp(QTest::currentDataTag(), "success") == 0) {
+        QTRY_COMPARE_WITH_TIMEOUT(spySocketHostFound.count(), 1, 5000);
+        QTRY_COMPARE_WITH_TIMEOUT(spySocketConnected.count(), 1, 5000);
+        QCOMPARE(connection.state(), QCoapConnection::CONNECTED);
+    }
+    else {
+        QTRY_COMPARE_WITH_TIMEOUT(SpySocketError.count(), 1, 5000);
+        QCOMPARE(connection.state(), QCoapConnection::UNCONNECTED);
+    }
+}
+
+void tst_QCoapConnection::sendRequest_data()
+{
+    QTest::addColumn<QString>("protocol");
+    QTest::addColumn<QString>("host");
+    QTest::addColumn<QString>("path");
+    QTest::addColumn<int>("port");
+    QTest::addColumn<QString>("data");
+
+    // TODO : change data to match the result we expect
+    QTest::newRow("simple_request") << "coap://" << "test-server" << "/temperature" << 5683 << "data";
 }
 
 void tst_QCoapConnection::sendRequest()
@@ -88,7 +132,7 @@ void tst_QCoapConnection::sendRequest()
     QFETCH(QString, host);
     QFETCH(QString, path);
     QFETCH(int, port);
-    //QFETCH(QString, statusCode);
+    QFETCH(QString, data);
 
     QCoapConnection connection(host, port);
 
@@ -96,16 +140,14 @@ void tst_QCoapConnection::sendRequest()
     QSignalSpy spyConnectionReadyRead(&connection, SIGNAL(readyRead()));
 
     QCoapRequest request(protocol + host + path);
-    connection.sendRequest(request);
-
-    // TODO HERE :
-    // read if something is written to the socket
-    // and check status code
+    connection.sendRequest(request.toPdu());
     QVERIFY(connection.socket() != nullptr);
     QVERIFY(!connection.socket()->readAll().isEmpty());
 
     QTRY_COMPARE_WITH_TIMEOUT(spySocketReadyRead.count(), 1, 5000);
     QTRY_COMPARE_WITH_TIMEOUT(spyConnectionReadyRead.count(), 1, 5000);
+
+    QCOMPARE(connection.readReply(), data.toUtf8());
 }
 
 class QCoapConnectionForTest : public QCoapConnection
@@ -117,33 +159,25 @@ public:
         QCoapConnection(host, port, parent)
     {}
 
-    void setSocket(QUdpSocket* socket)
+    void setSocket(QIODevice* device)
     {
-        udpSocket = socket;
+        udpSocket = device;
     }
 };
 
-void tst_QCoapConnection::readReply_data()
+void tst_QCoapConnection::writeToSocket_data()
 {
-    QTest::addColumn<QString>("protocol");
-    QTest::addColumn<QString>("host");
-    QTest::addColumn<QString>("path");
-    QTest::addColumn<int>("port");
     QTest::addColumn<QString>("data");
 
-    QTest::newRow("success") << "coap://" << "test-server" << "/temperature" << 5683 << "Data for the reading test";
+    QTest::newRow("success") << "Data for the writing/reading to a socket(QIODevice) test";
 }
 
-void tst_QCoapConnection::readReply()
+void tst_QCoapConnection::writeToSocket()
 {
-    QFETCH(QString, protocol);
-    QFETCH(QString, host);
-    QFETCH(QString, path);
-    QFETCH(int, port);
     QFETCH(QString, data);
 
-    QCoapConnectionForTest connection(host, port);
-    QUdpSocket socket;
+    QCoapConnectionForTest connection;
+    QBuffer socket;
 
     socket.write(data.toUtf8());
     connection.setSocket(&socket);

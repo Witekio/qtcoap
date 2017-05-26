@@ -1,8 +1,32 @@
 #include "qcoaprequest.h"
 
-QCoapRequest::QCoapRequest(const QUrl& url)
+QCoapRequest::QCoapRequest(const QUrl& url, QObject* parent) :
+    QObject(parent)
+{
+    Q_UNUSED(url);
+    // TODO
+}
+
+QByteArray QCoapRequest::toPdu()
 {
     // TODO
+    return QByteArray("");
+}
+
+void QCoapRequest::sendRequest()
+{
+    // TODO
+}
+
+void QCoapRequest::readReply()
+{
+    // TODO
+}
+
+QByteArray QCoapRequest::rawReply()
+{
+    // TODO
+    return QByteArray("");
 }
 
 QUrl QCoapRequest::url() const
@@ -14,4 +38,14 @@ QUrl QCoapRequest::url() const
 void QCoapRequest::setUrl(const QUrl& url)
 {
     Q_UNUSED(url);
+}
+
+QCoapRequest::QCoapRequestOperation QCoapRequest::operation() const
+{
+    // TODO
+    return QCoapRequestOperation::OTHER;
+}
+void QCoapRequest::setOperation(QCoapRequestOperation operation)
+{
+    Q_UNUSED(operation);
 }

@@ -3,27 +3,33 @@
 
 #include <QString>
 #include <QtNetwork/QUdpSocket>
-#include <qcoaprequest.h>
 
 class QCoapConnection : public QObject
 {
     Q_OBJECT
 
 public:
+    enum QCoapConnectionState {
+        UNCONNECTED,
+        CONNECTED
+    };
+
     QCoapConnection(const QString& host = "localhost", int port = 5683, QObject* parent = nullptr);
 
-    void sendRequest(const QCoapRequest& request);
+    void connectToHost();
+    void sendRequest(const QByteArray& pduRequest);
     QByteArray readReply();
 
     QString host() const;
     int port() const;
     QUdpSocket* socket() const;
+    QCoapConnectionState state() const;
 
 signals:
     void readyRead();
 
 protected:
-    QUdpSocket* udpSocket;
+    QIODevice* udpSocket;
 };
 
 #endif // QCOAPCONNECTION_H

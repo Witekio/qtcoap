@@ -3,6 +3,9 @@
 
 // add necessary includes here
 #include <qcoaprequest.h>
+#include <qcoapconnection.h>
+Q_DECLARE_METATYPE(QCoapRequest::QCoapRequestOperation)
+Q_DECLARE_METATYPE(QCoapMessage::QCoapMessageType)
 
 class tst_QCoapRequest : public QObject
 {
@@ -16,8 +19,39 @@ private slots:
     void initTestCase();
     void cleanupTestCase();
 
+    void ctor_data();
+    void ctor();
     void setUrl_data();
     void setUrl();
+    void setOperation_data();
+    void setOperation();
+    void requestToPdu_data();
+    void requestToPdu();
+    void sendRequest_data();
+    void sendRequest();
+    void updateReply_data();
+    void updateReply();
+};
+
+class QCoapRequestForTests : public QCoapRequest {
+public:
+    QCoapRequestForTests(const QUrl& url = QUrl()) :
+        QCoapRequest(url)
+    {
+        connection_p = nullptr;
+        reply_p = nullptr;
+    }
+
+    void setConnection(QCoapConnection* connection) {
+        connection_p = connection;
+    }
+
+    void setReply(QCoapReply* reply) {
+        reply_p = reply;
+    }
+
+    QCoapConnection* connection() const { return connection_p; }
+    QCoapReply* reply() const { return reply_p; }
 };
 
 tst_QCoapRequest::tst_QCoapRequest()
@@ -40,6 +74,24 @@ void tst_QCoapRequest::cleanupTestCase()
 
 }
 
+void tst_QCoapRequest::ctor_data()
+{
+    QTest::addColumn<QUrl>("url");
+
+    QTest::newRow("empty") << QUrl();
+    QTest::newRow("coap") << QUrl("coap://test-server/temperature");
+}
+
+void tst_QCoapRequest::ctor()
+{
+    QFETCH(QUrl, url);
+
+    QCoapRequestForTests request(url);
+    QCOMPARE(request.url(), url);
+    QVERIFY(request.reply() != nullptr);
+    QVERIFY(request.connection() != nullptr);
+}
+
 void tst_QCoapRequest::setUrl_data()
 {
     QTest::addColumn<QUrl>("url");
@@ -55,6 +107,121 @@ void tst_QCoapRequest::setUrl()
     QCoapRequest request;
     request.setUrl(url);
     QCOMPARE(request.url(), url);
+}
+
+void tst_QCoapRequest::setOperation_data()
+{
+    QTest::addColumn<QCoapRequest::QCoapRequestOperation>("operation");
+
+    QTest::newRow("get") << QCoapRequest::GET;
+    QTest::newRow("put") << QCoapRequest::PUT;
+    QTest::newRow("post") << QCoapRequest::POST;
+    QTest::newRow("delete") << QCoapRequest::DELETE;
+    QTest::newRow("other") << QCoapRequest::OTHER;
+}
+
+void tst_QCoapRequest::setOperation()
+{
+    QFETCH(QCoapRequest::QCoapRequestOperation, operation);
+
+    QCoapRequest request;
+    request.setOperation(operation);
+    QCOMPARE(request.operation(), operation);
+}
+
+void tst_QCoapRequest::requestToPdu_data()
+{
+    QTest::addColumn<QUrl>("url");
+    QTest::addColumn<QCoapRequest::QCoapRequestOperation>("operation");
+    QTest::addColumn<QCoapMessage::QCoapMessageType>("type");
+    QTest::addColumn<QString>("pdu");
+
+    // TODO : change the pdu string to something that we expect to match
+    QTest::newRow("request") << QUrl("coap://test-server/temperature") << QCoapRequest::GET << QCoapRequest::NONCONFIRMABLE << "PDU TO CHANGE";
+}
+
+void tst_QCoapRequest::requestToPdu()
+{
+    QFETCH(QUrl, url);
+    QFETCH(QCoapRequest::QCoapRequestOperation, operation);
+    QFETCH(QCoapMessage::QCoapMessageType, type);
+    QFETCH(QString, pdu);
+
+    QCoapRequest request(url);
+
+    request.setType(type);
+    request.setOperation(operation);
+    // TODO : do other setXXX()
+
+    QCOMPARE(request.toPdu(), pdu);
+}
+
+void tst_QCoapRequest::sendRequest_data()
+{
+    QTest::addColumn<QUrl>("url");
+    QTest::addColumn<QCoapRequest::QCoapRequestOperation>("operation");
+    QTest::addColumn<QCoapMessage::QCoapMessageType>("type");
+
+    QTest::newRow("get_nonconfirmable") << QUrl("coap://test-server/temperature") << QCoapRequest::GET << QCoapMessage::NONCONFIRMABLE;
+}
+
+void tst_QCoapRequest::sendRequest()
+{
+    QFETCH(QUrl, url);
+    QFETCH(QCoapRequest::QCoapRequestOperation, operation);
+    QFETCH(QCoapMessage::QCoapMessageType, type);
+
+    QCoapRequestForTests request(url);
+
+    request.setType(type);
+    request.setOperation(operation);
+
+    QSignalSpy spyConnectionReadyRead(request.connection(), SIGNAL(readyRead()));
+    request.sendRequest();
+
+    QTRY_COMPARE_WITH_TIMEOUT(spyConnectionReadyRead.count(), 1, 5000);
+}
+
+class QCoapConnectionForTests : public QCoapConnection{
+public:
+    QCoapConnectionForTests(const QString& host = "localhost", int port = 5683, QObject* parent = nullptr) :
+        QCoapConnection(host, port, parent)
+    {}
+
+    void setDataReply(const QByteArray& newDataReply) {
+        dataReply = newDataReply;
+    }
+
+    QByteArray readReply() {
+        return dataReply;
+    }
+
+private:
+    QByteArray dataReply;
+};
+
+void tst_QCoapRequest::updateReply_data()
+{
+    QTest::addColumn<QString>("data");
+
+    QTest::newRow("success") << "Data for the reading test";
+}
+
+void tst_QCoapRequest::updateReply()
+{
+    QFETCH(QString, data);
+
+    QCoapRequestForTests request;
+    QCoapConnectionForTests connection;
+
+    QSignalSpy spyConnectionFinished(&request, SIGNAL(finished()));
+
+    connection.setDataReply(data.toUtf8());
+    request.setConnection(&connection);
+
+    request.readReply();
+    QTRY_COMPARE_WITH_TIMEOUT(spyConnectionFinished.count(), 1, 5000);
+    QCOMPARE(request.rawReply(), data.toUtf8());
 }
 
 QTEST_MAIN(tst_QCoapRequest)

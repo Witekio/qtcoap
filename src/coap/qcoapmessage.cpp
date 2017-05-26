@@ -11,5 +11,6 @@ QCoapMessage::QCoapMessageType QCoapMessage::type() const
 
 void QCoapMessage::setType(const QCoapMessageType& type)
 {
+    Q_UNUSED(type);
     //TODO
 }

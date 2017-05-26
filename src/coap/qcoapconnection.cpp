@@ -8,7 +8,11 @@ QCoapConnection::QCoapConnection(const QString& host, int port, QObject* parent)
     //TODO
 }
 
-void QCoapConnection::sendRequest(const QCoapRequest& request)
+void QCoapConnection::connectToHost() {
+    // TODO
+}
+
+void QCoapConnection::sendRequest(const QByteArray& request)
 {
     Q_UNUSED(request);
     // TODO
@@ -36,4 +40,10 @@ QUdpSocket* QCoapConnection::socket() const
 {
     // TODO
     return nullptr;
+}
+
+QCoapConnection::QCoapConnectionState QCoapConnection::state() const
+{
+    // TODO
+    return QCoapConnection::UNCONNECTED;
 }
