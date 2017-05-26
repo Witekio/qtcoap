@@ -3,46 +3,35 @@
 
 // add necessary includes here
 
-class QCoapClient : public QObject
+class tst_QCoapClient : public QObject
 {
     Q_OBJECT
 
 public:
-    QCoapClient();
-    ~QCoapClient();
+    tst_QCoapClient();
+    ~tst_QCoapClient();
 
 private slots:
     void initTestCase();
     void cleanupTestCase();
-    void test_case1();
-
 };
 
-QCoapClient::QCoapClient()
+tst_QCoapClient::tst_QCoapClient()
 {
-
 }
 
-QCoapClient::~QCoapClient()
+tst_QCoapClient::~tst_QCoapClient()
 {
-
 }
 
-void QCoapClient::initTestCase()
+void tst_QCoapClient::initTestCase()
 {
-
 }
 
-void QCoapClient::cleanupTestCase()
+void tst_QCoapClient::cleanupTestCase()
 {
-
 }
 
-void QCoapClient::test_case1()
-{
-
-}
-
-QTEST_MAIN(QCoapClient)
+QTEST_MAIN(tst_QCoapClient)
 
 #include "tst_qcoapclient.moc"

@@ -1,4 +1,4 @@
-QT += testlib
+QT += testlib network
 QT -= gui
 
 CONFIG += qt console warn_on depend_includepath testcase
@@ -22,6 +22,7 @@ SOURCES += \
     ../../../src/coap/qcoapreply.cpp \
     ../../../src/coap/qcoaprequest.cpp
 
-SOURCES +=  tst_qcoapmessage.cpp
+SOURCES += \ 
+    tst_qcoapconnection.cpp
 
 INCLUDEPATH += ../../../src/coap/

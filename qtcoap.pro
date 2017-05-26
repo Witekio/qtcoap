@@ -1,7 +1,5 @@
-TEMPLATE = subdirs
+load(qt_parts)
 
-SUBDIRS += src
+SUBDIRS +=
 
-CONFIG(debug, debug|release) {
-    SUBDIRS += tests
-}
+

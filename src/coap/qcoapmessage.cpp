@@ -2,5 +2,14 @@
 
 QCoapMessage::QCoapMessage()
 {
+}
 
+QCoapMessage::QCoapMessageType QCoapMessage::type() const
+{
+    //TODO
+}
+
+void QCoapMessage::setType(const QCoapMessageType& type)
+{
+    //TODO
 }
