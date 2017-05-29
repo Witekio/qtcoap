@@ -80,9 +80,8 @@ void tst_QCoapConnection::connectToHost_data()
     QTest::addColumn<QString>("host");
     QTest::addColumn<QString>("path");
     QTest::addColumn<int>("port");
-    //QTest::addColumn<QString>("statusCode");
 
-    QTest::newRow("success") << "coap://" << "test-server" << "/temperature" << 5683;
+    QTest::newRow("success") << "coap://" << "vs0.inf.ethz.ch" << "/test" << 5683;
     QTest::newRow("failure") << "coap://" << "not-a-test-server" << "/will-fail" << 5683;
 }
 
@@ -120,10 +119,12 @@ void tst_QCoapConnection::sendRequest_data()
     QTest::addColumn<QString>("host");
     QTest::addColumn<QString>("path");
     QTest::addColumn<int>("port");
-    QTest::addColumn<QString>("data");
+    QTest::addColumn<QString>("dataHexaHeader");
+    QTest::addColumn<QString>("dataHexaPayload");
 
     // TODO : change data to match the result we expect
-    QTest::newRow("simple_request") << "coap://" << "test-server" << "/temperature" << 5683 << "data";
+    QTest::newRow("simple_get_request_ok") << "coap://" << "vs0.inf.ethz.ch" << "/test" << 5683 << "5445" << "547970653a203120284e4f4e290a436f64653a20312028474554290a";
+    QTest::newRow("simple_get_request_fail") << "coap://" << "vs0.inf.ethz.ch" << "/t" << 5683 << "5484" << "00000000000000000000";
 }
 
 void tst_QCoapConnection::sendRequest()
@@ -132,7 +133,8 @@ void tst_QCoapConnection::sendRequest()
     QFETCH(QString, host);
     QFETCH(QString, path);
     QFETCH(int, port);
-    QFETCH(QString, data);
+    QFETCH(QString, dataHexaHeader);
+    QFETCH(QString, dataHexaPayload);
 
     QCoapConnection connection(host, port);
 
@@ -147,7 +149,8 @@ void tst_QCoapConnection::sendRequest()
     QTRY_COMPARE_WITH_TIMEOUT(spySocketReadyRead.count(), 1, 5000);
     QTRY_COMPARE_WITH_TIMEOUT(spyConnectionReadyRead.count(), 1, 5000);
 
-    QCOMPARE(connection.readReply(), data.toUtf8());
+    QVERIFY(QString(connection.readReply().toHex()).startsWith(dataHexaHeader));
+    QVERIFY(QString(connection.readReply().toHex()).contains(dataHexaPayload));
 }
 
 class QCoapConnectionForTest : public QCoapConnection

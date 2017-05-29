@@ -52,7 +52,7 @@ void tst_QCoapReply::parseReplyPdu_data()
     QTest::addColumn<QString>("pdu");
 
     // TODO : change the pdu and payload strings to something that we expect to match
-    QTest::newRow("reply") << QUrl("coap://test-server/temperature") << QCoapReply::CONTENT << QCoapReply::NONCONFIRMABLE << "PAYLOAD TO CHANGE" << "PDU TO CHANGE";
+    QTest::newRow("reply") << QUrl("coap://vs0.inf.ethz.ch:5683/test") << QCoapReply::CONTENT << QCoapReply::NONCONFIRMABLE << "PAYLOAD TO CHANGE" << "PDU TO CHANGE";
 }
 
 void tst_QCoapReply::parseReplyPdu()

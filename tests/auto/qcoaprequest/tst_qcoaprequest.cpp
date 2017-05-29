@@ -25,6 +25,8 @@ private slots:
     void setUrl();
     void setOperation_data();
     void setOperation();
+    void tokenGeneration();
+    void messageIdGeneration();
     void requestToPdu_data();
     void requestToPdu();
     void sendRequest_data();
@@ -79,7 +81,7 @@ void tst_QCoapRequest::ctor_data()
     QTest::addColumn<QUrl>("url");
 
     QTest::newRow("empty") << QUrl();
-    QTest::newRow("coap") << QUrl("coap://test-server/temperature");
+    QTest::newRow("coap") << QUrl("coap://vs0.inf.ethz.ch:5683/test");
 }
 
 void tst_QCoapRequest::ctor()
@@ -97,7 +99,7 @@ void tst_QCoapRequest::setUrl_data()
     QTest::addColumn<QUrl>("url");
 
     QTest::newRow("empty") << QUrl();
-    QTest::newRow("coap") << QUrl("coap://test-server/temperature");
+    QTest::newRow("coap") << QUrl("coap://vs0.inf.ethz.ch:5683/test");
 }
 
 void tst_QCoapRequest::setUrl()
@@ -129,15 +131,40 @@ void tst_QCoapRequest::setOperation()
     QCOMPARE(request.operation(), operation);
 }
 
+void tst_QCoapRequest::tokenGeneration()
+{
+    QList<qint64> tokenList;
+
+    QCoapRequest request;
+
+    for (int i = 0; i < 500; ++i) {
+        qint64 token = request.generateToken();
+        QVERIFY(!tokenList.contains(token));
+        tokenList.push_back(token);
+    }
+}
+
+void tst_QCoapRequest::messageIdGeneration()
+{
+    QCoapRequest request;
+    qint64 firstId = request.generateMessageId();
+
+    for (int i = 1; i <= 500; ++i) {
+        qint16 id = request.generateMessageId();
+        QVERIFY(id == (firstId + i));
+    }
+}
+
 void tst_QCoapRequest::requestToPdu_data()
 {
     QTest::addColumn<QUrl>("url");
     QTest::addColumn<QCoapRequest::QCoapRequestOperation>("operation");
     QTest::addColumn<QCoapMessage::QCoapMessageType>("type");
-    QTest::addColumn<QString>("pdu");
+    QTest::addColumn<QString>("pduHeader");
+    QTest::addColumn<QString>("pduOptions");
+    QTest::addColumn<QString>("pduPayload");
 
-    // TODO : change the pdu string to something that we expect to match
-    QTest::newRow("request") << QUrl("coap://test-server/temperature") << QCoapRequest::GET << QCoapRequest::NONCONFIRMABLE << "PDU TO CHANGE";
+    QTest::newRow("request") << QUrl("coap://vs0.inf.ethz.ch:5683/test") << QCoapRequest::GET << QCoapRequest::NONCONFIRMABLE << "5401" << "b474657374" << "";
 }
 
 void tst_QCoapRequest::requestToPdu()
@@ -145,13 +172,23 @@ void tst_QCoapRequest::requestToPdu()
     QFETCH(QUrl, url);
     QFETCH(QCoapRequest::QCoapRequestOperation, operation);
     QFETCH(QCoapMessage::QCoapMessageType, type);
-    QFETCH(QString, pdu);
+    QFETCH(QString, pduHeader);
+    QFETCH(QString, pduOptions);
+    QFETCH(QString, pduPayload);
 
     QCoapRequest request(url);
 
     request.setType(type);
     request.setOperation(operation);
-    // TODO : do other setXXX()
+    qint16 id = request.generateMessageId();
+    qint64 token = request.generateToken();
+
+    QByteArray pdu;
+    pdu.append(pduHeader);
+    pdu.append(QString::number(id, 16).toUtf8());
+    pdu.append(QString::number(token, 16).toUtf8());
+    pdu.append(pduOptions);
+    pdu.append(pduPayload);
 
     QCOMPARE(request.toPdu(), pdu);
 }
@@ -162,7 +199,7 @@ void tst_QCoapRequest::sendRequest_data()
     QTest::addColumn<QCoapRequest::QCoapRequestOperation>("operation");
     QTest::addColumn<QCoapMessage::QCoapMessageType>("type");
 
-    QTest::newRow("get_nonconfirmable") << QUrl("coap://test-server/temperature") << QCoapRequest::GET << QCoapMessage::NONCONFIRMABLE;
+    QTest::newRow("get_nonconfirmable") << QUrl("coap://vs0.inf.ethz.ch:5683/test") << QCoapRequest::GET << QCoapMessage::NONCONFIRMABLE;
 }
 
 void tst_QCoapRequest::sendRequest()

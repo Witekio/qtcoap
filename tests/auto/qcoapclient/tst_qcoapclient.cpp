@@ -41,7 +41,7 @@ void tst_QCoapClient::get_data()
 {
     QTest::addColumn<QUrl>("url");
 
-    QTest::newRow("get") << QUrl("coap://test-server:5683/temperature");
+    QTest::newRow("get") << QUrl("coap://vs0.inf.ethz.ch:5683/test");
 }
 
 void tst_QCoapClient::get()
@@ -51,14 +51,14 @@ void tst_QCoapClient::get()
     QCoapClient client;
     QSignalSpy spyClientFinished(&client, SIGNAL(finished()));
 
-    //QCoapRequest* request = new QCoapRequest(url);
-    QCoapReply* reply = client.get(QCoapRequest(url));
+    QCoapRequest request(url);
+    QCoapReply* reply = client.get(request);
     QTRY_COMPARE_WITH_TIMEOUT(spyClientFinished.count(), 1, 5000);
 
     QVERIFY(reply != nullptr);
+    QCOMPARE(request.token(), reply->token());
 
     delete reply;
-    //delete request;
 }
 
 QTEST_MAIN(tst_QCoapClient)

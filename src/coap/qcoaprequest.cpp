@@ -23,6 +23,18 @@ void QCoapRequest::readReply()
     // TODO
 }
 
+qint16 QCoapRequest::generateMessageId()
+{
+    // TODO
+    return 0;
+}
+
+qint64 QCoapRequest::generateToken()
+{
+    // TODO
+    return 0;
+}
+
 QByteArray QCoapRequest::rawReply()
 {
     // TODO

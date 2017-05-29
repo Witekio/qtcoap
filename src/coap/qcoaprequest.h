@@ -25,6 +25,8 @@ public:
     QByteArray toPdu();
     void sendRequest();
     void readReply();
+    qint16 generateMessageId();
+    qint64 generateToken();
 
     QUrl url() const;
     QCoapRequestOperation operation() const;
