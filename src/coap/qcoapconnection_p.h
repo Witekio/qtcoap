@@ -3,6 +3,7 @@
 
 #include "qcoapconnection.h"
 #include <private/qobject_p.h>
+#include <QIODevice>
 
 QT_BEGIN_NAMESPACE
 
@@ -10,6 +11,11 @@ class QCoapConnectionPrivate : public QObjectPrivate
 {
 public:
     QCoapConnectionPrivate();
+
+    QString host_p;
+    QIODevice* udpSocket_p;
+    int port_p;
+    QCoapConnection::QCoapConnectionState state_p;
 
     Q_DECLARE_PUBLIC(QCoapConnection)
 };

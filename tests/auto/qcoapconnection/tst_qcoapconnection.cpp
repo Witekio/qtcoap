@@ -4,7 +4,9 @@
 // add necessary includes here
 #include <QtNetwork/QUdpSocket>
 #include "qcoapconnection.h"
+#include "qcoapconnection_p.h"
 #include "qcoaprequest.h"
+#include "qcoaprequest_p.h"
 
 class tst_QCoapConnection : public QObject
 {
@@ -164,7 +166,8 @@ public:
 
     void setSocket(QIODevice* device)
     {
-        udpSocket = device;
+        Q_D(QCoapConnection);
+        d->udpSocket_p = device;
     }
 };
 

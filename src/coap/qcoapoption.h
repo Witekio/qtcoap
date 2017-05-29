@@ -14,7 +14,7 @@ class QCoapOption : public QObject
 public:
     QCoapOption();
 
-private:
+protected:
     Q_DECLARE_PRIVATE(QCoapOption)
 };
 

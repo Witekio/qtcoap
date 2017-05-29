@@ -17,11 +17,10 @@ void QCoapReply::fromPdu(const QByteArray& pdu)
 
 QByteArray QCoapReply::readData()
 {
-    // TODO
-    return QByteArray("");
+    return payload();
 }
 
 QCoapReply::QCoapReplyStatusCode QCoapReply::statusCode() const
 {
-    return DELETED;
+    return d_func()->status_p;
 }

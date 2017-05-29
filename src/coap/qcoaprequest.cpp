@@ -1,14 +1,23 @@
 #include "qcoaprequest.h"
 #include "qcoaprequest_p.h"
 
-QCoapRequestPrivate::QCoapRequestPrivate()
+QCoapRequestPrivate::QCoapRequestPrivate() :
+    QCoapMessagePrivate(),
+    //url_p(QUrl()),
+    connection_p(nullptr),
+    reply_p(nullptr),
+    operation_p(QCoapRequest::GET)
 {
 }
 
 QCoapRequest::QCoapRequest(const QUrl& url, QObject* parent) :
     QCoapMessage(parent)
 {
-    Q_UNUSED(url);
+    //Q_UNUSED(url);
+    Q_D(QCoapRequest);
+    d->url_p = url;
+    d->operation_p = QCoapRequest::GET;
+    //d_func()->url_p = url;
     // TODO
 }
 
@@ -40,16 +49,14 @@ qint64 QCoapRequest::generateToken()
     return 0;
 }
 
-QByteArray QCoapRequest::rawReply()
+QCoapReply* QCoapRequest::reply()
 {
-    // TODO
-    return QByteArray("");
+    return d_func()->reply_p;
 }
 
 QUrl QCoapRequest::url() const
 {
-    // TODO
-    return QUrl("invalid-url-waiting-function-to-be-coded");
+    return /*d_func()->url_p;//*/QUrl("invalid-url-waiting-function-to-be-coded");
 }
 
 void QCoapRequest::setUrl(const QUrl& url)
@@ -59,8 +66,7 @@ void QCoapRequest::setUrl(const QUrl& url)
 
 QCoapRequest::QCoapRequestOperation QCoapRequest::operation() const
 {
-    // TODO
-    return QCoapRequestOperation::OTHER;
+    return d_func()->operation_p;
 }
 void QCoapRequest::setOperation(QCoapRequestOperation operation)
 {

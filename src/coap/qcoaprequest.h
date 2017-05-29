@@ -3,6 +3,7 @@
 
 #include <QObject>
 #include <QUrl>
+#include <QtCore/qglobal.h>
 
 #include "qcoapmessage.h"
 #include "qcoapconnection.h"
@@ -33,7 +34,7 @@ public:
 
     QUrl url() const;
     QCoapRequestOperation operation() const;
-    QByteArray rawReply();
+    QCoapReply* reply();
 
     void setUrl(const QUrl& url);
     void setOperation(QCoapRequestOperation operation);
@@ -42,10 +43,9 @@ signals:
     void finished();
 
 protected:
-    QCoapConnection* connection_p;
-    QCoapReply* reply_p;
+    //QCoapConnection* connection_p;
+    //QCoapReply* reply_p;
 
-private:
     Q_DECLARE_PRIVATE(QCoapRequest)
 };
 

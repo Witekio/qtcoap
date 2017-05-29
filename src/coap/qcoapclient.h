@@ -8,7 +8,7 @@
 
 QT_BEGIN_NAMESPACE
 
-//class QCoapClientPrivate;
+class QCoapClientPrivate;
 class QCoapClient : public QObject
 {
     Q_OBJECT
@@ -22,7 +22,7 @@ signals :
     void finished();
 
 private:
-    //Q_DECLARE_PRIVATE(QCoapClient)
+    Q_DECLARE_PRIVATE(QCoapClient)
 };
 
 QT_END_NAMESPACE

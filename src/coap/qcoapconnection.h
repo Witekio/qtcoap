@@ -26,16 +26,13 @@ public:
 
     QString host() const;
     int port() const;
-    QUdpSocket* socket() const;
+    QIODevice* socket() const;
     QCoapConnectionState state() const;
 
 signals:
     void readyRead();
 
 protected:
-    QIODevice* udpSocket;
-
-private:
     Q_DECLARE_PRIVATE(QCoapConnection)
 };
 

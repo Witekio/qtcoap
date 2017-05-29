@@ -8,9 +8,9 @@ QCoapConnectionPrivate::QCoapConnectionPrivate()
 QCoapConnection::QCoapConnection(const QString& host, int port, QObject* parent) :
     QObject(parent)
 {
-    Q_UNUSED(host);
-    Q_UNUSED(port);
-    //TODO
+    Q_D(QCoapConnection);
+    d->host_p = host;
+    d->port_p = port;
 }
 
 void QCoapConnection::connectToHost() {
@@ -31,24 +31,21 @@ QByteArray QCoapConnection::readReply()
 
 QString QCoapConnection::host() const
 {
-    // TODO
-    return QString("");
+    return d_func()->host_p;
 }
 
 int QCoapConnection::port() const
 {
-    //TODO
-    return -9999;
+    return d_func()->port_p;
 }
 
-QUdpSocket* QCoapConnection::socket() const
+QIODevice* QCoapConnection::socket() const
 {
-    // TODO
+    //return d_func()->udpSocket_p;
     return nullptr;
 }
 
 QCoapConnection::QCoapConnectionState QCoapConnection::state() const
 {
-    // TODO
-    return QCoapConnection::UNCONNECTED;
+    return d_func()->state_p;
 }

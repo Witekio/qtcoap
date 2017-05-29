@@ -11,6 +11,11 @@ class QCoapRequestPrivate : public QCoapMessagePrivate
 public:
     QCoapRequestPrivate();
 
+    QUrl url_p;
+    QCoapConnection* connection_p;
+    QCoapReply* reply_p;
+    QCoapRequest::QCoapRequestOperation operation_p;
+
     Q_DECLARE_PUBLIC(QCoapRequest)
 };
 

@@ -26,7 +26,7 @@ public:
 
     QCoapReplyStatusCode statusCode() const;
 
-private:
+protected:
     Q_DECLARE_PRIVATE(QCoapReply)
 };
 

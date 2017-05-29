@@ -12,28 +12,26 @@ QCoapMessage::QCoapMessage(QObject* parent) :
 
 QCoapMessage::QCoapMessageType QCoapMessage::type() const
 {
-    //TODO
+    return d_func()->type_p;
 }
 
 void QCoapMessage::setType(const QCoapMessageType& type)
 {
-    Q_UNUSED(type);
-    //TODO
+    Q_D(QCoapMessage);
+    d->type_p = type;
 }
 
 qint64 QCoapMessage::token() const
 {
-    // TODO
-    return 0;
+    return d_func()->token_p;
 }
 
 qint16 QCoapMessage::messageId() const
 {
-    // TODO
-    return 0;
+    return d_func()->messageId_p;
 }
 
 QByteArray QCoapMessage::payload() const
 {
-    return QByteArray("");
+    return d_func()->payload_p;
 }

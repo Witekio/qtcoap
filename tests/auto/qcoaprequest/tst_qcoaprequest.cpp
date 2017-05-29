@@ -3,8 +3,11 @@
 
 // add necessary includes here
 #include <qcoaprequest.h>
+#include <qcoaprequest_p.h>
 #include <qcoapconnection.h>
-
+#include <qcoapconnection_p.h>
+#include <qcoapreply.h>
+#include <qcoapreply_p.h>
 Q_DECLARE_METATYPE(QCoapRequest::QCoapRequestOperation)
 Q_DECLARE_METATYPE(QCoapMessage::QCoapMessageType)
 
@@ -41,20 +44,22 @@ public:
     QCoapRequestForTests(const QUrl& url = QUrl()) :
         QCoapRequest(url)
     {
-        connection_p = nullptr;
-        reply_p = nullptr;
+        Q_D(QCoapRequest);
+        d->connection_p = nullptr;
+        //d->reply_p = nullptr;
     }
 
-    void setConnection(QCoapConnection* connection) {
-        connection_p = connection;
-    }
+    /*void setConnection(QCoapConnection* connection) {
+        Q_D(QCoapRequest);
+        d->connection_p = connection;
+    }*/
 
-    void setReply(QCoapReply* reply) {
-        reply_p = reply;
-    }
+    /*void setReply(QCoapReply* reply) {
+        Q_D(QCoapRequest);
+        d->reply_p = reply;
+    }*/
 
-    QCoapConnection* connection() const { return connection_p; }
-    QCoapReply* reply() const { return reply_p; }
+    QCoapConnection* connection() const { return d_func()->connection_p; }
 };
 
 tst_QCoapRequest::tst_QCoapRequest()
@@ -217,7 +222,7 @@ void tst_QCoapRequest::sendRequest()
     QSignalSpy spyConnectionReadyRead(request.connection(), SIGNAL(readyRead()));
     request.sendRequest();
 
-    QTRY_COMPARE_WITH_TIMEOUT(spyConnectionReadyRead.count(), 1, 5000);
+    QTRY_COMPARE_WITH_TIMEOUT(spyConnectionReadyRead.count(), 1, 1000);
 }
 
 class QCoapReplyForTests : public QCoapReply
@@ -226,7 +231,8 @@ public:
     QCoapReplyForTests() : QCoapReply() {}
 
     void fromPdu(const QByteArray& pdu) {
-        payload_p = pdu;
+        Q_D(QCoapReply);
+        d->payload_p = pdu;
     }
 };
 
@@ -261,15 +267,15 @@ void tst_QCoapRequest::updateReply()
     QFETCH(QString, data);
 
     QCoapRequestForTests request;
-    QCoapConnectionForTests connection;
+    //QCoapConnectionForTests connection;
 
     QSignalSpy spyConnectionFinished(&request, SIGNAL(finished()));
 
-    connection.setDataReply(data.toUtf8());
-    request.setConnection(&connection);
+    //connection.setDataReply(data.toUtf8());
+    //request.setConnection(&connection);
 
-    request.readReply();
-    QTRY_COMPARE_WITH_TIMEOUT(spyConnectionFinished.count(), 1, 5000);
+    //request.readReply();
+    QTRY_COMPARE_WITH_TIMEOUT(spyConnectionFinished.count(), 1, 1000);
     QCOMPARE(request.reply()->payload(), data.toUtf8());
 }
 
