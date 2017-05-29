@@ -21,7 +21,6 @@ public:
     QByteArray readData();
 
     QCoapReplyStatusCode statusCode() const;
-    QByteArray payload() const;
 };
 
 #endif // QCOAPREPLY_H

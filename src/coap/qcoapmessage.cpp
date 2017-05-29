@@ -20,3 +20,14 @@ qint64 QCoapMessage::token() const
     // TODO
     return 0;
 }
+
+qint16 QCoapMessage::messageId() const
+{
+    // TODO
+    return 0;
+}
+
+QByteArray QCoapMessage::payload() const
+{
+    return QByteArray("");
+}

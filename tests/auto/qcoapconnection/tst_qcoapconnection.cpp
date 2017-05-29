@@ -122,7 +122,6 @@ void tst_QCoapConnection::sendRequest_data()
     QTest::addColumn<QString>("dataHexaHeader");
     QTest::addColumn<QString>("dataHexaPayload");
 
-    // TODO : change data to match the result we expect
     QTest::newRow("simple_get_request_ok") << "coap://" << "vs0.inf.ethz.ch" << "/test" << 5683 << "5445" << "547970653a203120284e4f4e290a436f64653a20312028474554290a";
     QTest::newRow("simple_get_request_fail") << "coap://" << "vs0.inf.ethz.ch" << "/t" << 5683 << "5484" << "00000000000000000000";
 }
@@ -142,13 +141,14 @@ void tst_QCoapConnection::sendRequest()
     QSignalSpy spyConnectionReadyRead(&connection, SIGNAL(readyRead()));
 
     QCoapRequest request(protocol + host + path);
-    connection.sendRequest(request.toPdu());
     QVERIFY(connection.socket() != nullptr);
-    QVERIFY(!connection.socket()->readAll().isEmpty());
+    QVERIFY(connection.socket()->readAll().isEmpty());
+    connection.sendRequest(request.toPdu());
 
     QTRY_COMPARE_WITH_TIMEOUT(spySocketReadyRead.count(), 1, 5000);
     QTRY_COMPARE_WITH_TIMEOUT(spyConnectionReadyRead.count(), 1, 5000);
 
+    QVERIFY(!connection.socket()->readAll().isEmpty());
     QVERIFY(QString(connection.readReply().toHex()).startsWith(dataHexaHeader));
     QVERIFY(QString(connection.readReply().toHex()).contains(dataHexaPayload));
 }

@@ -4,6 +4,7 @@
 // add necessary includes here
 #include <qcoaprequest.h>
 #include <qcoapconnection.h>
+
 Q_DECLARE_METATYPE(QCoapRequest::QCoapRequestOperation)
 Q_DECLARE_METATYPE(QCoapMessage::QCoapMessageType)
 
@@ -219,7 +220,18 @@ void tst_QCoapRequest::sendRequest()
     QTRY_COMPARE_WITH_TIMEOUT(spyConnectionReadyRead.count(), 1, 5000);
 }
 
-class QCoapConnectionForTests : public QCoapConnection{
+class QCoapReplyForTests : public QCoapReply
+{
+public:
+    QCoapReplyForTests() : QCoapReply() {}
+
+    void fromPdu(const QByteArray& pdu) {
+        payload_p = pdu;
+    }
+};
+
+class QCoapConnectionForTests : public QCoapConnection
+{
 public:
     QCoapConnectionForTests(const QString& host = "localhost", int port = 5683, QObject* parent = nullptr) :
         QCoapConnection(host, port, parent)
@@ -258,7 +270,7 @@ void tst_QCoapRequest::updateReply()
 
     request.readReply();
     QTRY_COMPARE_WITH_TIMEOUT(spyConnectionFinished.count(), 1, 5000);
-    QCOMPARE(request.rawReply(), data.toUtf8());
+    QCOMPARE(request.reply()->payload(), data.toUtf8());
 }
 
 QTEST_MAIN(tst_QCoapRequest)

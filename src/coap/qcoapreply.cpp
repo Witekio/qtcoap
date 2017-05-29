@@ -20,8 +20,3 @@ QCoapReply::QCoapReplyStatusCode QCoapReply::statusCode() const
 {
     return DELETED;
 }
-
-QByteArray QCoapReply::payload() const
-{
-    return QByteArray("");
-}
