@@ -1,7 +1,12 @@
 #include "qcoaprequest.h"
+#include "qcoaprequest_p.h"
+
+QCoapRequestPrivate::QCoapRequestPrivate()
+{
+}
 
 QCoapRequest::QCoapRequest(const QUrl& url, QObject* parent) :
-    QObject(parent)
+    QCoapMessage(parent)
 {
     Q_UNUSED(url);
     // TODO

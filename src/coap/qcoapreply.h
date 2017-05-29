@@ -4,6 +4,9 @@
 #include "qcoapmessage.h"
 #include <QByteArray>
 
+QT_BEGIN_NAMESPACE
+
+class QCoapReplyPrivate;
 class QCoapReply : public QCoapMessage
 {
 public:
@@ -13,6 +16,7 @@ public:
         VALID,   // 2.03
         CHANGED, // 2.04
         CONTENT  // 2.05
+        // TODO : find the corresponding hexadecimal code
     };
 
     QCoapReply();
@@ -21,6 +25,11 @@ public:
     QByteArray readData();
 
     QCoapReplyStatusCode statusCode() const;
+
+private:
+    Q_DECLARE_PRIVATE(QCoapReply)
 };
+
+QT_END_NAMESPACE
 
 #endif // QCOAPREPLY_H

@@ -1,6 +1,12 @@
 #include "qcoapmessage.h"
+#include "qcoapmessage_p.h"
 
-QCoapMessage::QCoapMessage()
+QCoapMessagePrivate::QCoapMessagePrivate()
+{
+}
+
+QCoapMessage::QCoapMessage(QObject* parent) :
+    QObject(parent)
 {
 }
 

@@ -1,4 +1,9 @@
 #include "qcoapclient.h"
+#include "qcoapclient_p.h"
+
+QCoapClientPrivate::QCoapClientPrivate()
+{
+}
 
 QCoapClient::QCoapClient(QObject* parent) :
     QObject(parent)

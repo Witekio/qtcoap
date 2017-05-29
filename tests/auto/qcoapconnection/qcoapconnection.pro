@@ -1,4 +1,4 @@
-QT += testlib network
+QT += testlib network core-private
 QT -= gui
 
 CONFIG += qt console warn_on depend_includepath testcase

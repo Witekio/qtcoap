@@ -8,7 +8,10 @@
 #include "qcoapconnection.h"
 #include "qcoapreply.h"
 
-class QCoapRequest : public QObject, public QCoapMessage
+QT_BEGIN_NAMESPACE
+
+class QCoapRequestPrivate;
+class QCoapRequest : public QCoapMessage
 {
     Q_OBJECT
 public:
@@ -41,6 +44,11 @@ signals:
 protected:
     QCoapConnection* connection_p;
     QCoapReply* reply_p;
+
+private:
+    Q_DECLARE_PRIVATE(QCoapRequest)
 };
+
+QT_END_NAMESPACE
 
 #endif // QCOAPREQUEST_H

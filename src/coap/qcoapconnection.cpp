@@ -1,4 +1,9 @@
 #include "qcoapconnection.h"
+#include "qcoapconnection_p.h"
+
+QCoapConnectionPrivate::QCoapConnectionPrivate()
+{
+}
 
 QCoapConnection::QCoapConnection(const QString& host, int port, QObject* parent) :
     QObject(parent)

@@ -2,11 +2,17 @@
 #define QCOAPMESSAGE_H
 
 #include <QtCore/qglobal.h>
+#include <QObject>
 #include <QList>
 #include <qcoapoption.h>
 
-class Q_DECL_EXPORT QCoapMessage
+QT_BEGIN_NAMESPACE
+
+class QCoapMessagePrivate;
+class Q_DECL_EXPORT QCoapMessage : public QObject
 {
+    Q_OBJECT
+
 public:
     enum QCoapMessageType {
         CONFIRMABLE,
@@ -15,7 +21,7 @@ public:
         RESET
     };
 
-    QCoapMessage();
+    QCoapMessage(QObject* parent = nullptr);
 
     QCoapMessageType type() const;
     void setType(const QCoapMessageType& type);
@@ -29,6 +35,11 @@ protected:
     qint64 token_p;
     QList<QCoapOption> options_p;
     QByteArray payload_p;
+
+private:
+    Q_DECLARE_PRIVATE(QCoapMessage)
 };
+
+QT_END_NAMESPACE
 
 #endif // QCOAPMESSAGE_H

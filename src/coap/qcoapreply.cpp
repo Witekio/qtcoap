@@ -1,4 +1,9 @@
 #include "qcoapreply.h"
+#include "qcoapreply_p.h"
+
+QCoapReplyPrivate::QCoapReplyPrivate()
+{
+}
 
 QCoapReply::QCoapReply()
 {

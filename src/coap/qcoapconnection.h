@@ -3,7 +3,11 @@
 
 #include <QString>
 #include <QtNetwork/QUdpSocket>
+#include <QtCore/qglobal.h>
 
+QT_BEGIN_NAMESPACE
+
+class QCoapConnectionPrivate;
 class QCoapConnection : public QObject
 {
     Q_OBJECT
@@ -30,6 +34,11 @@ signals:
 
 protected:
     QIODevice* udpSocket;
+
+private:
+    Q_DECLARE_PRIVATE(QCoapConnection)
 };
+
+QT_END_NAMESPACE
 
 #endif // QCOAPCONNECTION_H
