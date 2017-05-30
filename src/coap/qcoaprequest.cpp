@@ -3,21 +3,26 @@
 
 QCoapRequestPrivate::QCoapRequestPrivate() :
     QCoapMessagePrivate(),
-    //url_p(QUrl()),
-    connection_p(nullptr),
-    reply_p(nullptr),
+    connection_p(new QCoapConnection()),
+    reply_p(new QCoapReply()),
     operation_p(QCoapRequest::GET)
 {
+    qDebug() << "QCoapRequestPrivate::QCoapRequestPrivate()";
+}
+
+QCoapRequestPrivate::~QCoapRequestPrivate()
+{
+    delete connection_p;
 }
 
 QCoapRequest::QCoapRequest(const QUrl& url, QObject* parent) :
-    QCoapMessage(parent)
+    QCoapMessage(* new QCoapRequestPrivate, parent)
 {
     //Q_UNUSED(url);
+    qDebug() << "QCoapRequest::QCoapRequest(const QUrl& url, QObject* parent)" << url;
     Q_D(QCoapRequest);
     d->url_p = url;
-    d->operation_p = QCoapRequest::GET;
-    //d_func()->url_p = url;
+    //url_p = url;
     // TODO
 }
 
@@ -56,12 +61,15 @@ QCoapReply* QCoapRequest::reply()
 
 QUrl QCoapRequest::url() const
 {
-    return /*d_func()->url_p;//*/QUrl("invalid-url-waiting-function-to-be-coded");
+    return d_func()->url_p;
+    //return url_p;
 }
 
 void QCoapRequest::setUrl(const QUrl& url)
 {
-    Q_UNUSED(url);
+    Q_D(QCoapRequest);
+    d->url_p = url;
+    //url_p = url;
 }
 
 QCoapRequest::QCoapRequestOperation QCoapRequest::operation() const
@@ -70,5 +78,6 @@ QCoapRequest::QCoapRequestOperation QCoapRequest::operation() const
 }
 void QCoapRequest::setOperation(QCoapRequestOperation operation)
 {
-    Q_UNUSED(operation);
+    Q_D(QCoapRequest);
+    d->operation_p = operation;
 }

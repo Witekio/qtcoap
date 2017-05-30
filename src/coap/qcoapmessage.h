@@ -21,8 +21,8 @@ public:
         RESET
     };
 
-    QCoapMessage(QObject* parent = nullptr);
-
+    QCoapMessage(QObject* parent = Q_NULLPTR);
+    QCoapMessage(QCoapMessagePrivate &dd, QObject* parent = Q_NULLPTR);
     QCoapMessageType type() const;
     void setType(const QCoapMessageType& type);
     qint64 token() const;

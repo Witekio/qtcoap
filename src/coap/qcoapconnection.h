@@ -2,7 +2,7 @@
 #define QCOAPCONNECTION_H
 
 #include <QString>
-#include <QtNetwork/QUdpSocket>
+#include <QUdpSocket>
 #include <QtCore/qglobal.h>
 
 QT_BEGIN_NAMESPACE
@@ -11,6 +11,7 @@ class QCoapConnectionPrivate;
 class QCoapConnection : public QObject
 {
     Q_OBJECT
+    Q_DISABLE_COPY(QCoapConnection)
 
 public:
     enum QCoapConnectionState {
@@ -18,7 +19,8 @@ public:
         CONNECTED
     };
 
-    QCoapConnection(const QString& host = "localhost", int port = 5683, QObject* parent = nullptr);
+    explicit QCoapConnection(const QString& host = "localhost", int port = 5683, QObject* parent = nullptr);
+    QCoapConnection(QCoapConnectionPrivate& dd, const QString& host = "localhost", int port = 5683, QObject* parent = nullptr);
 
     void connectToHost();
     void sendRequest(const QByteArray& pduRequest);

@@ -53,7 +53,7 @@ void tst_QCoapClient::get()
 
     QCoapRequest request(url);
     QCoapReply* reply = client.get(request);
-    QTRY_COMPARE_WITH_TIMEOUT(spyClientFinished.count(), 1, 5000);
+    QTRY_COMPARE_WITH_TIMEOUT(spyClientFinished.count(), 1, 1000);
 
     QVERIFY(reply != nullptr);
     QCOMPARE(request.token(), reply->token());

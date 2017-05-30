@@ -1,6 +1,6 @@
 TEMPLATE = lib
 
-QT += core-private
+QT += core-private network
 
 HEADERS += \
     qcoapclient.h \

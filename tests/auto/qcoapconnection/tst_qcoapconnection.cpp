@@ -2,7 +2,9 @@
 #include <QCoreApplication>
 
 // add necessary includes here
-#include <QtNetwork/QUdpSocket>
+#include <QUdpSocket>
+#include <QBuffer>
+#include <QtCore/qglobal.h>
 #include "qcoapconnection.h"
 #include "qcoapconnection_p.h"
 #include "qcoaprequest.h"
@@ -96,21 +98,22 @@ void tst_QCoapConnection::connectToHost()
 
     QCoapConnection connection(host, port);
 
-    QSignalSpy spySocketHostFound(connection.socket(), SIGNAL(hostFound()));
-    QSignalSpy spySocketConnected(connection.socket(), SIGNAL(connected()));
-    QSignalSpy spySocketError(connection.socket(), SIGNAL(error()));
+    QUdpSocket* socket = qobject_cast<QUdpSocket*>(connection.socket());
+    QSignalSpy spySocketHostFound(socket, SIGNAL(hostFound()));
+    QSignalSpy spySocketConnected(socket, SIGNAL(connected()));
+    QSignalSpy spySocketError(socket, SIGNAL(error()));
 
     QCOMPARE(connection.state(), QCoapConnection::UNCONNECTED);
 
     connection.connectToHost();
 
     if (qstrcmp(QTest::currentDataTag(), "success") == 0) {
-        QTRY_COMPARE_WITH_TIMEOUT(spySocketHostFound.count(), 1, 5000);
-        QTRY_COMPARE_WITH_TIMEOUT(spySocketConnected.count(), 1, 5000);
+        QTRY_COMPARE_WITH_TIMEOUT(spySocketHostFound.count(), 1, 1000);
+        QTRY_COMPARE_WITH_TIMEOUT(spySocketConnected.count(), 1, 1000);
         QCOMPARE(connection.state(), QCoapConnection::CONNECTED);
     }
     else {
-        QTRY_COMPARE_WITH_TIMEOUT(spySocketError.count(), 1, 5000);
+        QTRY_COMPARE_WITH_TIMEOUT(spySocketError.count(), 1, 1000);
         QCOMPARE(connection.state(), QCoapConnection::UNCONNECTED);
     }
 }
@@ -147,8 +150,8 @@ void tst_QCoapConnection::sendRequest()
     QVERIFY(connection.socket()->readAll().isEmpty());
     connection.sendRequest(request.toPdu());
 
-    QTRY_COMPARE_WITH_TIMEOUT(spySocketReadyRead.count(), 1, 5000);
-    QTRY_COMPARE_WITH_TIMEOUT(spyConnectionReadyRead.count(), 1, 5000);
+    QTRY_COMPARE_WITH_TIMEOUT(spySocketReadyRead.count(), 1, 1000);
+    QTRY_COMPARE_WITH_TIMEOUT(spyConnectionReadyRead.count(), 1, 1000);
 
     QVERIFY(!connection.socket()->readAll().isEmpty());
     QVERIFY(QString(connection.readReply().toHex()).startsWith(dataHexaHeader));
@@ -157,18 +160,23 @@ void tst_QCoapConnection::sendRequest()
 
 class QCoapConnectionForTest : public QCoapConnection
 {
+    Q_OBJECT
 public:
     QCoapConnectionForTest(const QString& host = "localhost",
                            int port = 5683,
                            QObject* parent = nullptr) :
         QCoapConnection(host, port, parent)
-    {}
+    {
+        //privateConnection = static_cast<QCoapConnectionPrivate *>(d_ptr.data());
+    }
 
     void setSocket(QIODevice* device)
     {
-        Q_D(QCoapConnection);
-        d->udpSocket_p = device;
+        udpSocket_p = device;
     }
+
+private:
+    QIODevice* udpSocket_p;
 };
 
 void tst_QCoapConnection::writeToSocket_data()

@@ -11,6 +11,7 @@ class QCoapConnectionPrivate : public QObjectPrivate
 {
 public:
     QCoapConnectionPrivate();
+    ~QCoapConnectionPrivate();
 
     QString host_p;
     QIODevice* udpSocket_p;

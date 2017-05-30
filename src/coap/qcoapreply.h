@@ -16,7 +16,7 @@ public:
         VALID,   // 2.03
         CHANGED, // 2.04
         CONTENT  // 2.05
-        // TODO : find the corresponding hexadecimal code
+        // TODO : find the corresponding hexadecimal code and add other status code
     };
 
     QCoapReply();

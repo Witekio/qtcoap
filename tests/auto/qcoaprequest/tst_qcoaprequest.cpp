@@ -44,22 +44,23 @@ public:
     QCoapRequestForTests(const QUrl& url = QUrl()) :
         QCoapRequest(url)
     {
-        Q_D(QCoapRequest);
-        d->connection_p = nullptr;
-        //d->reply_p = nullptr;
+        connection_p = nullptr;
+        reply_p = nullptr;
     }
 
-    /*void setConnection(QCoapConnection* connection) {
-        Q_D(QCoapRequest);
-        d->connection_p = connection;
-    }*/
+    void setConnection(QCoapConnection* connection) {
+        connection_p = connection;
+    }
 
-    /*void setReply(QCoapReply* reply) {
-        Q_D(QCoapRequest);
-        d->reply_p = reply;
-    }*/
+    void setReply(QCoapReply* reply) {
+        reply_p = reply;
+    }
 
-    QCoapConnection* connection() const { return d_func()->connection_p; }
+    QCoapConnection* connection() const { return connection_p; }
+
+private:
+    QCoapConnection* connection_p;
+    QCoapReply* reply_p;
 };
 
 tst_QCoapRequest::tst_QCoapRequest()
@@ -231,9 +232,11 @@ public:
     QCoapReplyForTests() : QCoapReply() {}
 
     void fromPdu(const QByteArray& pdu) {
-        Q_D(QCoapReply);
-        d->payload_p = pdu;
+        payload_p = pdu;
     }
+
+private:
+    QByteArray payload_p;
 };
 
 class QCoapConnectionForTests : public QCoapConnection
@@ -267,14 +270,14 @@ void tst_QCoapRequest::updateReply()
     QFETCH(QString, data);
 
     QCoapRequestForTests request;
-    //QCoapConnectionForTests connection;
+    QCoapConnectionForTests connection;
 
     QSignalSpy spyConnectionFinished(&request, SIGNAL(finished()));
 
-    //connection.setDataReply(data.toUtf8());
-    //request.setConnection(&connection);
+    connection.setDataReply(data.toUtf8());
+    request.setConnection(&connection);
 
-    //request.readReply();
+    request.readReply();
     QTRY_COMPARE_WITH_TIMEOUT(spyConnectionFinished.count(), 1, 1000);
     QCOMPARE(request.reply()->payload(), data.toUtf8());
 }

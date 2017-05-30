@@ -1,4 +1,4 @@
-QT += testlib network core-private
+QT += testlib network core-private core
 QT -= gui
 
 CONFIG += qt console warn_on depend_includepath testcase
@@ -12,7 +12,13 @@ HEADERS += \
     ../../../src/coap/qcoapmessage.h \
     ../../../src/coap/qcoapoption.h \
     ../../../src/coap/qcoapreply.h \
-    ../../../src/coap/qcoaprequest.h
+    ../../../src/coap/qcoaprequest.h \
+    ../../../src/coap/qcoapmessage_p.h \
+    ../../../src/coap/qcoapreply_p.h \
+    ../../../src/coap/qcoaprequest_p.h \
+    ../../../src/coap/qcoapoption_p.h \
+    ../../../src/coap/qcoapconnection_p.h \
+    ../../../src/coap/qcoapclient_p.h
 
 SOURCES += \
     ../../../src/coap/qcoapclient.cpp \

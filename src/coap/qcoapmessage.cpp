@@ -1,12 +1,22 @@
 #include "qcoapmessage.h"
 #include "qcoapmessage_p.h"
+#include <QDebug>
 
-QCoapMessagePrivate::QCoapMessagePrivate()
+QCoapMessagePrivate::QCoapMessagePrivate() :
+    type_p(QCoapMessage::NONCONFIRMABLE),
+    messageId_p(0),
+    token_p(0),
+    payload_p(QByteArray())
 {
 }
 
 QCoapMessage::QCoapMessage(QObject* parent) :
-    QObject(parent)
+    QObject(* new QCoapMessagePrivate, parent)
+{
+}
+
+QCoapMessage::QCoapMessage(QCoapMessagePrivate &dd, QObject* parent) :
+    QObject(dd, parent)
 {
 }
 

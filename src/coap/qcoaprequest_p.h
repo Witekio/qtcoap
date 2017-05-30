@@ -10,6 +10,7 @@ class QCoapRequestPrivate : public QCoapMessagePrivate
 {
 public:
     QCoapRequestPrivate();
+    ~QCoapRequestPrivate();
 
     QUrl url_p;
     QCoapConnection* connection_p;

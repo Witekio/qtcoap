@@ -45,6 +45,7 @@ signals:
 protected:
     //QCoapConnection* connection_p;
     //QCoapReply* reply_p;
+    //QUrl url_p;
 
     Q_DECLARE_PRIVATE(QCoapRequest)
 };
