@@ -11,6 +11,7 @@ class QCoapReply : public QCoapMessage
 {
 public:
     enum QCoapReplyStatusCode {
+        INVALIDCODE,
         CREATED, // 2.01
         DELETED, // 2.02
         VALID,   // 2.03

@@ -11,6 +11,8 @@ class QCoapClientPrivate : public QObjectPrivate
 public:
     QCoapClientPrivate();
 
+    QList<QCoapRequest*> requests;
+
     Q_DECLARE_PUBLIC(QCoapClient)
 };
 

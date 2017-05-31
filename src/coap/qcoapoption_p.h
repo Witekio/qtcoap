@@ -11,6 +11,10 @@ class QCoapOptionPrivate : public QObjectPrivate
 public:
     QCoapOptionPrivate();
 
+    QCoapOption::QCoapOptionName name_p;
+    quint8 length_p;
+    QByteArray value_p;
+
     Q_DECLARE_PUBLIC(QCoapOption);
 };
 

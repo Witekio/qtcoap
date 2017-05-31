@@ -3,6 +3,7 @@
 
 #include <QObject>
 #include <QtCore/qglobal.h>
+
 #include "qcoapreply.h"
 #include "qcoaprequest.h"
 
@@ -16,12 +17,16 @@ class QCoapClient : public QObject
 public:
     QCoapClient(QObject* parent = nullptr);
 
-    QCoapReply* get(const QCoapRequest& request);
+    QCoapReply* get(QCoapRequest* request);
 
 signals :
     void finished();
 
-private:
+protected:
+    bool containsToken(QByteArray token);
+    bool containsMessageId(quint16 id);
+    void sendRequest(QCoapRequest* request);
+
     Q_DECLARE_PRIVATE(QCoapClient)
 };
 

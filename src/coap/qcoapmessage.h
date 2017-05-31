@@ -23,11 +23,21 @@ public:
 
     QCoapMessage(QObject* parent = Q_NULLPTR);
     QCoapMessage(QCoapMessagePrivate &dd, QObject* parent = Q_NULLPTR);
+    //QCoapMessage(const QCoapMessage& other);
+
     QCoapMessageType type() const;
     void setType(const QCoapMessageType& type);
-    qint64 token() const;
-    qint16 messageId() const;
+    QByteArray token() const;
+    quint8 tokenLength() const;
+    void setToken(const QByteArray& token);
+    quint16 messageId() const;
+    void setMessageId(quint16);
     QByteArray payload() const;
+    void setPayload(const QByteArray& payload);
+
+    // TODO : add tests for addOption
+    void addOption(QCoapOption::QCoapOptionName name, const QByteArray& value);
+    void addOption(QCoapOption* option);
 
 protected:
     Q_DECLARE_PRIVATE(QCoapMessage)

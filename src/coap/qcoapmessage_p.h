@@ -12,9 +12,10 @@ public:
     QCoapMessagePrivate();
 
     QCoapMessage::QCoapMessageType type_p;
-    qint16 messageId_p;
-    qint64 token_p;
-    QList<QCoapOption> options_p;
+    quint16 messageId_p;
+    QByteArray token_p;
+    quint8 tokenLength_p;
+    QList<QCoapOption*> options_p;
     QByteArray payload_p;
 
     Q_DECLARE_PUBLIC(QCoapMessage)

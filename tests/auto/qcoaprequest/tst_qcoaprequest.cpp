@@ -29,8 +29,6 @@ private slots:
     void setUrl();
     void setOperation_data();
     void setOperation();
-    void tokenGeneration();
-    void messageIdGeneration();
     void requestToPdu_data();
     void requestToPdu();
     void sendRequest_data();
@@ -44,8 +42,6 @@ public:
     QCoapRequestForTests(const QUrl& url = QUrl()) :
         QCoapRequest(url)
     {
-        connection_p = nullptr;
-        reply_p = nullptr;
     }
 
     void setConnection(QCoapConnection* connection) {
@@ -56,8 +52,6 @@ public:
         reply_p = reply;
     }
 
-    QCoapConnection* connection() const { return connection_p; }
-
 private:
     QCoapConnection* connection_p;
     QCoapReply* reply_p;
@@ -65,22 +59,18 @@ private:
 
 tst_QCoapRequest::tst_QCoapRequest()
 {
-
 }
 
 tst_QCoapRequest::~tst_QCoapRequest()
 {
-
 }
 
 void tst_QCoapRequest::initTestCase()
 {
-
 }
 
 void tst_QCoapRequest::cleanupTestCase()
 {
-
 }
 
 void tst_QCoapRequest::ctor_data()
@@ -138,40 +128,21 @@ void tst_QCoapRequest::setOperation()
     QCOMPARE(request.operation(), operation);
 }
 
-void tst_QCoapRequest::tokenGeneration()
-{
-    QList<qint64> tokenList;
-
-    QCoapRequest request;
-
-    for (int i = 0; i < 500; ++i) {
-        qint64 token = request.generateToken();
-        QVERIFY(!tokenList.contains(token));
-        tokenList.push_back(token);
-    }
-}
-
-void tst_QCoapRequest::messageIdGeneration()
-{
-    QCoapRequest request;
-    qint64 firstId = request.generateMessageId();
-
-    for (int i = 1; i <= 500; ++i) {
-        qint16 id = request.generateMessageId();
-        QVERIFY(id == (firstId + i));
-    }
-}
-
 void tst_QCoapRequest::requestToPdu_data()
 {
     QTest::addColumn<QUrl>("url");
     QTest::addColumn<QCoapRequest::QCoapRequestOperation>("operation");
     QTest::addColumn<QCoapMessage::QCoapMessageType>("type");
+    QTest::addColumn<quint16>("messageId");
+    QTest::addColumn<QByteArray>("token");
     QTest::addColumn<QString>("pduHeader");
-    QTest::addColumn<QString>("pduOptions");
     QTest::addColumn<QString>("pduPayload");
 
-    QTest::newRow("request") << QUrl("coap://vs0.inf.ethz.ch:5683/test") << QCoapRequest::GET << QCoapRequest::NONCONFIRMABLE << "5401" << "b474657374" << "";
+    QTest::newRow("request_with_option_and_payload") << QUrl("coap://vs0.inf.ethz.ch:5683/test") << QCoapRequest::GET << QCoapRequest::NONCONFIRMABLE << quint16(56400) << QByteArray::fromHex("4647f09b") << "5401dc504647f09bb474657374" << "Some payload";
+    QTest::newRow("request_without_payload") << QUrl("coap://vs0.inf.ethz.ch:5683/test") << QCoapRequest::GET << QCoapRequest::NONCONFIRMABLE << quint16(56400) << QByteArray::fromHex("4647f09b") << "5401dc504647f09bb474657374" << "";
+    QTest::newRow("request_without_option") << QUrl("coap://vs0.inf.ethz.ch:5683/") << QCoapRequest::GET << QCoapRequest::NONCONFIRMABLE << quint16(56400) << QByteArray::fromHex("4647f09b") << "5401dc504647f09b" << "Some payload";
+    QTest::newRow("request_only") << QUrl("coap://vs0.inf.ethz.ch:5683/") << QCoapRequest::GET << QCoapRequest::NONCONFIRMABLE << quint16(56400) << QByteArray::fromHex("4647f09b") << "5401dc504647f09b" << "";
+    QTest::newRow("request_with_multiple_options") << QUrl("coap://vs0.inf.ethz.ch:5683/test/oui") << QCoapRequest::GET << QCoapRequest::NONCONFIRMABLE << quint16(56400) << QByteArray::fromHex("4647f09b") << "5401dc504647f09bb474657374036f7569" << "";
 }
 
 void tst_QCoapRequest::requestToPdu()
@@ -179,25 +150,27 @@ void tst_QCoapRequest::requestToPdu()
     QFETCH(QUrl, url);
     QFETCH(QCoapRequest::QCoapRequestOperation, operation);
     QFETCH(QCoapMessage::QCoapMessageType, type);
+    QFETCH(quint16, messageId);
+    QFETCH(QByteArray, token);
     QFETCH(QString, pduHeader);
-    QFETCH(QString, pduOptions);
     QFETCH(QString, pduPayload);
 
     QCoapRequest request(url);
 
     request.setType(type);
     request.setOperation(operation);
-    qint16 id = request.generateMessageId();
-    qint64 token = request.generateToken();
+    request.setPayload(pduPayload.toUtf8());
+    request.setMessageId(messageId);
+    request.setToken(token);
 
     QByteArray pdu;
     pdu.append(pduHeader);
-    pdu.append(QString::number(id, 16).toUtf8());
-    pdu.append(QString::number(token, 16).toUtf8());
-    pdu.append(pduOptions);
-    pdu.append(pduPayload);
+    if (!pduPayload.isEmpty()) {
+        pdu.append("ff");
+        pdu.append(pduPayload.toUtf8().toHex());
+    }
 
-    QCOMPARE(request.toPdu(), pdu);
+    QCOMPARE(request.toPdu().toHex(), pdu);
 }
 
 void tst_QCoapRequest::sendRequest_data()

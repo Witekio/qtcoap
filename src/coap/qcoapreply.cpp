@@ -1,7 +1,8 @@
 #include "qcoapreply.h"
 #include "qcoapreply_p.h"
 
-QCoapReplyPrivate::QCoapReplyPrivate()
+QCoapReplyPrivate::QCoapReplyPrivate() :
+    status_p(QCoapReply::INVALIDCODE)
 {
 }
 

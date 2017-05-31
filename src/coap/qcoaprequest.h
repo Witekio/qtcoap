@@ -4,6 +4,7 @@
 #include <QObject>
 #include <QUrl>
 #include <QtCore/qglobal.h>
+#include <QTime>
 
 #include "qcoapmessage.h"
 #include "qcoapconnection.h"
@@ -17,6 +18,7 @@ class QCoapRequest : public QCoapMessage
     Q_OBJECT
 public:
     enum QCoapRequestOperation {
+        EMPTY,
         GET,
         PUT,
         POST,
@@ -25,16 +27,18 @@ public:
     };
 
     QCoapRequest(const QUrl& url = QUrl(), QObject* parent = nullptr);
+    //QCoapRequest(const QCoapRequest &other);
 
     QByteArray toPdu();
     void sendRequest();
     void readReply();
-    qint16 generateMessageId();
-    qint64 generateToken();
+    quint16 generateMessageId();
+    QByteArray generateToken();
 
     QUrl url() const;
     QCoapRequestOperation operation() const;
-    QCoapReply* reply();
+    QCoapReply* reply() const;
+    QCoapConnection* connection() const;
 
     void setUrl(const QUrl& url);
     void setOperation(QCoapRequestOperation operation);
@@ -43,9 +47,7 @@ signals:
     void finished();
 
 protected:
-    //QCoapConnection* connection_p;
-    //QCoapReply* reply_p;
-    //QUrl url_p;
+    void parseUri();
 
     Q_DECLARE_PRIVATE(QCoapRequest)
 };
