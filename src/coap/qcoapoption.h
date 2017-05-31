@@ -13,21 +13,21 @@ class QCoapOption : public QObject
 
 public:
     enum QCoapOptionName {
-        IFMATCH = 1,
-        URIHOST = 3,
-        ETAG = 4,
-        IFNONEMATCH = 5,
-        URIPORT = 7,
-        LOCATIONPATH = 8,
-        URIPATH = 11,
-        CONTENTFORMAT = 12,
-        MAXAGE = 14,
-        URIQUERY = 15,
-        ACCEPT = 17,
-        LOCATIONQUERY = 20,
-        PROXYURI = 35,
-        PROXYSCHEME = 39,
-        SIZE1 = 60
+        IFMATCH         = 1,
+        URIHOST         = 3,
+        ETAG            = 4,
+        IFNONEMATCH     = 5,
+        URIPORT         = 7,
+        LOCATIONPATH    = 8,
+        URIPATH         = 11,
+        CONTENTFORMAT   = 12,
+        MAXAGE          = 14,
+        URIQUERY        = 15,
+        ACCEPT          = 17,
+        LOCATIONQUERY   = 20,
+        PROXYURI        = 35,
+        PROXYSCHEME     = 39,
+        SIZE1           = 60
     };
 
     QCoapOption(QCoapOptionName name, const QByteArray& value, QObject* parent = Q_NULLPTR);

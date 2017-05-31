@@ -9,18 +9,19 @@ QT_BEGIN_NAMESPACE
 class QCoapReplyPrivate;
 class QCoapReply : public QCoapMessage
 {
+    Q_OBJECT
 public:
     enum QCoapReplyStatusCode {
-        INVALIDCODE,
-        CREATED, // 2.01
-        DELETED, // 2.02
-        VALID,   // 2.03
-        CHANGED, // 2.04
-        CONTENT  // 2.05
-        // TODO : find the corresponding hexadecimal code and add other status code
+        INVALIDCODE = 0x00,
+        CREATED = 0x41, // 2.01
+        DELETED = 0x42, // 2.02
+        VALID   = 0x43,   // 2.03
+        CHANGED = 0x44, // 2.04
+        CONTENT = 0x45 // 2.05
+        // TODO : add other status code
     };
 
-    QCoapReply();
+    QCoapReply(QObject* parent = Q_NULLPTR);
 
     void fromPdu(const QByteArray& pdu);
     QByteArray readData();

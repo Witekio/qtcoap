@@ -35,7 +35,6 @@ QCoapRequest::QCoapRequest(const QUrl& url, QObject* parent) :
 
 QByteArray QCoapRequest::toPdu()
 {
-    // TODO : finish request to pdu method
     Q_D(QCoapRequest);
     QByteArray pdu;
 
@@ -43,8 +42,8 @@ QByteArray QCoapRequest::toPdu()
     quint32 coapHeader = (quint32(0x01) << 30)      // Coap version
             | (quint32(d->type_p) << 28)            // Message type
             | (quint32(d->tokenLength_p) << 24)     // Token Length
-            | (quint32(d->operation_p) << 16)       // operation type
-            | (quint32(d->messageId_p));            // message ID
+            | (quint32(d->operation_p) << 16)       // Operation type
+            | (quint32(d->messageId_p));            // Message ID
 
     pdu.append(quint8(coapHeader >> 24));
     pdu.append(quint8((coapHeader >> 16) & 0xFF));
@@ -141,7 +140,6 @@ void QCoapRequest::setUrl(const QUrl& url)
 {
     Q_D(QCoapRequest);
     d->url_p = url;
-    //url_p = url;
 }
 
 QCoapRequest::QCoapRequestOperation QCoapRequest::operation() const

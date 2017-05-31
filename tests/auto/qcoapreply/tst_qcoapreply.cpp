@@ -50,7 +50,7 @@ void tst_QCoapReply::parseReplyPdu_data()
     QTest::addColumn<quint16>("messageId");
     QTest::addColumn<QByteArray>("token");
     QTest::addColumn<QString>("payload");
-    QTest::addColumn<QString>("pdu");
+    QTest::addColumn<QString>("pduHexa");
 
     QTest::newRow("reply") << QCoapReply::CONTENT
                            << QCoapReply::NONCONFIRMABLE
@@ -67,10 +67,10 @@ void tst_QCoapReply::parseReplyPdu()
     QFETCH(quint16, messageId);
     QFETCH(QByteArray, token);
     QFETCH(QString, payload);
-    QFETCH(QString, pdu);
+    QFETCH(QString, pduHexa);
 
     QCoapReply reply;
-    reply.fromPdu(pdu.toUtf8());
+    reply.fromPdu(QByteArray::fromHex(pduHexa.toUtf8()));
 
     QCOMPARE(reply.statusCode(), statusCode);
     QCOMPARE(reply.type(), type);
