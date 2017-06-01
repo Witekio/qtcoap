@@ -3,6 +3,7 @@
 #include <QDebug>
 
 QCoapMessagePrivate::QCoapMessagePrivate() :
+    version_p(1),
     type_p(QCoapMessage::NONCONFIRMABLE),
     messageId_p(0),
     token_p(0),
@@ -31,6 +32,17 @@ QCoapMessage::QCoapMessage(QCoapMessagePrivate &dd, QObject* parent) :
     d->options_p = other.options();
     d->payload_p = other.payload();
 }*/
+
+quint8 QCoapMessage::version() const
+{
+    return d_func()->version_p;
+}
+
+void QCoapMessage::setVersion(quint8 version)
+{
+    Q_D(QCoapMessage);
+    d->version_p = version;
+}
 
 QCoapMessage::QCoapMessageType QCoapMessage::type() const
 {
@@ -92,4 +104,14 @@ void QCoapMessage::addOption(QCoapOption* option)
 {
     Q_D(QCoapMessage);
     d->options_p.push_back(option);
+}
+
+QCoapOption* QCoapMessage::option(int index) const
+{
+    return d_func()->options_p.at(index);
+}
+
+int QCoapMessage::optionsLength() const
+{
+    return d_func()->options_p.length();
 }

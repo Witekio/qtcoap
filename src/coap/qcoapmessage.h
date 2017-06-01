@@ -25,6 +25,8 @@ public:
     QCoapMessage(QCoapMessagePrivate &dd, QObject* parent = Q_NULLPTR);
     //QCoapMessage(const QCoapMessage& other);
 
+    quint8 version() const;
+    void setVersion(quint8 version);
     QCoapMessageType type() const;
     void setType(const QCoapMessageType& type);
     QByteArray token() const;
@@ -34,6 +36,8 @@ public:
     void setMessageId(quint16);
     QByteArray payload() const;
     void setPayload(const QByteArray& payload);
+    QCoapOption* option(int index) const;
+    int optionsLength() const;
 
     // TODO : add tests for addOption
     void addOption(QCoapOption::QCoapOptionName name, const QByteArray& value);

@@ -39,7 +39,7 @@ QByteArray QCoapRequest::toPdu()
     QByteArray pdu;
 
     // Insert header
-    quint32 coapHeader = (quint32(0x01) << 30)      // Coap version
+    quint32 coapHeader = (quint32(d->version_p) << 30)      // Coap version
             | (quint32(d->type_p) << 28)            // Message type
             | (quint32(d->tokenLength_p) << 24)     // Token Length
             | (quint32(d->operation_p) << 16)       // Operation type

@@ -16,20 +16,17 @@ void QCoapReply::fromPdu(const QByteArray& pdu)
 {
     // TODO : finish to parse the pdu to reply
     Q_D(QCoapReply);
-    //qDebug() << pdu.toHex();
     quint8 *pduData = (quint8 *)pdu.data();
 
     // Parse Header and Token
-    quint8 version = (pduData[0] >> 6) & 0x03;
-    // NOTE : can we find another safer way for the type ?
-
+    d->version_p = (pduData[0] >> 6) & 0x03;
     d->type_p = QCoapMessageType((pduData[0] >> 4) & 0x03);
     d->tokenLength_p = (pduData[0]) & 0x0F;
-    // NOTE : can we find another safer way for the status ?
-    //qDebug() << QString::number(pduData[1], 16);
     d->status_p = static_cast<QCoapReplyStatusCode>(pduData[1]);
-    d->messageId_p = quint16(pduData[2] << 8) & quint16(pduData[3]);
-    d->token_p = QByteArray(pduData[4], d->tokenLength_p);
+    d->messageId_p = (static_cast<quint16>(pduData[2]) << 8)
+                       | static_cast<quint16>(pduData[3]);
+    d->token_p = QByteArray(reinterpret_cast<char *>(pduData + 4),
+                            d->tokenLength_p);
 
     // Parse Options
     // TODO : check for delta and length > 13 (extended fields)
@@ -39,7 +36,12 @@ void QCoapReply::fromPdu(const QByteArray& pdu)
         quint8 optionDelta = (pduData[i] >> 4) & 0x0F;
         quint8 optionNumber = lastOptionNumber + optionDelta;
         quint8 optionLength = pduData[i] & 0x0F;
-        QByteArray optionValue = QByteArray(pduData[i+1], optionLength);
+
+        QByteArray optionValue("");
+        if (optionLength != 0) {
+            optionValue = QByteArray(reinterpret_cast<char *>(pduData + i + 1),
+                                     optionLength);
+        }
 
         addOption(QCoapOption::QCoapOptionName(optionNumber), optionValue);
         lastOptionNumber = optionNumber;
