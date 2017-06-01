@@ -17,6 +17,7 @@ public:
     QIODevice* udpSocket_p;
     int port_p;
     QCoapConnection::QCoapConnectionState state_p;
+    QCoapConnection::QCoapRequestSendingState sendingState_p;
 
     Q_DECLARE_PUBLIC(QCoapConnection)
 };

@@ -101,19 +101,19 @@ void tst_QCoapConnection::connectToHost()
     QUdpSocket* socket = qobject_cast<QUdpSocket*>(connection.socket());
     QSignalSpy spySocketHostFound(socket, SIGNAL(hostFound()));
     QSignalSpy spySocketConnected(socket, SIGNAL(connected()));
-    QSignalSpy spySocketError(socket, SIGNAL(error()));
+    QSignalSpy spySocketError(socket, SIGNAL(error(QAbstractSocket::SocketError)));
 
     QCOMPARE(connection.state(), QCoapConnection::UNCONNECTED);
 
     connection.connectToHost();
 
     if (qstrcmp(QTest::currentDataTag(), "success") == 0) {
-        QTRY_COMPARE_WITH_TIMEOUT(spySocketHostFound.count(), 1, 1000);
-        QTRY_COMPARE_WITH_TIMEOUT(spySocketConnected.count(), 1, 1000);
+        QTRY_COMPARE_WITH_TIMEOUT(spySocketHostFound.count(), 1, 5000);
+        QTRY_COMPARE_WITH_TIMEOUT(spySocketConnected.count(), 1, 5000);
         QCOMPARE(connection.state(), QCoapConnection::CONNECTED);
     }
     else {
-        QTRY_COMPARE_WITH_TIMEOUT(spySocketError.count(), 1, 1000);
+        QTRY_COMPARE_WITH_TIMEOUT(spySocketError.count(), 1, 5000);
         QCOMPARE(connection.state(), QCoapConnection::UNCONNECTED);
     }
 }
@@ -147,11 +147,10 @@ void tst_QCoapConnection::sendRequest()
 
     QCoapRequest request(protocol + host + path);
     QVERIFY(connection.socket() != nullptr);
-    QVERIFY(connection.socket()->readAll().isEmpty());
     connection.sendRequest(request.toPdu());
 
-    QTRY_COMPARE_WITH_TIMEOUT(spySocketReadyRead.count(), 1, 1000);
-    QTRY_COMPARE_WITH_TIMEOUT(spyConnectionReadyRead.count(), 1, 1000);
+    QTRY_COMPARE_WITH_TIMEOUT(spySocketReadyRead.count(), 1, 3000);
+    QTRY_COMPARE_WITH_TIMEOUT(spyConnectionReadyRead.count(), 1, 3000);
 
     QVERIFY(!connection.socket()->readAll().isEmpty());
     QVERIFY(QString(connection.readReply().toHex()).startsWith(dataHexaHeader));
@@ -166,17 +165,17 @@ public:
                            int port = 5683,
                            QObject* parent = nullptr) :
         QCoapConnection(host, port, parent)
+    {}
+
+    void setSocketForTest(QIODevice* device)
     {
-        //privateConnection = static_cast<QCoapConnectionPrivate *>(d_ptr.data());
+        setSocket(device);
     }
 
-    void setSocket(QIODevice* device)
+    void writeToSocketForTests(const QByteArray& data)
     {
-        udpSocket_p = device;
+        writeToSocket(data);
     }
-
-private:
-    QIODevice* udpSocket_p;
 };
 
 void tst_QCoapConnection::writeToSocket_data()
@@ -191,10 +190,10 @@ void tst_QCoapConnection::writeToSocket()
     QFETCH(QString, data);
 
     QCoapConnectionForTest connection;
-    QBuffer socket;
+    QBuffer* socket = new QBuffer();
 
-    socket.write(data.toUtf8());
-    connection.setSocket(&socket);
+    connection.setSocketForTest(socket);
+    connection.writeToSocketForTests(data.toUtf8());
 
     QCOMPARE(connection.readReply(), data.toUtf8());
 }

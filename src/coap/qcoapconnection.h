@@ -19,6 +19,12 @@ public:
         CONNECTED
     };
 
+    enum QCoapRequestSendingState {
+        WAITING,
+        SENDING,
+        COMPLETE,
+    };
+
     explicit QCoapConnection(const QString& host = "localhost", int port = 5683, QObject* parent = nullptr);
     QCoapConnection(QCoapConnectionPrivate& dd, const QString& host = "localhost", int port = 5683, QObject* parent = nullptr);
 
@@ -30,11 +36,18 @@ public:
     int port() const;
     QIODevice* socket() const;
     QCoapConnectionState state() const;
+    void setSocket(QIODevice* device);
 
 signals:
+    void connected();
     void readyRead();
 
+private slots:
+    void _q_connectedToHost();
+
 protected:
+    void writeToSocket(const QByteArray& data);
+
     Q_DECLARE_PRIVATE(QCoapConnection)
 };
 
