@@ -31,6 +31,34 @@ private slots:
     void writeToSocket();
 };
 
+class QCoapConnectionForTest : public QCoapConnection
+{
+    Q_OBJECT
+public:
+    QCoapConnectionForTest(const QString& host = "localhost",
+                           int port = 5683,
+                           QObject* parent = nullptr) :
+        QCoapConnection(host, port, parent)
+    {}
+
+    void setSocketForTest(QIODevice* device)
+    {
+        setSocket(device);
+    }
+
+    void writeToSocketForTests(const QByteArray& data)
+    {
+        writeToSocket(data);
+    }
+
+    /*QByteArray readReply() {
+        reply = QCoapConnection::readReply();
+        return reply;
+    }
+
+    QByteArray reply;*/
+};
+
 tst_QCoapConnection::tst_QCoapConnection()
 {
 }
@@ -102,6 +130,7 @@ void tst_QCoapConnection::connectToHost()
     QSignalSpy spySocketHostFound(socket, SIGNAL(hostFound()));
     QSignalSpy spySocketConnected(socket, SIGNAL(connected()));
     QSignalSpy spySocketError(socket, SIGNAL(error(QAbstractSocket::SocketError)));
+    QSignalSpy spySocketStateChanged(socket , SIGNAL(stateChanged(QAbstractSocket::SocketState)));
 
     QCOMPARE(connection.state(), QCoapConnection::UNCONNECTED);
 
@@ -110,10 +139,12 @@ void tst_QCoapConnection::connectToHost()
     if (qstrcmp(QTest::currentDataTag(), "success") == 0) {
         QTRY_COMPARE_WITH_TIMEOUT(spySocketHostFound.count(), 1, 5000);
         QTRY_COMPARE_WITH_TIMEOUT(spySocketConnected.count(), 1, 5000);
+        //QTRY_COMPARE_WITH_TIMEOUT(spySocketStateChanged.count(), 1, 5000);
         QCOMPARE(connection.state(), QCoapConnection::CONNECTED);
     }
     else {
         QTRY_COMPARE_WITH_TIMEOUT(spySocketError.count(), 1, 5000);
+        //QTRY_COMPARE_WITH_TIMEOUT(spySocketStateChanged.count(), 0, 5000);
         QCOMPARE(connection.state(), QCoapConnection::UNCONNECTED);
     }
 }
@@ -127,8 +158,7 @@ void tst_QCoapConnection::sendRequest_data()
     QTest::addColumn<QString>("dataHexaHeader");
     QTest::addColumn<QString>("dataHexaPayload");
 
-    QTest::newRow("simple_get_request_ok") << "coap://" << "vs0.inf.ethz.ch" << "/test" << 5683 << "5445" << "547970653a203120284e4f4e290a436f64653a20312028474554290a";
-    QTest::newRow("simple_get_request_fail") << "coap://" << "vs0.inf.ethz.ch" << "/t" << 5683 << "5484" << "00000000000000000000";
+    QTest::newRow("simple_get_request_ok") << "coap://" << "172.17.0.3" << "/test" << 5683 << "5445" << "48656c6c6f20746573740a";
 }
 
 void tst_QCoapConnection::sendRequest()
@@ -140,43 +170,25 @@ void tst_QCoapConnection::sendRequest()
     QFETCH(QString, dataHexaHeader);
     QFETCH(QString, dataHexaPayload);
 
-    QCoapConnection connection(host, port);
+    QCoapConnectionForTest connection(host, port);
 
     QSignalSpy spySocketReadyRead(connection.socket(), SIGNAL(readyRead()));
     QSignalSpy spyConnectionReadyRead(&connection, SIGNAL(readyRead()));
 
     QCoapRequest request(protocol + host + path);
+    request.setMessageId(request.generateMessageId());
+    request.setToken(QByteArray("abcd"));
     QVERIFY(connection.socket() != nullptr);
     connection.sendRequest(request.toPdu());
 
-    QTRY_COMPARE_WITH_TIMEOUT(spySocketReadyRead.count(), 1, 3000);
-    QTRY_COMPARE_WITH_TIMEOUT(spyConnectionReadyRead.count(), 1, 3000);
+    QTRY_COMPARE_WITH_TIMEOUT(spySocketReadyRead.count(), 1, 10000);
+    QTRY_COMPARE_WITH_TIMEOUT(spyConnectionReadyRead.count(), 1, 10000);
 
-    QVERIFY(!connection.socket()->readAll().isEmpty());
-    QVERIFY(QString(connection.readReply().toHex()).startsWith(dataHexaHeader));
-    QVERIFY(QString(connection.readReply().toHex()).contains(dataHexaPayload));
+    QByteArray reply = connection.readReply();
+
+    QVERIFY(QString(reply.toHex()).startsWith(dataHexaHeader));
+    QVERIFY(QString(reply.toHex()).contains(dataHexaPayload));
 }
-
-class QCoapConnectionForTest : public QCoapConnection
-{
-    Q_OBJECT
-public:
-    QCoapConnectionForTest(const QString& host = "localhost",
-                           int port = 5683,
-                           QObject* parent = nullptr) :
-        QCoapConnection(host, port, parent)
-    {}
-
-    void setSocketForTest(QIODevice* device)
-    {
-        setSocket(device);
-    }
-
-    void writeToSocketForTests(const QByteArray& data)
-    {
-        writeToSocket(data);
-    }
-};
 
 void tst_QCoapConnection::writeToSocket_data()
 {

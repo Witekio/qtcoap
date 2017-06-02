@@ -15,6 +15,9 @@ public:
 
     QString host_p;
     QIODevice* udpSocket_p;
+
+    QByteArray currentPdu_p;
+
     int port_p;
     QCoapConnection::QCoapConnectionState state_p;
     QCoapConnection::QCoapRequestSendingState sendingState_p;

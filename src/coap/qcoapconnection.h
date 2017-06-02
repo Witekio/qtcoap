@@ -30,7 +30,7 @@ public:
 
     void connectToHost();
     void sendRequest(const QByteArray& pduRequest);
-    QByteArray readReply();
+    virtual QByteArray readReply();
 
     QString host() const;
     int port() const;
@@ -40,7 +40,11 @@ public:
 
 signals:
     void connected();
+    void disconnected();
     void readyRead();
+
+public slots:
+    void startToSendRequest();
 
 private slots:
     void _q_connectedToHost();

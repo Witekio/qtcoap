@@ -5,6 +5,7 @@
 #include <QUrl>
 #include <QtCore/qglobal.h>
 #include <QTime>
+#include <QThread>
 
 #include "qcoapmessage.h"
 #include "qcoapconnection.h"
@@ -31,7 +32,6 @@ public:
 
     QByteArray toPdu();
     void sendRequest();
-    void readReply();
     quint16 generateMessageId();
     QByteArray generateToken();
 
@@ -43,11 +43,19 @@ public:
     void setUrl(const QUrl& url);
     void setOperation(QCoapRequestOperation operation);
 
+protected slots:
+    void readReply();
+
+private slots:
+    void startToSend();
+
 signals:
     void finished();
 
 protected:
     void parseUri();
+    void setReply(QCoapReply* reply);
+    void setConnection(QCoapConnection* connection);
 
     Q_DECLARE_PRIVATE(QCoapRequest)
 };

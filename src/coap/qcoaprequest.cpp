@@ -81,12 +81,21 @@ QByteArray QCoapRequest::toPdu()
 
 void QCoapRequest::sendRequest()
 {
-    // TODO
+    QThread *thread = new QThread();
+    connection()->moveToThread(thread);
+
+    connect(thread, SIGNAL(started()), this, SLOT(startToSend()));
+    connect(thread, SIGNAL(finished()), thread, SLOT(deleteLater()));
+
+    connect(connection(), SIGNAL(readyRead()), this, SLOT(readReply()));
+
+    thread->start();
 }
 
 void QCoapRequest::readReply()
 {
-    // TODO
+    reply()->fromPdu(connection()->readReply());
+    emit finished();
 }
 
 quint16 QCoapRequest::generateMessageId()
@@ -142,10 +151,29 @@ void QCoapRequest::setUrl(const QUrl& url)
     d->url_p = url;
 }
 
+void QCoapRequest::setReply(QCoapReply* reply)
+{
+    Q_D(QCoapRequest);
+    d->reply_p = reply;
+}
+
+void QCoapRequest::setConnection(QCoapConnection* connection)
+{
+    Q_D(QCoapRequest);
+    d->connection_p = connection;
+}
+
+void QCoapRequest::startToSend()
+{
+    qDebug("Start to send...");
+    connection()->sendRequest(this->toPdu());
+}
+
 QCoapRequest::QCoapRequestOperation QCoapRequest::operation() const
 {
     return d_func()->operation_p;
 }
+
 void QCoapRequest::setOperation(QCoapRequestOperation operation)
 {
     Q_D(QCoapRequest);

@@ -38,23 +38,25 @@ private slots:
 };
 
 class QCoapRequestForTests : public QCoapRequest {
+    Q_OBJECT
 public:
     QCoapRequestForTests(const QUrl& url = QUrl()) :
         QCoapRequest(url)
     {
     }
 
-    void setConnection(QCoapConnection* connection) {
-        connection_p = connection;
+    void setConnectionForTests(QCoapConnection* connection) {
+        setConnection(connection);
     }
 
-    void setReply(QCoapReply* reply) {
-        reply_p = reply;
+    void setReplyForTests(QCoapReply* reply) {
+        setReply(reply);
     }
 
-private:
-    QCoapConnection* connection_p;
-    QCoapReply* reply_p;
+public slots:
+    void readReply() {
+        QCoapRequest::readReply();
+    }
 };
 
 tst_QCoapRequest::tst_QCoapRequest()
@@ -179,7 +181,7 @@ void tst_QCoapRequest::sendRequest_data()
     QTest::addColumn<QCoapRequest::QCoapRequestOperation>("operation");
     QTest::addColumn<QCoapMessage::QCoapMessageType>("type");
 
-    QTest::newRow("get_nonconfirmable") << QUrl("coap://vs0.inf.ethz.ch:5683/test") << QCoapRequest::GET << QCoapMessage::NONCONFIRMABLE;
+    QTest::newRow("get_nonconfirmable") << QUrl("coap://172.17.0.3:5683/test") << QCoapRequest::GET << QCoapMessage::NONCONFIRMABLE;
 }
 
 void tst_QCoapRequest::sendRequest()
@@ -196,7 +198,7 @@ void tst_QCoapRequest::sendRequest()
     QSignalSpy spyConnectionReadyRead(request.connection(), SIGNAL(readyRead()));
     request.sendRequest();
 
-    QTRY_COMPARE_WITH_TIMEOUT(spyConnectionReadyRead.count(), 1, 1000);
+    QTRY_COMPARE_WITH_TIMEOUT(spyConnectionReadyRead.count(), 1, 10000);
 }
 
 class QCoapReplyForTests : public QCoapReply
@@ -224,6 +226,7 @@ public:
     }
 
     QByteArray readReply() {
+        qDebug() << "read reply tests !!!!";
         return dataReply;
     }
 
@@ -243,12 +246,12 @@ void tst_QCoapRequest::updateReply()
     QFETCH(QString, data);
 
     QCoapRequestForTests request;
-    QCoapConnectionForTests connection;
+    QCoapConnectionForTests* connection = new QCoapConnectionForTests();
 
     QSignalSpy spyConnectionFinished(&request, SIGNAL(finished()));
 
-    connection.setDataReply(data.toUtf8());
-    request.setConnection(&connection);
+    connection->setDataReply(data.toUtf8());
+    request.setConnectionForTests(connection);
 
     request.readReply();
     QTRY_COMPARE_WITH_TIMEOUT(spyConnectionFinished.count(), 1, 1000);
