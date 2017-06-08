@@ -12,10 +12,11 @@ public:
     QCoapRequestPrivate();
     ~QCoapRequestPrivate();
 
-    QUrl url_p;
-    QCoapConnection* connection_p;
-    QCoapReply* reply_p;
-    QCoapRequest::QCoapRequestOperation operation_p;
+    QUrl url;
+    QCoapConnection* connection;
+    QCoapReply* reply;
+    QCoapRequest::QCoapRequestOperation operation;
+    QCoapRequest::QCoapRequestState state;
 
     Q_DECLARE_PUBLIC(QCoapRequest)
 };

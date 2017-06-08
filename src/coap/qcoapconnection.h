@@ -33,7 +33,9 @@ public:
     virtual QByteArray readReply();
 
     QString host() const;
+    void setHost(const QString& host);
     int port() const;
+    void setPort(int port);
     QIODevice* socket() const;
     QCoapConnectionState state() const;
     void setSocket(QIODevice* device);
@@ -48,6 +50,7 @@ public slots:
 
 private slots:
     void _q_connectedToHost();
+    void _q_socketReadyRead();
 
 protected:
     void writeToSocket(const QByteArray& data);

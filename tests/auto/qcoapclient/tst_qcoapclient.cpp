@@ -43,10 +43,7 @@ class QCoapClientForTests : public QCoapClient
 public:
     QCoapClientForTests() : QCoapClient() {}
 
-    void sendNewRequest(QCoapRequest* req) { sendRequest(req); }
-
-private:
-    QList<QCoapRequest> requests;
+    void addNewRequest(QCoapRequest* req) { addRequest(req); }
 };
 
 void tst_QCoapClient::uniqueTokensAndMessageIds()
@@ -55,9 +52,9 @@ void tst_QCoapClient::uniqueTokensAndMessageIds()
 
     QList<QByteArray> tokenList;
     QList<quint16> ids;
-    for (int i = 0; i < 500; ++i) {
+    for (int i = 0; i < 100; ++i) {
         QCoapRequest* request = new QCoapRequest();
-        client.sendNewRequest(request);
+        client.addNewRequest(request);
         QVERIFY(!tokenList.contains(request->token()));
         QVERIFY(!ids.contains(request->messageId()));
         tokenList.push_back(request->token());
@@ -69,19 +66,25 @@ void tst_QCoapClient::get_data()
 {
     QTest::addColumn<QUrl>("url");
 
-    QTest::newRow("get") << QUrl("coap://vs0.inf.ethz.ch:5683/test");
+    QTest::newRow("get") << QUrl("coap://172.17.0.3:5683/test");
 }
 
 void tst_QCoapClient::get()
 {
     QFETCH(QUrl, url);
 
-    QCoapClient client;
-    QSignalSpy spyClientFinished(&client, SIGNAL(finished()));
-
+    QCoapClientForTests client;
     QCoapRequest* request = new QCoapRequest(url);
+
+    QSignalSpy spyClientFinished(&client, SIGNAL(finished()));
+    QSignalSpy spyRequestFinished(request, SIGNAL(finished(QCoapRequest*)));
+    QSignalSpy spyConnectionReadyRead(request->connection(), SIGNAL(readyRead()));
+
     QCoapReply* reply = client.get(request);
-    QTRY_COMPARE_WITH_TIMEOUT(spyClientFinished.count(), 1, 1000);
+
+    QTRY_COMPARE_WITH_TIMEOUT(spyConnectionReadyRead.count(), 1, 10000);
+    QTRY_COMPARE_WITH_TIMEOUT(spyRequestFinished.count(), 1, 10000);
+    QTRY_COMPARE_WITH_TIMEOUT(spyClientFinished.count(), 1, 10000);
 
     QVERIFY(reply != nullptr);
     QCOMPARE(request->token(), reply->token());

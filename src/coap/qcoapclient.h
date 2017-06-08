@@ -17,15 +17,21 @@ class QCoapClient : public QObject
 public:
     QCoapClient(QObject* parent = nullptr);
 
-    QCoapReply* get(QCoapRequest* request);
+    QCoapReply* get(QCoapRequest* request,
+                    QCoapRequest::QCoapMessageType type = QCoapRequest::NONCONFIRMABLE);
 
 signals :
     void finished();
 
+private slots:
+    void requestFinished(QCoapRequest* request);
+
 protected:
+    int findRequestByToken(QByteArray token);
     bool containsToken(QByteArray token);
     bool containsMessageId(quint16 id);
     void sendRequest(QCoapRequest* request);
+    void addRequest(QCoapRequest* request);
 
     Q_DECLARE_PRIVATE(QCoapClient)
 };

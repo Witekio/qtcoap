@@ -3,12 +3,12 @@
 #include <QDebug>
 
 QCoapMessagePrivate::QCoapMessagePrivate() :
-    version_p(1),
-    type_p(QCoapMessage::NONCONFIRMABLE),
-    messageId_p(0),
-    token_p(0),
-    tokenLength_p(0),
-    payload_p(QByteArray())
+    version(1),
+    type(QCoapMessage::NONCONFIRMABLE),
+    messageId(0),
+    token(0),
+    tokenLength(0),
+    payload(QByteArray())
 {
 }
 
@@ -25,73 +25,73 @@ QCoapMessage::QCoapMessage(QCoapMessagePrivate &dd, QObject* parent) :
 /*QCoapMessage::QCoapMessage(const QCoapMessage& other)
 {
     Q_D(QCoapMessage);
-    d->type_p = other.type();
-    d->messageId_p = other.messageId();
-    d->tokenLength_p = other.tokenLength();
-    d->token_p = other.token();
-    d->options_p = other.options();
-    d->payload_p = other.payload();
+    d->type = other.type();
+    d->messageId = other.messageId();
+    d->tokenLength = other.tokenLength();
+    d->token = other.token();
+    d->options = other.options();
+    d->payload = other.payload();
 }*/
 
 quint8 QCoapMessage::version() const
 {
-    return d_func()->version_p;
+    return d_func()->version;
 }
 
 void QCoapMessage::setVersion(quint8 version)
 {
     Q_D(QCoapMessage);
-    d->version_p = version;
+    d->version = version;
 }
 
 QCoapMessage::QCoapMessageType QCoapMessage::type() const
 {
-    return d_func()->type_p;
+    return d_func()->type;
 }
 
 void QCoapMessage::setType(const QCoapMessageType& type)
 {
     Q_D(QCoapMessage);
-    d->type_p = type;
+    d->type = type;
 }
 
 QByteArray QCoapMessage::token() const
 {
-    return d_func()->token_p;
+    return d_func()->token;
 }
 
 void QCoapMessage::setToken(const QByteArray& token)
 {
     Q_D(QCoapMessage);
-    d->token_p = token;
-    d->tokenLength_p = quint8(token.size());
+    d->token = token;
+    d->tokenLength = quint8(token.size());
 }
 
 quint8 QCoapMessage::tokenLength() const
 {
-    return d_func()->tokenLength_p;
+    return d_func()->tokenLength;
 }
 
 quint16 QCoapMessage::messageId() const
 {
-    return d_func()->messageId_p;
+    return d_func()->messageId;
 }
 
 void QCoapMessage::setMessageId(quint16 id)
 {
     Q_D(QCoapMessage);
-    d->messageId_p = id;
+    d->messageId = id;
 }
 
 QByteArray QCoapMessage::payload() const
 {
-    return d_func()->payload_p;
+    return d_func()->payload;
 }
 
 void QCoapMessage::setPayload(const QByteArray& payload)
 {
     Q_D(QCoapMessage);
-    d->payload_p = payload;
+    d->payload = payload;
 }
 
 void QCoapMessage::addOption(QCoapOption::QCoapOptionName name, const QByteArray& value)
@@ -103,15 +103,15 @@ void QCoapMessage::addOption(QCoapOption::QCoapOptionName name, const QByteArray
 void QCoapMessage::addOption(QCoapOption* option)
 {
     Q_D(QCoapMessage);
-    d->options_p.push_back(option);
+    d->options.push_back(option);
 }
 
 QCoapOption* QCoapMessage::option(int index) const
 {
-    return d_func()->options_p.at(index);
+    return d_func()->options.at(index);
 }
 
 int QCoapMessage::optionsLength() const
 {
-    return d_func()->options_p.length();
+    return d_func()->options.length();
 }

@@ -194,6 +194,8 @@ void tst_QCoapRequest::sendRequest()
 
     request.setType(type);
     request.setOperation(operation);
+    request.setToken(QByteArray("abcd"));
+    request.setMessageId(request.generateMessageId());
 
     QSignalSpy spyConnectionReadyRead(request.connection(), SIGNAL(readyRead()));
     request.sendRequest();
@@ -207,11 +209,8 @@ public:
     QCoapReplyForTests() : QCoapReply() {}
 
     void fromPdu(const QByteArray& pdu) {
-        payload_p = pdu;
+        setPayload(pdu);
     }
-
-private:
-    QByteArray payload_p;
 };
 
 class QCoapConnectionForTests : public QCoapConnection
@@ -226,7 +225,6 @@ public:
     }
 
     QByteArray readReply() {
-        qDebug() << "read reply tests !!!!";
         return dataReply;
     }
 
@@ -246,15 +244,18 @@ void tst_QCoapRequest::updateReply()
     QFETCH(QString, data);
 
     QCoapRequestForTests request;
+    QCoapReplyForTests* reply = new QCoapReplyForTests();
+
     QCoapConnectionForTests* connection = new QCoapConnectionForTests();
 
-    QSignalSpy spyConnectionFinished(&request, SIGNAL(finished()));
+    QSignalSpy spyRequestFinished(&request, SIGNAL(finished(QCoapRequest*)));
 
     connection->setDataReply(data.toUtf8());
     request.setConnectionForTests(connection);
+    request.setReplyForTests(reply);
 
     request.readReply();
-    QTRY_COMPARE_WITH_TIMEOUT(spyConnectionFinished.count(), 1, 1000);
+    QTRY_COMPARE_WITH_TIMEOUT(spyRequestFinished.count(), 1, 1000);
     QCOMPARE(request.reply()->payload(), data.toUtf8());
 }
 

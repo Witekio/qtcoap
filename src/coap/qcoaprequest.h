@@ -27,6 +27,12 @@ public:
         OTHER
     };
 
+    enum QCoapRequestState {
+        CREATED,
+        SENT,
+        REPLIED
+    };
+
     QCoapRequest(const QUrl& url = QUrl(), QObject* parent = nullptr);
     //QCoapRequest(const QCoapRequest &other);
 
@@ -50,12 +56,13 @@ private slots:
     void startToSend();
 
 signals:
-    void finished();
+    void finished(QCoapRequest* request);
 
 protected:
     void parseUri();
     void setReply(QCoapReply* reply);
     void setConnection(QCoapConnection* connection);
+    void setState(QCoapRequestState state);
 
     Q_DECLARE_PRIVATE(QCoapRequest)
 };

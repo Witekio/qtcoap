@@ -11,7 +11,7 @@ class QCoapReplyPrivate : public QCoapMessagePrivate
 public:
     QCoapReplyPrivate();
 
-    QCoapReply::QCoapReplyStatusCode status_p;
+    QCoapReply::QCoapReplyStatusCode status;
 
     Q_DECLARE_PUBLIC(QCoapReply)
 };

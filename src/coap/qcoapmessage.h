@@ -39,7 +39,6 @@ public:
     QCoapOption* option(int index) const;
     int optionsLength() const;
 
-    // TODO : add tests for addOption
     void addOption(QCoapOption::QCoapOptionName name, const QByteArray& value);
     void addOption(QCoapOption* option);
 

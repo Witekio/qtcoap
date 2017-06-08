@@ -11,13 +11,13 @@ class QCoapMessagePrivate : public QObjectPrivate
 public:
     QCoapMessagePrivate();
 
-    quint8 version_p;
-    QCoapMessage::QCoapMessageType type_p;
-    quint16 messageId_p;
-    QByteArray token_p;
-    quint8 tokenLength_p;
-    QList<QCoapOption*> options_p;
-    QByteArray payload_p;
+    quint8 version;
+    QCoapMessage::QCoapMessageType type;
+    quint16 messageId;
+    QByteArray token;
+    quint8 tokenLength;
+    QList<QCoapOption*> options;
+    QByteArray payload;
 
     Q_DECLARE_PUBLIC(QCoapMessage)
 };

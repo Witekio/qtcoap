@@ -10,11 +10,17 @@ QCoapClient::QCoapClient(QObject* parent) :
 {
 }
 
-QCoapReply* QCoapClient::get(QCoapRequest* request)
+QCoapReply* QCoapClient::get(QCoapRequest* request, QCoapRequest::QCoapMessageType type)
 {
-    // TODO
-    Q_UNUSED(request);
-    return nullptr;
+    qDebug() << "QCoapClient : get()";
+
+    connect(request, SIGNAL(finished(QCoapRequest*)), this, SLOT(requestFinished(QCoapRequest*)));
+
+    request->setOperation(QCoapRequest::GET);
+    request->setType(type);
+    sendRequest(request);
+
+    return request->reply();
 }
 
 bool QCoapClient::containsToken(QByteArray token)
@@ -28,6 +34,19 @@ bool QCoapClient::containsToken(QByteArray token)
     return false;
 }
 
+int QCoapClient::findRequestByToken(QByteArray token)
+{
+    Q_D(QCoapClient);
+    int id = 0;
+    for (QCoapRequest* request : d->requests) {
+        if (request->token() == token)
+            return id;
+        ++id;
+    }
+
+    return -1;
+}
+
 bool QCoapClient::containsMessageId(quint16 id)
 {
     Q_D(QCoapClient);
@@ -39,7 +58,7 @@ bool QCoapClient::containsMessageId(quint16 id)
     return false;
 }
 
-void QCoapClient::sendRequest(QCoapRequest* request)
+void QCoapClient::addRequest(QCoapRequest* request)
 {
     Q_D(QCoapClient);
 
@@ -56,4 +75,20 @@ void QCoapClient::sendRequest(QCoapRequest* request)
     request->setMessageId(messageId);
 
     d->requests.push_back(request);
+}
+
+void QCoapClient::sendRequest(QCoapRequest* request)
+{
+    addRequest(request);
+    request->sendRequest();
+}
+
+void QCoapClient::requestFinished(QCoapRequest* request)
+{
+    Q_D(QCoapClient);
+    int idRequest = findRequestByToken(request->token());
+    if (idRequest != -1)
+        d->requests.removeAt(idRequest);
+
+    emit finished();
 }
