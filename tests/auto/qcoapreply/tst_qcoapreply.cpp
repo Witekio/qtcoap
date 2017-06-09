@@ -61,6 +61,10 @@ void tst_QCoapReply::parseReplyPdu_data()
     QList<quint8> optionsLengthsReply({0,1});
     QList<QByteArray> optionsValuesReply({"", QByteArray::fromHex("1e")});
 
+    QList<QCoapOption::QCoapOptionName> bigOptionsNamesReply({QCoapOption::SIZE1});
+    QList<quint8> bigOptionsLengthsReply({26});
+    QList<QByteArray> bigOptionsValuesReply({QByteArray("abcdefghijklmnopqrstuvwxyz")});
+
     QTest::newRow("reply_with_option_and_payload") << QCoapReply::CONTENT
                                                    << QCoapReply::NONCONFIRMABLE
                                                    << quint16(64463)
@@ -108,6 +112,19 @@ void tst_QCoapReply::parseReplyPdu_data()
                                 << QList<QByteArray>()
                                 << ""
                                 << "5445fbcf4647f09b";
+
+    QTest::newRow("reply_with_big_option") << QCoapReply::CONTENT
+                                           << QCoapReply::NONCONFIRMABLE
+                                           << quint16(64463)
+                                           << QByteArray("4647f09b")
+                                           << quint8(4)
+                                           << 1
+                                           << bigOptionsNamesReply
+                                           << bigOptionsLengthsReply
+                                           << bigOptionsValuesReply
+                                           << ""
+                                           << "5445fbcf4647f09bdd2f0d6162636465666768696a6b6c6d6e6f707172737475767778797a";
+
 }
 
 void tst_QCoapReply::parseReplyPdu()
@@ -135,6 +152,7 @@ void tst_QCoapReply::parseReplyPdu()
     QCOMPARE(reply.optionsLength(), optionsListLength);
     for (int i = 0; i < optionsListLength; ++i) {
         QCoapOption* option = reply.option(i);
+        qDebug() << option->name();
         QCOMPARE(option->name(), optionsNames.at(i));
         QCOMPARE(option->length(), optionsLengths.at(i));
         QCOMPARE(option->value(), optionsValues.at(i));

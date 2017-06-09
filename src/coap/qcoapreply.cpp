@@ -32,9 +32,33 @@ void QCoapReply::fromPdu(const QByteArray& pdu)
     int i = 4 + d->tokenLength;
     quint8 lastOptionNumber = 0;
     while (i != pdu.length() && static_cast<quint8>(pduData[i]) != 0xFF) {
-        quint8 optionDelta = (pduData[i] >> 4) & 0x0F;
-        quint8 optionNumber = lastOptionNumber + optionDelta;
-        quint8 optionLength = pduData[i] & 0x0F;
+        quint16 optionDelta = static_cast<quint16>((pduData[i] >> 4) & 0x0F);
+        quint8 optionDeltaExtended = 0;
+        quint16 optionLength = static_cast<quint16>(pduData[i] & 0x0F);
+        quint8 optionLengthExtended = 0;
+
+        qDebug() << QString::number(static_cast<quint8>(pduData[i]), 16);
+        // Delta value > 12 : special values
+        if (optionDelta == 13) {
+            ++i;
+            optionDeltaExtended = pduData[i];
+            optionDelta = optionDeltaExtended + 13;
+        } else if (optionDelta == 14) {
+            ++i;
+            optionDeltaExtended = pduData[i];
+            optionDelta = optionDeltaExtended + 269;
+        }
+
+        // Delta length > 12 : special values
+        if (optionLength == 13) {
+            ++i;
+            optionLengthExtended = pduData[i];
+            optionLength = optionLengthExtended + 13;
+        } else if (optionLength == 14) {
+            ++i;
+            optionLengthExtended = pduData[i];
+            optionLength = optionLengthExtended + 269;
+        }
 
         QByteArray optionValue("");
         if (optionLength != 0) {
@@ -42,6 +66,7 @@ void QCoapReply::fromPdu(const QByteArray& pdu)
                                      optionLength);
         }
 
+        quint16 optionNumber = lastOptionNumber + optionDelta;
         addOption(QCoapOption::QCoapOptionName(optionNumber), optionValue);
         lastOptionNumber = optionNumber;
         i += (1 + optionLength);
