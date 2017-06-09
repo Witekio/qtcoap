@@ -13,6 +13,11 @@ public:
 
     QList<QCoapRequest*> requests;
 
+    int findRequestByToken(QByteArray token);
+    bool containsToken(QByteArray token);
+    bool containsMessageId(quint16 id);
+    void _q_requestFinished(QCoapRequest* request);
+
     Q_DECLARE_PUBLIC(QCoapClient)
 };
 

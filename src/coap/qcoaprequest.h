@@ -45,15 +45,8 @@ public:
     QCoapRequestOperation operation() const;
     QCoapReply* reply() const;
     QCoapConnection* connection() const;
-
     void setUrl(const QUrl& url);
     void setOperation(QCoapRequestOperation operation);
-
-protected slots:
-    void readReply();
-
-private slots:
-    void startToSend();
 
 signals:
     void finished(QCoapRequest* request);
@@ -63,8 +56,11 @@ protected:
     void setReply(QCoapReply* reply);
     void setConnection(QCoapConnection* connection);
     void setState(QCoapRequestState state);
+    void readReply(); // TODO : remove readReply and find another way to test _q_readReply
 
     Q_DECLARE_PRIVATE(QCoapRequest)
+    Q_PRIVATE_SLOT(d_func(), void _q_startToSend())
+    Q_PRIVATE_SLOT(d_func(), void _q_readReply())
 };
 
 QT_END_NAMESPACE

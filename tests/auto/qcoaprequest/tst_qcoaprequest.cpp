@@ -8,6 +8,7 @@
 #include <qcoapconnection_p.h>
 #include <qcoapreply.h>
 #include <qcoapreply_p.h>
+
 Q_DECLARE_METATYPE(QCoapRequest::QCoapRequestOperation)
 Q_DECLARE_METATYPE(QCoapMessage::QCoapMessageType)
 
@@ -54,8 +55,8 @@ public:
     }
 
 public slots:
-    void readReply() {
-        QCoapRequest::readReply();
+    void readReplyForTest() {
+        readReply();
     }
 };
 
@@ -145,6 +146,7 @@ void tst_QCoapRequest::requestToPdu_data()
     QTest::newRow("request_without_option") << QUrl("coap://vs0.inf.ethz.ch:5683/") << QCoapRequest::GET << QCoapRequest::NONCONFIRMABLE << quint16(56400) << QByteArray::fromHex("4647f09b") << "5401dc504647f09b" << "Some payload";
     QTest::newRow("request_only") << QUrl("coap://vs0.inf.ethz.ch:5683/") << QCoapRequest::GET << QCoapRequest::NONCONFIRMABLE << quint16(56400) << QByteArray::fromHex("4647f09b") << "5401dc504647f09b" << "";
     QTest::newRow("request_with_multiple_options") << QUrl("coap://vs0.inf.ethz.ch:5683/test/oui") << QCoapRequest::GET << QCoapRequest::NONCONFIRMABLE << quint16(56400) << QByteArray::fromHex("4647f09b") << "5401dc504647f09bb474657374036f7569" << "";
+    QTest::newRow("request_with_big_option_number") << QUrl("coap://vs0.inf.ethz.ch:5683/test") << QCoapRequest::GET << QCoapRequest::NONCONFIRMABLE << quint16(56400) << QByteArray::fromHex("4647f09b") << "5401dc504647f09bb474657374dd240d6162636465666768696a6b6c6d6e6f707172737475767778797a" << "Some payload";
 }
 
 void tst_QCoapRequest::requestToPdu()
@@ -164,6 +166,9 @@ void tst_QCoapRequest::requestToPdu()
     request.setPayload(pduPayload.toUtf8());
     request.setMessageId(messageId);
     request.setToken(token);
+    if (qstrcmp(QTest::currentDataTag(), "request_with_big_option_number") == 0) {
+        request.addOption(QCoapOption::SIZE1, QByteArray("abcdefghijklmnopqrstuvwxyz"));
+    }
 
     QByteArray pdu;
     pdu.append(pduHeader);
@@ -254,7 +259,7 @@ void tst_QCoapRequest::updateReply()
     request.setConnectionForTests(connection);
     request.setReplyForTests(reply);
 
-    request.readReply();
+    request.readReplyForTest();
     QTRY_COMPARE_WITH_TIMEOUT(spyRequestFinished.count(), 1, 1000);
     QCOMPARE(request.reply()->payload(), data.toUtf8());
 }

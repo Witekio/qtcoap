@@ -1,6 +1,8 @@
 #include "qcoapclient.h"
 #include "qcoapclient_p.h"
 
+QT_BEGIN_NAMESPACE
+
 QCoapClientPrivate::QCoapClientPrivate()
 {
 }
@@ -14,7 +16,7 @@ QCoapReply* QCoapClient::get(QCoapRequest* request, QCoapRequest::QCoapMessageTy
 {
     qDebug() << "QCoapClient : get()";
 
-    connect(request, SIGNAL(finished(QCoapRequest*)), this, SLOT(requestFinished(QCoapRequest*)));
+    connect(request, SIGNAL(finished(QCoapRequest*)), this, SLOT(_q_requestFinished(QCoapRequest*)));
 
     request->setOperation(QCoapRequest::GET);
     request->setType(type);
@@ -23,10 +25,9 @@ QCoapReply* QCoapClient::get(QCoapRequest* request, QCoapRequest::QCoapMessageTy
     return request->reply();
 }
 
-bool QCoapClient::containsToken(QByteArray token)
+bool QCoapClientPrivate::containsToken(QByteArray token)
 {
-    Q_D(QCoapClient);
-    for (QCoapRequest* request : d->requests) {
+    for (QCoapRequest* request : requests) {
         if (request->token() == token)
             return true;
     }
@@ -34,11 +35,10 @@ bool QCoapClient::containsToken(QByteArray token)
     return false;
 }
 
-int QCoapClient::findRequestByToken(QByteArray token)
+int QCoapClientPrivate::findRequestByToken(QByteArray token)
 {
-    Q_D(QCoapClient);
     int id = 0;
-    for (QCoapRequest* request : d->requests) {
+    for (QCoapRequest* request : requests) {
         if (request->token() == token)
             return id;
         ++id;
@@ -47,10 +47,9 @@ int QCoapClient::findRequestByToken(QByteArray token)
     return -1;
 }
 
-bool QCoapClient::containsMessageId(quint16 id)
+bool QCoapClientPrivate::containsMessageId(quint16 id)
 {
-    Q_D(QCoapClient);
-    for (QCoapRequest* request : d->requests) {
+    for (QCoapRequest* request : requests) {
         if (request->messageId() == id)
             return true;
     }
@@ -63,14 +62,14 @@ void QCoapClient::addRequest(QCoapRequest* request)
     Q_D(QCoapClient);
 
     QByteArray token = request->token();
-    containsToken(token);
+    d->containsToken(token);
     token = request->generateToken();
-    while (token == QByteArray() || containsToken(token))
+    while (token == QByteArray() || d->containsToken(token))
            token = request->generateToken();
     request->setToken(token);
 
-    quint64 messageId = request->messageId();
-    while (messageId == 0 || containsMessageId(messageId))
+    quint16 messageId = request->messageId();
+    while (messageId == 0 || d->containsMessageId(messageId))
            messageId = request->generateMessageId();
     request->setMessageId(messageId);
 
@@ -83,12 +82,17 @@ void QCoapClient::sendRequest(QCoapRequest* request)
     request->sendRequest();
 }
 
-void QCoapClient::requestFinished(QCoapRequest* request)
+void QCoapClientPrivate::_q_requestFinished(QCoapRequest* request)
 {
-    Q_D(QCoapClient);
+    Q_Q(QCoapClient);
+
     int idRequest = findRequestByToken(request->token());
     if (idRequest != -1)
-        d->requests.removeAt(idRequest);
+        requests.removeAt(idRequest);
 
-    emit finished();
+    emit q->finished();
 }
+
+QT_END_NAMESPACE
+
+#include "moc_qcoapclient.cpp"

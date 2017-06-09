@@ -15,7 +15,7 @@ public:
     quint8 length;
     QByteArray value;
 
-    Q_DECLARE_PUBLIC(QCoapOption);
+    Q_DECLARE_PUBLIC(QCoapOption)
 };
 
 QT_END_NAMESPACE

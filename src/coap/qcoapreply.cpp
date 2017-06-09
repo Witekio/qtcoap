@@ -31,7 +31,7 @@ void QCoapReply::fromPdu(const QByteArray& pdu)
     // TODO : check for delta and length > 13 (extended fields)
     int i = 4 + d->tokenLength;
     quint8 lastOptionNumber = 0;
-    while (i != pdu.length() && quint8(pduData[i]) != 0xFF) {
+    while (i != pdu.length() && static_cast<quint8>(pduData[i]) != 0xFF) {
         quint8 optionDelta = (pduData[i] >> 4) & 0x0F;
         quint8 optionNumber = lastOptionNumber + optionDelta;
         quint8 optionLength = pduData[i] & 0x0F;
@@ -48,7 +48,7 @@ void QCoapReply::fromPdu(const QByteArray& pdu)
     }
 
     // Parse Payload
-    if (quint8(pduData[i]) == 0xFF)
+    if (static_cast<quint8>(pduData[i]) == 0xFF)
         d->payload = pdu.right(pdu.length() - i - 1); // -1 because of 0xFF at the beginning
 }
 

@@ -18,6 +18,9 @@ public:
     QCoapRequest::QCoapRequestOperation operation;
     QCoapRequest::QCoapRequestState state;
 
+    void _q_startToSend();
+    void _q_readReply();
+
     Q_DECLARE_PUBLIC(QCoapRequest)
 };
 

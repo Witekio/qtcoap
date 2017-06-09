@@ -11,7 +11,6 @@ class QCoapConnectionPrivate;
 class QCoapConnection : public QObject
 {
     Q_OBJECT
-    Q_DISABLE_COPY(QCoapConnection)
 
 public:
     enum QCoapConnectionState {
@@ -19,7 +18,7 @@ public:
         CONNECTED
     };
 
-    enum QCoapRequestSendingState {
+    enum QCoapConnectionSendingState {
         WAITING,
         SENDING,
         COMPLETE,
@@ -28,34 +27,33 @@ public:
     explicit QCoapConnection(const QString& host = "localhost", int port = 5683, QObject* parent = nullptr);
     QCoapConnection(QCoapConnectionPrivate& dd, const QString& host = "localhost", int port = 5683, QObject* parent = nullptr);
 
-    void connectToHost();
     void sendRequest(const QByteArray& pduRequest);
     virtual QByteArray readReply();
 
     QString host() const;
-    void setHost(const QString& host);
     int port() const;
-    void setPort(int port);
     QIODevice* socket() const;
     QCoapConnectionState state() const;
-    void setSocket(QIODevice* device);
+    void setHost(const QString& host);
+    void setPort(int port);
 
 signals:
     void connected();
     void disconnected();
     void readyRead();
 
-public slots:
-    void startToSendRequest();
-
-private slots:
-    void _q_connectedToHost();
-    void _q_socketReadyRead();
-
 protected:
+    void connectToHost();
     void writeToSocket(const QByteArray& data);
 
+    void setSocket(QIODevice* device);
+    void setState(QCoapConnectionState state);
+    void setSendingState(QCoapConnectionSendingState sendingState);
+
     Q_DECLARE_PRIVATE(QCoapConnection)
+    Q_PRIVATE_SLOT(d_func(), void _q_connectedToHost())
+    Q_PRIVATE_SLOT(d_func(), void _q_socketReadyRead())
+    Q_PRIVATE_SLOT(d_func(), void _q_startToSendRequest())
 };
 
 QT_END_NAMESPACE

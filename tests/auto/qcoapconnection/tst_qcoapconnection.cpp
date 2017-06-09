@@ -41,22 +41,9 @@ public:
         QCoapConnection(host, port, parent)
     {}
 
-    void setSocketForTest(QIODevice* device)
-    {
-        setSocket(device);
-    }
-
-    void writeToSocketForTests(const QByteArray& data)
-    {
-        writeToSocket(data);
-    }
-
-    /*QByteArray readReply() {
-        reply = QCoapConnection::readReply();
-        return reply;
-    }
-
-    QByteArray reply;*/
+    void connectToHostForTest() { connectToHost(); }
+    void setSocketForTest(QIODevice* device) { setSocket(device); }
+    void writeToSocketForTests(const QByteArray& data) { writeToSocket(data); }
 };
 
 tst_QCoapConnection::tst_QCoapConnection()
@@ -124,7 +111,7 @@ void tst_QCoapConnection::connectToHost()
     QFETCH(QString, path);
     QFETCH(int, port);
 
-    QCoapConnection connection(host, port);
+    QCoapConnectionForTest connection(host, port);
 
     QUdpSocket* socket = qobject_cast<QUdpSocket*>(connection.socket());
     QSignalSpy spySocketHostFound(socket, SIGNAL(hostFound()));
@@ -134,7 +121,7 @@ void tst_QCoapConnection::connectToHost()
 
     QCOMPARE(connection.state(), QCoapConnection::UNCONNECTED);
 
-    connection.connectToHost();
+    connection.connectToHostForTest();
 
     if (qstrcmp(QTest::currentDataTag(), "success") == 0) {
         QTRY_COMPARE_WITH_TIMEOUT(spySocketHostFound.count(), 1, 5000);

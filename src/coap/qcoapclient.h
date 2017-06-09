@@ -23,17 +23,12 @@ public:
 signals :
     void finished();
 
-private slots:
-    void requestFinished(QCoapRequest* request);
-
 protected:
-    int findRequestByToken(QByteArray token);
-    bool containsToken(QByteArray token);
-    bool containsMessageId(quint16 id);
     void sendRequest(QCoapRequest* request);
     void addRequest(QCoapRequest* request);
 
     Q_DECLARE_PRIVATE(QCoapClient)
+    Q_PRIVATE_SLOT(d_func(), void _q_requestFinished(QCoapRequest* request))
 };
 
 QT_END_NAMESPACE

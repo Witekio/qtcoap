@@ -14,13 +14,15 @@ public:
     ~QCoapConnectionPrivate();
 
     QString host;
-    QIODevice* udpSocket;
-
-    QByteArray currentPdu;
-
     int port;
+    QIODevice* udpSocket;
+    QByteArray currentPdu;
     QCoapConnection::QCoapConnectionState state;
-    QCoapConnection::QCoapRequestSendingState sendingState;
+    QCoapConnection::QCoapConnectionSendingState sendingState;
+
+    void _q_connectedToHost();
+    void _q_socketReadyRead();
+    void _q_startToSendRequest();
 
     Q_DECLARE_PUBLIC(QCoapConnection)
 };

@@ -26,18 +26,18 @@ public:
     //QCoapMessage(const QCoapMessage& other);
 
     quint8 version() const;
-    void setVersion(quint8 version);
     QCoapMessageType type() const;
-    void setType(const QCoapMessageType& type);
     QByteArray token() const;
     quint8 tokenLength() const;
-    void setToken(const QByteArray& token);
     quint16 messageId() const;
-    void setMessageId(quint16);
     QByteArray payload() const;
-    void setPayload(const QByteArray& payload);
     QCoapOption* option(int index) const;
     int optionsLength() const;
+    void setVersion(quint8 version);
+    void setType(const QCoapMessageType& type);
+    void setToken(const QByteArray& token);
+    void setMessageId(quint16);
+    void setPayload(const QByteArray& payload);
 
     void addOption(QCoapOption::QCoapOptionName name, const QByteArray& value);
     void addOption(QCoapOption* option);
