@@ -143,7 +143,7 @@ void tst_QCoapRequest::requestToPdu_data()
 
     QTest::newRow("request_with_option_and_payload") << QUrl("coap://vs0.inf.ethz.ch:5683/test") << QCoapRequest::GET << QCoapRequest::NONCONFIRMABLE << quint16(56400) << QByteArray::fromHex("4647f09b") << "5401dc504647f09bb474657374" << "Some payload";
     QTest::newRow("request_without_payload") << QUrl("coap://vs0.inf.ethz.ch:5683/test") << QCoapRequest::GET << QCoapRequest::NONCONFIRMABLE << quint16(56400) << QByteArray::fromHex("4647f09b") << "5401dc504647f09bb474657374" << "";
-    QTest::newRow("request_without_option") << QUrl("coap://vs0.inf.ethz.ch:5683/") << QCoapRequest::GET << QCoapRequest::NONCONFIRMABLE << quint16(56400) << QByteArray::fromHex("4647f09b") << "5401dc504647f09b" << "Some payload";
+    QTest::newRow("request_without_option") << QUrl("coap://vs0.inf.ethz.ch:5683/") << QCoapRequest::PUT << QCoapRequest::CONFIRMABLE << quint16(56400) << QByteArray::fromHex("4647f09b") << "4403dc504647f09b" << "Some payload";
     QTest::newRow("request_only") << QUrl("coap://vs0.inf.ethz.ch:5683/") << QCoapRequest::GET << QCoapRequest::NONCONFIRMABLE << quint16(56400) << QByteArray::fromHex("4647f09b") << "5401dc504647f09b" << "";
     QTest::newRow("request_with_multiple_options") << QUrl("coap://vs0.inf.ethz.ch:5683/test/oui") << QCoapRequest::GET << QCoapRequest::NONCONFIRMABLE << quint16(56400) << QByteArray::fromHex("4647f09b") << "5401dc504647f09bb474657374036f7569" << "";
     QTest::newRow("request_with_big_option_number") << QUrl("coap://vs0.inf.ethz.ch:5683/test") << QCoapRequest::GET << QCoapRequest::NONCONFIRMABLE << quint16(56400) << QByteArray::fromHex("4647f09b") << "5401dc504647f09bb474657374dd240d6162636465666768696a6b6c6d6e6f707172737475767778797a" << "Some payload";

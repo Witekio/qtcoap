@@ -16,13 +16,14 @@ QCoapRequestPrivate::~QCoapRequestPrivate()
     delete connection;
 }
 
-QCoapRequest::QCoapRequest(const QUrl& url, QObject* parent) :
+QCoapRequest::QCoapRequest(const QUrl& url, QCoapMessageType type, QObject* parent) :
     QCoapMessage(* new QCoapRequestPrivate, parent)
 {
     Q_D(QCoapRequest);
     d->url = url;
     parseUri();
     setState(QCoapRequest::CREATED);
+    setType(type);
     qsrand(QTime::currentTime().msec()); // to generate message ids and tokens
 }
 

@@ -10,6 +10,8 @@
 #include "qcoaprequest.h"
 #include "qcoaprequest_p.h"
 
+Q_DECLARE_METATYPE(QCoapRequest::QCoapRequestOperation)
+
 class tst_QCoapConnection : public QObject
 {
     Q_OBJECT
@@ -117,7 +119,7 @@ void tst_QCoapConnection::connectToHost()
     QSignalSpy spySocketHostFound(socket, SIGNAL(hostFound()));
     QSignalSpy spySocketConnected(socket, SIGNAL(connected()));
     QSignalSpy spySocketError(socket, SIGNAL(error(QAbstractSocket::SocketError)));
-    QSignalSpy spySocketStateChanged(socket , SIGNAL(stateChanged(QAbstractSocket::SocketState)));
+    //QSignalSpy spySocketStateChanged(socket , SIGNAL(stateChanged(QAbstractSocket::SocketState)));
 
     QCOMPARE(connection.state(), QCoapConnection::UNCONNECTED);
 
@@ -142,10 +144,15 @@ void tst_QCoapConnection::sendRequest_data()
     QTest::addColumn<QString>("host");
     QTest::addColumn<QString>("path");
     QTest::addColumn<int>("port");
+    QTest::addColumn<QCoapRequest::QCoapRequestOperation>("operation");
     QTest::addColumn<QString>("dataHexaHeader");
     QTest::addColumn<QString>("dataHexaPayload");
 
-    QTest::newRow("simple_get_request_ok") << "coap://" << "172.17.0.3" << "/test" << 5683 << "5445" << "48656c6c6f20746573740a";
+    QTest::newRow("simple_get_request") << "coap://" << "172.17.0.3" << "/test" << 5683 << QCoapRequest::GET << "5445" << "48656c6c6f20746573740a";
+    // TODO : change reply to match (problem with the server)
+    QTest::newRow("simple_put_request") << "coap://" << "172.17.0.3" << "/test" << 5683 << QCoapRequest::GET << "5445" << "48656c6c6f20746573740a";
+    QTest::newRow("simple_post_request") << "coap://" << "172.17.0.3" << "/test" << 5683 << QCoapRequest::GET << "5445" << "48656c6c6f20746573740a";
+    QTest::newRow("simple_delete_request") << "coap://" << "172.17.0.3" << "/test" << 5683 << QCoapRequest::GET << "5445" << "48656c6c6f20746573740a";
 }
 
 void tst_QCoapConnection::sendRequest()
@@ -154,6 +161,7 @@ void tst_QCoapConnection::sendRequest()
     QFETCH(QString, host);
     QFETCH(QString, path);
     QFETCH(int, port);
+    QFETCH(QCoapRequest::QCoapRequestOperation, operation);
     QFETCH(QString, dataHexaHeader);
     QFETCH(QString, dataHexaPayload);
 
@@ -165,6 +173,7 @@ void tst_QCoapConnection::sendRequest()
     QCoapRequest request(protocol + host + path);
     request.setMessageId(request.generateMessageId());
     request.setToken(QByteArray("abcd"));
+    request.setOperation(operation);
     QVERIFY(connection.socket() != nullptr);
     connection.sendRequest(request.toPdu());
 

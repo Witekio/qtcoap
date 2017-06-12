@@ -12,14 +12,55 @@ QCoapClient::QCoapClient(QObject* parent) :
 {
 }
 
-QCoapReply* QCoapClient::get(QCoapRequest* request, QCoapRequest::QCoapMessageType type)
+QCoapReply* QCoapClient::get(QCoapRequest* request)
 {
     qDebug() << "QCoapClient : get()";
 
+    request->setOperation(QCoapRequest::GET);
+
     connect(request, SIGNAL(finished(QCoapRequest*)), this, SLOT(_q_requestFinished(QCoapRequest*)));
 
-    request->setOperation(QCoapRequest::GET);
-    request->setType(type);
+    sendRequest(request);
+
+    return request->reply();
+}
+
+QCoapReply* QCoapClient::put(QCoapRequest* request, const QByteArray& data)
+{
+    qDebug() << "QCoapClient : put()";
+
+    request->setOperation(QCoapRequest::PUT);
+    request->setPayload(data);
+
+    connect(request, SIGNAL(finished(QCoapRequest*)), this, SLOT(_q_requestFinished(QCoapRequest*)));
+
+    sendRequest(request);
+
+    return request->reply();
+}
+
+QCoapReply* QCoapClient::post(QCoapRequest* request, const QByteArray& data)
+{
+    qDebug() << "QCoapClient : post()";
+
+    request->setOperation(QCoapRequest::POST);
+    request->setPayload(data);
+
+    connect(request, SIGNAL(finished(QCoapRequest*)), this, SLOT(_q_requestFinished(QCoapRequest*)));
+
+    sendRequest(request);
+
+    return request->reply();
+}
+
+QCoapReply* QCoapClient::deleteResource(QCoapRequest* request)
+{
+    qDebug() << "QCoapClient : post()";
+
+    request->setOperation(QCoapRequest::DELETE);
+
+    connect(request, SIGNAL(finished(QCoapRequest*)), this, SLOT(_q_requestFinished(QCoapRequest*)));
+
     sendRequest(request);
 
     return request->reply();

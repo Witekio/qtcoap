@@ -22,10 +22,12 @@ QByteArray QCoapOption::value() const
 {
     return d_func()->value;
 }
+
 quint8 QCoapOption::length() const
 {
     return d_func()->length;
 }
+
 QCoapOption::QCoapOptionName QCoapOption::name() const
 {
     return d_func()->name;

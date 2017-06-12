@@ -21,8 +21,8 @@ public:
     enum QCoapRequestOperation {
         EMPTY,
         GET,
-        PUT,
         POST,
+        PUT,
         DELETE,
         OTHER
     };
@@ -33,7 +33,9 @@ public:
         REPLIED
     };
 
-    QCoapRequest(const QUrl& url = QUrl(), QObject* parent = nullptr);
+    QCoapRequest(const QUrl& url = QUrl(),
+                 QCoapMessageType type = NONCONFIRMABLE,
+                 QObject* parent = nullptr);
     //QCoapRequest(const QCoapRequest &other);
 
     QByteArray toPdu();
