@@ -19,6 +19,9 @@ public:
     QList<QCoapOption*> options;
     QByteArray payload;
 
+    uint currentBlockNumber;
+    bool hasNextBlock;
+
     Q_DECLARE_PUBLIC(QCoapMessage)
 };
 

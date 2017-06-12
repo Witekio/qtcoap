@@ -52,6 +52,7 @@ public:
 
 signals:
     void finished(QCoapRequest* request);
+    void repliedBlockwise();
 
 protected:
     void parseUri();

@@ -17,6 +17,7 @@ public:
         URIHOST         = 3,
         ETAG            = 4,
         IFNONEMATCH     = 5,
+        OBSERVE         = 6,
         URIPORT         = 7,
         LOCATIONPATH    = 8,
         URIPATH         = 11,
@@ -25,6 +26,9 @@ public:
         URIQUERY        = 15,
         ACCEPT          = 17,
         LOCATIONQUERY   = 20,
+        BLOCK2          = 23,
+        BLOCK1          = 27,
+        SIZE2           = 28,
         PROXYURI        = 35,
         PROXYSCHEME     = 39,
         SIZE1           = 60

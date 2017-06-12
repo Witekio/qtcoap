@@ -73,7 +73,7 @@ void QCoapReply::fromPdu(const QByteArray& pdu)
 
     // Parse Payload
     if (static_cast<quint8>(pduData[i]) == 0xFF)
-        d->payload = pdu.right(pdu.length() - i - 1); // -1 because of 0xFF at the beginning
+        d->payload.append(pdu.right(pdu.length() - i - 1)); // -1 because of 0xFF at the beginning
 }
 
 QByteArray QCoapReply::readData()

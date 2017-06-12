@@ -8,7 +8,9 @@ QCoapMessagePrivate::QCoapMessagePrivate() :
     messageId(0),
     token(0),
     tokenLength(0),
-    payload(QByteArray())
+    payload(QByteArray()),
+    currentBlockNumber(0),
+    hasNextBlock(false)
 {
 }
 
@@ -42,7 +44,26 @@ void QCoapMessage::addOption(QCoapOption::QCoapOptionName name, const QByteArray
 void QCoapMessage::addOption(QCoapOption* option)
 {
     Q_D(QCoapMessage);
+
+    // If it is a BLOCK option, we need to know the actuel block number
+    if (option->name() == QCoapOption::BLOCK1
+        || option->name() == QCoapOption::BLOCK2) {
+        quint8 *optionData = (quint8 *)option->value().data();
+        quint16 blockNumber = ((static_cast<quint16>(optionData[0]) << 8)
+                | (static_cast<quint16>(optionData[1]))) >> 4;
+        d->currentBlockNumber = blockNumber;
+        d->hasNextBlock = ((optionData[1] & 0x8) == 0x8);
+    }
+
     d->options.push_back(option);
+}
+
+// TODO : autotest for blockwise transfer
+bool QCoapMessage::hasNextBlock() const
+{
+    Q_D(const QCoapMessage);
+
+    return d->hasNextBlock;
 }
 
 quint8 QCoapMessage::version() const
@@ -83,6 +104,11 @@ QCoapOption* QCoapMessage::option(int index) const
 int QCoapMessage::optionsLength() const
 {
     return d_func()->options.length();
+}
+
+uint QCoapMessage::currentBlockNumber() const
+{
+    return currentBlockNumber();
 }
 
 void QCoapMessage::setVersion(quint8 version)

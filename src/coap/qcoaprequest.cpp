@@ -128,7 +128,8 @@ void QCoapRequest::sendRequest()
     connect(thread, SIGNAL(started()), this, SLOT(_q_startToSend()));
     connect(thread, SIGNAL(finished()), thread, SLOT(deleteLater()));
     connect(connection(), SIGNAL(readyRead()), this, SLOT(_q_readReply()));
-
+    // TODO : resend a request for blockwised transfer
+    //connect (this, SIGNAL(repliedBlockwise()), this, SLOT(_q_getNextBlock()));
     connection()->moveToThread(thread);
 
     thread->start();
@@ -146,9 +147,18 @@ void QCoapRequestPrivate::_q_readReply()
     Q_Q(QCoapRequest);
 
     if (state != QCoapRequest::REPLIED) {
-        q->setState(QCoapRequest::REPLIED);
         reply->fromPdu(connection->readReply());
-        emit q->finished(q);
+        if (reply->hasNextBlock()) {
+            quint16 block2Data = (static_cast<quint16>(reply->currentBlockNumber()+1) << 4) | 2;
+            QByteArray block2Value = QByteArray();
+            block2Value.append(block2Data >> 8);
+            block2Value.append(block2Data & 0xFF);
+            q->addOption(QCoapOption::BLOCK2, block2Value);
+            emit q->repliedBlockwise();
+        } else {
+            q->setState(QCoapRequest::REPLIED);
+            emit q->finished(q);
+        }
     }
 }
 

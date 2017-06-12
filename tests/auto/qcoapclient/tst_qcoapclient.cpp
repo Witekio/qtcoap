@@ -70,6 +70,7 @@ void tst_QCoapClient::get_data()
     QTest::newRow("post") << QUrl("coap://172.17.0.3:5683/test");
     QTest::newRow("put") << QUrl("coap://172.17.0.3:5683/test");
     QTest::newRow("delete") << QUrl("coap://172.17.0.3:5683/test");
+    QTest::newRow("discover") << QUrl("coap://172.17.0.3:5683/.well-known/core");
 }
 
 void tst_QCoapClient::get()
@@ -92,6 +93,7 @@ void tst_QCoapClient::get()
         reply = client.put(request);
     else if (qstrcmp(QTest::currentDataTag(), "delete") == 0)
         reply = client.deleteResource(request);
+    else reply = client.get(request);
 
     QTRY_COMPARE_WITH_TIMEOUT(spyConnectionReadyRead.count(), 1, 10000);
     QTRY_COMPARE_WITH_TIMEOUT(spyRequestFinished.count(), 1, 10000);

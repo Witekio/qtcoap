@@ -148,11 +148,11 @@ void tst_QCoapConnection::sendRequest_data()
     QTest::addColumn<QString>("dataHexaHeader");
     QTest::addColumn<QString>("dataHexaPayload");
 
-    QTest::newRow("simple_get_request") << "coap://" << "172.17.0.3" << "/test" << 5683 << QCoapRequest::GET << "5445" << "48656c6c6f20746573740a";
     // TODO : change reply to match (problem with the server)
-    QTest::newRow("simple_put_request") << "coap://" << "172.17.0.3" << "/test" << 5683 << QCoapRequest::GET << "5445" << "48656c6c6f20746573740a";
+    QTest::newRow("simple_get_request") << "coap://" << "172.17.0.3" << "/test" << 5683 << QCoapRequest::GET << "5445" << "48656c6c6f20746573740a";
+    /*QTest::newRow("simple_put_request") << "coap://" << "172.17.0.3" << "/test" << 5683 << QCoapRequest::GET << "5445" << "48656c6c6f20746573740a";
     QTest::newRow("simple_post_request") << "coap://" << "172.17.0.3" << "/test" << 5683 << QCoapRequest::GET << "5445" << "48656c6c6f20746573740a";
-    QTest::newRow("simple_delete_request") << "coap://" << "172.17.0.3" << "/test" << 5683 << QCoapRequest::GET << "5445" << "48656c6c6f20746573740a";
+    QTest::newRow("simple_delete_request") << "coap://" << "172.17.0.3" << "/test" << 5683 << QCoapRequest::GET << "5445" << "48656c6c6f20746573740a";*/
 }
 
 void tst_QCoapConnection::sendRequest()

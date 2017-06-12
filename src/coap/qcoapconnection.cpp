@@ -121,7 +121,7 @@ void QCoapConnectionPrivate::_q_socketReadyRead()
     if (sendingState == QCoapConnection::COMPLETE)
         return;
 
-    q->setSendingState(QCoapConnection::COMPLETE);
+    //q->setSendingState(QCoapConnection::COMPLETE);
     emit q->readyRead();
 }
 
