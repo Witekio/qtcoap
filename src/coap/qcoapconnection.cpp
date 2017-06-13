@@ -53,6 +53,8 @@ void QCoapConnection::sendRequest(const QByteArray& request)
 {
     Q_D(QCoapConnection);
 
+    setSendingState(QCoapConnection::WAITING);
+
     d->currentPdu = request;
     if (d->state == UNCONNECTED) {
         qDebug() << "QCoapConnection : sendRequest() - UNCONNECTED";
@@ -121,7 +123,7 @@ void QCoapConnectionPrivate::_q_socketReadyRead()
     if (sendingState == QCoapConnection::COMPLETE)
         return;
 
-    //q->setSendingState(QCoapConnection::COMPLETE);
+    q->setSendingState(QCoapConnection::COMPLETE);
     emit q->readyRead();
 }
 

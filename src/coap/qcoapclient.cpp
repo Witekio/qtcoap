@@ -55,7 +55,7 @@ QCoapReply* QCoapClient::post(QCoapRequest* request, const QByteArray& data)
 
 QCoapReply* QCoapClient::deleteResource(QCoapRequest* request)
 {
-    qDebug() << "QCoapClient : post()";
+    qDebug() << "QCoapClient : delete()";
 
     request->setOperation(QCoapRequest::DELETE);
 
@@ -102,6 +102,7 @@ void QCoapClient::addRequest(QCoapRequest* request)
 {
     Q_D(QCoapClient);
 
+    // TODO : put the generation of tokens in QCoapRequest
     QByteArray token = request->token();
     d->containsToken(token);
     token = request->generateToken();

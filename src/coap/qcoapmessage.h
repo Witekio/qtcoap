@@ -44,6 +44,9 @@ public:
 
     void addOption(QCoapOption::QCoapOptionName name, const QByteArray& value);
     void addOption(QCoapOption* option);
+    void removeOption(QCoapOption* option);
+    void removeOptionByName(QCoapOption::QCoapOptionName name);
+
 
 protected:
     Q_DECLARE_PRIVATE(QCoapMessage)

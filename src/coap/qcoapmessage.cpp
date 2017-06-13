@@ -48,22 +48,45 @@ void QCoapMessage::addOption(QCoapOption* option)
     // If it is a BLOCK option, we need to know the actuel block number
     if (option->name() == QCoapOption::BLOCK1
         || option->name() == QCoapOption::BLOCK2) {
+        quint32 blockNumber = 0;
         quint8 *optionData = (quint8 *)option->value().data();
-        quint16 blockNumber = ((static_cast<quint16>(optionData[0]) << 8)
-                | (static_cast<quint16>(optionData[1]))) >> 4;
+        for (int i = 0; i < option->length() - 1; ++i)
+            blockNumber = (blockNumber << 8) | optionData[i];
+        blockNumber = (blockNumber << 4) | ((optionData[option->length()-1]) >> 4);
         d->currentBlockNumber = blockNumber;
-        d->hasNextBlock = ((optionData[1] & 0x8) == 0x8);
+        d->hasNextBlock = ((optionData[option->length()-1] & 0x8) == 0x8);
+        //qDebug() << option->length();
+        qDebug() << "ADD BLOCK : " << d->currentBlockNumber
+                 << " - " << d->hasNextBlock
+                 << " - " << option->value().toHex();
     }
 
     d->options.push_back(option);
 }
 
+void QCoapMessage::removeOption(QCoapOption* option)
+{
+    Q_D(QCoapMessage);
+
+    d->options.removeOne(option);
+}
+
+void QCoapMessage::removeOptionByName(QCoapOption::QCoapOptionName name)
+{
+    Q_D(QCoapMessage);
+
+    for (QCoapOption* option : d->options) {
+        if (option->name() == name) {
+            removeOption(option);
+            break;
+        }
+    }
+}
+
 // TODO : autotest for blockwise transfer
 bool QCoapMessage::hasNextBlock() const
 {
-    Q_D(const QCoapMessage);
-
-    return d->hasNextBlock;
+    return d_func()->hasNextBlock;
 }
 
 quint8 QCoapMessage::version() const
@@ -108,7 +131,7 @@ int QCoapMessage::optionsLength() const
 
 uint QCoapMessage::currentBlockNumber() const
 {
-    return currentBlockNumber();
+    return d_func()->currentBlockNumber;
 }
 
 void QCoapMessage::setVersion(quint8 version)

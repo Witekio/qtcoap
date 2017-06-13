@@ -36,7 +36,7 @@ void QCoapReply::fromPdu(const QByteArray& pdu)
         quint16 optionLength = static_cast<quint16>(pduData[i] & 0x0F);
         quint8 optionLengthExtended = 0;
 
-        qDebug() << QString::number(static_cast<quint8>(pduData[i]), 16);
+        //qDebug() << QString::number(static_cast<quint8>(pduData[i]), 16);
         // Delta value > 12 : special values
         if (optionDelta == 13) {
             ++i;

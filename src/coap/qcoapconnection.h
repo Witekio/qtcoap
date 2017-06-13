@@ -45,7 +45,6 @@ signals:
 protected:
     void connectToHost();
     void writeToSocket(const QByteArray& data);
-
     void setSocket(QIODevice* device);
     void setState(QCoapConnectionState state);
     void setSendingState(QCoapConnectionSendingState sendingState);

@@ -126,10 +126,11 @@ void QCoapRequest::sendRequest()
     QThread *thread = new QThread();
 
     connect(thread, SIGNAL(started()), this, SLOT(_q_startToSend()));
+    connect(this, SIGNAL(repliedBlockwise()), this, SLOT(_q_startToSend()));
+    connect(this, SIGNAL(finished(QCoapRequest*)), thread, SLOT(quit()));
     connect(thread, SIGNAL(finished()), thread, SLOT(deleteLater()));
     connect(connection(), SIGNAL(readyRead()), this, SLOT(_q_readReply()));
-    // TODO : resend a request for blockwised transfer
-    //connect (this, SIGNAL(repliedBlockwise()), this, SLOT(_q_getNextBlock()));
+
     connection()->moveToThread(thread);
 
     thread->start();
@@ -149,14 +150,27 @@ void QCoapRequestPrivate::_q_readReply()
     if (state != QCoapRequest::REPLIED) {
         reply->fromPdu(connection->readReply());
         if (reply->hasNextBlock()) {
-            quint16 block2Data = (static_cast<quint16>(reply->currentBlockNumber()+1) << 4) | 2;
+            // TODO : allow different blocksizes (actual value is 2 = 64bits)
+            quint32 block2Data = ((reply->currentBlockNumber()+1) << 4) | 2;
             QByteArray block2Value = QByteArray();
-            block2Value.append(block2Data >> 8);
+            if (block2Data > 0xFFFF)
+                block2Value.append(block2Data >> 16);
+            if (block2Data > 0xFF)
+                block2Value.append(block2Data >> 8 & 0xFF);
             block2Value.append(block2Data & 0xFF);
+
+            q->removeOptionByName(QCoapOption::BLOCK2);
             q->addOption(QCoapOption::BLOCK2, block2Value);
+            qDebug() << "emit blockwise";
+
+            q->setToken(q->generateToken());
+            q->setMessageId(messageId+1);
+
             emit q->repliedBlockwise();
         } else {
             q->setState(QCoapRequest::REPLIED);
+            qDebug() << "emit finished";
+            qDebug() << reply->readData();
             emit q->finished(q);
         }
     }

@@ -95,7 +95,7 @@ void tst_QCoapClient::get()
         reply = client.deleteResource(request);
     else reply = client.get(request);
 
-    QTRY_COMPARE_WITH_TIMEOUT(spyConnectionReadyRead.count(), 1, 10000);
+    QTRY_VERIFY_WITH_TIMEOUT(spyConnectionReadyRead.count() > 0, 10000);
     QTRY_COMPARE_WITH_TIMEOUT(spyRequestFinished.count(), 1, 10000);
     QTRY_COMPARE_WITH_TIMEOUT(spyClientFinished.count(), 1, 10000);
 
