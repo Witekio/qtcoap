@@ -4,6 +4,7 @@
 #include <QObject>
 #include <QtCore/qglobal.h>
 
+#include "qcoapresource.h"
 #include "qcoapreply.h"
 #include "qcoaprequest.h"
 
@@ -21,7 +22,7 @@ public:
     QCoapReply* put(QCoapRequest* request, const QByteArray& data = QByteArray());
     QCoapReply* post(QCoapRequest* request, const QByteArray& data = QByteArray());
     QCoapReply* deleteResource(QCoapRequest* request);
-    QCoapReply* discover(const QUrl& url, const QString& discoveryPath = "/.well-known/core");
+    QList<QCoapResource> discover(const QUrl& url, const QString& discoveryPath = "/.well-known/core");
 
 signals :
     void finished();

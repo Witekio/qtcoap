@@ -1,3 +1,4 @@
+#include <QEventLoop>
 #include "qcoapclient.h"
 #include "qcoapclient_p.h"
 
@@ -66,21 +67,22 @@ QCoapReply* QCoapClient::deleteResource(QCoapRequest* request)
     return request->reply();
 }
 
-QCoapReply* QCoapClient::discover(const QUrl& url, const QString& discoveryPath)
+QList<QCoapResource> QCoapClient::discover(const QUrl& url, const QString& discoveryPath)
 {
+    // NOTE : Block or not ? (Send a signal instead and a pointer to the list ?)
+    // (Return the reply and let the use parse himself if he wants ?)
+    QEventLoop loop;
+
     QUrl discoveryUrl(url.toString().append(discoveryPath));
-
     QCoapRequest* request = new QCoapRequest(discoveryUrl);
-    request->setOperation(QCoapRequest::GET);
 
-    connect(request, SIGNAL(finished(QCoapRequest*)), this, SLOT(_q_requestFinished(QCoapRequest*)));
+    connect(request, SIGNAL(finished(QCoapRequest*)), &loop, SLOT(quit()));
 
-    sendRequest(request);
+    QCoapReply* reply = get(request);
 
-    QCoapReply* reply = request->reply();
+    loop.exec();
 
-    // TODO : delete request;
-    return reply;
+    return QCoapResource::fromCoreLinkList(reply->readData());
 }
 
 bool QCoapClientPrivate::containsToken(QByteArray token)
