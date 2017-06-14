@@ -16,7 +16,7 @@ public:
     bool observable;        // obs
     QString resourceType;   // rt
     QString interface;      // if
-    uint maximumSize;       // sz
+    int maximumSize;        // sz
     uint contentFormat;     // ct
 };
 

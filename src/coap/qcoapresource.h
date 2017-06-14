@@ -17,7 +17,7 @@ public:
     bool observable() const;
     QString resourceType() const;
     QString interface() const;
-    uint maximumSize() const;
+    int maximumSize() const;
     uint contentFormat() const;
 
     void setPath(const QString& path);
@@ -25,7 +25,7 @@ public:
     void setObservable(bool observable);
     void setResourceType(const QString& resourceType);
     void setInterface(const QString& interface);
-    void setMaximumSize(uint maximumSize);
+    void setMaximumSize(int maximumSize);
     void setContentFormat(uint contentFormat);
 
     static QList<QCoapResource> fromCoreLinkList(const QByteArray& data);

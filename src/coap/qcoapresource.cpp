@@ -1,7 +1,17 @@
 #include "qcoapresource.h"
 #include "qcoapresource_p.h"
+#include <QDebug>
 
-QCoapResourcePrivate::QCoapResourcePrivate()
+QT_BEGIN_NAMESPACE
+
+QCoapResourcePrivate::QCoapResourcePrivate() :
+    path(""),
+    title(""),
+    observable(false),
+    resourceType(""),
+    interface(""),
+    maximumSize(-1),
+    contentFormat(0)
 {
 }
 
@@ -39,7 +49,7 @@ QString QCoapResource::interface() const
     return d_ptr->interface;
 }
 
-uint QCoapResource::maximumSize() const
+int QCoapResource::maximumSize() const
 {
     return d_ptr->maximumSize;
 }
@@ -89,7 +99,7 @@ void QCoapResource::setInterface(const QString& interface)
     d_ptr->interface = interface;
 }
 
-void QCoapResource::setMaximumSize(uint maximumSize)
+void QCoapResource::setMaximumSize(int maximumSize)
 {
     if (d_ptr->maximumSize == maximumSize)
         return;
@@ -117,19 +127,19 @@ QList<QCoapResource> QCoapResource::fromCoreLinkList(const QByteArray& data)
         for (QByteArray parameter : parameterList)
         {
             int length = parameter.length();
-            if (link.startsWith('<'))
+            if (parameter.startsWith('<'))
                 resource.setPath(QString(parameter).mid(1, length-2));
-            else if (link.startsWith("title="))
-                resource.setTitle(QString(parameter).mid(7, length-2));
-            else if (link.startsWith("rt="))
-                resource.setResourceType(QString(parameter).mid(4, length-2));
-            else if (link.startsWith("if="))
-                resource.setInterface(QString(parameter).mid(4, length-2));
-            else if (link.startsWith("sz="))
-                resource.setMaximumSize(parameter.mid(3, length-1).toUInt());
-            else if (link.startsWith("ct="))
-                resource.setContentFormat(parameter.mid(3, length-1).toUInt());
-            else if (link == "obs")
+            else if (parameter.startsWith("title="))
+                resource.setTitle(QString(parameter).right(length-6).remove("\""));
+            else if (parameter.startsWith("rt="))
+                resource.setResourceType(QString(parameter).right(length-3).remove("\""));
+            else if (parameter.startsWith("if="))
+                resource.setInterface(QString(parameter).right(length-3).remove("\""));
+            else if (parameter.startsWith("sz="))
+                resource.setMaximumSize(QString(parameter).right(length-3).remove("\"").toInt());
+            else if (parameter.startsWith("ct="))
+                resource.setContentFormat(QString(parameter).right(length-3).remove("\"").toUInt());
+            else if (parameter == "obs")
                 resource.setObservable(true);
         }
 
@@ -138,3 +148,5 @@ QList<QCoapResource> QCoapResource::fromCoreLinkList(const QByteArray& data)
 
     return resourceList;
 }
+
+QT_END_NAMESPACE

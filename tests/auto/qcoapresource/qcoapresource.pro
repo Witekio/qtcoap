@@ -18,7 +18,9 @@ HEADERS += \
     ../../../src/coap/qcoaprequest_p.h \
     ../../../src/coap/qcoapoption_p.h \
     ../../../src/coap/qcoapconnection_p.h \
-    ../../../src/coap/qcoapclient_p.h
+    ../../../src/coap/qcoapclient_p.h \
+    ../../../src/coap/qcoapresource.h \
+    ../../../src/coap/qcoapresource_p.h
 
 SOURCES += \
     ../../../src/coap/qcoapclient.cpp \
@@ -26,7 +28,8 @@ SOURCES += \
     ../../../src/coap/qcoapmessage.cpp \
     ../../../src/coap/qcoapoption.cpp \
     ../../../src/coap/qcoapreply.cpp \
-    ../../../src/coap/qcoaprequest.cpp
+    ../../../src/coap/qcoaprequest.cpp \
+    ../../../src/coap/qcoapresource.cpp
 
 SOURCES += \ 
     tst_qcoapresource.cpp
