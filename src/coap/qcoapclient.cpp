@@ -66,6 +66,23 @@ QCoapReply* QCoapClient::deleteResource(QCoapRequest* request)
     return request->reply();
 }
 
+QCoapReply* QCoapClient::discover(const QUrl& url, const QString& discoveryPath)
+{
+    QUrl discoveryUrl(url.toString().append(discoveryPath));
+
+    QCoapRequest* request = new QCoapRequest(discoveryUrl);
+    request->setOperation(QCoapRequest::GET);
+
+    connect(request, SIGNAL(finished(QCoapRequest*)), this, SLOT(_q_requestFinished(QCoapRequest*)));
+
+    sendRequest(request);
+
+    QCoapReply* reply = request->reply();
+
+    // TODO : delete request;
+    return reply;
+}
+
 bool QCoapClientPrivate::containsToken(QByteArray token)
 {
     for (QCoapRequest* request : requests) {

@@ -49,6 +49,8 @@ void QCoapConnection::connectToHost()
     socket->connectToHost(d->host, d->port);
 }
 
+#include <QThread>
+
 void QCoapConnection::sendRequest(const QByteArray& request)
 {
     Q_D(QCoapConnection);
@@ -62,6 +64,7 @@ void QCoapConnection::sendRequest(const QByteArray& request)
         connectToHost();
     } else if (d->state == CONNECTED) {
         qDebug() << "QCoapConnection : sendRequest() - CONNECTED";
+        //QThread::msleep(100);
         d->_q_startToSendRequest();
     }
 }
@@ -112,7 +115,6 @@ void QCoapConnectionPrivate::_q_connectedToHost()
         return;
 
      q->setState(QCoapConnection::CONNECTED);
-     qDebug() << "emit connected()";
      emit q->connected();
 }
 

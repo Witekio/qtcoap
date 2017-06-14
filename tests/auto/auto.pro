@@ -4,4 +4,5 @@ SUBDIRS += qcoapclient \
     qcoapmessage \
     qcoapconnection \
     qcoapreply \
-    qcoaprequest
+    qcoaprequest \
+    qcoapresource

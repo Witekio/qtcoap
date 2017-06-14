@@ -56,9 +56,9 @@ void QCoapMessage::addOption(QCoapOption* option)
         d->currentBlockNumber = blockNumber;
         d->hasNextBlock = ((optionData[option->length()-1] & 0x8) == 0x8);
         //qDebug() << option->length();
-        qDebug() << "ADD BLOCK : " << d->currentBlockNumber
+        /*qDebug() << "ADD BLOCK : " << d->currentBlockNumber
                  << " - " << d->hasNextBlock
-                 << " - " << option->value().toHex();
+                 << " - " << option->value().toHex();*/
     }
 
     d->options.push_back(option);

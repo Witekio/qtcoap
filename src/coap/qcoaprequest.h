@@ -64,6 +64,7 @@ protected:
     Q_DECLARE_PRIVATE(QCoapRequest)
     Q_PRIVATE_SLOT(d_func(), void _q_startToSend())
     Q_PRIVATE_SLOT(d_func(), void _q_readReply())
+    Q_PRIVATE_SLOT(d_func(), void _q_getNextBlock(uint blockAsked))
 };
 
 QT_END_NAMESPACE

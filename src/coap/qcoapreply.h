@@ -28,6 +28,9 @@ public:
 
     QCoapReplyStatusCode statusCode() const;
 
+signals:
+    void nextBlockAsked(uint blockNumberAsked);
+
 protected:
     Q_DECLARE_PRIVATE(QCoapReply)
 };

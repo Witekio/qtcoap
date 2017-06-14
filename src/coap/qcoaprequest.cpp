@@ -7,7 +7,8 @@ QCoapRequestPrivate::QCoapRequestPrivate() :
     url(QUrl()),
     connection(new QCoapConnection()),
     reply(new QCoapReply()),
-    operation(QCoapRequest::GET)
+    operation(QCoapRequest::GET),
+    blockAsked(0)
 {
 }
 
@@ -130,6 +131,7 @@ void QCoapRequest::sendRequest()
     connect(this, SIGNAL(finished(QCoapRequest*)), thread, SLOT(quit()));
     connect(thread, SIGNAL(finished()), thread, SLOT(deleteLater()));
     connect(connection(), SIGNAL(readyRead()), this, SLOT(_q_readReply()));
+    connect(reply(), SIGNAL(nextBlockAsked(uint)), this, SLOT(_q_getNextBlock(uint)));
 
     connection()->moveToThread(thread);
 
@@ -148,32 +150,49 @@ void QCoapRequestPrivate::_q_readReply()
     Q_Q(QCoapRequest);
 
     if (state != QCoapRequest::REPLIED) {
-        reply->fromPdu(connection->readReply());
-        if (reply->hasNextBlock()) {
-            // TODO : allow different blocksizes (actual value is 2 = 64bits)
-            quint32 block2Data = ((reply->currentBlockNumber()+1) << 4) | 2;
-            QByteArray block2Value = QByteArray();
-            if (block2Data > 0xFFFF)
-                block2Value.append(block2Data >> 16);
-            if (block2Data > 0xFF)
-                block2Value.append(block2Data >> 8 & 0xFF);
-            block2Value.append(block2Data & 0xFF);
+        QByteArray replyFromSocket = connection->readReply();
+        reply->fromPdu(replyFromSocket);
 
-            q->removeOptionByName(QCoapOption::BLOCK2);
-            q->addOption(QCoapOption::BLOCK2, block2Value);
-            qDebug() << "emit blockwise";
-
-            q->setToken(q->generateToken());
-            q->setMessageId(messageId+1);
-
-            emit q->repliedBlockwise();
-        } else {
+        // If it is the last block
+        if (!reply->hasNextBlock()) {
             q->setState(QCoapRequest::REPLIED);
-            qDebug() << "emit finished";
-            qDebug() << reply->readData();
+            qDebug() << "EMIT FINISHED";
             emit q->finished(q);
         }
     }
+}
+
+void QCoapRequestPrivate::_q_getNextBlock(uint blockNumber)
+{// NOTE : if it does not enter there, it does not get next block
+    Q_Q(QCoapRequest);
+
+    // NOTE : if it does not enter there, it does not get next block
+    // but without this, sometimes, it ask the same block twice
+    if (blockNumber > blockAsked) {
+        blockAsked = blockNumber;
+        // Set the BLOCK2 option to get the new block
+        quint32 block2Data = (blockNumber << 4) | 2;
+        QByteArray block2Value = QByteArray();
+        if (block2Data > 0xFFFF)
+            block2Value.append(block2Data >> 16);
+        if (block2Data > 0xFF)
+            block2Value.append(block2Data >> 8 & 0xFF);
+        block2Value.append(block2Data & 0xFF);
+
+        q->removeOptionByName(QCoapOption::BLOCK2);
+        q->addOption(QCoapOption::BLOCK2, block2Value);
+
+        q->setToken(q->generateToken());
+        q->setMessageId(messageId+1);
+
+        emit q->repliedBlockwise();
+    } // TODO: find a better way to do this (in case of block already asked)
+    /*else {
+        if (reply->hasNextBlock())
+            _q_getNextBlock(blockNumber+1);
+    }*/
+
+    qDebug() << " BLOCK ASKED : " << blockNumber;
 }
 
 quint16 QCoapRequest::generateMessageId()

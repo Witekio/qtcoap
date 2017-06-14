@@ -17,9 +17,11 @@ public:
     QCoapReply* reply;
     QCoapRequest::QCoapRequestOperation operation;
     QCoapRequest::QCoapRequestState state;
+    uint blockAsked;
 
     void _q_startToSend();
     void _q_readReply();
+    void _q_getNextBlock(uint blockAsked);
 
     Q_DECLARE_PUBLIC(QCoapRequest)
 };

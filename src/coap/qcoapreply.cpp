@@ -72,12 +72,18 @@ void QCoapReply::fromPdu(const QByteArray& pdu)
     }
 
     // Parse Payload
-    if (static_cast<quint8>(pduData[i]) == 0xFF)
+    if (static_cast<quint8>(pduData[i]) == 0xFF) {
+        qDebug() << pdu.right(pdu.length() - i - 1);
         d->payload.append(pdu.right(pdu.length() - i - 1)); // -1 because of 0xFF at the beginning
+    }
+
+    if (d->hasNextBlock)
+        emit nextBlockAsked(d->currentBlockNumber+1);
 }
 
 QByteArray QCoapReply::readData()
 {
+    qDebug() << payload();
     return payload();
 }
 
