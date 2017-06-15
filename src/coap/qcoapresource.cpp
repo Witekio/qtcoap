@@ -143,7 +143,8 @@ QList<QCoapResource> QCoapResource::fromCoreLinkList(const QByteArray& data)
                 resource.setObservable(true);
         }
 
-        resourceList.push_back(resource);
+        if (!resource.path().isEmpty())
+            resourceList.push_back(resource);
     }
 
     return resourceList;

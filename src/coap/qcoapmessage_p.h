@@ -21,6 +21,7 @@ public:
 
     uint currentBlockNumber;
     bool hasNextBlock;
+    uint blockSize;
 
     Q_DECLARE_PUBLIC(QCoapMessage)
 };

@@ -8,7 +8,8 @@ QCoapRequestPrivate::QCoapRequestPrivate() :
     connection(new QCoapConnection()),
     reply(new QCoapReply()),
     operation(QCoapRequest::GET),
-    blockAsked(0)
+    blockAsked(0),
+    observe(false)
 {
 }
 
@@ -127,11 +128,12 @@ void QCoapRequest::sendRequest()
     QThread *thread = new QThread();
 
     connect(thread, SIGNAL(started()), this, SLOT(_q_startToSend()));
-    connect(this, SIGNAL(repliedBlockwise()), this, SLOT(_q_startToSend()));
-    connect(this, SIGNAL(finished(QCoapRequest*)), thread, SLOT(quit()));
     connect(thread, SIGNAL(finished()), thread, SLOT(deleteLater()));
-    connect(connection(), SIGNAL(readyRead()), this, SLOT(_q_readReply()));
+    connect(this, SIGNAL(finished(QCoapRequest*)), thread, SLOT(quit()));
     connect(reply(), SIGNAL(nextBlockAsked(uint)), this, SLOT(_q_getNextBlock(uint)));
+    // TODO : connect(reply(), SIGNAL(acknowledgmentAsked(quint16)), this, SLOT(_q_sendAck(quint16)));
+    connect(this, SIGNAL(replied()), this, SLOT(_q_startToSend()));
+    connect(connection(), SIGNAL(readyRead()), this, SLOT(_q_readReply()));
 
     connection()->moveToThread(thread);
 
@@ -156,19 +158,24 @@ void QCoapRequestPrivate::_q_readReply()
         // If it is the last block
         if (!reply->hasNextBlock()) {
             q->setState(QCoapRequest::REPLIED);
-            qDebug() << "EMIT FINISHED";
-            emit q->finished(q);
+            if (observe) {
+                qDebug() << "EMIT NOTIFIED";
+                emit q->notified(reply->readData());
+            } else {
+                qDebug() << "EMIT FINISHED";
+                emit q->finished(q);
+            }
         }
     }
 }
 
 void QCoapRequestPrivate::_q_getNextBlock(uint blockNumber)
-{// NOTE : if it does not enter there, it does not get next block
+{
     Q_Q(QCoapRequest);
 
     // NOTE : if it does not enter there, it does not get next block
     // but without this, sometimes, it ask the same block twice
-    if (blockNumber > blockAsked) {
+    //if (blockNumber > blockAsked) {
         blockAsked = blockNumber;
         // Set the BLOCK2 option to get the new block
         quint32 block2Data = (blockNumber << 4) | 2;
@@ -185,8 +192,8 @@ void QCoapRequestPrivate::_q_getNextBlock(uint blockNumber)
         q->setToken(q->generateToken());
         q->setMessageId(messageId+1);
 
-        emit q->repliedBlockwise();
-    } // TODO: find a better way to do this (in case of block already asked)
+        emit q->replied();
+    //} // TODO: find a better way to do this (in case of block already asked)
     /*else {
         if (reply->hasNextBlock())
             _q_getNextBlock(blockNumber+1);
@@ -214,7 +221,8 @@ QByteArray QCoapRequest::generateToken()
     return token;
 }
 
-void QCoapRequest::parseUri() {
+void QCoapRequest::parseUri()
+{
     Q_D(QCoapRequest);
 
     // Convert path into QCoapOptions
@@ -229,14 +237,43 @@ void QCoapRequest::parseUri() {
     d->connection->setPort(d->url.port(5683));
 }
 
+void QCoapRequest::sendAck(quint16 messageId, const QByteArray& payload)
+{
+    setType(ACKNOWLEDGMENT);
+    setOperation(EMPTY);
+    setMessageId(messageId);
+    // NOTE : verify if we change the token, if we use the reply token or if we have no token
+    // (and for the reset message too)
+    // setToken(token);
+    setPayload(payload);
+    removeAllOptions();
+}
+
+void QCoapRequest::sendReset(quint16 messageId)
+{
+    setType(RESET);
+    setOperation(EMPTY);
+    setMessageId(messageId);
+    //setToken(QByteArray(""));
+    setPayload(QByteArray(""));
+    removeAllOptions();
+}
 
 void QCoapRequestPrivate::_q_startToSend()
 {
     Q_Q(QCoapRequest);
 
-    qDebug() << "QCoapRequest : startToSend() - " << q->toPdu().toHex();
+    //qDebug() << "QCoapRequest : startToSend() - " << q->toPdu().toHex();
     connection->sendRequest(q->toPdu());
     q->setState(QCoapRequest::SENT);
+}
+
+void QCoapRequestPrivate::_q_sendAck(quint16 messageId)
+{
+    Q_Q(QCoapRequest);
+
+    q->sendAck(messageId);
+    emit q->replied();
 }
 
 QCoapReply* QCoapRequest::reply() const
@@ -254,10 +291,14 @@ QCoapConnection* QCoapRequest::connection() const
     return d_func()->connection;
 }
 
-
 QCoapRequest::QCoapRequestOperation QCoapRequest::operation() const
 {
     return d_func()->operation;
+}
+
+bool QCoapRequest::observe() const
+{
+    return d_func()->observe;
 }
 
 void QCoapRequest::setUrl(const QUrl& url)
@@ -303,6 +344,15 @@ void QCoapRequest::setState(QCoapRequestState state)
         return;
 
     d->state = state;
+}
+
+void QCoapRequest::setObserve(bool observe)
+{
+    Q_D(QCoapRequest);
+    if (d->observe == observe)
+        return;
+
+    d->observe = observe;
 }
 
 QT_END_NAMESPACE

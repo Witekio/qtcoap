@@ -30,6 +30,7 @@ public:
 
 signals:
     void nextBlockAsked(uint blockNumberAsked);
+    void acknowledgmentAsked(quint16 messageId);
 
 protected:
     Q_DECLARE_PRIVATE(QCoapReply)

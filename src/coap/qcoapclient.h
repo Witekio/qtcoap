@@ -22,6 +22,9 @@ public:
     QCoapReply* put(QCoapRequest* request, const QByteArray& data = QByteArray());
     QCoapReply* post(QCoapRequest* request, const QByteArray& data = QByteArray());
     QCoapReply* deleteResource(QCoapRequest* request);
+    QCoapReply* observe(QCoapRequest* request);
+    //void cancelObserve(QCoapRequest* request);
+
     QList<QCoapResource> discover(const QUrl& url, const QString& discoveryPath = "/.well-known/core");
 
 signals :

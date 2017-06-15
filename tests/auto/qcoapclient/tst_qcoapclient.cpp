@@ -120,11 +120,14 @@ void tst_QCoapClient::discover()
     QFETCH(QUrl, url);
     QFETCH(int, resourceNumber);
 
-    QCoapClientForTests client;
+    for (int i = 0; i < 10; ++i) {
+        qDebug() << i;
+        QCoapClientForTests client;
 
-    QList<QCoapResource> resources = client.discover(url); // /.well-known/core
+        QList<QCoapResource> resources = client.discover(url); // /.well-known/core
 
-    QCOMPARE(resources.length(), resourceNumber);
+        QCOMPARE(resources.length(), resourceNumber);
+    }
 }
 
 QTEST_MAIN(tst_QCoapClient)

@@ -46,7 +46,7 @@ public:
     void addOption(QCoapOption* option);
     void removeOption(QCoapOption* option);
     void removeOptionByName(QCoapOption::QCoapOptionName name);
-
+    void removeAllOptions();
 
 protected:
     Q_DECLARE_PRIVATE(QCoapMessage)

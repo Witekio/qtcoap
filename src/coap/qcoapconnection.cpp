@@ -59,11 +59,11 @@ void QCoapConnection::sendRequest(const QByteArray& request)
 
     d->currentPdu = request;
     if (d->state == UNCONNECTED) {
-        qDebug() << "QCoapConnection : sendRequest() - UNCONNECTED";
+        //qDebug() << "QCoapConnection : sendRequest() - UNCONNECTED";
         connect(this, SIGNAL(connected()), this, SLOT(_q_startToSendRequest()));
         connectToHost();
     } else if (d->state == CONNECTED) {
-        qDebug() << "QCoapConnection : sendRequest() - CONNECTED";
+        //qDebug() << "QCoapConnection : sendRequest() - CONNECTED";
         //QThread::msleep(100);
         d->_q_startToSendRequest();
     }
@@ -82,7 +82,7 @@ QByteArray QCoapConnection::readReply()
 
     QByteArray reply;
     reply = d->udpSocket->readAll();
-    qDebug() << "QCoapConnection::readReply() - " << reply;
+    //qDebug() << "QCoapConnection::readReply() - " << reply;
     return reply;
 }
 
@@ -93,7 +93,7 @@ void QCoapConnection::writeToSocket(const QByteArray& data)
     if (!d->udpSocket->isOpen())
         d->udpSocket->open(QIODevice::ReadWrite); // NOTE : change to write only ?
 
-    qDebug() << "QCoapConnection::writeToSocket()";
+    //qDebug() << "QCoapConnection::writeToSocket()";
     d->udpSocket->write(data);
 }
 

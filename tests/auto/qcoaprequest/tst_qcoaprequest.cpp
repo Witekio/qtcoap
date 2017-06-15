@@ -251,16 +251,18 @@ void tst_QCoapRequest::blockwiseReply()
     QFETCH(QCoapMessage::QCoapMessageType, type);
     QFETCH(QByteArray, replyData);
 
-    QCoapRequestForTests request(url);
+    for (int i = 0; i < 10; ++i) {
+        QCoapRequestForTests request(url);
 
-    request.setType(type);
-    request.setOperation(operation);
-    request.setToken(request.generateToken());
-    request.setMessageId(request.generateMessageId());
+        request.setType(type);
+        request.setOperation(operation);
+        request.setToken(request.generateToken());
+        request.setMessageId(request.generateMessageId());
 
-    request.sendRequest();
+        request.sendRequest();
 
-    QTRY_COMPARE_WITH_TIMEOUT(request.reply()->readData(), replyData, 10000);
+        QTRY_COMPARE_WITH_TIMEOUT(request.reply()->readData(), replyData, 10000);
+    }
 }
 
 class QCoapReplyForTests : public QCoapReply

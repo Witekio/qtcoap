@@ -47,24 +47,30 @@ public:
     QCoapRequestOperation operation() const;
     QCoapReply* reply() const;
     QCoapConnection* connection() const;
+    bool observe() const;
     void setUrl(const QUrl& url);
     void setOperation(QCoapRequestOperation operation);
+    void setObserve(bool observe);
 
 signals:
+    void notified(const QByteArray& replyData);
     void finished(QCoapRequest* request);
-    void repliedBlockwise();
+    void replied();
 
 protected:
     void parseUri();
     void setReply(QCoapReply* reply);
     void setConnection(QCoapConnection* connection);
     void setState(QCoapRequestState state);
+    void sendAck(quint16 messageId, const QByteArray& payload = QByteArray());
+    void sendReset(quint16 messageId);
     void readReply(); // TODO : remove readReply and find another way to test _q_readReply
 
     Q_DECLARE_PRIVATE(QCoapRequest)
     Q_PRIVATE_SLOT(d_func(), void _q_startToSend())
     Q_PRIVATE_SLOT(d_func(), void _q_readReply())
     Q_PRIVATE_SLOT(d_func(), void _q_getNextBlock(uint blockAsked))
+    Q_PRIVATE_SLOT(d_func(), void _q_sendAck(quint16 messageId))
 };
 
 QT_END_NAMESPACE

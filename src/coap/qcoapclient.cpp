@@ -85,6 +85,15 @@ QList<QCoapResource> QCoapClient::discover(const QUrl& url, const QString& disco
     return QCoapResource::fromCoreLinkList(reply->readData());
 }
 
+QCoapReply* QCoapClient::observe(QCoapRequest* request)
+{
+    request->addOption(QCoapOption::OBSERVE, QByteArray(""));
+    request->setObserve(true);
+    QCoapReply* reply = get(request);
+
+    return reply;
+}
+
 bool QCoapClientPrivate::containsToken(QByteArray token)
 {
     for (QCoapRequest* request : requests) {

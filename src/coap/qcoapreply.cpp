@@ -15,6 +15,8 @@ QCoapReply::QCoapReply(QObject* parent) :
 void QCoapReply::fromPdu(const QByteArray& pdu)
 {
     Q_D(QCoapReply);
+
+    uint blockNumberBefore = d->currentBlockNumber;
     quint8 *pduData = (quint8 *)pdu.data();
 
     // Parse Header and Token
@@ -73,12 +75,23 @@ void QCoapReply::fromPdu(const QByteArray& pdu)
 
     // Parse Payload
     if (static_cast<quint8>(pduData[i]) == 0xFF) {
-        qDebug() << pdu.right(pdu.length() - i - 1);
-        d->payload.append(pdu.right(pdu.length() - i - 1)); // -1 because of 0xFF at the beginning
+        QByteArray currentPayload = pdu.right(pdu.length() - i - 1); // -1 because of 0xFF at the beginning
+        if (d->hasNextBlock | (d->currentBlockNumber > 0))
+            currentPayload = currentPayload.right(d->blockSize);
+        // qDebug() << currentPayload;
+        // NOTE : Prevent from duplicate blocks : but fail 1 times out of 10
+        // TODO ? : generate one reply for each block and append them at the end
+        if ((d->currentBlockNumber == 0)
+            | (d->currentBlockNumber != 0 && d->currentBlockNumber > blockNumberBefore)) {
+            d->payload.append(currentPayload);
+            // qDebug() << d->currentBlockNumber << " > " << blockNumberBefore;
+        }
     }
 
     if (d->hasNextBlock)
         emit nextBlockAsked(d->currentBlockNumber+1);
+    else if (d->type == CONFIRMABLE)
+        emit acknowledgmentAsked(d->messageId);
 }
 
 QByteArray QCoapReply::readData()

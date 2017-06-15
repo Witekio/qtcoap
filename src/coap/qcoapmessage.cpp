@@ -1,6 +1,7 @@
 #include "qcoapmessage.h"
 #include "qcoapmessage_p.h"
 #include <QDebug>
+#include <QtCore/QtMath>
 
 QCoapMessagePrivate::QCoapMessagePrivate() :
     version(1),
@@ -10,7 +11,8 @@ QCoapMessagePrivate::QCoapMessagePrivate() :
     tokenLength(0),
     payload(QByteArray()),
     currentBlockNumber(0),
-    hasNextBlock(false)
+    hasNextBlock(false),
+    blockSize(0)
 {
 }
 
@@ -55,6 +57,7 @@ void QCoapMessage::addOption(QCoapOption* option)
         blockNumber = (blockNumber << 4) | ((optionData[option->length()-1]) >> 4);
         d->currentBlockNumber = blockNumber;
         d->hasNextBlock = ((optionData[option->length()-1] & 0x8) == 0x8);
+        d->blockSize = qPow(2, (optionData[option->length()-1] & 0x7) + 4);
         //qDebug() << option->length();
         /*qDebug() << "ADD BLOCK : " << d->currentBlockNumber
                  << " - " << d->hasNextBlock
@@ -69,6 +72,7 @@ void QCoapMessage::removeOption(QCoapOption* option)
     Q_D(QCoapMessage);
 
     d->options.removeOne(option);
+    delete option;
 }
 
 void QCoapMessage::removeOptionByName(QCoapOption::QCoapOptionName name)
@@ -83,7 +87,14 @@ void QCoapMessage::removeOptionByName(QCoapOption::QCoapOptionName name)
     }
 }
 
-// TODO : autotest for blockwise transfer
+void QCoapMessage::removeAllOptions()
+{
+    Q_D(QCoapMessage);
+
+    qDeleteAll(d->options);
+    d->options.clear();
+}
+
 bool QCoapMessage::hasNextBlock() const
 {
     return d_func()->hasNextBlock;
