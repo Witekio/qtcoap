@@ -28,9 +28,10 @@ public:
     };
 
     enum QCoapRequestState {
-        CREATED,
+        WAITING,
         SENT,
-        REPLIED
+        REPLIED,
+        REPLYCOMPLETE
     };
 
     QCoapRequest(const QUrl& url = QUrl(),
@@ -62,8 +63,8 @@ protected:
     void setReply(QCoapReply* reply);
     void setConnection(QCoapConnection* connection);
     void setState(QCoapRequestState state);
-    void sendAck(quint16 messageId, const QByteArray& payload = QByteArray());
-    void sendReset(quint16 messageId);
+    void setRequestForAck(quint16 messageId, const QByteArray& payload = QByteArray());
+    void setRequestForReset(quint16 messageId);
     void readReply(); // TODO : remove readReply and find another way to test _q_readReply
 
     Q_DECLARE_PRIVATE(QCoapRequest)

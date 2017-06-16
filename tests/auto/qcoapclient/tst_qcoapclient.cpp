@@ -22,6 +22,8 @@ private slots:
     void operations();
     void discover_data();
     void discover();
+    void observe_data();
+    void observe();
 };
 
 tst_QCoapClient::tst_QCoapClient()
@@ -120,14 +122,38 @@ void tst_QCoapClient::discover()
     QFETCH(QUrl, url);
     QFETCH(int, resourceNumber);
 
-    for (int i = 0; i < 10; ++i) {
+    for (int i = 0; i < 20; ++i) {
         qDebug() << i;
         QCoapClientForTests client;
 
-        QList<QCoapResource> resources = client.discover(url); // /.well-known/core
+        QList<QCoapResource*> resources = client.discover(url); // /.well-known/core
 
         QCOMPARE(resources.length(), resourceNumber);
     }
+}
+
+void tst_QCoapClient::observe_data()
+{
+    QTest::addColumn<QUrl>("url");
+
+    QTest::newRow("observe") << QUrl("coap://172.17.0.3:5683/obs");
+}
+
+void tst_QCoapClient::observe()
+{
+    QFETCH(QUrl, url);
+
+    /*QCoapClientForTests client;
+    QCoapRequest* request = new QCoapRequest(url);
+
+    QSignalSpy spyRequestFinished(request, SIGNAL(notified(const QByteArray&)));
+
+    QCoapReply* reply = client.observe(request);
+
+    //QTRY_COMPARE_WITH_TIMEOUT(spyRequestFinished.count(), 10, 30000);
+
+    delete request;
+    delete reply;*/
 }
 
 QTEST_MAIN(tst_QCoapClient)

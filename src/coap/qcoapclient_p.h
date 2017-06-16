@@ -12,7 +12,7 @@ public:
     QCoapClientPrivate();
 
     QList<QCoapRequest*> requests;
-
+    QList<QCoapResource*> resources;
     int findRequestByToken(QByteArray token);
     bool containsToken(QByteArray token);
     bool containsMessageId(quint16 id);

@@ -13,6 +13,13 @@ QCoapClient::QCoapClient(QObject* parent) :
 {
 }
 
+QCoapClient::~QCoapClient()
+{
+    Q_D(QCoapClient);
+    qDeleteAll(d->resources);
+    d->resources.clear();
+}
+
 QCoapReply* QCoapClient::get(QCoapRequest* request)
 {
     qDebug() << "QCoapClient : get()";
@@ -67,8 +74,9 @@ QCoapReply* QCoapClient::deleteResource(QCoapRequest* request)
     return request->reply();
 }
 
-QList<QCoapResource> QCoapClient::discover(const QUrl& url, const QString& discoveryPath)
+QList<QCoapResource*> QCoapClient::discover(const QUrl& url, const QString& discoveryPath)
 {
+    Q_D(QCoapClient);
     // NOTE : Block or not ? (Send a signal instead and a pointer to the list ?)
     // (Return the reply and let the use parse himself if he wants ?)
     QEventLoop loop;
@@ -82,13 +90,16 @@ QList<QCoapResource> QCoapClient::discover(const QUrl& url, const QString& disco
 
     loop.exec();
 
-    return QCoapResource::fromCoreLinkList(reply->readData());
+    d->resources = QCoapResource::fromCoreLinkList(reply->readData());
+
+    return d->resources;
 }
 
 QCoapReply* QCoapClient::observe(QCoapRequest* request)
 {
     request->addOption(QCoapOption::OBSERVE, QByteArray(""));
     request->setObserve(true);
+    request->setType(QCoapMessage::CONFIRMABLE);
     QCoapReply* reply = get(request);
 
     return reply;

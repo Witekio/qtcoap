@@ -17,6 +17,7 @@ class QCoapClient : public QObject
 
 public:
     QCoapClient(QObject* parent = nullptr);
+    ~QCoapClient();
 
     QCoapReply* get(QCoapRequest* request);
     QCoapReply* put(QCoapRequest* request, const QByteArray& data = QByteArray());
@@ -25,7 +26,7 @@ public:
     QCoapReply* observe(QCoapRequest* request);
     //void cancelObserve(QCoapRequest* request);
 
-    QList<QCoapResource> discover(const QUrl& url, const QString& discoveryPath = "/.well-known/core");
+    QList<QCoapResource*> discover(const QUrl& url, const QString& discoveryPath = "/.well-known/core");
 
 signals :
     void finished();
@@ -36,7 +37,6 @@ protected:
 
     Q_DECLARE_PRIVATE(QCoapClient)
     Q_PRIVATE_SLOT(d_func(), void _q_requestFinished(QCoapRequest* request))
-
 };
 
 QT_END_NAMESPACE

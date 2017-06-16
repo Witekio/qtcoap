@@ -25,8 +25,6 @@ public:
     QCoapMessage(QCoapMessagePrivate &dd, QObject* parent = Q_NULLPTR);
     //QCoapMessage(const QCoapMessage& other);
 
-    bool hasNextBlock() const;
-
     quint8 version() const;
     QCoapMessageType type() const;
     QByteArray token() const;
@@ -35,6 +33,7 @@ public:
     QByteArray payload() const;
     QCoapOption* option(int index) const;
     uint currentBlockNumber() const;
+    bool hasNextBlock() const;
     int optionsLength() const;
     void setVersion(quint8 version);
     void setType(const QCoapMessageType& type);

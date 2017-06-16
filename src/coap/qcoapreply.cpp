@@ -81,6 +81,7 @@ void QCoapReply::fromPdu(const QByteArray& pdu)
         // qDebug() << currentPayload;
         // NOTE : Prevent from duplicate blocks : but fail 1 times out of 10
         // TODO ? : generate one reply for each block and append them at the end
+        // TODO : check errors checking block length
         if ((d->currentBlockNumber == 0)
             | (d->currentBlockNumber != 0 && d->currentBlockNumber > blockNumberBefore)) {
             d->payload.append(currentPayload);
@@ -88,10 +89,12 @@ void QCoapReply::fromPdu(const QByteArray& pdu)
         }
     }
 
-    if (d->hasNextBlock)
+    if (d->hasNextBlock) {
         emit nextBlockAsked(d->currentBlockNumber+1);
-    else if (d->type == CONFIRMABLE)
+    } else if (d->type == CONFIRMABLE) {
+        qDebug() << "ACK ASKED";
         emit acknowledgmentAsked(d->messageId);
+    }
 }
 
 QByteArray QCoapReply::readData()

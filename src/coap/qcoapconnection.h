@@ -15,7 +15,8 @@ class QCoapConnection : public QObject
 public:
     enum QCoapConnectionState {
         UNCONNECTED,
-        CONNECTED
+        CONNECTED,
+        BOUND
     };
 
     enum QCoapConnectionSendingState {
@@ -44,6 +45,7 @@ signals:
 
 protected:
     void connectToHost();
+    void bindToHost();
     void writeToSocket(const QByteArray& data);
     void setSocket(QIODevice* device);
     void setState(QCoapConnectionState state);

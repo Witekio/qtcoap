@@ -116,19 +116,19 @@ void tst_QCoapResource::parseCoreLink()
     QFETCH(QList<bool>, observableList);
     QFETCH(QByteArray, coreLinkList);
 
-    QList<QCoapResource> resourceList;
+    QList<QCoapResource*> resourceList;
     resourceList = QCoapResource::fromCoreLinkList(coreLinkList);
 
     QCOMPARE(resourceList.size(), resourceNumber);
     for (int i = 0; i < resourceList.size(); ++i)
     {
-        QCOMPARE(resourceList[i].path(), pathList[i]);
-        QCOMPARE(resourceList[i].title(), titleList[i]);
-        QCOMPARE(resourceList[i].resourceType(), resourceTypeList[i]);
-        QCOMPARE(resourceList[i].contentFormat(), contentFormatList[i]);
-        QCOMPARE(resourceList[i].interface(), interfaceList[i]);
-        QCOMPARE(resourceList[i].maximumSize(), maximumSizeList[i]);
-        QCOMPARE(resourceList[i].observable(), observableList[i]);
+        QCOMPARE(resourceList[i]->path(), pathList[i]);
+        QCOMPARE(resourceList[i]->title(), titleList[i]);
+        QCOMPARE(resourceList[i]->resourceType(), resourceTypeList[i]);
+        QCOMPARE(resourceList[i]->contentFormat(), contentFormatList[i]);
+        QCOMPARE(resourceList[i]->interface(), interfaceList[i]);
+        QCOMPARE(resourceList[i]->maximumSize(), maximumSizeList[i]);
+        QCOMPARE(resourceList[i]->observable(), observableList[i]);
     }
 }
 

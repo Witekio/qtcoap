@@ -1,5 +1,6 @@
 #include "qcoapconnection.h"
 #include "qcoapconnection_p.h"
+
 #include <QNetworkDatagram>
 
 QT_BEGIN_NAMESPACE
@@ -44,12 +45,23 @@ void QCoapConnection::connectToHost()
     QUdpSocket * socket = qobject_cast<QUdpSocket *>(d->udpSocket);
 
     connect(socket, SIGNAL(connected()), this, SLOT(_q_connectedToHost()));
+    // TODO : connect to disconnected signal (to reconnect if needed)
     connect(socket, SIGNAL(readyRead()), this, SLOT(_q_socketReadyRead()));
 
     socket->connectToHost(d->host, d->port);
 }
 
-#include <QThread>
+void QCoapConnection::bindToHost()
+{
+    Q_D(QCoapConnection);
+
+    QUdpSocket* socket = static_cast<QUdpSocket*>(d->udpSocket);
+    if (socket->state() == QUdpSocket::ConnectedState)
+        socket->disconnectFromHost();
+
+    if (socket->bind(QHostAddress(d->host), d->port))
+        setState(BOUND);
+}
 
 void QCoapConnection::sendRequest(const QByteArray& request)
 {
@@ -121,6 +133,8 @@ void QCoapConnectionPrivate::_q_connectedToHost()
 void QCoapConnectionPrivate::_q_socketReadyRead()
 {
     Q_Q(QCoapConnection);
+
+    qDebug() << "QCoapConnectionPrivate::_q_socketReadyRead()";
 
     if (sendingState == QCoapConnection::COMPLETE)
         return;

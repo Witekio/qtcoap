@@ -24,7 +24,7 @@ QCoapRequest::QCoapRequest(const QUrl& url, QCoapMessageType type, QObject* pare
     Q_D(QCoapRequest);
     d->url = url;
     parseUri();
-    setState(QCoapRequest::CREATED);
+    setState(QCoapRequest::WAITING);
     setType(type);
     qsrand(QTime::currentTime().msec()); // to generate message ids and tokens
 }
@@ -130,9 +130,9 @@ void QCoapRequest::sendRequest()
     connect(thread, SIGNAL(started()), this, SLOT(_q_startToSend()));
     connect(thread, SIGNAL(finished()), thread, SLOT(deleteLater()));
     connect(this, SIGNAL(finished(QCoapRequest*)), thread, SLOT(quit()));
-    connect(reply(), SIGNAL(nextBlockAsked(uint)), this, SLOT(_q_getNextBlock(uint)));
-    // TODO : connect(reply(), SIGNAL(acknowledgmentAsked(quint16)), this, SLOT(_q_sendAck(quint16)));
-    connect(this, SIGNAL(replied()), this, SLOT(_q_startToSend()));
+    connect(reply(), SIGNAL(nextBlockAsked(uint)), this, SLOT(_q_getNextBlock(uint))); // Block2
+    connect(reply(), SIGNAL(acknowledgmentAsked(quint16)), this, SLOT(_q_sendAck(quint16))); // CON replies
+    connect(this, SIGNAL(replied()), this, SLOT(_q_startToSend())); // Equivalent of finished for Block2 and observe
     connect(connection(), SIGNAL(readyRead()), this, SLOT(_q_readReply()));
 
     connection()->moveToThread(thread);
@@ -151,13 +151,14 @@ void QCoapRequestPrivate::_q_readReply()
 {
     Q_Q(QCoapRequest);
 
-    if (state != QCoapRequest::REPLIED) {
+    q->setState(QCoapRequest::REPLIED);
+    //if (state != QCoapRequest::REPLYCOMPLETE) {
         QByteArray replyFromSocket = connection->readReply();
         reply->fromPdu(replyFromSocket);
 
         // If it is the last block
         if (!reply->hasNextBlock()) {
-            q->setState(QCoapRequest::REPLIED);
+            q->setState(QCoapRequest::REPLYCOMPLETE);
             if (observe) {
                 qDebug() << "EMIT NOTIFIED";
                 emit q->notified(reply->readData());
@@ -165,8 +166,12 @@ void QCoapRequestPrivate::_q_readReply()
                 qDebug() << "EMIT FINISHED";
                 emit q->finished(q);
             }
+        } else {
+            qDebug() << "WAITING";
+            q->setState(QCoapRequest::WAITING);
+            emit q->replied();
         }
-    }
+    //}
 }
 
 void QCoapRequestPrivate::_q_getNextBlock(uint blockNumber)
@@ -192,7 +197,7 @@ void QCoapRequestPrivate::_q_getNextBlock(uint blockNumber)
         q->setToken(q->generateToken());
         q->setMessageId(messageId+1);
 
-        emit q->replied();
+        //emit q->replied();
     //} // TODO: find a better way to do this (in case of block already asked)
     /*else {
         if (reply->hasNextBlock())
@@ -237,7 +242,7 @@ void QCoapRequest::parseUri()
     d->connection->setPort(d->url.port(5683));
 }
 
-void QCoapRequest::sendAck(quint16 messageId, const QByteArray& payload)
+void QCoapRequest::setRequestForAck(quint16 messageId, const QByteArray& payload)
 {
     setType(ACKNOWLEDGMENT);
     setOperation(EMPTY);
@@ -249,7 +254,7 @@ void QCoapRequest::sendAck(quint16 messageId, const QByteArray& payload)
     removeAllOptions();
 }
 
-void QCoapRequest::sendReset(quint16 messageId)
+void QCoapRequest::setRequestForReset(quint16 messageId)
 {
     setType(RESET);
     setOperation(EMPTY);
@@ -264,15 +269,18 @@ void QCoapRequestPrivate::_q_startToSend()
     Q_Q(QCoapRequest);
 
     //qDebug() << "QCoapRequest : startToSend() - " << q->toPdu().toHex();
-    connection->sendRequest(q->toPdu());
-    q->setState(QCoapRequest::SENT);
+    if (state == QCoapRequest::WAITING) {
+        q->setState(QCoapRequest::SENT);
+        connection->sendRequest(q->toPdu());
+    }
 }
 
 void QCoapRequestPrivate::_q_sendAck(quint16 messageId)
 {
     Q_Q(QCoapRequest);
 
-    q->sendAck(messageId);
+    qDebug() << "SEND ACK SLOT";
+    q->setRequestForAck(messageId);
     emit q->replied();
 }
 
