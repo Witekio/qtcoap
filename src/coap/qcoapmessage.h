@@ -9,10 +9,8 @@
 QT_BEGIN_NAMESPACE
 
 class QCoapMessagePrivate;
-class Q_DECL_EXPORT QCoapMessage : public QObject
+class QCoapMessage
 {
-    Q_OBJECT
-
 public:
     enum QCoapMessageType {
         CONFIRMABLE,
@@ -21,9 +19,7 @@ public:
         RESET
     };
 
-    QCoapMessage(QObject* parent = Q_NULLPTR);
-    QCoapMessage(QCoapMessagePrivate &dd, QObject* parent = Q_NULLPTR);
-    //QCoapMessage(const QCoapMessage& other);
+    QCoapMessage();
 
     quint8 version() const;
     QCoapMessageType type() const;
@@ -31,7 +27,7 @@ public:
     quint8 tokenLength() const;
     quint16 messageId() const;
     QByteArray payload() const;
-    QCoapOption* option(int index) const;
+    QCoapOption option(int index) const;
     uint currentBlockNumber() const;
     bool hasNextBlock() const;
     int optionsLength() const;
@@ -42,13 +38,15 @@ public:
     void setPayload(const QByteArray& payload);
 
     void addOption(QCoapOption::QCoapOptionName name, const QByteArray& value);
-    void addOption(QCoapOption* option);
-    void removeOption(QCoapOption* option);
+    void addOption(const QCoapOption& option);
+    void removeOption(const QCoapOption& option);
     void removeOptionByName(QCoapOption::QCoapOptionName name);
     void removeAllOptions();
 
 protected:
-    Q_DECLARE_PRIVATE(QCoapMessage)
+    QCoapMessage(QCoapMessagePrivate &dd);
+
+    QCoapMessagePrivate* d_ptr;
 };
 
 QT_END_NAMESPACE

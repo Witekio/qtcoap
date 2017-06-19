@@ -7,10 +7,8 @@
 QT_BEGIN_NAMESPACE
 
 class QCoapOptionPrivate;
-class QCoapOption : public QObject
+class QCoapOption
 {
-    Q_OBJECT
-
 public:
     enum QCoapOptionName {
         IFMATCH         = 1,
@@ -34,14 +32,14 @@ public:
         SIZE1           = 60
     };
 
-    QCoapOption(QCoapOptionName name, const QByteArray& value, QObject* parent = Q_NULLPTR);
+    QCoapOption(QCoapOptionName name, const QByteArray& value);
 
     QByteArray value() const;
     quint8 length() const;
     QCoapOptionName name() const;
 
 protected:
-    Q_DECLARE_PRIVATE(QCoapOption)
+    QCoapOptionPrivate *d_ptr;
 };
 
 QT_END_NAMESPACE

@@ -14,6 +14,7 @@ public:
 
     QUrl url;
     QCoapConnection* connection;
+    //QCoapProtocol* protocol;
     QCoapReply* reply;
     QCoapRequest::QCoapRequestOperation operation;
     QCoapRequest::QCoapRequestState state;
@@ -21,9 +22,9 @@ public:
     bool observe;
 
     void _q_startToSend();
-    void _q_readReply();
-    void _q_getNextBlock(uint blockAsked);
-    void _q_sendAck(quint16 messageId);
+    //void _q_readReply();
+    //void _q_getNextBlock(uint blockAsked);
+    //void _q_sendAck(quint16 messageId);
 
     Q_DECLARE_PUBLIC(QCoapRequest)
 };

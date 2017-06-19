@@ -8,27 +8,25 @@ QCoapOptionPrivate::QCoapOptionPrivate() :
 }
 
 QCoapOption::QCoapOption(QCoapOptionName name,
-                         const QByteArray& value,
-                         QObject* parent) :
-    QObject(* new QCoapOptionPrivate, parent)
+                         const QByteArray& value) :
+    d_ptr(new QCoapOptionPrivate)
 {
-    Q_D(QCoapOption);
-    d->name = name;
-    d->value = value;
-    d->length = quint8(value.length());
+    d_ptr->name = name;
+    d_ptr->value = value;
+    d_ptr->length = quint8(value.length());
 }
 
 QByteArray QCoapOption::value() const
 {
-    return d_func()->value;
+    return d_ptr->value;
 }
 
 quint8 QCoapOption::length() const
 {
-    return d_func()->length;
+    return d_ptr->length;
 }
 
 QCoapOption::QCoapOptionName QCoapOption::name() const
 {
-    return d_func()->name;
+    return d_ptr->name;
 }

@@ -6,7 +6,7 @@
 
 QT_BEGIN_NAMESPACE
 
-class QCoapMessagePrivate : public QObjectPrivate
+class QCoapMessagePrivate
 {
 public:
     QCoapMessagePrivate();
@@ -16,14 +16,12 @@ public:
     quint16 messageId;
     QByteArray token;
     quint8 tokenLength;
-    QList<QCoapOption*> options;
+    QList<QCoapOption> options;
     QByteArray payload;
 
     uint currentBlockNumber;
     bool hasNextBlock;
     uint blockSize;
-
-    Q_DECLARE_PUBLIC(QCoapMessage)
 };
 
 QT_END_NAMESPACE

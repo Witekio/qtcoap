@@ -3,11 +3,13 @@
 
 #include "qcoapmessage.h"
 #include <QByteArray>
+#include <QIODevice>
+#include <QSharedPointer>
 
 QT_BEGIN_NAMESPACE
 
 class QCoapReplyPrivate;
-class QCoapReply : public QCoapMessage
+class QCoapReply : public QIODevice
 {
     Q_OBJECT
 public:
@@ -23,16 +25,18 @@ public:
 
     QCoapReply(QObject* parent = Q_NULLPTR);
 
-    virtual void fromPdu(const QByteArray& pdu);
+    void fromPdu(const QByteArray& pdu);
     QByteArray readData();
 
     QCoapReplyStatusCode statusCode() const;
 
 signals:
-    void nextBlockAsked(uint blockNumberAsked);
-    void acknowledgmentAsked(quint16 messageId);
+    void finished();
+    // NOTE : will certainly be removed or placed in a separate class for internal use
+    //void nextBlockAsked(uint blockNumberAsked);
+    //void acknowledgmentAsked(quint16 messageId);
 
-protected:
+private :
     Q_DECLARE_PRIVATE(QCoapReply)
 };
 

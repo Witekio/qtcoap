@@ -8,11 +8,12 @@ QCoapReplyPrivate::QCoapReplyPrivate() :
 }
 
 QCoapReply::QCoapReply(QObject* parent) :
-    QCoapMessage(* new QCoapReplyPrivate, parent)
+    QIODevice(* new QCoapReplyPrivate, parent)
 {
+    // TODO: remove QCoapMessage inheritance or find a way to call set d-ptr correctly
 }
 
-void QCoapReply::fromPdu(const QByteArray& pdu)
+/*void QCoapReply::fromPdu(const QByteArray& pdu)
 {
     Q_D(QCoapReply);
 
@@ -95,12 +96,12 @@ void QCoapReply::fromPdu(const QByteArray& pdu)
         qDebug() << "ACK ASKED";
         emit acknowledgmentAsked(d->messageId);
     }
-}
+}*/
 
+// TODO : it is a qiodevice now
 QByteArray QCoapReply::readData()
 {
-    qDebug() << payload();
-    return payload();
+    return readAll();
 }
 
 QCoapReply::QCoapReplyStatusCode QCoapReply::statusCode() const

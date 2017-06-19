@@ -127,13 +127,15 @@ void QCoapRequest::sendRequest()
     //qDebug() << "QCoapRequest : sendRequest()";
     QThread *thread = new QThread();
 
+    d_func()->connection->protocol()->initializeInternalRequest(this);
+
     connect(thread, SIGNAL(started()), this, SLOT(_q_startToSend()));
     connect(thread, SIGNAL(finished()), thread, SLOT(deleteLater()));
     connect(this, SIGNAL(finished(QCoapRequest*)), thread, SLOT(quit()));
-    connect(reply(), SIGNAL(nextBlockAsked(uint)), this, SLOT(_q_getNextBlock(uint))); // Block2
-    connect(reply(), SIGNAL(acknowledgmentAsked(quint16)), this, SLOT(_q_sendAck(quint16))); // CON replies
-    connect(this, SIGNAL(replied()), this, SLOT(_q_startToSend())); // Equivalent of finished for Block2 and observe
-    connect(connection(), SIGNAL(readyRead()), this, SLOT(_q_readReply()));
+    //connect(reply(), SIGNAL(nextBlockAsked(uint)), this, SLOT(_q_getNextBlock(uint))); // Block2
+    //connect(reply(), SIGNAL(acknowledgmentAsked(quint16)), this, SLOT(_q_sendAck(quint16))); // CON replies
+    //connect(this, SIGNAL(replied()), this, SLOT(_q_startToSend())); // Equivalent of finished for Block2 and observe
+    //connect(connection(), SIGNAL(readyRead()), this, SLOT(_q_readReply()));
 
     connection()->moveToThread(thread);
 
@@ -144,10 +146,10 @@ void QCoapRequest::readReply()
 {
     Q_D(QCoapRequest);
 
-    d->_q_readReply();
+    //d->_q_readReply();
 }
 
-void QCoapRequestPrivate::_q_readReply()
+/*void QCoapRequestPrivate::_q_readReply()
 {
     Q_Q(QCoapRequest);
 
@@ -172,9 +174,9 @@ void QCoapRequestPrivate::_q_readReply()
             emit q->replied();
         }
     //}
-}
+}*/
 
-void QCoapRequestPrivate::_q_getNextBlock(uint blockNumber)
+/*void QCoapRequestPrivate::_q_getNextBlock(uint blockNumber)
 {
     Q_Q(QCoapRequest);
 
@@ -183,29 +185,17 @@ void QCoapRequestPrivate::_q_getNextBlock(uint blockNumber)
     //if (blockNumber > blockAsked) {
         blockAsked = blockNumber;
         // Set the BLOCK2 option to get the new block
-        quint32 block2Data = (blockNumber << 4) | 2;
-        QByteArray block2Value = QByteArray();
-        if (block2Data > 0xFFFF)
-            block2Value.append(block2Data >> 16);
-        if (block2Data > 0xFF)
-            block2Value.append(block2Data >> 8 & 0xFF);
-        block2Value.append(block2Data & 0xFF);
-
-        q->removeOptionByName(QCoapOption::BLOCK2);
-        q->addOption(QCoapOption::BLOCK2, block2Value);
-
-        q->setToken(q->generateToken());
-        q->setMessageId(messageId+1);
+        q->addOptionToAskBlock(blockNumber);
 
         //emit q->replied();
     //} // TODO: find a better way to do this (in case of block already asked)
-    /*else {
-        if (reply->hasNextBlock())
-            _q_getNextBlock(blockNumber+1);
-    }*/
+    //else {
+    //    if (reply->hasNextBlock())
+    //        _q_getNextBlock(blockNumber+1);
+    //}
 
     qDebug() << " BLOCK ASKED : " << blockNumber;
-}
+}*/
 
 quint16 QCoapRequest::generateMessageId()
 {
@@ -242,6 +232,24 @@ void QCoapRequest::parseUri()
     d->connection->setPort(d->url.port(5683));
 }
 
+void QCoapRequest::addOptionToAskBlock(uint blockNumber)
+{
+    // Set the BLOCK2 option to get the new block
+    quint32 block2Data = (blockNumber << 4) | 2;
+    QByteArray block2Value = QByteArray();
+    if (block2Data > 0xFFFF)
+        block2Value.append(block2Data >> 16);
+    if (block2Data > 0xFF)
+        block2Value.append(block2Data >> 8 & 0xFF);
+    block2Value.append(block2Data & 0xFF);
+
+    removeOptionByName(QCoapOption::BLOCK2);
+    addOption(QCoapOption::BLOCK2, block2Value);
+
+    setToken(generateToken());
+    setMessageId(d_func()->messageId+1);
+}
+
 void QCoapRequest::setRequestForAck(quint16 messageId, const QByteArray& payload)
 {
     setType(ACKNOWLEDGMENT);
@@ -264,6 +272,21 @@ void QCoapRequest::setRequestForReset(quint16 messageId)
     removeAllOptions();
 }
 
+void QCoapRequest::initializeAttributesFrom(QCoapRequest* request)
+{
+    Q_D(QCoapRequest);
+    QCoapRequestPrivate* d_request = request->d_func();
+
+    QCoapMessage::initializeAttributesFrom(request);
+    d->url = d_request->url;
+    d->connection = d_request->connection;
+    d->reply = d_request->reply;
+    d->operation = d_request->operation;
+    d->state = d_request->state;
+    d->blockAsked = d_request->blockAsked;
+    d->observe = d_request->observe;
+}
+
 void QCoapRequestPrivate::_q_startToSend()
 {
     Q_Q(QCoapRequest);
@@ -275,14 +298,14 @@ void QCoapRequestPrivate::_q_startToSend()
     }
 }
 
-void QCoapRequestPrivate::_q_sendAck(quint16 messageId)
+/*void QCoapRequestPrivate::_q_sendAck(quint16 messageId)
 {
     Q_Q(QCoapRequest);
 
     qDebug() << "SEND ACK SLOT";
     q->setRequestForAck(messageId);
     emit q->replied();
-}
+}*/
 
 QCoapReply* QCoapRequest::reply() const
 {

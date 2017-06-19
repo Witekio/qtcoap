@@ -16,13 +16,13 @@ QCoapMessagePrivate::QCoapMessagePrivate() :
 {
 }
 
-QCoapMessage::QCoapMessage(QObject* parent) :
-    QObject(* new QCoapMessagePrivate, parent)
+QCoapMessage::QCoapMessage() :
+    d_ptr(new QCoapMessagePrivate)
 {
 }
 
-QCoapMessage::QCoapMessage(QCoapMessagePrivate &dd, QObject* parent) :
-    QObject(dd, parent)
+QCoapMessage::QCoapMessage(QCoapMessagePrivate &dd) :
+    d_ptr(&dd)
 {
 }
 
@@ -39,48 +39,41 @@ QCoapMessage::QCoapMessage(QCoapMessagePrivate &dd, QObject* parent) :
 
 void QCoapMessage::addOption(QCoapOption::QCoapOptionName name, const QByteArray& value)
 {
-    QCoapOption* option = new QCoapOption(name, value);
+    QCoapOption option(name, value);
     addOption(option);
 }
 
-void QCoapMessage::addOption(QCoapOption* option)
+void QCoapMessage::addOption(const QCoapOption& option)
 {
-    Q_D(QCoapMessage);
-
-    // If it is a BLOCK option, we need to know the actuel block number
-    if (option->name() == QCoapOption::BLOCK1
-        || option->name() == QCoapOption::BLOCK2) {
+    // If it is a BLOCK option, we need to know the block number
+    if (option.name() == QCoapOption::BLOCK1
+        || option.name() == QCoapOption::BLOCK2) {
         quint32 blockNumber = 0;
-        quint8 *optionData = (quint8 *)option->value().data();
-        for (int i = 0; i < option->length() - 1; ++i)
+        quint8 *optionData = (quint8 *)option.value().data();
+        for (int i = 0; i < option.length() - 1; ++i)
             blockNumber = (blockNumber << 8) | optionData[i];
-        blockNumber = (blockNumber << 4) | ((optionData[option->length()-1]) >> 4);
-        d->currentBlockNumber = blockNumber;
-        d->hasNextBlock = ((optionData[option->length()-1] & 0x8) == 0x8);
-        d->blockSize = qPow(2, (optionData[option->length()-1] & 0x7) + 4);
+        blockNumber = (blockNumber << 4) | ((optionData[option.length()-1]) >> 4);
+        d_ptr->currentBlockNumber = blockNumber;
+        d_ptr->hasNextBlock = ((optionData[option.length()-1] & 0x8) == 0x8);
+        d_ptr->blockSize = qPow(2, (optionData[option.length()-1] & 0x7) + 4);
         //qDebug() << option->length();
         /*qDebug() << "ADD BLOCK : " << d->currentBlockNumber
                  << " - " << d->hasNextBlock
                  << " - " << option->value().toHex();*/
     }
 
-    d->options.push_back(option);
+    d_ptr->options.push_back(option);
 }
 
-void QCoapMessage::removeOption(QCoapOption* option)
+void QCoapMessage::removeOption(const QCoapOption& option)
 {
-    Q_D(QCoapMessage);
-
-    d->options.removeOne(option);
-    delete option;
+    d_ptr->options.removeOne(option);
 }
 
 void QCoapMessage::removeOptionByName(QCoapOption::QCoapOptionName name)
 {
-    Q_D(QCoapMessage);
-
-    for (QCoapOption* option : d->options) {
-        if (option->name() == name) {
+    for (QCoapOption option : d_ptr->options) {
+        if (option.name() == name) {
             removeOption(option);
             break;
         }
@@ -89,105 +82,98 @@ void QCoapMessage::removeOptionByName(QCoapOption::QCoapOptionName name)
 
 void QCoapMessage::removeAllOptions()
 {
-    Q_D(QCoapMessage);
-
-    qDeleteAll(d->options);
-    d->options.clear();
+    qDeleteAll(d_ptr->options);
+    d_ptr->options.clear();
 }
 
 bool QCoapMessage::hasNextBlock() const
 {
-    return d_func()->hasNextBlock;
+    return d_ptr->hasNextBlock;
 }
 
 quint8 QCoapMessage::version() const
 {
-    return d_func()->version;
+    return d_ptr->version;
 }
 
 QCoapMessage::QCoapMessageType QCoapMessage::type() const
 {
-    return d_func()->type;
+    return d_ptr->type;
 }
 
 QByteArray QCoapMessage::token() const
 {
-    return d_func()->token;
+    return d_ptr->token;
 }
 
 quint8 QCoapMessage::tokenLength() const
 {
-    return d_func()->tokenLength;
+    return d_ptr->tokenLength;
 }
 
 quint16 QCoapMessage::messageId() const
 {
-    return d_func()->messageId;
+    return d_ptr->messageId;
 }
 
 QByteArray QCoapMessage::payload() const
 {
-    return d_func()->payload;
+    return d_ptr->payload;
 }
 
-QCoapOption* QCoapMessage::option(int index) const
+QCoapOption QCoapMessage::option(int index) const
 {
-    return d_func()->options.at(index);
+    return d_ptr->options.at(index);
 }
 
 int QCoapMessage::optionsLength() const
 {
-    return d_func()->options.length();
+    return d_ptr->options.length();
 }
 
 uint QCoapMessage::currentBlockNumber() const
 {
-    return d_func()->currentBlockNumber;
+    return d_ptr->currentBlockNumber;
 }
 
 void QCoapMessage::setVersion(quint8 version)
 {
-    Q_D(QCoapMessage);
-    if (d->version == version)
+    if (d_ptr->version == version)
         return;
 
-    d->version = version;
+    d_ptr->version = version;
 }
 
 
 void QCoapMessage::setType(const QCoapMessageType& type)
 {
-    Q_D(QCoapMessage);
-    if (d->type == type)
+    if (d_ptr->type == type)
         return;
 
-    d->type = type;
+    d_ptr->type = type;
 }
 
 void QCoapMessage::setToken(const QByteArray& token)
 {
-    Q_D(QCoapMessage);
-    if (d->token == token)
+    if (d_ptr->token == token)
         return;
 
-    d->token = token;
-    d->tokenLength = quint8(token.size());
+    d_ptr->token = token;
+    d_ptr->tokenLength = quint8(token.size());
 }
 
 void QCoapMessage::setMessageId(quint16 id)
 {
-    Q_D(QCoapMessage);
-    if (d->messageId == id)
+    if (d_ptr->messageId == id)
         return;
 
-    d->messageId = id;
+    d_ptr->messageId = id;
 }
 
 void QCoapMessage::setPayload(const QByteArray& payload)
 {
-    Q_D(QCoapMessage);
-    if (d->payload == payload)
+    if (d_ptr->payload == payload)
         return;
 
-    d->payload = payload;
+    d_ptr->payload = payload;
 }

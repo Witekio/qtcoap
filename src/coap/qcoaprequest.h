@@ -43,6 +43,8 @@ public:
     void sendRequest();
     quint16 generateMessageId();
     QByteArray generateToken();
+    void addOptionToAskBlock(uint blockNumber);
+    void initializeAttributesFrom(QCoapRequest* request);
 
     QUrl url() const;
     QCoapRequestOperation operation() const;
@@ -54,9 +56,9 @@ public:
     void setObserve(bool observe);
 
 signals:
-    void notified(const QByteArray& replyData);
+    // void notified(const QByteArray& replyData); // NOTE : will certainly be removed
     void finished(QCoapRequest* request);
-    void replied();
+    // void replied(); // NOTE : will certainly be removed
 
 protected:
     void parseUri();
@@ -69,9 +71,9 @@ protected:
 
     Q_DECLARE_PRIVATE(QCoapRequest)
     Q_PRIVATE_SLOT(d_func(), void _q_startToSend())
-    Q_PRIVATE_SLOT(d_func(), void _q_readReply())
-    Q_PRIVATE_SLOT(d_func(), void _q_getNextBlock(uint blockAsked))
-    Q_PRIVATE_SLOT(d_func(), void _q_sendAck(quint16 messageId))
+    //Q_PRIVATE_SLOT(d_func(), void _q_readReply())
+    /*Q_PRIVATE_SLOT(d_func(), void _q_getNextBlock(uint blockAsked))
+    Q_PRIVATE_SLOT(d_func(), void _q_sendAck(quint16 messageId))*/
 };
 
 QT_END_NAMESPACE
