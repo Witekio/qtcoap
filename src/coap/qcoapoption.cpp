@@ -30,3 +30,10 @@ QCoapOption::QCoapOptionName QCoapOption::name() const
 {
     return d_ptr->name;
 }
+
+bool QCoapOption::operator==(const QCoapOption& other) const
+{
+    return (d_ptr->name == other.d_ptr->name
+            && d_ptr->value == other.d_ptr->value
+            && d_ptr->length == other.d_ptr->length);
+}

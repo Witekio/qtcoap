@@ -18,7 +18,11 @@ HEADERS += \
     qcoapresource.h \
     qcoapresource_p.h \
     qcoapprotocol.h \
-    qcoapprotocol_p.h
+    qcoapprotocol_p.h \
+    qcoapinternalmessage.h \
+    qcoapinternalreply.h \
+    qcoapinternalrequest.h \
+    qcoapinternalmessage_p.h
 
 SOURCES += \
     qcoapclient.cpp \
@@ -28,4 +32,7 @@ SOURCES += \
     qcoapreply.cpp \
     qcoaprequest.cpp \
     qcoapresource.cpp \
-    qcoapprotocol.cpp
+    qcoapprotocol.cpp \
+    qcoapinternalmessage.cpp \
+    qcoapinternalreply.cpp \
+    qcoapinternalrequest.cpp

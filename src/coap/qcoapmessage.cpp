@@ -4,15 +4,29 @@
 #include <QtCore/QtMath>
 
 QCoapMessagePrivate::QCoapMessagePrivate() :
+    QSharedData(),
     version(1),
     type(QCoapMessage::NONCONFIRMABLE),
     messageId(0),
     token(0),
     tokenLength(0),
-    payload(QByteArray()),
-    currentBlockNumber(0),
-    hasNextBlock(false),
-    blockSize(0)
+    payload(QByteArray())
+{
+}
+
+QCoapMessagePrivate::QCoapMessagePrivate(const QCoapMessagePrivate& other) :
+    QSharedData(other),
+    version(other.version),
+    type(other.type),
+    messageId(other.messageId),
+    token(other.token),
+    tokenLength(other.tokenLength),
+    options(other.options),
+    payload(other.payload)
+{
+}
+
+QCoapMessagePrivate::~QCoapMessagePrivate()
 {
 }
 
@@ -26,17 +40,6 @@ QCoapMessage::QCoapMessage(QCoapMessagePrivate &dd) :
 {
 }
 
-/*QCoapMessage::QCoapMessage(const QCoapMessage& other)
-{
-    Q_D(QCoapMessage);
-    d->type = other.type();
-    d->messageId = other.messageId();
-    d->tokenLength = other.tokenLength();
-    d->token = other.token();
-    d->options = other.options();
-    d->payload = other.payload();
-}*/
-
 void QCoapMessage::addOption(QCoapOption::QCoapOptionName name, const QByteArray& value)
 {
     QCoapOption option(name, value);
@@ -46,7 +49,7 @@ void QCoapMessage::addOption(QCoapOption::QCoapOptionName name, const QByteArray
 void QCoapMessage::addOption(const QCoapOption& option)
 {
     // If it is a BLOCK option, we need to know the block number
-    if (option.name() == QCoapOption::BLOCK1
+    /*if (option.name() == QCoapOption::BLOCK1
         || option.name() == QCoapOption::BLOCK2) {
         quint32 blockNumber = 0;
         quint8 *optionData = (quint8 *)option.value().data();
@@ -57,10 +60,10 @@ void QCoapMessage::addOption(const QCoapOption& option)
         d_ptr->hasNextBlock = ((optionData[option.length()-1] & 0x8) == 0x8);
         d_ptr->blockSize = qPow(2, (optionData[option.length()-1] & 0x7) + 4);
         //qDebug() << option->length();
-        /*qDebug() << "ADD BLOCK : " << d->currentBlockNumber
+        qDebug() << "ADD BLOCK : " << d->currentBlockNumber
                  << " - " << d->hasNextBlock
-                 << " - " << option->value().toHex();*/
-    }
+                 << " - " << option->value().toHex();
+    }*/
 
     d_ptr->options.push_back(option);
 }
@@ -82,13 +85,7 @@ void QCoapMessage::removeOptionByName(QCoapOption::QCoapOptionName name)
 
 void QCoapMessage::removeAllOptions()
 {
-    qDeleteAll(d_ptr->options);
     d_ptr->options.clear();
-}
-
-bool QCoapMessage::hasNextBlock() const
-{
-    return d_ptr->hasNextBlock;
 }
 
 quint8 QCoapMessage::version() const
@@ -129,11 +126,6 @@ QCoapOption QCoapMessage::option(int index) const
 int QCoapMessage::optionsLength() const
 {
     return d_ptr->options.length();
-}
-
-uint QCoapMessage::currentBlockNumber() const
-{
-    return d_ptr->currentBlockNumber;
 }
 
 void QCoapMessage::setVersion(quint8 version)

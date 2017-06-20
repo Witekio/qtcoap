@@ -2,7 +2,6 @@
 #define QCOAPPROTOCOL_H
 
 #include <QObject>
-#include "qcoaprequest.h"
 
 QT_BEGIN_NAMESPACE
 
@@ -14,7 +13,7 @@ public:
     explicit QCoapProtocol(QObject *parent = 0);
 
     void managePdu(const QByteArray& pdu);
-    void initializeInternalRequest(QCoapRequest* request);
+    //void initializeInternalRequest(QCoapRequest* request);
     void onLastBlock();
     void onNextBlock();
 

@@ -1,15 +1,18 @@
 #ifndef QCOAPMESSAGE_P_H
 #define QCOAPMESSAGE_P_H
 
-#include <qcoapmessage.h>
+#include "qcoapmessage.h"
 #include <private/qobject_p.h>
+#include <QSharedData>
 
 QT_BEGIN_NAMESPACE
 
-class QCoapMessagePrivate
+class QCoapMessagePrivate : public QSharedData
 {
 public:
     QCoapMessagePrivate();
+    QCoapMessagePrivate(const QCoapMessagePrivate& other);
+    ~QCoapMessagePrivate();
 
     quint8 version;
     QCoapMessage::QCoapMessageType type;
@@ -18,10 +21,6 @@ public:
     quint8 tokenLength;
     QList<QCoapOption> options;
     QByteArray payload;
-
-    uint currentBlockNumber;
-    bool hasNextBlock;
-    uint blockSize;
 };
 
 QT_END_NAMESPACE

@@ -51,7 +51,6 @@ void tst_QCoapMessage::setMessageType_data()
 void tst_QCoapMessage::setMessageType()
 {
     QFETCH(QCoapMessage::QCoapMessageType, type);
-
     QCoapMessage message;
     message.setType(type);
     QCOMPARE(message.type(), type);

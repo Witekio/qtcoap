@@ -1,6 +1,7 @@
 #include "qcoapreply.h"
 #include "qcoapreply_p.h"
 #include <QDebug>
+#include <QtMath>
 
 QCoapReplyPrivate::QCoapReplyPrivate() :
     status(QCoapReply::INVALIDCODE)
@@ -10,7 +11,6 @@ QCoapReplyPrivate::QCoapReplyPrivate() :
 QCoapReply::QCoapReply(QObject* parent) :
     QIODevice(* new QCoapReplyPrivate, parent)
 {
-    // TODO: remove QCoapMessage inheritance or find a way to call set d-ptr correctly
 }
 
 /*void QCoapReply::fromPdu(const QByteArray& pdu)
@@ -99,9 +99,21 @@ QCoapReply::QCoapReply(QObject* parent) :
 }*/
 
 // TODO : it is a qiodevice now
-QByteArray QCoapReply::readData()
+/*QByteArray QCoapReply::readData()
 {
     return readAll();
+}*/
+
+qint64 QCoapReply::readData(char* data, qint64 maxSize)
+{
+    // TODO : QCoapReply::readData()
+    return -1;
+}
+
+qint64 QCoapReply::writeData(const char* data, qint64 maxSize)
+{
+    // TODO : QCoapReply::readData()
+    return -1;
 }
 
 QCoapReply::QCoapReplyStatusCode QCoapReply::statusCode() const

@@ -6,17 +6,18 @@
 #include <QtCore/qglobal.h>
 #include <QTime>
 #include <QThread>
+#include <QSharedDataPointer>
 
 #include "qcoapmessage.h"
 #include "qcoapconnection.h"
 #include "qcoapreply.h"
+#include "qcoapprotocol.h"
 
 QT_BEGIN_NAMESPACE
 
 class QCoapRequestPrivate;
 class QCoapRequest : public QCoapMessage
 {
-    Q_OBJECT
 public:
     enum QCoapRequestOperation {
         EMPTY,
@@ -35,9 +36,11 @@ public:
     };
 
     QCoapRequest(const QUrl& url = QUrl(),
-                 QCoapMessageType type = NONCONFIRMABLE,
-                 QObject* parent = nullptr);
-    //QCoapRequest(const QCoapRequest &other);
+                 QCoapMessageType type = NONCONFIRMABLE);
+    QCoapRequest(const QCoapRequest &other);
+    ~QCoapRequest();
+
+    QCoapRequest& operator=(const QCoapRequest& other);
 
     QByteArray toPdu();
     void sendRequest();
@@ -55,25 +58,29 @@ public:
     void setOperation(QCoapRequestOperation operation);
     void setObserve(bool observe);
 
-signals:
+// TODO : remove signals and slots and make private internal class
+//signals:
     // void notified(const QByteArray& replyData); // NOTE : will certainly be removed
-    void finished(QCoapRequest* request);
+    //void finished(QCoapRequest* request);
     // void replied(); // NOTE : will certainly be removed
 
 protected:
     void parseUri();
     void setReply(QCoapReply* reply);
     void setConnection(QCoapConnection* connection);
+    void setProtocol(QCoapProtocol* protocol);
     void setState(QCoapRequestState state);
     void setRequestForAck(quint16 messageId, const QByteArray& payload = QByteArray());
     void setRequestForReset(quint16 messageId);
     void readReply(); // TODO : remove readReply and find another way to test _q_readReply
 
-    Q_DECLARE_PRIVATE(QCoapRequest)
+    QSharedDataPointer<QCoapRequestPrivate> d_ptr;
+
+    /*Q_DECLARE_PRIVATE(QCoapRequest)
     Q_PRIVATE_SLOT(d_func(), void _q_startToSend())
     //Q_PRIVATE_SLOT(d_func(), void _q_readReply())
-    /*Q_PRIVATE_SLOT(d_func(), void _q_getNextBlock(uint blockAsked))
-    Q_PRIVATE_SLOT(d_func(), void _q_sendAck(quint16 messageId))*/
+    //Q_PRIVATE_SLOT(d_func(), void _q_getNextBlock(uint blockAsked))
+    //Q_PRIVATE_SLOT(d_func(), void _q_sendAck(quint16 messageId))*/
 };
 
 QT_END_NAMESPACE

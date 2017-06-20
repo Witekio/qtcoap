@@ -26,7 +26,8 @@ QCoapReply* QCoapClient::get(QCoapRequest* request)
 
     request->setOperation(QCoapRequest::GET);
 
-    connect(request, SIGNAL(finished(QCoapRequest*)), this, SLOT(_q_requestFinished(QCoapRequest*)));
+    // TODO : connect the reply
+    //connect(request, SIGNAL(finished(QCoapRequest*)), this, SLOT(_q_requestFinished(QCoapRequest*)));
 
     sendRequest(request);
 
@@ -40,7 +41,8 @@ QCoapReply* QCoapClient::put(QCoapRequest* request, const QByteArray& data)
     request->setOperation(QCoapRequest::PUT);
     request->setPayload(data);
 
-    connect(request, SIGNAL(finished(QCoapRequest*)), this, SLOT(_q_requestFinished(QCoapRequest*)));
+    // TODO : connect the reply
+    //connect(request, SIGNAL(finished(QCoapRequest*)), this, SLOT(_q_requestFinished(QCoapRequest*)));
 
     sendRequest(request);
 
@@ -54,7 +56,8 @@ QCoapReply* QCoapClient::post(QCoapRequest* request, const QByteArray& data)
     request->setOperation(QCoapRequest::POST);
     request->setPayload(data);
 
-    connect(request, SIGNAL(finished(QCoapRequest*)), this, SLOT(_q_requestFinished(QCoapRequest*)));
+    // TODO : connect the reply
+    //connect(request, SIGNAL(finished(QCoapRequest*)), this, SLOT(_q_requestFinished(QCoapRequest*)));
 
     sendRequest(request);
 
@@ -67,7 +70,8 @@ QCoapReply* QCoapClient::deleteResource(QCoapRequest* request)
 
     request->setOperation(QCoapRequest::DELETE);
 
-    connect(request, SIGNAL(finished(QCoapRequest*)), this, SLOT(_q_requestFinished(QCoapRequest*)));
+    // TODO : connect the reply
+    //connect(request, SIGNAL(finished(QCoapRequest*)), this, SLOT(_q_requestFinished(QCoapRequest*)));
 
     sendRequest(request);
 
@@ -84,13 +88,14 @@ QList<QCoapResource*> QCoapClient::discover(const QUrl& url, const QString& disc
     QUrl discoveryUrl(url.toString().append(discoveryPath));
     QCoapRequest* request = new QCoapRequest(discoveryUrl);
 
-    connect(request, SIGNAL(finished(QCoapRequest*)), &loop, SLOT(quit()));
+    // TODO : connect the reply
+    //connect(request, SIGNAL(finished(QCoapRequest*)), &loop, SLOT(quit()));
 
     QCoapReply* reply = get(request);
 
     loop.exec();
 
-    d->resources = QCoapResource::fromCoreLinkList(reply->readData());
+    d->resources = QCoapResource::fromCoreLinkList(reply->readAll());
 
     return d->resources;
 }

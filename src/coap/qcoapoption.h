@@ -38,6 +38,8 @@ public:
     quint8 length() const;
     QCoapOptionName name() const;
 
+    bool operator==(const QCoapOption& other) const;
+
 protected:
     QCoapOptionPrivate *d_ptr;
 };

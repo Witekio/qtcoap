@@ -10,19 +10,20 @@ void QCoapProtocol::managePdu(const QByteArray& pdu)
 {
     Q_D(QCoapProtocol);
 
-    d->internalReply.fromPdu(pdu);
+    //d->internalReply.fromPdu(pdu);
 
-    if (d->internalReply.hasNextBlock())
+    // TODO : check if this is the last block or not
+    /*if (d->internalReply.hasNextBlock())
         onNextBlock();
     else
-        onLastBlock();
+        onLastBlock();*/
 }
 
-void QCoapProtocol::initializeInternalRequest(QCoapRequest* request)
+/*void QCoapProtocol::initializeInternalRequest(QCoapRequest* request)
 {
     Q_D(QCoapProtocol);
     d->internalRequest.initializeAttributesFrom(request);
-}
+}*/
 
 void QCoapProtocol::onLastBlock()
 {
@@ -31,7 +32,8 @@ void QCoapProtocol::onLastBlock()
 
 void QCoapProtocol::onNextBlock()
 {
-    Q_D(QCoapProtocol);
-    d->internalRequest.addOptionToAskBlock(d->internalReply.currentBlockNumber()+1);
+    //Q_D(QCoapProtocol);
+    // TODO : make the request to make the next block
+    //d->internalRequest.addOptionToAskBlock(d->internalReply.currentBlockNumber()+1);
     emit nextBlockAsked();
 }

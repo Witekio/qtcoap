@@ -7,7 +7,7 @@
 
 QT_BEGIN_NAMESPACE
 
-class QCoapReplyPrivate : public QIODevicePrivate
+class QCoapReplyPrivate : public QCoapMessagePrivate, public QIODevicePrivate
 {
 public:
     QCoapReplyPrivate();

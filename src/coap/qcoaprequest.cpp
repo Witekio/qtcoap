@@ -1,15 +1,33 @@
 #include "qcoaprequest.h"
 #include "qcoaprequest_p.h"
 
+#include <QtMath>
+
 QT_BEGIN_NAMESPACE
 
 QCoapRequestPrivate::QCoapRequestPrivate() :
+    QCoapMessagePrivate (),
     url(QUrl()),
-    connection(new QCoapConnection()),
+    connection(new QCoapConnection),
+    protocol(new QCoapProtocol),
     reply(new QCoapReply()),
     operation(QCoapRequest::GET),
     blockAsked(0),
     observe(false)
+{
+}
+
+QCoapRequestPrivate::QCoapRequestPrivate(const QCoapRequestPrivate &other) :
+    QCoapMessagePrivate(other),
+    url(other.url),
+    connection(other.connection),
+    protocol(other.protocol),
+    reply(other.reply),
+    operation(other.operation),
+    state(other.state),
+    blockAsked(other.blockAsked),
+    observe(other.observe)
+
 {
 }
 
@@ -18,37 +36,36 @@ QCoapRequestPrivate::~QCoapRequestPrivate()
     delete connection;
 }
 
-QCoapRequest::QCoapRequest(const QUrl& url, QCoapMessageType type, QObject* parent) :
-    QCoapMessage(* new QCoapRequestPrivate, parent)
+QCoapRequest::QCoapRequest(const QUrl& url, QCoapMessageType type) :
+    QCoapMessage ()
 {
-    Q_D(QCoapRequest);
-    d->url = url;
+    d_ptr->url = url;
     parseUri();
     setState(QCoapRequest::WAITING);
     setType(type);
     qsrand(QTime::currentTime().msec()); // to generate message ids and tokens
 }
 
-/*QCoapRequest::QCoapRequest(const QCoapRequest &other)
+QCoapRequest::QCoapRequest(const QCoapRequest &other) :
+    QCoapMessage (other),
+    d_ptr(other.d_ptr)
 {
-    Q_D(QCoapRequest);
-    d->url = other.url();
-    d->connection = other.connection();
-    d->reply = other.reply();
-    d->operation = other.operation();
-}*/
+}
+
+QCoapRequest::~QCoapRequest()
+{
+}
 
 QByteArray QCoapRequest::toPdu()
 {
-    Q_D(QCoapRequest);
     QByteArray pdu;
 
     // Insert header
-    quint32 coapHeader = (quint32(d->version) << 30)      // Coap version
-            | (quint32(d->type) << 28)            // Message type
-            | (quint32(d->tokenLength) << 24)     // Token Length
-            | (quint32(d->operation) << 16)       // Operation type
-            | (quint32(d->messageId));            // Message ID
+    quint32 coapHeader = (quint32(d_ptr->version) << 30)    // Coap version
+            | (quint32(d_ptr->type) << 28)                  // Message type
+            | (quint32(d_ptr->tokenLength) << 24)           // Token Length
+            | (quint32(d_ptr->operation) << 16)             // Operation type
+            | (quint32(d_ptr->messageId));                  // Message ID
 
     pdu.append(static_cast<quint8>(coapHeader >> 24));
     pdu.append(static_cast<quint8>((coapHeader >> 16) & 0xFF));
@@ -56,25 +73,25 @@ QByteArray QCoapRequest::toPdu()
     pdu.append(static_cast<quint8>(coapHeader & 0xFF));
 
     // Insert Token
-    pdu.append(d->token);
+    pdu.append(d_ptr->token);
 
     // Insert Options
-    if (!d->options.isEmpty()) {
+    if (!d_ptr->options.isEmpty()) {
         // Sort options by ascending order
-        qSort(d->options.begin(), d->options.end(),
-              [](const QCoapOption* a, const QCoapOption* b) -> bool {
-            return (a->name() < b->name());
+        qSort(d_ptr->options.begin(), d_ptr->options.end(),
+              [](const QCoapOption& a, const QCoapOption& b) -> bool {
+            return (a.name() < b.name());
         });
 
         quint8 lastOptionNumber = 0;
-        for (QCoapOption* option : d->options) {
+        for (QCoapOption option : d_ptr->options) {
             quint8 optionPdu;
 
-            quint16 optionDelta = static_cast<quint16>(option->name()) - lastOptionNumber;
+            quint16 optionDelta = static_cast<quint16>(option.name()) - lastOptionNumber;
             bool isOptionDeltaExtended = false;
             quint8 optionDeltaExtended = 0;
 
-            quint16 optionLength = option->length();
+            quint16 optionLength = option.length();
             bool isOptionLengthExtended = false;
             quint8 optionLengthExtended = 0;
 
@@ -107,16 +124,16 @@ QByteArray QCoapRequest::toPdu()
                 pdu.append(optionDeltaExtended);    // Option Delta Extended
             if (isOptionLengthExtended)
                 pdu.append(optionLengthExtended);   // Option Length Extended
-            pdu.append(option->value());            // Option Value
+            pdu.append(option.value());            // Option Value
 
-            lastOptionNumber = option->name();
+            lastOptionNumber = option.name();
         }
     }
 
     // Insert Payload
     if (!payload().isEmpty()) {
         pdu.append(static_cast<char>(0xFF));
-        pdu.append(d->payload);
+        pdu.append(d_ptr->payload);
     }
 
     return pdu;
@@ -127,26 +144,27 @@ void QCoapRequest::sendRequest()
     //qDebug() << "QCoapRequest : sendRequest()";
     QThread *thread = new QThread();
 
-    d_func()->connection->protocol()->initializeInternalRequest(this);
-
-    connect(thread, SIGNAL(started()), this, SLOT(_q_startToSend()));
+    // TODO : protocol->sendRequest(this) when thread start
+    /*connect(thread, SIGNAL(started()), this, SLOT(_q_startToSend()));
     connect(thread, SIGNAL(finished()), thread, SLOT(deleteLater()));
     connect(this, SIGNAL(finished(QCoapRequest*)), thread, SLOT(quit()));
     //connect(reply(), SIGNAL(nextBlockAsked(uint)), this, SLOT(_q_getNextBlock(uint))); // Block2
     //connect(reply(), SIGNAL(acknowledgmentAsked(quint16)), this, SLOT(_q_sendAck(quint16))); // CON replies
     //connect(this, SIGNAL(replied()), this, SLOT(_q_startToSend())); // Equivalent of finished for Block2 and observe
-    //connect(connection(), SIGNAL(readyRead()), this, SLOT(_q_readReply()));
+    //connect(connection(), SIGNAL(readyRead()), this, SLOT(_q_readReply()));*/
 
-    connection()->moveToThread(thread);
+    d_ptr->connection->moveToThread(thread);
+    d_ptr->protocol->moveToThread(thread);
 
     thread->start();
 }
 
 void QCoapRequest::readReply()
 {
-    Q_D(QCoapRequest);
+    //Q_D(QCoapRequest);
 
     //d->_q_readReply();
+    return;
 }
 
 /*void QCoapRequestPrivate::_q_readReply()
@@ -218,18 +236,16 @@ QByteArray QCoapRequest::generateToken()
 
 void QCoapRequest::parseUri()
 {
-    Q_D(QCoapRequest);
-
     // Convert path into QCoapOptions
-    QString path = d->url.path();
+    QString path = d_ptr->url.path();
     QStringList listPath = path.split("/");
     for (QString pathPart : listPath) {
         if (!pathPart.isEmpty())
             addOption(QCoapOption::URIPATH, pathPart.toUtf8());
     }
 
-    d->connection->setHost(d->url.host());
-    d->connection->setPort(d->url.port(5683));
+    d_ptr->connection->setHost(d_ptr->url.host());
+    d_ptr->connection->setPort(d_ptr->url.port(5683));
 }
 
 void QCoapRequest::addOptionToAskBlock(uint blockNumber)
@@ -247,7 +263,7 @@ void QCoapRequest::addOptionToAskBlock(uint blockNumber)
     addOption(QCoapOption::BLOCK2, block2Value);
 
     setToken(generateToken());
-    setMessageId(d_func()->messageId+1);
+    setMessageId(d_ptr->messageId+1);
 }
 
 void QCoapRequest::setRequestForAck(quint16 messageId, const QByteArray& payload)
@@ -272,22 +288,7 @@ void QCoapRequest::setRequestForReset(quint16 messageId)
     removeAllOptions();
 }
 
-void QCoapRequest::initializeAttributesFrom(QCoapRequest* request)
-{
-    Q_D(QCoapRequest);
-    QCoapRequestPrivate* d_request = request->d_func();
-
-    QCoapMessage::initializeAttributesFrom(request);
-    d->url = d_request->url;
-    d->connection = d_request->connection;
-    d->reply = d_request->reply;
-    d->operation = d_request->operation;
-    d->state = d_request->state;
-    d->blockAsked = d_request->blockAsked;
-    d->observe = d_request->observe;
-}
-
-void QCoapRequestPrivate::_q_startToSend()
+/*void QCoapRequestPrivate::_q_startToSend()
 {
     Q_Q(QCoapRequest);
 
@@ -296,7 +297,7 @@ void QCoapRequestPrivate::_q_startToSend()
         q->setState(QCoapRequest::SENT);
         connection->sendRequest(q->toPdu());
     }
-}
+}*/
 
 /*void QCoapRequestPrivate::_q_sendAck(quint16 messageId)
 {
@@ -309,83 +310,89 @@ void QCoapRequestPrivate::_q_startToSend()
 
 QCoapReply* QCoapRequest::reply() const
 {
-    return d_func()->reply;
+    return d_ptr->reply;
 }
 
 QUrl QCoapRequest::url() const
 {
-    return d_func()->url;
+    return d_ptr->url;
 }
 
 QCoapConnection* QCoapRequest::connection() const
 {
-    return d_func()->connection;
+    return d_ptr->connection;
 }
 
 QCoapRequest::QCoapRequestOperation QCoapRequest::operation() const
 {
-    return d_func()->operation;
+    return d_ptr->operation;
 }
 
 bool QCoapRequest::observe() const
 {
-    return d_func()->observe;
+    return d_ptr->observe;
 }
 
 void QCoapRequest::setUrl(const QUrl& url)
 {
-    Q_D(QCoapRequest);
-    if (d->url == url)
+    if (d_ptr->url == url)
         return;
 
-    d->url = url;
+    d_ptr->url = url;
 }
 
 void QCoapRequest::setReply(QCoapReply* reply)
 {
-    Q_D(QCoapRequest);
-    if (d->reply == reply)
+    if (d_ptr->reply == reply)
         return;
 
-    d->reply = reply;
+    d_ptr->reply = reply;
 }
 
 void QCoapRequest::setConnection(QCoapConnection* connection)
 {
-    Q_D(QCoapRequest);
-    if (d->connection == connection)
+    if (d_ptr->connection == connection)
         return;
 
-    d->connection = connection;
+    d_ptr->connection = connection;
+}
+
+void QCoapRequest::setProtocol(QCoapProtocol* protocol)
+{
+    if (d_ptr->protocol == protocol)
+        return;
+
+    d_ptr->protocol = protocol;
 }
 
 void QCoapRequest::setOperation(QCoapRequestOperation operation)
 {
-    Q_D(QCoapRequest);
-    if (d->operation == operation)
+    if (d_ptr->operation == operation)
         return;
 
-    d->operation = operation;
+    d_ptr->operation = operation;
 }
 
 void QCoapRequest::setState(QCoapRequestState state)
 {
-    Q_D(QCoapRequest);
-    if (d->state == state)
+    if (d_ptr->state == state)
         return;
 
-    d->state = state;
+    d_ptr->state = state;
 }
 
 void QCoapRequest::setObserve(bool observe)
 {
-    Q_D(QCoapRequest);
-    if (d->observe == observe)
+    if (d_ptr->observe == observe)
         return;
 
-    d->observe = observe;
+    d_ptr->observe = observe;
+}
+
+QCoapRequest& QCoapRequest::operator=(const QCoapRequest& other)
+{
+    d_ptr = other.d_ptr;
+    return *this;
 }
 
 QT_END_NAMESPACE
-
-#include "moc_qcoaprequest.cpp"

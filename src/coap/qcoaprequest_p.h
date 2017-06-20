@@ -10,23 +10,22 @@ class QCoapRequestPrivate : public QCoapMessagePrivate
 {
 public:
     QCoapRequestPrivate();
+    QCoapRequestPrivate(const QCoapRequestPrivate &other);
     ~QCoapRequestPrivate();
 
     QUrl url;
     QCoapConnection* connection;
-    //QCoapProtocol* protocol;
+    QCoapProtocol* protocol;
     QCoapReply* reply;
     QCoapRequest::QCoapRequestOperation operation;
     QCoapRequest::QCoapRequestState state;
     uint blockAsked;
     bool observe;
 
-    void _q_startToSend();
+    //void _q_startToSend();
     //void _q_readReply();
     //void _q_getNextBlock(uint blockAsked);
     //void _q_sendAck(quint16 messageId);
-
-    Q_DECLARE_PUBLIC(QCoapRequest)
 };
 
 QT_END_NAMESPACE

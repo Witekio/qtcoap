@@ -26,9 +26,11 @@ public:
     QCoapReply(QObject* parent = Q_NULLPTR);
 
     void fromPdu(const QByteArray& pdu);
-    QByteArray readData();
 
     QCoapReplyStatusCode statusCode() const;
+
+    qint64 readData(char* data, qint64 maxSize) Q_DECL_OVERRIDE;
+    qint64 writeData(const char* data, qint64 maxSize) Q_DECL_OVERRIDE;
 
 signals:
     void finished();
