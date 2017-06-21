@@ -17,11 +17,12 @@ public:
     QCoapInternalRequest(const QCoapRequest& request);
 
     static QCoapInternalRequest fromQCoapRequest(const QCoapRequest& request);
-
     QByteArray toQByteArray() const;
 
+    void setOperation(QCoapOperation operation);
+
 private:
-    QCoapInternalRequestPrivate* d_ptr;
+    QCoapInternalRequestPrivate* d_func() const;
 };
 
 class QCoapInternalRequestPrivate : public QCoapInternalMessagePrivate

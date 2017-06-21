@@ -34,6 +34,11 @@ QCoapMessage::QCoapMessage() :
 {
 }
 
+QCoapMessage::QCoapMessage(const QCoapMessage& other) :
+    d_ptr(other.d_ptr)
+{
+}
+
 QCoapMessage::QCoapMessage(QCoapMessagePrivate &dd) :
     d_ptr(&dd)
 {

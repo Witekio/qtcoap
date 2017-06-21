@@ -6,14 +6,14 @@ QCoapInternalReplyPrivate::QCoapInternalReplyPrivate():
 }
 
 QCoapInternalReply::QCoapInternalReply() :
-    d_ptr(new QCoapInternalReplyPrivate)
+    QCoapInternalMessage (*new QCoapInternalReplyPrivate)
 {
 }
 
-/*QCoapInternalReply QCoapInternalReply::fromQByteArray(const QByteArray& reply)
+QCoapInternalReply QCoapInternalReply::fromQByteArray(const QByteArray& reply)
 {
     QCoapInternalReply internalReply;
-    QCoapInternalReplyPrivate* d = static_cast<QCoapInternalReplyPrivate*>(internalReply.d_ptr);
+    QCoapInternalReplyPrivate* d = internalReply.d_func();
 
     uint blockNumberBefore = d->currentBlockNumber;
     quint8 *pduData = (quint8 *)reply.data();
@@ -95,5 +95,15 @@ QCoapInternalReply::QCoapInternalReply() :
     //    emit acknowledgmentAsked(d->messageId);
     //}
 
-    //return internalReply;
-}*/
+    return internalReply;
+}
+
+QCoapReply::QCoapReplyStatusCode QCoapInternalReply::statusCode() const
+{
+    return d_func()->statusCode;
+}
+
+QCoapInternalReplyPrivate* QCoapInternalReply::d_func() const
+{
+    return static_cast<QCoapInternalReplyPrivate*>(d_ptr);
+}

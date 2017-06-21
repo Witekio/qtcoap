@@ -20,6 +20,7 @@ public:
     };
 
     QCoapMessage();
+    QCoapMessage(const QCoapMessage& other);
 
     quint8 version() const;
     QCoapMessageType type() const;

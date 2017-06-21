@@ -26,8 +26,8 @@ void QCoapProtocol::sendRequest(const QCoapInternalRequest& request, QCoapConnec
 void QCoapProtocol::sendRequest()
 {
     Q_D(QCoapProtocol);
-    //QByteArray requestFrame = encode(d->internalRequest);
-    //d->connection->sendRequest(requestFrame);
+    QByteArray requestFrame = encode(d->internalRequest);
+    d->connection->sendRequest(requestFrame);
 }
 
 void QCoapProtocol::messageReceived()
@@ -39,12 +39,12 @@ void QCoapProtocol::handleFrame(const QByteArray& frame)
 {
     Q_D(QCoapProtocol);
 
-    /*d->internalReply = decode(frame);
+    d->internalReply = decode(frame);
 
     if (d->internalReply.hasNextBlock())
         onNextBlock();
     else
-        onLastBlock();*/
+        onLastBlock();
 }
 
 void QCoapProtocol::onLastBlock()
@@ -60,7 +60,7 @@ void QCoapProtocol::onNextBlock()
     emit nextBlockAsked();
 }
 
-/*QByteArray QCoapProtocol::encode(const QCoapInternalRequest& request)
+QByteArray QCoapProtocol::encode(const QCoapInternalRequest& request)
 {
     return request.toQByteArray();
 }
@@ -68,4 +68,4 @@ void QCoapProtocol::onNextBlock()
 QCoapInternalReply QCoapProtocol::decode(const QByteArray& message)
 {
     return  QCoapInternalReply::fromQByteArray(message);
-}*/
+}

@@ -3,6 +3,7 @@
 
 // add necessary includes here
 #include "qcoapreply.h"
+#include "qcoapinternalreply_p.h"
 
 Q_DECLARE_METATYPE(QCoapReply::QCoapReplyStatusCode);
 Q_DECLARE_METATYPE(QCoapMessage::QCoapMessageType);
@@ -141,12 +142,11 @@ void tst_QCoapReply::parseReplyPdu()
     QFETCH(QString, payload);
     QFETCH(QString, pduHexa);
 
-    QCoapReply reply;
-    // TODO : remove or replace fromPdu method
-    //reply.fromPdu(QByteArray::fromHex(pduHexa.toUtf8()));
+    QCoapInternalReply reply;
+    reply = QCoapInternalReply::fromQByteArray(QByteArray::fromHex(pduHexa.toUtf8()));
 
     // NOTE : need a getter
-    /*QCOMPARE(reply.type(), type);
+    QCOMPARE(reply.type(), type);
     QCOMPARE(reply.tokenLength(), tokenLength);
     QCOMPARE(reply.statusCode(), statusCode);
     QCOMPARE(reply.messageId(), messageId);
@@ -159,7 +159,7 @@ void tst_QCoapReply::parseReplyPdu()
         QCOMPARE(option.length(), optionsLengths.at(i));
         QCOMPARE(option.value(), optionsValues.at(i));
     }
-    QCOMPARE(reply.payload(), payload);*/
+    QCOMPARE(reply.payload(), payload);
 }
 
 QTEST_MAIN(tst_QCoapReply)

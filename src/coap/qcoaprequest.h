@@ -67,8 +67,6 @@ protected:
     void setRequestForReset(quint16 messageId);
     void readReply(); // TODO : remove readReply and find another way to test _q_readReply
 
-    QSharedDataPointer<QCoapRequestPrivate> d_ptr;
-
     /*Q_DECLARE_PRIVATE(QCoapRequest)
     Q_PRIVATE_SLOT(d_func(), void _q_startToSend())
     //Q_PRIVATE_SLOT(d_func(), void _q_readReply())

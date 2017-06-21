@@ -31,8 +31,8 @@ private slots:
     void setUrl();
     void setOperation_data();
     void setOperation();
-    void requestToPdu_data();
-    void requestToPdu();
+    void internalRequestToFrame_data();
+    void internalRequestToFrame();
     void sendRequest_data();
     void sendRequest();
     void blockwiseReply_data();
@@ -132,7 +132,7 @@ void tst_QCoapRequest::setOperation()
     QCOMPARE(request.operation(), operation);
 }
 
-void tst_QCoapRequest::requestToPdu_data()
+void tst_QCoapRequest::internalRequestToFrame_data()
 {
     QTest::addColumn<QUrl>("url");
     QTest::addColumn<QCoapOperation>("operation");
@@ -150,7 +150,7 @@ void tst_QCoapRequest::requestToPdu_data()
     QTest::newRow("request_with_big_option_number") << QUrl("coap://vs0.inf.ethz.ch:5683/test") << GET << QCoapRequest::NONCONFIRMABLE << quint16(56400) << QByteArray::fromHex("4647f09b") << "5401dc504647f09bb474657374dd240d6162636465666768696a6b6c6d6e6f707172737475767778797aff" << "Some payload";
 }
 
-void tst_QCoapRequest::requestToPdu()
+void tst_QCoapRequest::internalRequestToFrame()
 {
     QFETCH(QUrl, url);
     QFETCH(QCoapOperation, operation);
@@ -161,7 +161,6 @@ void tst_QCoapRequest::requestToPdu()
     QFETCH(QString, pduPayload);
 
     QCoapRequest request(url);
-
     request.setType(type);
     request.setOperation(operation);
     request.setPayload(pduPayload.toUtf8());
@@ -177,7 +176,8 @@ void tst_QCoapRequest::requestToPdu()
         pdu.append(pduPayload.toUtf8().toHex());
     }
 
-    //QCOMPARE(request.toPdu().toHex(), pdu);
+    QCoapInternalRequest internalRequest(request);
+    QCOMPARE(internalRequest.toQByteArray().toHex(), pdu);
 }
 
 void tst_QCoapRequest::sendRequest_data()
@@ -245,10 +245,13 @@ void tst_QCoapRequest::blockwiseReply_data()
 
 void tst_QCoapRequest::blockwiseReply()
 {
+    // TODO : find a new way with the protocol to get blockwise reply
     QFETCH(QUrl, url);
     QFETCH(QCoapOperation, operation);
     QFETCH(QCoapMessage::QCoapMessageType, type);
     QFETCH(QByteArray, replyData);
+
+    QFAIL("blockwise implementation broken when architecture changed");
 
     for (int i = 0; i < 10; ++i) {
         QCoapRequestForTests request(url);
@@ -302,21 +305,24 @@ void tst_QCoapRequest::updateReply_data()
 
 void tst_QCoapRequest::updateReply()
 {
+    // TODO : find a way to update the user reply when private reply is complete
     QFETCH(QString, data);
+
+    QFAIL("broken when architecture changed");
 
     QCoapRequestForTests request;
     QCoapReplyForTests* reply = new QCoapReplyForTests();
 
     QCoapConnectionForTests* connection = new QCoapConnectionForTests();
 
-    //QSignalSpy spyRequestFinished(&request, SIGNAL(finished(QCoapRequest*)));
+    QSignalSpy spyReplyFinished(reply, SIGNAL(finished()));
 
     connection->setDataReply(data.toUtf8());
     request.setConnectionForTests(connection);
     request.setReplyForTests(reply);
 
     request.readReplyForTest();
-    //QTRY_COMPARE_WITH_TIMEOUT(spyRequestFinished.count(), 1, 1000);
+    QTRY_COMPARE_WITH_TIMEOUT(spyReplyFinished.count(), 1, 1000);
     // NOTE : need a getter for message object
     //QCOMPARE(request.reply()->payload(), data.toUtf8());
 }

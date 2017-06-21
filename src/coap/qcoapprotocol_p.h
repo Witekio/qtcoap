@@ -11,7 +11,7 @@ class QCoapProtocolPrivate : public QObjectPrivate
 public:
     QCoapProtocolPrivate();
 
-    //QCoapInternalReply internalReply;
+    QCoapInternalReply internalReply;
     QCoapInternalRequest internalRequest;
     QCoapConnection* connection;
 

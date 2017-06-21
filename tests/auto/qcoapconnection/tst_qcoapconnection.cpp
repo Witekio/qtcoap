@@ -175,7 +175,8 @@ void tst_QCoapConnection::sendRequest()
     request.setToken(QByteArray("abcd"));
     request.setOperation(operation);
     QVERIFY(connection.socket() != nullptr);
-    //connection.sendRequest(request.toPdu());
+    QCoapInternalRequest internalRequest(request);
+    connection.sendRequest(internalRequest.toQByteArray());
 
     QTRY_COMPARE_WITH_TIMEOUT(spySocketReadyRead.count(), 1, 10000);
     QTRY_COMPARE_WITH_TIMEOUT(spyConnectionReadyRead.count(), 1, 10000);

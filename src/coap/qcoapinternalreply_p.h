@@ -15,8 +15,10 @@ public:
 
     static QCoapInternalReply fromQByteArray(const QByteArray& reply);
 
+    QCoapReply::QCoapReplyStatusCode statusCode() const;
+
 private:
-    QCoapInternalReplyPrivate* d_ptr;
+    QCoapInternalReplyPrivate* d_func() const;
 };
 
 class QCoapInternalReplyPrivate : public QCoapInternalMessagePrivate

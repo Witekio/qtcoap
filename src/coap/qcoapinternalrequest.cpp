@@ -7,22 +7,23 @@ QCoapInternalRequestPrivate::QCoapInternalRequestPrivate() :
 }
 
 QCoapInternalRequest::QCoapInternalRequest() :
-    d_ptr(new QCoapInternalRequestPrivate)
+    QCoapInternalMessage(*new QCoapInternalRequestPrivate)
 {
 }
 
 QCoapInternalRequest::QCoapInternalRequest(const QCoapRequest& request) :
     QCoapInternalRequest()
 {
-    d_ptr->version = request.version();
-    d_ptr->type = request.type();
-    d_ptr->messageId = request.messageId();
-    d_ptr->token = request.token();
-    d_ptr->tokenLength = request.tokenLength();
+    QCoapInternalRequestPrivate* d = d_func();
+    d->version = request.version();
+    d->type = request.type();
+    d->messageId = request.messageId();
+    d->token = request.token();
+    d->tokenLength = request.tokenLength();
     for (int i = 0; i < request.optionsLength(); ++i)
-        d_ptr->options.push_back(request.option(i));
-    d_ptr->payload = request.payload();
-    d_ptr->operation = request.operation();
+        d->options.push_back(request.option(i));
+    d->payload = request.payload();
+    d->operation = request.operation();
 }
 
 QCoapInternalRequest QCoapInternalRequest::fromQCoapRequest(const QCoapRequest& request)
@@ -33,14 +34,15 @@ QCoapInternalRequest QCoapInternalRequest::fromQCoapRequest(const QCoapRequest& 
 
 QByteArray QCoapInternalRequest::toQByteArray() const
 {
+    QCoapInternalRequestPrivate* d = d_func();
     QByteArray pdu;
 
     // Insert header
-    quint32 coapHeader = (quint32(d_ptr->version) << 30)    // Coap version
-            | (quint32(d_ptr->type) << 28)                  // Message type
-            | (quint32(d_ptr->tokenLength) << 24)           // Token Length
-            | (quint32(d_ptr->operation) << 16)             // Operation type
-            | (quint32(d_ptr->messageId));                  // Message ID
+    quint32 coapHeader = (quint32(d->version) << 30)    // Coap version
+            | (quint32(d->type) << 28)                  // Message type
+            | (quint32(d->tokenLength) << 24)           // Token Length
+            | (quint32(d->operation) << 16)             // Operation type
+            | (quint32(d->messageId));                  // Message ID
 
     pdu.append(static_cast<quint8>(coapHeader >> 24));
     pdu.append(static_cast<quint8>((coapHeader >> 16) & 0xFF));
@@ -48,18 +50,18 @@ QByteArray QCoapInternalRequest::toQByteArray() const
     pdu.append(static_cast<quint8>(coapHeader & 0xFF));
 
     // Insert Token
-    pdu.append(d_ptr->token);
+    pdu.append(d->token);
 
     // Insert Options
-    if (!d_ptr->options.isEmpty()) {
+    if (!d->options.isEmpty()) {
         // Sort options by ascending order
-        qSort(d_ptr->options.begin(), d_ptr->options.end(),
+        qSort(d->options.begin(), d->options.end(),
               [](const QCoapOption& a, const QCoapOption& b) -> bool {
             return (a.name() < b.name());
         });
 
         quint8 lastOptionNumber = 0;
-        for (QCoapOption option : d_ptr->options) {
+        for (QCoapOption option : d->options) {
             quint8 optionPdu;
 
             quint16 optionDelta = static_cast<quint16>(option.name()) - lastOptionNumber;
@@ -106,10 +108,24 @@ QByteArray QCoapInternalRequest::toQByteArray() const
     }
 
     // Insert Payload
-    if (!payload().isEmpty()) {
+    if (!d->payload.isEmpty()) {
         pdu.append(static_cast<char>(0xFF));
-        pdu.append(d_ptr->payload);
+        pdu.append(d->payload);
     }
 
     return pdu;
+}
+
+void QCoapInternalRequest::setOperation(QCoapOperation operation)
+{
+    QCoapInternalRequestPrivate* d = d_func();
+    if (d->operation == operation)
+        return;
+
+    d->operation = operation;
+}
+
+QCoapInternalRequestPrivate* QCoapInternalRequest::d_func() const
+{
+    return static_cast<QCoapInternalRequestPrivate*>(d_ptr);
 }

@@ -11,6 +11,7 @@ class QCoapInternalMessage : public QCoapMessage
 public:
     QCoapInternalMessage();
 
+    using QCoapMessage::addOption;
     void addOption(const QCoapOption& option);
 
     uint currentBlockNumber() const;
@@ -18,7 +19,8 @@ public:
     uint blockSize() const;
 
 protected:
-    QCoapInternalMessagePrivate* d_ptr;
+    QCoapInternalMessage(QCoapInternalMessagePrivate &dd);
+    QCoapInternalMessagePrivate* d_func() const;
 };
 
 QT_END_NAMESPACE

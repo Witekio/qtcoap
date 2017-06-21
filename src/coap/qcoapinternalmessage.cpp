@@ -10,13 +10,18 @@ QCoapInternalMessagePrivate::QCoapInternalMessagePrivate() :
 }
 
 QCoapInternalMessage::QCoapInternalMessage() :
-    d_ptr(new QCoapInternalMessagePrivate)
+    QCoapMessage(*new QCoapInternalMessagePrivate)
 {
+}
 
+QCoapInternalMessage::QCoapInternalMessage(QCoapInternalMessagePrivate &dd):
+    QCoapMessage(dd)
+{
 }
 
 void QCoapInternalMessage::addOption(const QCoapOption& option)
 {
+    QCoapInternalMessagePrivate* d = d_func();
     // If it is a BLOCK option, we need to know the block number
     if (option.name() == QCoapOption::BLOCK1
         || option.name() == QCoapOption::BLOCK2) {
@@ -25,9 +30,9 @@ void QCoapInternalMessage::addOption(const QCoapOption& option)
         for (int i = 0; i < option.length() - 1; ++i)
             blockNumber = (blockNumber << 8) | optionData[i];
         blockNumber = (blockNumber << 4) | ((optionData[option.length()-1]) >> 4);
-        d_ptr->currentBlockNumber = blockNumber;
-        d_ptr->hasNextBlock = ((optionData[option.length()-1] & 0x8) == 0x8);
-        d_ptr->blockSize = qPow(2, (optionData[option.length()-1] & 0x7) + 4);
+        d->currentBlockNumber = blockNumber;
+        d->hasNextBlock = ((optionData[option.length()-1] & 0x8) == 0x8);
+        d->blockSize = qPow(2, (optionData[option.length()-1] & 0x7) + 4);
         //qDebug() << option->length();
         /*qDebug() << "ADD BLOCK : " << d->currentBlockNumber
                  << " - " << d->hasNextBlock
@@ -39,15 +44,20 @@ void QCoapInternalMessage::addOption(const QCoapOption& option)
 
 uint QCoapInternalMessage::currentBlockNumber() const
 {
-    return d_ptr->currentBlockNumber;
+    return d_func()->currentBlockNumber;
 }
 
 bool QCoapInternalMessage::hasNextBlock() const
 {
-    return d_ptr->hasNextBlock;
+    return d_func()->hasNextBlock;
 }
 
 uint QCoapInternalMessage::blockSize() const
 {
-    return d_ptr->blockSize;
+    return d_func()->blockSize;
+}
+
+QCoapInternalMessagePrivate* QCoapInternalMessage::d_func() const
+{
+    return static_cast<QCoapInternalMessagePrivate*>(d_ptr);
 }

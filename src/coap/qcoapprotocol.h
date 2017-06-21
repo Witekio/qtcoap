@@ -2,15 +2,12 @@
 #define QCOAPPROTOCOL_H
 
 #include "qcoapinternalrequest_p.h"
-//#include "qcoaprequest.h"
-//#include "qcoapinternalreply_p.h"
+#include "qcoapinternalreply_p.h"
 #include "qcoapconnection.h"
 #include <QObject>
 
 QT_BEGIN_NAMESPACE
 
-//class QCoapInternalRequest;
-//class QCoapRequest;
 class QCoapProtocolPrivate;
 class QCoapProtocol : public QObject
 {
@@ -25,7 +22,7 @@ public:
     void sendRequest();
     void sendRequest(const QCoapInternalRequest& request, QCoapConnection* connection);
     QByteArray encode(const QCoapInternalRequest& request);
-    /*QCoapInternalReply decode(const QByteArray& message);*/
+    QCoapInternalReply decode(const QByteArray& message);
 
 signals:
     void lastBlockReceived();
