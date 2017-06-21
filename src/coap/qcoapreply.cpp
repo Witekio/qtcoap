@@ -4,7 +4,8 @@
 #include <QtMath>
 
 QCoapReplyPrivate::QCoapReplyPrivate() :
-    status(QCoapReply::INVALIDCODE)
+    status(QCoapReply::INVALIDCODE),
+    message(QCoapMessage())
 {
 }
 

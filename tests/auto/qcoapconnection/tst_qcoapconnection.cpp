@@ -5,12 +5,13 @@
 #include <QUdpSocket>
 #include <QBuffer>
 #include <QtCore/qglobal.h>
+#include "qcoapglobal.h"
 #include "qcoapconnection.h"
 #include "qcoapconnection_p.h"
 #include "qcoaprequest.h"
 #include "qcoaprequest_p.h"
 
-Q_DECLARE_METATYPE(QCoapRequest::QCoapRequestOperation)
+Q_DECLARE_METATYPE(QCoapOperation)
 
 class tst_QCoapConnection : public QObject
 {
@@ -144,14 +145,14 @@ void tst_QCoapConnection::sendRequest_data()
     QTest::addColumn<QString>("host");
     QTest::addColumn<QString>("path");
     QTest::addColumn<int>("port");
-    QTest::addColumn<QCoapRequest::QCoapRequestOperation>("operation");
+    QTest::addColumn<QCoapOperation>("operation");
     QTest::addColumn<QString>("dataHexaHeader");
     QTest::addColumn<QString>("dataHexaPayload");
 
-    QTest::newRow("simple_get_request") << "coap://" << "172.17.0.3" << "/test" << 5683 << QCoapRequest::GET << "5445" << "61626364c0211eff547970653a203120284e4f4e290a436f64653a20312028474554290a4d49443a2032343830360a546f6b656e3a203631363236333634";
-    QTest::newRow("simple_put_request") << "coap://" << "172.17.0.3" << "/test" << 5683 << QCoapRequest::PUT << "5444" << "61626364";
-    QTest::newRow("simple_post_request") << "coap://" << "172.17.0.3" << "/test" << 5683 << QCoapRequest::POST << "5441" << "61626364896c6f636174696f6e31096c6f636174696f6e32096c6f636174696f6e33";
-    QTest::newRow("simple_delete_request") << "coap://" << "172.17.0.3" << "/test" << 5683 << QCoapRequest::DELETE << "5442" << "61626364";
+    QTest::newRow("simple_get_request") << "coap://" << "172.17.0.3" << "/test" << 5683 << GET << "5445" << "61626364c0211eff547970653a203120284e4f4e290a436f64653a20312028474554290a4d49443a2032343830360a546f6b656e3a203631363236333634";
+    QTest::newRow("simple_put_request") << "coap://" << "172.17.0.3" << "/test" << 5683 << PUT << "5444" << "61626364";
+    QTest::newRow("simple_post_request") << "coap://" << "172.17.0.3" << "/test" << 5683 << POST << "5441" << "61626364896c6f636174696f6e31096c6f636174696f6e32096c6f636174696f6e33";
+    QTest::newRow("simple_delete_request") << "coap://" << "172.17.0.3" << "/test" << 5683 << DELETE << "5442" << "61626364";
 }
 
 void tst_QCoapConnection::sendRequest()
@@ -160,7 +161,7 @@ void tst_QCoapConnection::sendRequest()
     QFETCH(QString, host);
     QFETCH(QString, path);
     QFETCH(int, port);
-    QFETCH(QCoapRequest::QCoapRequestOperation, operation);
+    QFETCH(QCoapOperation, operation);
     QFETCH(QString, dataHexaHeader);
     QFETCH(QString, dataHexaPayload);
 
@@ -174,7 +175,7 @@ void tst_QCoapConnection::sendRequest()
     request.setToken(QByteArray("abcd"));
     request.setOperation(operation);
     QVERIFY(connection.socket() != nullptr);
-    connection.sendRequest(request.toPdu());
+    //connection.sendRequest(request.toPdu());
 
     QTRY_COMPARE_WITH_TIMEOUT(spySocketReadyRead.count(), 1, 10000);
     QTRY_COMPARE_WITH_TIMEOUT(spyConnectionReadyRead.count(), 1, 10000);

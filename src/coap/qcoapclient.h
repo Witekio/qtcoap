@@ -4,6 +4,7 @@
 #include <QObject>
 #include <QtCore/qglobal.h>
 
+#include "qcoapglobal.h"
 #include "qcoapresource.h"
 #include "qcoapreply.h"
 #include "qcoaprequest.h"

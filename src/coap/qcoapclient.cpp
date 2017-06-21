@@ -24,7 +24,7 @@ QCoapReply* QCoapClient::get(QCoapRequest* request)
 {
     qDebug() << "QCoapClient : get()";
 
-    request->setOperation(QCoapRequest::GET);
+    request->setOperation(GET);
 
     // TODO : connect the reply
     //connect(request, SIGNAL(finished(QCoapRequest*)), this, SLOT(_q_requestFinished(QCoapRequest*)));
@@ -38,7 +38,7 @@ QCoapReply* QCoapClient::put(QCoapRequest* request, const QByteArray& data)
 {
     qDebug() << "QCoapClient : put()";
 
-    request->setOperation(QCoapRequest::PUT);
+    request->setOperation(PUT);
     request->setPayload(data);
 
     // TODO : connect the reply
@@ -53,7 +53,7 @@ QCoapReply* QCoapClient::post(QCoapRequest* request, const QByteArray& data)
 {
     qDebug() << "QCoapClient : post()";
 
-    request->setOperation(QCoapRequest::POST);
+    request->setOperation(POST);
     request->setPayload(data);
 
     // TODO : connect the reply
@@ -68,7 +68,7 @@ QCoapReply* QCoapClient::deleteResource(QCoapRequest* request)
 {
     qDebug() << "QCoapClient : delete()";
 
-    request->setOperation(QCoapRequest::DELETE);
+    request->setOperation(DELETE);
 
     // TODO : connect the reply
     //connect(request, SIGNAL(finished(QCoapRequest*)), this, SLOT(_q_requestFinished(QCoapRequest*)));

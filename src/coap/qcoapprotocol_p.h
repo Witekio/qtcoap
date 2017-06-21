@@ -3,16 +3,17 @@
 
 #include "qcoapprotocol.h"
 #include "private/qobject_p.h"
-#include "qcoapinternalrequest.h"
-#include "qcoapinternalreply.h"
 
 QT_BEGIN_NAMESPACE
 
 class QCoapProtocolPrivate : public QObjectPrivate
 {
 public:
-    QCoapInternalReply internalReply;
+    QCoapProtocolPrivate();
+
+    //QCoapInternalReply internalReply;
     QCoapInternalRequest internalRequest;
+    QCoapConnection* connection;
 
     Q_DECLARE_PUBLIC(QCoapProtocol)
 };

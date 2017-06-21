@@ -13,6 +13,7 @@ public:
     QCoapReplyPrivate();
 
     QCoapReply::QCoapReplyStatusCode status;
+    QCoapMessage message;
 
     Q_DECLARE_PUBLIC(QCoapReply)
 };

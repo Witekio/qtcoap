@@ -17,7 +17,7 @@ public:
     QCoapConnection* connection;
     QCoapProtocol* protocol;
     QCoapReply* reply;
-    QCoapRequest::QCoapRequestOperation operation;
+    QCoapOperation operation;
     QCoapRequest::QCoapRequestState state;
     uint blockAsked;
     bool observe;

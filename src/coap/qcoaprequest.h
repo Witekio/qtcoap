@@ -8,26 +8,20 @@
 #include <QThread>
 #include <QSharedDataPointer>
 
+#include "qcoapglobal.h"
 #include "qcoapmessage.h"
 #include "qcoapconnection.h"
 #include "qcoapreply.h"
 #include "qcoapprotocol.h"
+#include "qcoapinternalrequest_p.h"
 
 QT_BEGIN_NAMESPACE
 
+//class QCoapProtocol;
 class QCoapRequestPrivate;
 class QCoapRequest : public QCoapMessage
 {
 public:
-    enum QCoapRequestOperation {
-        EMPTY,
-        GET,
-        POST,
-        PUT,
-        DELETE,
-        OTHER
-    };
-
     enum QCoapRequestState {
         WAITING,
         SENT,
@@ -42,7 +36,6 @@ public:
 
     QCoapRequest& operator=(const QCoapRequest& other);
 
-    QByteArray toPdu();
     void sendRequest();
     quint16 generateMessageId();
     QByteArray generateToken();
@@ -50,12 +43,12 @@ public:
     void initializeAttributesFrom(QCoapRequest* request);
 
     QUrl url() const;
-    QCoapRequestOperation operation() const;
+    QCoapOperation operation() const;
     QCoapReply* reply() const;
     QCoapConnection* connection() const;
     bool observe() const;
     void setUrl(const QUrl& url);
-    void setOperation(QCoapRequestOperation operation);
+    void setOperation(QCoapOperation operation);
     void setObserve(bool observe);
 
 // TODO : remove signals and slots and make private internal class

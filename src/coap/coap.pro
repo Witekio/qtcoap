@@ -20,9 +20,10 @@ HEADERS += \
     qcoapprotocol.h \
     qcoapprotocol_p.h \
     qcoapinternalmessage.h \
-    qcoapinternalreply.h \
-    qcoapinternalrequest.h \
-    qcoapinternalmessage_p.h
+    qcoapinternalmessage_p.h \
+    qcoapinternalrequest_p.h \
+    qcoapinternalreply_p.h \
+    qcoapglobal.h
 
 SOURCES += \
     qcoapclient.cpp \

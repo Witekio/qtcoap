@@ -7,6 +7,8 @@
 class QCoapInternalMessagePrivate : public QCoapMessagePrivate
 {
 public:
+    QCoapInternalMessagePrivate();
+
     uint currentBlockNumber;
     bool hasNextBlock;
     uint blockSize;
