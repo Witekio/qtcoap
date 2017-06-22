@@ -36,7 +36,7 @@ public:
 
     QCoapRequest& operator=(const QCoapRequest& other);
 
-    void sendRequest();
+    void sendRequest() const;
     quint16 generateMessageId();
     QByteArray generateToken();
     void addOptionToAskBlock(uint blockNumber);

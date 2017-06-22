@@ -48,6 +48,7 @@ void QCoapReply::updateWithInternalReply(const QCoapInternalReply& internalReply
     d_func()->message.setPayload(internalReply.payload());
     d_func()->message.setType(internalReply.type());
     d_func()->message.setVersion(internalReply.version());
+    d_func()->status = internalReply.statusCode();
 
     emit finished();
 }

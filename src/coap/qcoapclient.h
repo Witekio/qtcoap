@@ -20,11 +20,11 @@ public:
     QCoapClient(QObject* parent = nullptr);
     ~QCoapClient();
 
-    QCoapReply* get(QCoapRequest* request);
-    QCoapReply* put(QCoapRequest* request, const QByteArray& data = QByteArray());
-    QCoapReply* post(QCoapRequest* request, const QByteArray& data = QByteArray());
-    QCoapReply* deleteResource(QCoapRequest* request);
-    QCoapReply* observe(QCoapRequest* request);
+    QCoapReply* get(const QCoapRequest& request);
+    QCoapReply* put(const QCoapRequest& request, const QByteArray& data = QByteArray());
+    QCoapReply* post(const QCoapRequest& request, const QByteArray& data = QByteArray());
+    QCoapReply* deleteResource(const QCoapRequest& request);
+    QCoapReply* observe(const QCoapRequest& request);
     //void cancelObserve(QCoapRequest* request);
 
     QList<QCoapResource*> discover(const QUrl& url, const QString& discoveryPath = "/.well-known/core");
@@ -33,8 +33,8 @@ signals :
     void finished();
 
 protected:
-    void sendRequest(QCoapRequest* request);
-    void addRequest(QCoapRequest* request);
+    void sendRequest(const QCoapRequest& request);
+    void addRequest(const QCoapRequest& request);
 
     Q_DECLARE_PRIVATE(QCoapClient)
     Q_PRIVATE_SLOT(d_func(), void _q_requestFinished(QCoapRequest* request))

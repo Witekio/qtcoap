@@ -57,7 +57,7 @@ QCoapRequest::~QCoapRequest()
 {
 }
 
-void QCoapRequest::sendRequest()
+void QCoapRequest::sendRequest() const
 {
     QCoapRequestPrivate* d = static_cast<QCoapRequestPrivate*>(d_ptr);
     //qDebug() << "QCoapRequest : sendRequest()";

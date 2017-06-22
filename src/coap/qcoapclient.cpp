@@ -20,62 +20,54 @@ QCoapClient::~QCoapClient()
     d->resources.clear();
 }
 
-QCoapReply* QCoapClient::get(QCoapRequest* request)
+QCoapReply* QCoapClient::get(const QCoapRequest& request)
 {
     qDebug() << "QCoapClient : get()";
 
-    request->setOperation(GET);
+    QCoapRequest copyRequest(request);
+    copyRequest.setOperation(GET);
 
-    // TODO : connect the reply
-    //connect(request, SIGNAL(finished(QCoapRequest*)), this, SLOT(_q_requestFinished(QCoapRequest*)));
+    sendRequest(copyRequest);
 
-    sendRequest(request);
-
-    return request->reply();
+    return copyRequest.reply();
 }
 
-QCoapReply* QCoapClient::put(QCoapRequest* request, const QByteArray& data)
+QCoapReply* QCoapClient::put(const QCoapRequest& request, const QByteArray& data)
 {
     qDebug() << "QCoapClient : put()";
 
-    request->setOperation(PUT);
-    request->setPayload(data);
+    QCoapRequest copyRequest(request);
+    copyRequest.setOperation(PUT);
+    copyRequest.setPayload(data);
 
-    // TODO : connect the reply
-    //connect(request, SIGNAL(finished(QCoapRequest*)), this, SLOT(_q_requestFinished(QCoapRequest*)));
+    sendRequest(copyRequest);
 
-    sendRequest(request);
-
-    return request->reply();
+    return copyRequest.reply();
 }
 
-QCoapReply* QCoapClient::post(QCoapRequest* request, const QByteArray& data)
+QCoapReply* QCoapClient::post(const QCoapRequest& request, const QByteArray& data)
 {
     qDebug() << "QCoapClient : post()";
 
-    request->setOperation(POST);
-    request->setPayload(data);
+    QCoapRequest copyRequest(request);
+    copyRequest.setOperation(POST);
+    copyRequest.setPayload(data);
 
-    // TODO : connect the reply
-    //connect(request, SIGNAL(finished(QCoapRequest*)), this, SLOT(_q_requestFinished(QCoapRequest*)));
+    sendRequest(copyRequest);
 
-    sendRequest(request);
-
-    return request->reply();
+    return copyRequest.reply();
 }
 
-QCoapReply* QCoapClient::deleteResource(QCoapRequest* request)
+QCoapReply* QCoapClient::deleteResource(const QCoapRequest& request)
 {
     qDebug() << "QCoapClient : delete()";
 
-    request->setOperation(DELETE);
+    QCoapRequest copyRequest(request);
+    copyRequest.setOperation(DELETE);
 
-    // TODO : connect the reply
-    //connect(request, SIGNAL(finished(QCoapRequest*)), this, SLOT(_q_requestFinished(QCoapRequest*)));
+    sendRequest(copyRequest);
 
-    sendRequest(request);
-
-    return request->reply();
+    return copyRequest.reply();
 }
 
 QList<QCoapResource*> QCoapClient::discover(const QUrl& url, const QString& discoveryPath)
@@ -86,12 +78,10 @@ QList<QCoapResource*> QCoapClient::discover(const QUrl& url, const QString& disc
     QEventLoop loop;
 
     QUrl discoveryUrl(url.toString().append(discoveryPath));
-    QCoapRequest* request = new QCoapRequest(discoveryUrl);
 
-    // TODO : connect the reply
-    //connect(request, SIGNAL(finished(QCoapRequest*)), &loop, SLOT(quit()));
-
-    QCoapReply* reply = get(request);
+    QCoapReply* reply = nullptr;
+    connect(reply, SIGNAL(finished()), &loop, SLOT(quit()));
+    reply = get(QCoapRequest(discoveryUrl));
 
     loop.exec();
 
@@ -100,12 +90,13 @@ QList<QCoapResource*> QCoapClient::discover(const QUrl& url, const QString& disc
     return d->resources;
 }
 
-QCoapReply* QCoapClient::observe(QCoapRequest* request)
+QCoapReply* QCoapClient::observe(const QCoapRequest& request)
 {
-    request->addOption(QCoapOption::OBSERVE, QByteArray(""));
-    request->setObserve(true);
-    request->setType(QCoapMessage::CONFIRMABLE);
-    QCoapReply* reply = get(request);
+    QCoapRequest copyRequest(request);
+    copyRequest.addOption(QCoapOption::OBSERVE, QByteArray(""));
+    copyRequest.setObserve(true);
+    copyRequest.setType(QCoapMessage::CONFIRMABLE);
+    QCoapReply* reply = get(copyRequest);
 
     return reply;
 }
@@ -142,14 +133,14 @@ bool QCoapClientPrivate::containsMessageId(quint16 id)
     return false;
 }
 
-void QCoapClient::addRequest(QCoapRequest* request)
+void QCoapClient::addRequest(const QCoapRequest& request)
 {
     Q_D(QCoapClient);
 
     // TODO : put the generation of tokens in QCoapRequest
-    QByteArray token = request->token();
+    /*QByteArray token = request.token();
     d->containsToken(token);
-    token = request->generateToken();
+    token = request.generateToken();
     while (token == QByteArray() || d->containsToken(token))
            token = request->generateToken();
     request->setToken(token);
@@ -157,15 +148,15 @@ void QCoapClient::addRequest(QCoapRequest* request)
     quint16 messageId = request->messageId();
     while (messageId == 0 || d->containsMessageId(messageId))
            messageId = request->generateMessageId();
-    request->setMessageId(messageId);
+    request->setMessageId(messageId);*/
 
-    d->requests.push_back(request);
+    //d->requests.push_back(request);
 }
 
-void QCoapClient::sendRequest(QCoapRequest* request)
+void QCoapClient::sendRequest(const QCoapRequest& request)
 {
     addRequest(request);
-    request->sendRequest();
+    request.sendRequest();
 }
 
 void QCoapClientPrivate::_q_requestFinished(QCoapRequest* request)
