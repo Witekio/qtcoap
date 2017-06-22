@@ -7,8 +7,6 @@
 #include <qcoaprequest_p.h>
 #include <qcoapconnection.h>
 #include <qcoapconnection_p.h>
-#include <qcoapreply.h>
-#include <qcoapreply_p.h>
 
 Q_DECLARE_METATYPE(QCoapOperation)
 Q_DECLARE_METATYPE(QCoapMessage::QCoapMessageType)
@@ -37,8 +35,6 @@ private slots:
     void sendRequest();
     void blockwiseReply_data();
     void blockwiseReply();
-    void updateReply_data();
-    void updateReply();
 };
 
 class QCoapRequestForTests : public QCoapRequest {
@@ -265,66 +261,6 @@ void tst_QCoapRequest::blockwiseReply()
 
         QTRY_COMPARE_WITH_TIMEOUT(request.reply()->readAll(), replyData, 10000);
     }
-}
-
-class QCoapReplyForTests : public QCoapReply
-{
-public:
-    QCoapReplyForTests() : QCoapReply() {}
-
-    void fromPdu(const QByteArray& pdu) {
-        //setPayload(pdu);
-    }
-};
-
-class QCoapConnectionForTests : public QCoapConnection
-{
-public:
-    QCoapConnectionForTests(const QString& host = "localhost", int port = 5683, QObject* parent = nullptr) :
-        QCoapConnection(host, port, parent)
-    {}
-
-    void setDataReply(const QByteArray& newDataReply) {
-        dataReply = newDataReply;
-    }
-
-    QByteArray readReply() {
-        return dataReply;
-    }
-
-private:
-    QByteArray dataReply;
-};
-
-void tst_QCoapRequest::updateReply_data()
-{
-    QTest::addColumn<QString>("data");
-
-    QTest::newRow("success") << "Data for the reading test";
-}
-
-void tst_QCoapRequest::updateReply()
-{
-    // TODO : find a way to update the user reply when private reply is complete
-    QFETCH(QString, data);
-
-    QFAIL("broken when architecture changed");
-
-    QCoapRequestForTests request;
-    QCoapReplyForTests* reply = new QCoapReplyForTests();
-
-    QCoapConnectionForTests* connection = new QCoapConnectionForTests();
-
-    QSignalSpy spyReplyFinished(reply, SIGNAL(finished()));
-
-    connection->setDataReply(data.toUtf8());
-    request.setConnectionForTests(connection);
-    request.setReplyForTests(reply);
-
-    request.readReplyForTest();
-    QTRY_COMPARE_WITH_TIMEOUT(spyReplyFinished.count(), 1, 1000);
-    // NOTE : need a getter for message object
-    //QCOMPARE(request.reply()->payload(), data.toUtf8());
 }
 
 QTEST_MAIN(tst_QCoapRequest)

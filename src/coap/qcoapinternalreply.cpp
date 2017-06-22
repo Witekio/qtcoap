@@ -1,7 +1,7 @@
 #include "qcoapinternalreply_p.h"
 
 QCoapInternalReplyPrivate::QCoapInternalReplyPrivate():
-    statusCode(QCoapReply::INVALIDCODE)
+    statusCode(INVALIDCODE)
 {
 }
 
@@ -22,7 +22,7 @@ QCoapInternalReply QCoapInternalReply::fromQByteArray(const QByteArray& reply)
     d->version = (pduData[0] >> 6) & 0x03;
     d->type = QCoapMessageType((pduData[0] >> 4) & 0x03);
     d->tokenLength = (pduData[0]) & 0x0F;
-    d->statusCode = static_cast<QCoapReply::QCoapReplyStatusCode>(pduData[1]);
+    d->statusCode = static_cast<QCoapStatusCode>(pduData[1]);
     d->messageId = (static_cast<quint16>(pduData[2]) << 8)
                        | static_cast<quint16>(pduData[3]);
     d->token = QByteArray(reinterpret_cast<char *>(pduData + 4),
@@ -98,7 +98,7 @@ QCoapInternalReply QCoapInternalReply::fromQByteArray(const QByteArray& reply)
     return internalReply;
 }
 
-QCoapReply::QCoapReplyStatusCode QCoapInternalReply::statusCode() const
+QCoapStatusCode QCoapInternalReply::statusCode() const
 {
     return d_func()->statusCode;
 }

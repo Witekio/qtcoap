@@ -5,7 +5,7 @@
 #include "qcoapreply.h"
 #include "qcoapinternalreply_p.h"
 
-Q_DECLARE_METATYPE(QCoapReply::QCoapReplyStatusCode);
+Q_DECLARE_METATYPE(QCoapStatusCode);
 Q_DECLARE_METATYPE(QCoapMessage::QCoapMessageType);
 Q_DECLARE_METATYPE(QCoapOption::QCoapOptionName);
 
@@ -23,6 +23,8 @@ private slots:
 
     void parseReplyPdu_data();
     void parseReplyPdu();
+    void updateReply_data();
+    void updateReply();
 };
 
 tst_QCoapReply::tst_QCoapReply()
@@ -45,7 +47,7 @@ void tst_QCoapReply::cleanupTestCase()
 
 void tst_QCoapReply::parseReplyPdu_data()
 {
-    QTest::addColumn<QCoapReply::QCoapReplyStatusCode>("statusCode");
+    QTest::addColumn<QCoapStatusCode>("statusCode");
     QTest::addColumn<QCoapMessage::QCoapMessageType>("type");
     QTest::addColumn<quint16>("messageId");
     QTest::addColumn<QByteArray>("token");
@@ -66,7 +68,7 @@ void tst_QCoapReply::parseReplyPdu_data()
     QList<quint8> bigOptionsLengthsReply({26});
     QList<QByteArray> bigOptionsValuesReply({QByteArray("abcdefghijklmnopqrstuvwxyz")});
 
-    QTest::newRow("reply_with_option_and_payload") << QCoapReply::CONTENT
+    QTest::newRow("reply_with_option_and_payload") << CONTENT
                                                    << QCoapMessage::NONCONFIRMABLE
                                                    << quint16(64463)
                                                    << QByteArray("4647f09b")
@@ -78,7 +80,7 @@ void tst_QCoapReply::parseReplyPdu_data()
                                                    << "Type: 1 (NON)\nCode: 1 (GET)\nMID: 56400\nToken: 4647f09b"
                                                    << "5445fbcf4647f09bc0211eff547970653a203120284e4f4e290a436f64653a20312028474554290a4d49443a2035363430300a546f6b656e3a203436343766303962";
 
-    QTest::newRow("reply_without_options") << QCoapReply::CONTENT
+    QTest::newRow("reply_without_options") << CONTENT
                                            << QCoapMessage::NONCONFIRMABLE
                                            << quint16(64463)
                                            << QByteArray("4647f09b")
@@ -90,7 +92,7 @@ void tst_QCoapReply::parseReplyPdu_data()
                                            << "Type: 1 (NON)\nCode: 1 (GET)\nMID: 56400\nToken: 4647f09b"
                                            << "5445fbcf4647f09bff547970653a203120284e4f4e290a436f64653a20312028474554290a4d49443a2035363430300a546f6b656e3a203436343766303962";
 
-    QTest::newRow("reply_without_payload") << QCoapReply::CONTENT
+    QTest::newRow("reply_without_payload") << CONTENT
                                            << QCoapMessage::NONCONFIRMABLE
                                            << quint16(64463)
                                            << QByteArray("4647f09b")
@@ -102,7 +104,7 @@ void tst_QCoapReply::parseReplyPdu_data()
                                            << ""
                                            << "5445fbcf4647f09bc0211e";
 
-    QTest::newRow("reply_only") << QCoapReply::CONTENT
+    QTest::newRow("reply_only") << CONTENT
                                 << QCoapMessage::NONCONFIRMABLE
                                 << quint16(64463)
                                 << QByteArray("4647f09b")
@@ -114,7 +116,7 @@ void tst_QCoapReply::parseReplyPdu_data()
                                 << ""
                                 << "5445fbcf4647f09b";
 
-    QTest::newRow("reply_with_big_option") << QCoapReply::CONTENT
+    QTest::newRow("reply_with_big_option") << CONTENT
                                            << QCoapMessage::NONCONFIRMABLE
                                            << quint16(64463)
                                            << QByteArray("4647f09b")
@@ -130,7 +132,7 @@ void tst_QCoapReply::parseReplyPdu_data()
 
 void tst_QCoapReply::parseReplyPdu()
 {
-    QFETCH(QCoapReply::QCoapReplyStatusCode, statusCode);
+    QFETCH(QCoapStatusCode, statusCode);
     QFETCH(QCoapMessage::QCoapMessageType, type);
     QFETCH(quint16, messageId);
     QFETCH(QByteArray, token);
@@ -145,7 +147,6 @@ void tst_QCoapReply::parseReplyPdu()
     QCoapInternalReply reply;
     reply = QCoapInternalReply::fromQByteArray(QByteArray::fromHex(pduHexa.toUtf8()));
 
-    // NOTE : need a getter
     QCOMPARE(reply.type(), type);
     QCOMPARE(reply.tokenLength(), tokenLength);
     QCOMPARE(reply.statusCode(), statusCode);
@@ -154,12 +155,34 @@ void tst_QCoapReply::parseReplyPdu()
     QCOMPARE(reply.optionsLength(), optionsListLength);
     for (int i = 0; i < optionsListLength; ++i) {
         QCoapOption option = reply.option(i);
-        qDebug() << option.name();
         QCOMPARE(option.name(), optionsNames.at(i));
         QCOMPARE(option.length(), optionsLengths.at(i));
         QCOMPARE(option.value(), optionsValues.at(i));
     }
     QCOMPARE(reply.payload(), payload);
+}
+
+void tst_QCoapReply::updateReply_data()
+{
+    QTest::addColumn<QString>("data");
+
+    QTest::newRow("success") << "Data for the updating test";
+}
+
+void tst_QCoapReply::updateReply()
+{
+    // TODO : find a way to update the user reply when private reply is complete
+    QFETCH(QString, data);
+
+    QCoapReply* reply = new QCoapReply();
+    QCoapInternalReply internalReply;
+    internalReply.setPayload(data.toUtf8());
+    QSignalSpy spyReplyFinished(reply, SIGNAL(finished()));
+
+    reply->updateWithInternalReply(internalReply);
+
+    QTRY_COMPARE_WITH_TIMEOUT(spyReplyFinished.count(), 1, 1000);
+    QCOMPARE(reply->readAll(), data.toUtf8());
 }
 
 QTEST_MAIN(tst_QCoapReply)

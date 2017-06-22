@@ -76,6 +76,9 @@ void QCoapRequest::sendRequest()
     //d_ptr->protocol->moveToThread(thread);
 
     //thread->start();
+    QObject::connect(d->protocol, SIGNAL(lastBlockReceived(const QCoapInternalReply&)),
+                     d->reply, SLOT(updateWithInternalReply(const QCoapInternalReply&)));
+
     d->protocol->sendRequest(QCoapInternalRequest::fromQCoapRequest(*this), d->connection);
 }
 

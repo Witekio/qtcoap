@@ -7,12 +7,12 @@
 
 QT_BEGIN_NAMESPACE
 
-class QCoapReplyPrivate : public QCoapMessagePrivate, public QIODevicePrivate
+class QCoapReplyPrivate : public QIODevicePrivate
 {
 public:
     QCoapReplyPrivate();
 
-    QCoapReply::QCoapReplyStatusCode status;
+    QCoapStatusCode status;
     QCoapMessage message;
 
     Q_DECLARE_PUBLIC(QCoapReply)

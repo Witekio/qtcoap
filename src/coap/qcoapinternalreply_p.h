@@ -1,9 +1,9 @@
 #ifndef QCOAPINTERNALREPLY_H
 #define QCOAPINTERNALREPLY_H
 
+#include "qcoapglobal.h"
 #include "qcoapinternalmessage.h"
 #include "qcoapinternalmessage_p.h"
-#include "qcoapreply.h"
 
 QT_BEGIN_NAMESPACE
 
@@ -15,7 +15,7 @@ public:
 
     static QCoapInternalReply fromQByteArray(const QByteArray& reply);
 
-    QCoapReply::QCoapReplyStatusCode statusCode() const;
+    QCoapStatusCode statusCode() const;
 
 private:
     QCoapInternalReplyPrivate* d_func() const;
@@ -26,7 +26,7 @@ class QCoapInternalReplyPrivate : public QCoapInternalMessagePrivate
 public:
     QCoapInternalReplyPrivate();
 
-    QCoapReply::QCoapReplyStatusCode statusCode;
+    QCoapStatusCode statusCode;
 };
 
 QT_END_NAMESPACE

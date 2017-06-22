@@ -32,6 +32,7 @@ void QCoapProtocol::sendRequest()
 
 void QCoapProtocol::messageReceived()
 {
+    // TODO : check messageId/Token
     handleFrame(d_func()->connection->readReply());
 }
 
@@ -49,7 +50,7 @@ void QCoapProtocol::handleFrame(const QByteArray& frame)
 
 void QCoapProtocol::onLastBlock()
 {
-    emit lastBlockReceived();
+    emit lastBlockReceived(d_func()->internalReply);
 }
 
 void QCoapProtocol::onNextBlock()

@@ -51,7 +51,7 @@ public:
     void setOperation(QCoapOperation operation);
     void setObserve(bool observe);
 
-// TODO : remove signals and slots and make private internal class
+// TODO : remove signals and slots
 //signals:
     // void notified(const QByteArray& replyData); // NOTE : will certainly be removed
     //void finished(QCoapRequest* request);

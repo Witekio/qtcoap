@@ -25,7 +25,7 @@ public:
     QCoapInternalReply decode(const QByteArray& message);
 
 signals:
-    void lastBlockReceived();
+    void lastBlockReceived(const QCoapInternalReply&);
     void nextBlockAsked();
 
 public slots:
