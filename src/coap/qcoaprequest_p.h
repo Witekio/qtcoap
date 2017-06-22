@@ -19,13 +19,7 @@ public:
     QCoapReply* reply;
     QCoapOperation operation;
     QCoapRequest::QCoapRequestState state;
-    uint blockAsked;
     bool observe;
-
-    //void _q_startToSend();
-    //void _q_readReply();
-    //void _q_getNextBlock(uint blockAsked);
-    //void _q_sendAck(quint16 messageId);
 };
 
 QT_END_NAMESPACE

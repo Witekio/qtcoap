@@ -52,9 +52,9 @@ public:
         setReply(reply);
     }
 
-    void readReplyForTest() {
+    /*void readReplyForTest() {
         readReply();
-    }
+    }*/
 };
 
 tst_QCoapRequest::tst_QCoapRequest()
@@ -192,11 +192,9 @@ void tst_QCoapRequest::sendRequest()
     QFETCH(QCoapMessage::QCoapMessageType, type);
 
     QCoapRequestForTests request(url);
-
     request.setType(type);
     request.setOperation(operation);
     request.setToken(QByteArray("abcd"));
-    request.setMessageId(request.generateMessageId());
 
     QSignalSpy spyConnectionReadyRead(request.connection(), SIGNAL(readyRead()));
     request.sendRequest();
@@ -241,25 +239,25 @@ void tst_QCoapRequest::blockwiseReply_data()
 
 void tst_QCoapRequest::blockwiseReply()
 {
-    // TODO : find a new way with the protocol to get blockwise reply
     QFETCH(QUrl, url);
     QFETCH(QCoapOperation, operation);
     QFETCH(QCoapMessage::QCoapMessageType, type);
     QFETCH(QByteArray, replyData);
 
-    QFAIL("blockwise implementation broken when architecture changed");
-
     for (int i = 0; i < 10; ++i) {
         QCoapRequestForTests request(url);
 
+        QSignalSpy spyReplyFinished(request.reply(), SIGNAL(finished()));
+
         request.setType(type);
         request.setOperation(operation);
-        request.setToken(request.generateToken());
-        request.setMessageId(request.generateMessageId());
 
         request.sendRequest();
 
-        QTRY_COMPARE_WITH_TIMEOUT(request.reply()->readAll(), replyData, 10000);
+        QTRY_COMPARE_WITH_TIMEOUT(spyReplyFinished.count(), 1, 10000);
+
+        QByteArray dataReply = request.reply()->readAll();
+        QCOMPARE(dataReply, replyData);
     }
 }
 

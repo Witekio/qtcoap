@@ -3,6 +3,7 @@
 
 #include "qcoapprotocol.h"
 #include "private/qobject_p.h"
+#include <QList>
 
 QT_BEGIN_NAMESPACE
 
@@ -11,7 +12,7 @@ class QCoapProtocolPrivate : public QObjectPrivate
 public:
     QCoapProtocolPrivate();
 
-    QCoapInternalReply internalReply;
+    QList<QCoapInternalReply> internalReply;
     QCoapInternalRequest internalRequest;
     QCoapConnection* connection;
 

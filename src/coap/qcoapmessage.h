@@ -21,6 +21,7 @@ public:
 
     QCoapMessage();
     QCoapMessage(const QCoapMessage& other);
+    virtual ~QCoapMessage() {}
 
     quint8 version() const;
     QCoapMessageType type() const;
@@ -37,7 +38,7 @@ public:
     void setPayload(const QByteArray& payload);
 
     void addOption(QCoapOption::QCoapOptionName name, const QByteArray& value);
-    void addOption(const QCoapOption& option);
+    virtual void addOption(const QCoapOption& option);
     void removeOption(const QCoapOption& option);
     void removeOptionByName(QCoapOption::QCoapOptionName name);
     void removeAllOptions();

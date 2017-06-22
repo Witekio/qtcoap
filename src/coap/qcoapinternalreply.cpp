@@ -5,8 +5,20 @@ QCoapInternalReplyPrivate::QCoapInternalReplyPrivate():
 {
 }
 
+QCoapInternalReplyPrivate::QCoapInternalReplyPrivate
+    (const QCoapInternalReplyPrivate& other):
+    QCoapInternalMessagePrivate(other),
+    statusCode(other.statusCode)
+{
+}
+
 QCoapInternalReply::QCoapInternalReply() :
     QCoapInternalMessage (*new QCoapInternalReplyPrivate)
+{
+}
+
+QCoapInternalReply::QCoapInternalReply(const QCoapInternalReply& other) :
+    QCoapInternalMessage(other)
 {
 }
 
@@ -15,7 +27,6 @@ QCoapInternalReply QCoapInternalReply::fromQByteArray(const QByteArray& reply)
     QCoapInternalReply internalReply;
     QCoapInternalReplyPrivate* d = internalReply.d_func();
 
-    uint blockNumberBefore = d->currentBlockNumber;
     quint8 *pduData = (quint8 *)reply.data();
 
     // Parse Header and Token
@@ -75,27 +86,15 @@ QCoapInternalReply QCoapInternalReply::fromQByteArray(const QByteArray& reply)
     // Parse Payload
     if (static_cast<quint8>(pduData[i]) == 0xFF) {
         QByteArray currentPayload = reply.right(reply.length() - i - 1); // -1 because of 0xFF at the beginning
-        //if (d->hasNextBlock | (d->currentBlockNumber > 0))
-        //    currentPayload = currentPayload.right(d->blockSize);
-        // qDebug() << currentPayload;
-        // NOTE : Prevent from duplicate blocks : but fail 1 times out of 10
-        // TODO ? : generate one reply for each block and append them at the end
-        // TODO : check errors checking block length
-        //if ((d->currentBlockNumber == 0)
-        //    | (d->currentBlockNumber != 0 && d->currentBlockNumber > blockNumberBefore)) {
-            d->payload.append(currentPayload);
-            // qDebug() << d->currentBlockNumber << " > " << blockNumberBefore;
-        //}
+        d->payload.append(currentPayload);
     }
 
-    //if (d->hasNextBlock) {
-    //    emit nextBlockAsked(d->currentBlockNumber+1);
-    //} else if (d->type == CONFIRMABLE) {
-    //    qDebug() << "ACK ASKED";
-    //    emit acknowledgmentAsked(d->messageId);
-    //}
-
     return internalReply;
+}
+
+void QCoapInternalReply::appendData(const QByteArray& data)
+{
+    d_func()->payload.append(data);
 }
 
 QCoapStatusCode QCoapInternalReply::statusCode() const

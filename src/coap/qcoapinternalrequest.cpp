@@ -116,6 +116,45 @@ QByteArray QCoapInternalRequest::toQByteArray() const
     return pdu;
 }
 
+void QCoapInternalRequest::setRequestToAskBlock(uint blockNumber)
+{
+    // Set the BLOCK2 option to get the new block
+    quint32 block2Data = (blockNumber << 4) | 2;
+    QByteArray block2Value = QByteArray();
+    if (block2Data > 0xFFFF)
+        block2Value.append(block2Data >> 16);
+    if (block2Data > 0xFF)
+        block2Value.append(block2Data >> 8 & 0xFF);
+    block2Value.append(block2Data & 0xFF);
+
+    removeOptionByName(QCoapOption::BLOCK2);
+    addOption(QCoapOption::BLOCK2, block2Value);
+
+    setToken(generateToken());
+    setMessageId(d_ptr->messageId+1);
+}
+
+quint16 QCoapInternalRequest::generateMessageId()
+{
+    quint16 id = qrand() % 65536;
+    setMessageId(id);
+    return id;
+}
+
+QByteArray QCoapInternalRequest::generateToken()
+{
+    QByteArray token("");
+    quint8 length = (qrand() % 7) + 1;
+    token.resize(length);
+
+    quint8 *tokenData = (quint8 *)token.data();
+    for (int i = 0; i < token.size(); ++i)
+        tokenData[i] = qrand() % 256;
+
+    setToken(token);
+    return token;
+}
+
 void QCoapInternalRequest::setOperation(QCoapOperation operation)
 {
     QCoapInternalRequestPrivate* d = d_func();

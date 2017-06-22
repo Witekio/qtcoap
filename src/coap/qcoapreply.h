@@ -9,6 +9,7 @@
 
 QT_BEGIN_NAMESPACE
 
+class QCoapRequest;
 class QCoapReplyPrivate;
 class QCoapReply : public QIODevice
 {
@@ -24,9 +25,6 @@ public slots:
 
 signals:
     void finished();
-    // NOTE : will be removed
-    //void nextBlockAsked(uint blockNumberAsked);
-    //void acknowledgmentAsked(quint16 messageId);
 
 private :
     qint64 readData(char* data, qint64 maxSize) Q_DECL_OVERRIDE;

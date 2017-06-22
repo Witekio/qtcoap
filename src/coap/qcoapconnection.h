@@ -29,7 +29,7 @@ public:
     QCoapConnection(QCoapConnectionPrivate& dd, const QString& host = "localhost", int port = 5683, QObject* parent = nullptr);
 
     void sendRequest(const QByteArray& pduRequest);
-    virtual QByteArray readReply();
+    QByteArray readReply();
 
     QString host() const;
     int port() const;

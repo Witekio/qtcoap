@@ -8,7 +8,7 @@ QT_BEGIN_NAMESPACE
 QCoapConnectionPrivate::QCoapConnectionPrivate() :
     host(""),
     port(0),
-    udpSocket(new QUdpSocket()),
+    udpSocket(new QUdpSocket),
     currentPdu(QByteArray()),
     state(QCoapConnection::UNCONNECTED),
     sendingState(QCoapConnection::WAITING)
@@ -36,6 +36,9 @@ QCoapConnection::QCoapConnection(QCoapConnectionPrivate& dd, const QString& host
 
     d->host = host;
     d->port = port;
+
+    // Make the socket a child of the connection to move it in the same thread
+    //d->udpSocket = new QUdpSocket(this); // does not work
 }
 
 void QCoapConnection::connectToHost()
@@ -76,7 +79,6 @@ void QCoapConnection::sendRequest(const QByteArray& request)
         connectToHost();
     } else if (d->state == CONNECTED) {
         //qDebug() << "QCoapConnection : sendRequest() - CONNECTED";
-        //QThread::msleep(100);
         d->_q_startToSendRequest();
     }
 }

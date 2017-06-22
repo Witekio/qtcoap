@@ -17,19 +17,19 @@ public:
 
     void handleFrame(const QByteArray& frame);
     void onLastBlock();
-    void onNextBlock();
+    void onNextBlock(uint currentBlockNumber);
 
     void sendRequest();
-    void sendRequest(const QCoapInternalRequest& request, QCoapConnection* connection);
+    void prepareToSendRequest(const QCoapInternalRequest& request, QCoapConnection* connection);
     QByteArray encode(const QCoapInternalRequest& request);
     QCoapInternalReply decode(const QByteArray& message);
 
 signals:
     void lastBlockReceived(const QCoapInternalReply&);
-    void nextBlockAsked();
 
 public slots:
     void messageReceived();
+    void startToSend();
 
 private:
     Q_DECLARE_PRIVATE(QCoapProtocol)

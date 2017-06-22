@@ -29,15 +29,10 @@ public:
 
     QList<QCoapResource*> discover(const QUrl& url, const QString& discoveryPath = "/.well-known/core");
 
-signals :
-    void finished();
-
 protected:
     void sendRequest(const QCoapRequest& request);
-    void addRequest(const QCoapRequest& request);
 
     Q_DECLARE_PRIVATE(QCoapClient)
-    Q_PRIVATE_SLOT(d_func(), void _q_requestFinished(QCoapRequest* request))
 };
 
 QT_END_NAMESPACE

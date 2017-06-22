@@ -12,9 +12,10 @@ class QCoapInternalReply : public QCoapInternalMessage
 {
 public:
     QCoapInternalReply();
+    QCoapInternalReply(const QCoapInternalReply& other);
 
     static QCoapInternalReply fromQByteArray(const QByteArray& reply);
-
+    void appendData(const QByteArray& data);
     QCoapStatusCode statusCode() const;
 
 private:
@@ -25,6 +26,7 @@ class QCoapInternalReplyPrivate : public QCoapInternalMessagePrivate
 {
 public:
     QCoapInternalReplyPrivate();
+    QCoapInternalReplyPrivate(const QCoapInternalReplyPrivate& other);
 
     QCoapStatusCode statusCode;
 };

@@ -9,8 +9,22 @@ QCoapInternalMessagePrivate::QCoapInternalMessagePrivate() :
 {
 }
 
+QCoapInternalMessagePrivate::QCoapInternalMessagePrivate
+    (const QCoapInternalMessagePrivate& other) :
+    QCoapMessagePrivate(other),
+    currentBlockNumber(other.currentBlockNumber),
+    hasNextBlock(other.hasNextBlock),
+    blockSize(other.blockSize)
+{
+}
+
 QCoapInternalMessage::QCoapInternalMessage() :
     QCoapMessage(*new QCoapInternalMessagePrivate)
+{
+}
+
+QCoapInternalMessage::QCoapInternalMessage(const QCoapInternalMessage& other) :
+    QCoapMessage(other)
 {
 }
 

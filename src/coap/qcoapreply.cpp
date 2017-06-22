@@ -5,7 +5,9 @@
 
 QCoapReplyPrivate::QCoapReplyPrivate() :
     status(INVALIDCODE),
-    message(QCoapMessage())
+    message(QCoapMessage()),
+    isRunning(false),
+    isFinished(false)
 {
 }
 
@@ -14,6 +16,8 @@ QCoapReply::QCoapReply(QObject* parent) :
 {
     open(QIODevice::ReadOnly);
 }
+
+// TODO : set isRunning to true when the request is launched
 
 qint64 QCoapReply::readData(char* data, qint64 maxSize)
 {
@@ -30,6 +34,8 @@ qint64 QCoapReply::readData(char* data, qint64 maxSize)
 qint64 QCoapReply::writeData(const char* data, qint64 maxSize)
 {
     // The user cannot write to the reply
+    Q_UNUSED(data);
+    Q_UNUSED(maxSize);
     return -1;
 }
 
@@ -49,6 +55,9 @@ void QCoapReply::updateWithInternalReply(const QCoapInternalReply& internalReply
     d_func()->message.setType(internalReply.type());
     d_func()->message.setVersion(internalReply.version());
     d_func()->status = internalReply.statusCode();
+
+    d_func()->isFinished = true;
+    d_func()->isRunning = false;
 
     emit finished();
 }

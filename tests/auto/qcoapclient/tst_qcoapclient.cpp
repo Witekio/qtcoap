@@ -47,7 +47,7 @@ class QCoapClientForTests : public QCoapClient
 public:
     QCoapClientForTests() : QCoapClient() {}
 
-    void addNewRequest(const QCoapRequest& req) { addRequest(req); }
+    //void addNewRequest(const QCoapRequest& req) { addRequest(req); }
 };
 
 void tst_QCoapClient::uniqueTokensAndMessageIds()
@@ -95,7 +95,7 @@ void tst_QCoapClient::operations()
     else if (qstrcmp(QTest::currentDataTag(), "delete") == 0)
         reply = client.deleteResource(request);
 
-    QTRY_COMPARE_WITH_TIMEOUT(spyReplyFinished.count(), 1, 1000);
+    QTRY_COMPARE_WITH_TIMEOUT(spyReplyFinished.count(), 1, 2000);
 
     QVERIFY(reply != nullptr);
     QByteArray replyData = reply->readAll();
@@ -114,7 +114,6 @@ void tst_QCoapClient::operations()
         QCOMPARE(reply->statusCode(), DELETED);
     }
 
-    qDebug() << "OK : " << replyData;
     delete reply;
 }
 

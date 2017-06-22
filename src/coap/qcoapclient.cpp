@@ -133,41 +133,10 @@ bool QCoapClientPrivate::containsMessageId(quint16 id)
     return false;
 }
 
-void QCoapClient::addRequest(const QCoapRequest& request)
-{
-    Q_D(QCoapClient);
-
-    // TODO : put the generation of tokens in QCoapRequest
-    /*QByteArray token = request.token();
-    d->containsToken(token);
-    token = request.generateToken();
-    while (token == QByteArray() || d->containsToken(token))
-           token = request->generateToken();
-    request->setToken(token);
-
-    quint16 messageId = request->messageId();
-    while (messageId == 0 || d->containsMessageId(messageId))
-           messageId = request->generateMessageId();
-    request->setMessageId(messageId);*/
-
-    //d->requests.push_back(request);
-}
-
 void QCoapClient::sendRequest(const QCoapRequest& request)
 {
-    addRequest(request);
+    //addRequest(request);
     request.sendRequest();
-}
-
-void QCoapClientPrivate::_q_requestFinished(QCoapRequest* request)
-{
-    Q_Q(QCoapClient);
-
-    int idRequest = findRequestByToken(request->token());
-    if (idRequest != -1)
-        requests.removeAt(idRequest);
-
-    emit q->finished();
 }
 
 QT_END_NAMESPACE

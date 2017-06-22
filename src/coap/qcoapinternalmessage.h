@@ -10,6 +10,7 @@ class QCoapInternalMessage : public QCoapMessage
 {
 public:
     QCoapInternalMessage();
+    QCoapInternalMessage(const QCoapInternalMessage& other);
 
     using QCoapMessage::addOption;
     void addOption(const QCoapOption& option);

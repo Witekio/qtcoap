@@ -19,7 +19,12 @@ public:
     static QCoapInternalRequest fromQCoapRequest(const QCoapRequest& request);
     QByteArray toQByteArray() const;
 
+    quint16 generateMessageId();
+    QByteArray generateToken();
+    void setRequestToAskBlock(uint blockNumber);
+
     void setOperation(QCoapOperation operation);
+
 
 private:
     QCoapInternalRequestPrivate* d_func() const;
