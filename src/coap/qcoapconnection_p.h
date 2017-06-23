@@ -19,6 +19,7 @@ public:
     QByteArray currentPdu;
     QCoapConnection::QCoapConnectionState state;
     QCoapConnection::QCoapConnectionSendingState sendingState;
+    QByteArray lastReply; // Temporary store the last reply
 
     void _q_connectedToHost();
     void _q_socketReadyRead();

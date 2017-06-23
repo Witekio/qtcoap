@@ -41,7 +41,7 @@ public:
 signals:
     void connected();
     void disconnected();
-    void readyRead();
+    void readyRead(const QByteArray& frame);
 
 protected:
     void connectToHost();

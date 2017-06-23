@@ -8,8 +8,8 @@ QT_BEGIN_NAMESPACE
 QCoapRequestPrivate::QCoapRequestPrivate() :
     url(QUrl()),
     connection(new QCoapConnection),
-    protocol(new QCoapProtocol),
-    reply(new QCoapReply),
+    //protocol(new QCoapProtocol),
+    //reply(new QCoapReply),
     operation(EMPTY),
     observe(false)
 {
@@ -19,8 +19,8 @@ QCoapRequestPrivate::QCoapRequestPrivate(const QCoapRequestPrivate &other) :
     QCoapMessagePrivate(other),
     url(other.url),
     connection(other.connection),
-    protocol(other.protocol),
-    reply(other.reply),
+    //protocol(other.protocol),
+    //reply(other.reply),
     operation(other.operation),
     state(other.state),
     observe(other.observe)
@@ -31,7 +31,7 @@ QCoapRequestPrivate::QCoapRequestPrivate(const QCoapRequestPrivate &other) :
 QCoapRequestPrivate::~QCoapRequestPrivate()
 {
     delete connection;
-    delete protocol;
+    //delete protocol;
 }
 
 QCoapRequest::QCoapRequest(const QUrl& url, QCoapMessageType type) :
@@ -57,11 +57,12 @@ QCoapRequest::~QCoapRequest()
 
 void QCoapRequest::sendRequest() const
 {
-    QCoapRequestPrivate* d = static_cast<QCoapRequestPrivate*>(d_ptr);
+    // TODO : move to the client
+    /*QCoapRequestPrivate* d = static_cast<QCoapRequestPrivate*>(d_ptr);
 
     QThread *thread = new QThread();
 
-    d->protocol->prepareToSendRequest(QCoapInternalRequest::fromQCoapRequest(*this),
+   d->protocol->prepareToSendRequest(QCoapInternalRequest::fromQCoapRequest(*this),
                                       d->connection);
 
     QObject::connect(thread, SIGNAL(started()), d->protocol, SLOT(startToSend()));
@@ -76,7 +77,7 @@ void QCoapRequest::sendRequest() const
     d->connection->socket()->moveToThread(thread); // The socket is not directly a child of connection
     d->protocol->moveToThread(thread);
 
-    thread->start();
+    thread->start();*/
 }
 
 void QCoapRequest::parseUri()
@@ -116,11 +117,11 @@ void QCoapRequest::setRequestForReset(quint16 messageId)
     removeAllOptions();
 }*/
 
-QCoapReply* QCoapRequest::reply() const
+/*QCoapReply* QCoapRequest::reply() const
 {
     QCoapRequestPrivate* d = static_cast<QCoapRequestPrivate*>(d_ptr);
     return d->reply;
-}
+}*/
 
 QUrl QCoapRequest::url() const
 {
@@ -155,14 +156,14 @@ void QCoapRequest::setUrl(const QUrl& url)
     d->url = url;
 }
 
-void QCoapRequest::setReply(QCoapReply* reply)
+/*void QCoapRequest::setReply(QCoapReply* reply)
 {
     QCoapRequestPrivate* d = static_cast<QCoapRequestPrivate*>(d_ptr);
     if (d->reply == reply)
         return;
 
     d->reply = reply;
-}
+}*/
 
 void QCoapRequest::setConnection(QCoapConnection* connection)
 {
@@ -173,14 +174,14 @@ void QCoapRequest::setConnection(QCoapConnection* connection)
     d->connection = connection;
 }
 
-void QCoapRequest::setProtocol(QCoapProtocol* protocol)
+/*void QCoapRequest::setProtocol(QCoapProtocol* protocol)
 {
     QCoapRequestPrivate* d = static_cast<QCoapRequestPrivate*>(d_ptr);
     if (d->protocol == protocol)
         return;
 
     d->protocol = protocol;
-}
+}*/
 
 void QCoapRequest::setOperation(QCoapOperation operation)
 {
@@ -213,6 +214,11 @@ QCoapRequest& QCoapRequest::operator=(const QCoapRequest& other)
 {
     d_ptr = other.d_ptr;
     return *this;
+}
+
+bool QCoapRequest::operator<(const QCoapRequest& other) const
+{
+    return (d_ptr->token < other.token());
 }
 
 QT_END_NAMESPACE

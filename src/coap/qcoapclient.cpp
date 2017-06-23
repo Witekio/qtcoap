@@ -4,8 +4,12 @@
 
 QT_BEGIN_NAMESPACE
 
-QCoapClientPrivate::QCoapClientPrivate()
+QCoapClientPrivate::QCoapClientPrivate() :
+    protocol(new QCoapProtocol),
+    workerThread(new QThread)
 {
+    protocol->moveToThread(workerThread);
+    workerThread->start();
 }
 
 QCoapClient::QCoapClient(QObject* parent) :
@@ -18,6 +22,7 @@ QCoapClient::~QCoapClient()
     Q_D(QCoapClient);
     qDeleteAll(d->resources);
     d->resources.clear();
+    delete d->protocol;
 }
 
 QCoapReply* QCoapClient::get(const QCoapRequest& request)
@@ -27,9 +32,9 @@ QCoapReply* QCoapClient::get(const QCoapRequest& request)
     QCoapRequest copyRequest(request);
     copyRequest.setOperation(GET);
 
-    sendRequest(copyRequest);
+    QCoapReply* reply = sendRequest(copyRequest);
 
-    return copyRequest.reply();
+    return reply;
 }
 
 QCoapReply* QCoapClient::put(const QCoapRequest& request, const QByteArray& data)
@@ -40,9 +45,9 @@ QCoapReply* QCoapClient::put(const QCoapRequest& request, const QByteArray& data
     copyRequest.setOperation(PUT);
     copyRequest.setPayload(data);
 
-    sendRequest(copyRequest);
+    QCoapReply* reply = sendRequest(copyRequest);
 
-    return copyRequest.reply();
+    return reply;
 }
 
 QCoapReply* QCoapClient::post(const QCoapRequest& request, const QByteArray& data)
@@ -53,9 +58,9 @@ QCoapReply* QCoapClient::post(const QCoapRequest& request, const QByteArray& dat
     copyRequest.setOperation(POST);
     copyRequest.setPayload(data);
 
-    sendRequest(copyRequest);
+    QCoapReply* reply = sendRequest(copyRequest);
 
-    return copyRequest.reply();
+    return reply;
 }
 
 QCoapReply* QCoapClient::deleteResource(const QCoapRequest& request)
@@ -65,9 +70,9 @@ QCoapReply* QCoapClient::deleteResource(const QCoapRequest& request)
     QCoapRequest copyRequest(request);
     copyRequest.setOperation(DELETE);
 
-    sendRequest(copyRequest);
+    QCoapReply* reply = sendRequest(copyRequest);
 
-    return copyRequest.reply();
+    return reply;
 }
 
 QList<QCoapResource*> QCoapClient::discover(const QUrl& url, const QString& discoveryPath)
@@ -101,7 +106,7 @@ QCoapReply* QCoapClient::observe(const QCoapRequest& request)
     return reply;
 }
 
-bool QCoapClientPrivate::containsToken(QByteArray token)
+/*bool QCoapClientPrivate::containsToken(QByteArray token)
 {
     for (QCoapRequest* request : requests) {
         if (request->token() == token)
@@ -131,12 +136,55 @@ bool QCoapClientPrivate::containsMessageId(quint16 id)
     }
 
     return false;
+}*/
+
+QCoapConnection* QCoapClient::findConnection(QString host, int port)
+{
+    for (QCoapConnection* connection : d_func()->connections) {
+        if (connection->host() == host && connection->port() == port)
+            return connection;
+    }
+
+    return nullptr;
 }
 
-void QCoapClient::sendRequest(const QCoapRequest& request)
+QCoapReply* QCoapClient::sendRequest(const QCoapRequest& request)
 {
-    //addRequest(request);
-    request.sendRequest();
+    qDebug() << "QCoapClient::sendRequest()";
+    Q_D(QCoapClient);
+
+    QThread *workerThread = d->workerThread;
+
+    // Find the connection or create a new connection
+    QCoapConnection* connection = findConnection(request.url().host(), request.url().port());
+    if (!connection) {
+        connection = new QCoapConnection(request.url().host(), request.url().port());
+        d->connections.push_back(connection);
+        connect(connection, SIGNAL(readyRead(const QByteArray&)),
+                d->protocol, SLOT(messageReceived(const QByteArray&)));
+        connection->moveToThread(workerThread);
+        connection->socket()->moveToThread(workerThread); // The socket is not directly a child of connection
+    }
+
+    // Prepare the reply and send it when the thread start
+    QCoapReply* reply = new QCoapReply();
+    reply->moveToThread(workerThread); // To use the parameter in the signals/slots
+
+    d->requestsMap[request] = reply;
+    d->protocol->prepareToSendRequest(QCoapInternalRequest::fromQCoapRequest(request),
+                                      connection);
+
+    //connect(workerThread, SIGNAL(started()), d->protocol, SLOT(startToSend()));
+    //connect(reply, SIGNAL(finished()), workerThread, SLOT(quit()));
+    connect(workerThread, SIGNAL(finished()), workerThread, SLOT(deleteLater()));
+
+    connect(d->protocol, SIGNAL(lastBlockReceived(const QCoapInternalReply&)),
+                     reply, SLOT(updateWithInternalReply(const QCoapInternalReply&)));
+
+    workerThread->start();
+    //request.sendRequest();
+
+    return reply;
 }
 
 QT_END_NAMESPACE

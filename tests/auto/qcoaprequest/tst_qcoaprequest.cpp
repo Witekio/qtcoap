@@ -33,8 +33,6 @@ private slots:
     void internalRequestToFrame();
     void sendRequest_data();
     void sendRequest();
-    void blockwiseReply_data();
-    void blockwiseReply();
 };
 
 class QCoapRequestForTests : public QCoapRequest {
@@ -48,9 +46,9 @@ public:
         setConnection(connection);
     }
 
-    void setReplyForTests(QCoapReply* reply) {
+    /*void setReplyForTests(QCoapReply* reply) {
         setReply(reply);
-    }
+    }*/
 
     /*void readReplyForTest() {
         readReply();
@@ -87,7 +85,7 @@ void tst_QCoapRequest::ctor()
 
     QCoapRequestForTests request(url);
     QCOMPARE(request.url(), url);
-    QVERIFY(request.reply() != nullptr);
+    //QVERIFY(request.reply() != nullptr);
     QVERIFY(request.connection() != nullptr);
 }
 
@@ -199,66 +197,7 @@ void tst_QCoapRequest::sendRequest()
     QSignalSpy spyConnectionReadyRead(request.connection(), SIGNAL(readyRead()));
     request.sendRequest();
 
-    QTRY_COMPARE_WITH_TIMEOUT(spyConnectionReadyRead.count(), 1, 10000);
-}
-
-void tst_QCoapRequest::blockwiseReply_data()
-{
-    QTest::addColumn<QUrl>("url");
-    QTest::addColumn<QCoapOperation>("operation");
-    QTest::addColumn<QCoapMessage::QCoapMessageType>("type");
-    QTest::addColumn<QByteArray>("replyData");
-
-    QByteArray data;
-    data.append("/-------------------------------------------------------------\\\n");
-    data.append("|                 RESOURCE BLOCK NO. 1 OF 5                   |\n");
-    data.append("|               [each line contains 64 bytes]                 |\n");
-    data.append("\\-------------------------------------------------------------/\n");
-    data.append("/-------------------------------------------------------------\\\n");
-    data.append("|                 RESOURCE BLOCK NO. 2 OF 5                   |\n");
-    data.append("|               [each line contains 64 bytes]                 |\n");
-    data.append("\\-------------------------------------------------------------/\n");
-    data.append("/-------------------------------------------------------------\\\n");
-    data.append("|                 RESOURCE BLOCK NO. 3 OF 5                   |\n");
-    data.append("|               [each line contains 64 bytes]                 |\n");
-    data.append("\\-------------------------------------------------------------/\n");
-    data.append("/-------------------------------------------------------------\\\n");
-    data.append("|                 RESOURCE BLOCK NO. 4 OF 5                   |\n");
-    data.append("|               [each line contains 64 bytes]                 |\n");
-    data.append("\\-------------------------------------------------------------/\n");
-    data.append("/-------------------------------------------------------------\\\n");
-    data.append("|                 RESOURCE BLOCK NO. 5 OF 5                   |\n");
-    data.append("|               [each line contains 64 bytes]                 |\n");
-    data.append("\\-------------------------------------------------------------/\n");
-
-    QTest::newRow("get_large") << QUrl("coap://172.17.0.3:5683/large")
-                               << GET
-                               << QCoapMessage::NONCONFIRMABLE
-                               << data;
-}
-
-void tst_QCoapRequest::blockwiseReply()
-{
-    QFETCH(QUrl, url);
-    QFETCH(QCoapOperation, operation);
-    QFETCH(QCoapMessage::QCoapMessageType, type);
-    QFETCH(QByteArray, replyData);
-
-    for (int i = 0; i < 10; ++i) {
-        QCoapRequestForTests request(url);
-
-        QSignalSpy spyReplyFinished(request.reply(), SIGNAL(finished()));
-
-        request.setType(type);
-        request.setOperation(operation);
-
-        request.sendRequest();
-
-        QTRY_COMPARE_WITH_TIMEOUT(spyReplyFinished.count(), 1, 10000);
-
-        QByteArray dataReply = request.reply()->readAll();
-        QCOMPARE(dataReply, replyData);
-    }
+    QTRY_COMPARE_WITH_TIMEOUT(spyConnectionReadyRead.count(), 1, 1000);
 }
 
 QTEST_MAIN(tst_QCoapRequest)

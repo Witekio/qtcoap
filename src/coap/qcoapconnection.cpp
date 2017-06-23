@@ -45,6 +45,8 @@ void QCoapConnection::connectToHost()
 {
     Q_D(QCoapConnection);
 
+    qDebug() << "QCoapConnection::connectToHost() - " << d->host << " - " << d->port;
+
     QUdpSocket * socket = qobject_cast<QUdpSocket *>(d->udpSocket);
 
     connect(socket, SIGNAL(connected()), this, SLOT(_q_connectedToHost()));
@@ -68,6 +70,7 @@ void QCoapConnection::bindToHost()
 
 void QCoapConnection::sendRequest(const QByteArray& request)
 {
+    qDebug() << "QCoapConnection::sendRequest()";
     Q_D(QCoapConnection);
 
     setSendingState(QCoapConnection::WAITING);
@@ -94,10 +97,11 @@ QByteArray QCoapConnection::readReply()
     if (!d->udpSocket->isSequential())
         d->udpSocket->seek(0);
 
-    QByteArray reply;
-    reply = d->udpSocket->readAll();
-    //qDebug() << "QCoapConnection::readReply() - " << reply;
-    return reply;
+    QByteArray reply = d->udpSocket->readAll();
+    if (!reply.isEmpty())
+        d->lastReply = reply;
+    //qDebug() << "QCoapConnection::readReply() - " << d->lastReply;
+    return d->lastReply;
 }
 
 void QCoapConnection::writeToSocket(const QByteArray& data)
@@ -113,6 +117,7 @@ void QCoapConnection::writeToSocket(const QByteArray& data)
 
 void QCoapConnectionPrivate::_q_startToSendRequest()
 {
+    qDebug() << "QCoapConnectionPrivate::_q_startToSendRequest()";
     Q_Q(QCoapConnection);
 
     if (sendingState == QCoapConnection::WAITING) {
@@ -136,13 +141,13 @@ void QCoapConnectionPrivate::_q_socketReadyRead()
 {
     Q_Q(QCoapConnection);
 
-    qDebug() << "QCoapConnectionPrivate::_q_socketReadyRead()";
+    qDebug() << "QCoapConnectionPrivate::_q_socketReadyRead() - ";// << q->readReply();
 
     if (sendingState == QCoapConnection::COMPLETE)
         return;
 
     q->setSendingState(QCoapConnection::COMPLETE);
-    emit q->readyRead();
+    emit q->readyRead(q->readReply());
 }
 
 QString QCoapConnection::host() const

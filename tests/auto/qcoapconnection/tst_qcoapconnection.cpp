@@ -168,7 +168,7 @@ void tst_QCoapConnection::sendRequest()
     QCoapConnectionForTest connection(host, port);
 
     QSignalSpy spySocketReadyRead(connection.socket(), SIGNAL(readyRead()));
-    QSignalSpy spyConnectionReadyRead(&connection, SIGNAL(readyRead()));
+    QSignalSpy spyConnectionReadyRead(&connection, SIGNAL(readyRead(const QByteArray&)));
 
     QCoapRequest request(protocol + host + path);
     request.setMessageId(24806);
@@ -178,8 +178,8 @@ void tst_QCoapConnection::sendRequest()
     QCoapInternalRequest internalRequest(request);
     connection.sendRequest(internalRequest.toQByteArray());
 
-    QTRY_COMPARE_WITH_TIMEOUT(spySocketReadyRead.count(), 1, 10000);
-    QTRY_COMPARE_WITH_TIMEOUT(spyConnectionReadyRead.count(), 1, 10000);
+    QTRY_COMPARE_WITH_TIMEOUT(spySocketReadyRead.count(), 1, 5000);
+    QTRY_COMPARE_WITH_TIMEOUT(spyConnectionReadyRead.count(), 1, 5000);
 
     QByteArray reply = connection.readReply();
 

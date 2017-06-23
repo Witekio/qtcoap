@@ -7,14 +7,14 @@
 
 QT_BEGIN_NAMESPACE
 
+typedef QMap<QCoapInternalRequest, QList<QCoapInternalReply>> InternalMessageMap;
+
 class QCoapProtocolPrivate : public QObjectPrivate
 {
 public:
     QCoapProtocolPrivate();
 
-    QList<QCoapInternalReply> internalReply;
-    QCoapInternalRequest internalRequest;
-    QCoapConnection* connection;
+    InternalMessageMap internalReplies;
 
     Q_DECLARE_PUBLIC(QCoapProtocol)
 };

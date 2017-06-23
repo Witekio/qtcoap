@@ -16,10 +16,10 @@ public:
     explicit QCoapProtocol(QObject *parent = 0);
 
     void handleFrame(const QByteArray& frame);
-    void onLastBlock();
-    void onNextBlock(uint currentBlockNumber);
+    void onLastBlock(const QCoapInternalRequest& request);
+    void onNextBlock(const QCoapInternalRequest& request, uint currentBlockNumber);
 
-    void sendRequest();
+    //void sendRequest();
     void prepareToSendRequest(const QCoapInternalRequest& request, QCoapConnection* connection);
     QByteArray encode(const QCoapInternalRequest& request);
     QCoapInternalReply decode(const QByteArray& message);
@@ -28,10 +28,12 @@ signals:
     void lastBlockReceived(const QCoapInternalReply&);
 
 public slots:
-    void messageReceived();
-    void startToSend();
+    void messageReceived(const QByteArray& frameReply);
+    //void startToSend();
 
 private:
+    QCoapInternalRequest findInternalRequestByToken(const QByteArray& token);
+
     Q_DECLARE_PRIVATE(QCoapProtocol)
 };
 

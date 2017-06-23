@@ -49,6 +49,11 @@ QCoapMessage QCoapReply::message() const
     return d_func()->message;
 }
 
+bool QCoapReply::isFinished() const
+{
+    return d_func()->isFinished;
+}
+
 void QCoapReply::updateWithInternalReply(const QCoapInternalReply& internalReply)
 {
     d_func()->message.setPayload(internalReply.payload());

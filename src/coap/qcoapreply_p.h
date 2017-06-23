@@ -13,7 +13,7 @@ class QCoapReplyPrivate : public QIODevicePrivate
 public:
     QCoapReplyPrivate();
 
-    //QCoapRequest request;
+    QCoapRequest* request;
     QCoapStatusCode status;
     QCoapMessage message;
     bool isRunning;

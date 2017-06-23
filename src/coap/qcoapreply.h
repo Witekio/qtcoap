@@ -19,6 +19,7 @@ public:
 
     QCoapStatusCode statusCode() const;
     QCoapMessage message() const;
+    bool isFinished() const;
 
 public slots:
     void updateWithInternalReply(const QCoapInternalReply& pdu);

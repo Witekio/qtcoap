@@ -2,7 +2,8 @@
 #include "qcoaprequest.h"
 
 QCoapInternalRequestPrivate::QCoapInternalRequestPrivate() :
-    operation(EMPTY)
+    operation(EMPTY),
+    isValid(true)
 {
 }
 
@@ -29,6 +30,14 @@ QCoapInternalRequest::QCoapInternalRequest(const QCoapRequest& request) :
 QCoapInternalRequest QCoapInternalRequest::fromQCoapRequest(const QCoapRequest& request)
 {
     QCoapInternalRequest internalRequest(request);
+    return internalRequest;
+}
+
+QCoapInternalRequest QCoapInternalRequest::invalidRequest()
+{
+    QCoapInternalRequest internalRequest;
+    QCoapInternalRequestPrivate* d = internalRequest.d_func();
+    d->isValid = false;
     return internalRequest;
 }
 
@@ -130,7 +139,6 @@ void QCoapInternalRequest::setRequestToAskBlock(uint blockNumber)
     removeOptionByName(QCoapOption::BLOCK2);
     addOption(QCoapOption::BLOCK2, block2Value);
 
-    setToken(generateToken());
     setMessageId(d_ptr->messageId+1);
 }
 
@@ -155,6 +163,17 @@ QByteArray QCoapInternalRequest::generateToken()
     return token;
 }
 
+
+bool QCoapInternalRequest::isValid() const
+{
+    return d_func()->isValid;
+}
+
+/*QCoapConnection* QCoapInternalRequest::connection() const
+{
+    return d_func()->connection;
+}*/
+
 void QCoapInternalRequest::setOperation(QCoapOperation operation)
 {
     QCoapInternalRequestPrivate* d = d_func();
@@ -164,7 +183,21 @@ void QCoapInternalRequest::setOperation(QCoapOperation operation)
     d->operation = operation;
 }
 
+/*void QCoapInternalRequest::setConnection(QCoapConnection* connection)
+{
+    QCoapInternalRequestPrivate* d = d_func();
+    if (d->connection == connection)
+        return;
+
+    d->connection = connection;
+}*/
+
 QCoapInternalRequestPrivate* QCoapInternalRequest::d_func() const
 {
     return static_cast<QCoapInternalRequestPrivate*>(d_ptr);
+}
+
+bool QCoapInternalRequest::operator<(const QCoapInternalRequest& other) const
+{
+    return (d_ptr->token < other.token());
 }

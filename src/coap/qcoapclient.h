@@ -8,6 +8,7 @@
 #include "qcoapresource.h"
 #include "qcoapreply.h"
 #include "qcoaprequest.h"
+#include "qcoapprotocol.h"
 
 QT_BEGIN_NAMESPACE
 
@@ -30,7 +31,8 @@ public:
     QList<QCoapResource*> discover(const QUrl& url, const QString& discoveryPath = "/.well-known/core");
 
 protected:
-    void sendRequest(const QCoapRequest& request);
+    QCoapConnection* findConnection(QString host, int port);
+    QCoapReply* sendRequest(const QCoapRequest& request);
 
     Q_DECLARE_PRIVATE(QCoapClient)
 };

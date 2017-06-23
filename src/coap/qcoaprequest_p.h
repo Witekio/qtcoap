@@ -15,8 +15,8 @@ public:
 
     QUrl url;
     QCoapConnection* connection;
-    QCoapProtocol* protocol;
-    QCoapReply* reply;
+    //QCoapProtocol* protocol;
+    //QCoapReply* reply;
     QCoapOperation operation;
     QCoapRequest::QCoapRequestState state;
     bool observe;
