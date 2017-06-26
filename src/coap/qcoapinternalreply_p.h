@@ -31,6 +31,8 @@ public:
     QCoapStatusCode statusCode;
 };
 
+Q_DECLARE_METATYPE(QCoapInternalReply);
+
 QT_END_NAMESPACE
 
 #endif // QCOAPINTERNALREPLY_H

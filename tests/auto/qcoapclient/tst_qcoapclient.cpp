@@ -87,6 +87,8 @@ void tst_QCoapClient::operations()
 {
     QFETCH(QUrl, url);
 
+    QFAIL("Uncomment the QFAIL");
+
     QCoapClientForTests client;
     QCoapRequest request(url);
 
@@ -101,7 +103,7 @@ void tst_QCoapClient::operations()
         reply = client.deleteResource(request);
 
     QSignalSpy spyReplyFinished(reply, SIGNAL(finished()));
-    QTRY_COMPARE_WITH_TIMEOUT(spyReplyFinished.count(), 1, 10000);
+    QTRY_COMPARE_WITH_TIMEOUT(spyReplyFinished.count(), 1, 5000);
 
     QVERIFY(reply != nullptr);
     QByteArray replyData = reply->readAll();
@@ -141,29 +143,39 @@ void tst_QCoapClient::multipleRequests()
     QSignalSpy spyReplyGetFinished(replyGet, SIGNAL(finished()));
     QCoapReply* replyPost = client.post(QCoapRequest(url));
     QSignalSpy spyReplyPostFinished(replyPost, SIGNAL(finished()));
-    QCoapReply* replyPut = client.put(QCoapRequest(url));
-    QSignalSpy spyReplyPutFinished(replyPut, SIGNAL(finished()));
-    QCoapReply* replyDelete = client.deleteResource(QCoapRequest(url));
-    QSignalSpy spyReplyDeleteFinished(replyDelete, SIGNAL(finished()));
+    //QCoapReply* replyPut = client.put(QCoapRequest(url));
+    //QSignalSpy spyReplyPutFinished(replyPut, SIGNAL(finished()));
+    //QCoapReply* replyDelete = client.deleteResource(QCoapRequest(url));
+    //QSignalSpy spyReplyDeleteFinished(replyDelete, SIGNAL(finished()));
 
-    QTRY_COMPARE_WITH_TIMEOUT(spyReplyGetFinished.count(), 1, 10000);
-    QTRY_COMPARE_WITH_TIMEOUT(spyReplyPostFinished.count(), 1, 10000);
-    QTRY_COMPARE_WITH_TIMEOUT(spyReplyPutFinished.count(), 1, 10000);
-    QTRY_COMPARE_WITH_TIMEOUT(spyReplyDeleteFinished.count(), 1, 10000);
+    QTRY_COMPARE_WITH_TIMEOUT(spyReplyGetFinished.count(), 1, 5000);
+    QTRY_COMPARE_WITH_TIMEOUT(spyReplyPostFinished.count(), 1, 5000);
+    //QTRY_COMPARE_WITH_TIMEOUT(spyReplyPutFinished.count(), 1, 5000);
+    //QTRY_COMPARE_WITH_TIMEOUT(spyReplyDeleteFinished.count(), 1, 5000);
 
-    QVERIFY(replyGet != nullptr);
-    QVERIFY(replyPost != nullptr);
-    QVERIFY(replyPut != nullptr);
-    QVERIFY(replyDelete != nullptr);
+//    QVERIFY(replyGet != nullptr);
+//    QVERIFY(replyPost != nullptr);
+//    QVERIFY(replyPut != nullptr);
+//    QVERIFY(replyDelete != nullptr);
 
-    QVERIFY(!replyGet->readAll().isEmpty());
-    QCOMPARE(replyGet->statusCode(), CONTENT);
-    QVERIFY(replyPost->readAll().isEmpty());
-    QCOMPARE(replyPost->statusCode(), CREATED);
-    QVERIFY(replyPut->readAll().isEmpty());
-    QCOMPARE(replyPut->statusCode(), CHANGED);
-    QVERIFY(replyDelete->readAll().isEmpty());
-    QCOMPARE(replyDelete->statusCode(), DELETED);
+//    QByteArray replyGetData = replyGet->readAll();
+//    QByteArray replyPostData = replyPost->readAll();
+//    QByteArray replyPutData = replyPut->readAll();
+//    QByteArray replyDeleteData = replyDelete->readAll();
+
+//    qDebug() << "replyGetData : " << replyGetData;
+//    qDebug() << "replyPostData : " << replyPostData;
+//    qDebug() << "replyPutData : " << replyPutData;
+//    qDebug() << "replyDeleteData : " << replyDeleteData;
+
+//    QVERIFY(!replyGetData.isEmpty());
+//    QCOMPARE(replyGet->statusCode(), CONTENT);
+//    QVERIFY(replyPostData.isEmpty());
+//    QCOMPARE(replyPost->statusCode(), CREATED);
+//    QVERIFY(replyPutData.isEmpty());
+//    QCOMPARE(replyPut->statusCode(), CHANGED);
+//    QVERIFY(replyDeleteData.isEmpty());
+//    QCOMPARE(replyDelete->statusCode(), DELETED);
 }
 
 void tst_QCoapClient::blockwiseReply_data()
@@ -205,7 +217,7 @@ void tst_QCoapClient::blockwiseReply()
     QFETCH(QCoapMessage::QCoapMessageType, type);
     QFETCH(QByteArray, replyData);
 
-    //QFAIL("Put the blockwise test to the client");
+    QFAIL("Put the blockwise test to the client");
     for (int i = 0; i < 10; ++i) {
         QCoapClient client;
         QCoapRequest request(url);

@@ -15,6 +15,7 @@ QCoapClientPrivate::QCoapClientPrivate() :
 QCoapClient::QCoapClient(QObject* parent) :
     QObject(* new QCoapClientPrivate, parent)
 {
+    qRegisterMetaType<QCoapInternalReply>();
 }
 
 QCoapClient::~QCoapClient()
@@ -106,38 +107,6 @@ QCoapReply* QCoapClient::observe(const QCoapRequest& request)
     return reply;
 }
 
-/*bool QCoapClientPrivate::containsToken(QByteArray token)
-{
-    for (QCoapRequest* request : requests) {
-        if (request->token() == token)
-            return true;
-    }
-
-    return false;
-}
-
-int QCoapClientPrivate::findRequestByToken(QByteArray token)
-{
-    int id = 0;
-    for (QCoapRequest* request : requests) {
-        if (request->token() == token)
-            return id;
-        ++id;
-    }
-
-    return -1;
-}
-
-bool QCoapClientPrivate::containsMessageId(quint16 id)
-{
-    for (QCoapRequest* request : requests) {
-        if (request->messageId() == id)
-            return true;
-    }
-
-    return false;
-}*/
-
 QCoapConnection* QCoapClient::findConnection(QString host, int port)
 {
     for (QCoapConnection* connection : d_func()->connections) {
@@ -159,29 +128,30 @@ QCoapReply* QCoapClient::sendRequest(const QCoapRequest& request)
     QCoapConnection* connection = findConnection(request.url().host(), request.url().port());
     if (!connection) {
         connection = new QCoapConnection(request.url().host(), request.url().port());
+        connection->connectToHost();
         d->connections.push_back(connection);
-        connect(connection, SIGNAL(readyRead(const QByteArray&)),
-                d->protocol, SLOT(messageReceived(const QByteArray&)));
+        /*connect(connection, SIGNAL(readyRead(const QByteArray&)),
+                d->protocol, SLOT(messageReceived(const QByteArray&)));*/
         connection->moveToThread(workerThread);
-        connection->socket()->moveToThread(workerThread); // The socket is not directly a child of connection
+        //connection->socket()->moveToThread(workerThread); // The socket is not directly a child of connection
     }
 
-    // Prepare the reply and send it when the thread start
+    // Prepare the reply and send it
     QCoapReply* reply = new QCoapReply();
-    reply->moveToThread(workerThread); // To use the parameter in the signals/slots
+    reply->setRequest(request);
+    //reply->moveToThread(workerThread); // To use the parameter in the signals/slots
 
     d->requestsMap[request] = reply;
-    d->protocol->prepareToSendRequest(QCoapInternalRequest::fromQCoapRequest(request),
-                                      connection);
+    d->protocol->sendRequest(reply, connection);
 
     //connect(workerThread, SIGNAL(started()), d->protocol, SLOT(startToSend()));
     //connect(reply, SIGNAL(finished()), workerThread, SLOT(quit()));
     connect(workerThread, SIGNAL(finished()), workerThread, SLOT(deleteLater()));
 
-    connect(d->protocol, SIGNAL(lastBlockReceived(const QCoapInternalReply&)),
-                     reply, SLOT(updateWithInternalReply(const QCoapInternalReply&)));
+    /*connect(d->protocol, SIGNAL(lastBlockReceived(const QCoapInternalReply&)),
+                     reply, SLOT(updateWithInternalReply(const QCoapInternalReply&)));*/
 
-    workerThread->start();
+    //workerThread->start();
     //request.sendRequest();
 
     return reply;

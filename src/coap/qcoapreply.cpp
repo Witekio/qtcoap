@@ -49,9 +49,20 @@ QCoapMessage QCoapReply::message() const
     return d_func()->message;
 }
 
+QCoapRequest QCoapReply::request() const
+{
+    return d_func()->request;
+}
+
 bool QCoapReply::isFinished() const
 {
     return d_func()->isFinished;
+}
+
+void QCoapReply::setRequest(const QCoapRequest& request)
+{
+    Q_D(QCoapReply);
+    d->request = request;
 }
 
 void QCoapReply::updateWithInternalReply(const QCoapInternalReply& internalReply)

@@ -6,10 +6,11 @@
 #include <QIODevice>
 #include <QSharedPointer>
 #include "qcoapinternalreply_p.h"
+#include "qcoaprequest.h"
 
 QT_BEGIN_NAMESPACE
 
-class QCoapRequest;
+//class QCoapRequest;
 class QCoapReplyPrivate;
 class QCoapReply : public QIODevice
 {
@@ -19,10 +20,12 @@ public:
 
     QCoapStatusCode statusCode() const;
     QCoapMessage message() const;
+    QCoapRequest request() const;
     bool isFinished() const;
+    void setRequest(const QCoapRequest& request);
 
 public slots:
-    void updateWithInternalReply(const QCoapInternalReply& pdu);
+    void updateWithInternalReply(const QCoapInternalReply& pdu); // remove public (friend ?)
 
 signals:
     void finished();

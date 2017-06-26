@@ -189,12 +189,13 @@ void tst_QCoapRequest::sendRequest()
     QFETCH(QCoapOperation, operation);
     QFETCH(QCoapMessage::QCoapMessageType, type);
 
+    QFAIL("Connection moved to the client");
     QCoapRequestForTests request(url);
     request.setType(type);
     request.setOperation(operation);
     request.setToken(QByteArray("abcd"));
 
-    QSignalSpy spyConnectionReadyRead(request.connection(), SIGNAL(readyRead()));
+    QSignalSpy spyConnectionReadyRead(request.connection(), SIGNAL(readyRead(const QByteArray&)));
     request.sendRequest();
 
     QTRY_COMPARE_WITH_TIMEOUT(spyConnectionReadyRead.count(), 1, 1000);

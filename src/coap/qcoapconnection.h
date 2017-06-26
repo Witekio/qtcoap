@@ -28,6 +28,7 @@ public:
     explicit QCoapConnection(const QString& host = "localhost", int port = 5683, QObject* parent = nullptr);
     QCoapConnection(QCoapConnectionPrivate& dd, const QString& host = "localhost", int port = 5683, QObject* parent = nullptr);
 
+    void connectToHost();
     void sendRequest(const QByteArray& pduRequest);
     QByteArray readReply();
 
@@ -44,7 +45,6 @@ signals:
     void readyRead(const QByteArray& frame);
 
 protected:
-    void connectToHost();
     void bindToHost();
     void writeToSocket(const QByteArray& data);
     void setSocket(QIODevice* device);
@@ -53,6 +53,7 @@ protected:
 
     Q_DECLARE_PRIVATE(QCoapConnection)
     Q_PRIVATE_SLOT(d_func(), void _q_connectedToHost())
+    Q_PRIVATE_SLOT(d_func(), void _q_disconnectedFromHost())
     Q_PRIVATE_SLOT(d_func(), void _q_socketReadyRead())
     Q_PRIVATE_SLOT(d_func(), void _q_startToSendRequest())
 };
