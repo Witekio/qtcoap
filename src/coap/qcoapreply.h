@@ -21,11 +21,12 @@ public:
     QCoapStatusCode statusCode() const;
     QCoapMessage message() const;
     QCoapRequest request() const;
+    QUrl url() const;
     bool isFinished() const;
     void setRequest(const QCoapRequest& request);
 
 public slots:
-    void updateWithInternalReply(const QCoapInternalReply& pdu); // remove public (friend ?)
+    void updateFromInternalReply(const QCoapInternalReply& pdu); // remove public (friend ?)
 
 signals:
     void finished();

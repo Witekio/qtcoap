@@ -8,7 +8,7 @@ QCoapMessagePrivate::QCoapMessagePrivate() :
     type(QCoapMessage::NONCONFIRMABLE),
     messageId(0),
     token(QByteArray()),
-    tokenLength(0),
+    //tokenLength(0),
     payload(QByteArray())
 {
 }
@@ -19,7 +19,7 @@ QCoapMessagePrivate::QCoapMessagePrivate(const QCoapMessagePrivate& other) :
     type(other.type),
     messageId(other.messageId),
     token(other.token),
-    tokenLength(other.tokenLength),
+    //tokenLength(other.tokenLength),
     options(other.options),
     payload(other.payload)
 {
@@ -92,7 +92,7 @@ QByteArray QCoapMessage::token() const
 
 quint8 QCoapMessage::tokenLength() const
 {
-    return d_ptr->tokenLength;
+    return d_ptr->token.length(); //tokenLength;
 }
 
 quint16 QCoapMessage::messageId() const
@@ -138,7 +138,7 @@ void QCoapMessage::setToken(const QByteArray& token)
         return;
 
     d_ptr->token = token;
-    d_ptr->tokenLength = quint8(token.size());
+    //d_ptr->tokenLength = quint8(token.size());
 }
 
 void QCoapMessage::setMessageId(quint16 id)

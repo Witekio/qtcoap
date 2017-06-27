@@ -20,7 +20,7 @@ QCoapInternalRequest::QCoapInternalRequest(const QCoapRequest& request) :
     d->type = request.type();
     d->messageId = request.messageId();
     d->token = request.token();
-    d->tokenLength = request.tokenLength();
+    //d->tokenLength = request.tokenLength();
     for (int i = 0; i < request.optionsLength(); ++i)
         d->options.push_back(request.option(i));
     d->payload = request.payload();
@@ -49,7 +49,7 @@ QByteArray QCoapInternalRequest::toQByteArray() const
     // Insert header
     quint32 coapHeader = (quint32(d->version) << 30)    // Coap version
             | (quint32(d->type) << 28)                  // Message type
-            | (quint32(d->tokenLength) << 24)           // Token Length
+            | (quint32(d->token.length()) << 24)           // Token Length
             | (quint32(d->operation) << 16)             // Operation type
             | (quint32(d->messageId));                  // Message ID
 
@@ -169,10 +169,10 @@ bool QCoapInternalRequest::isValid() const
     return d_func()->isValid;
 }
 
-/*QCoapConnection* QCoapInternalRequest::connection() const
+QCoapConnection* QCoapInternalRequest::connection() const
 {
     return d_func()->connection;
-}*/
+}
 
 void QCoapInternalRequest::setOperation(QCoapOperation operation)
 {
@@ -183,14 +183,14 @@ void QCoapInternalRequest::setOperation(QCoapOperation operation)
     d->operation = operation;
 }
 
-/*void QCoapInternalRequest::setConnection(QCoapConnection* connection)
+void QCoapInternalRequest::setConnection(QCoapConnection* connection)
 {
     QCoapInternalRequestPrivate* d = d_func();
     if (d->connection == connection)
         return;
 
     d->connection = connection;
-}*/
+}
 
 QCoapInternalRequestPrivate* QCoapInternalRequest::d_func() const
 {

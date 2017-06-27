@@ -59,13 +59,18 @@ bool QCoapReply::isFinished() const
     return d_func()->isFinished;
 }
 
+QUrl QCoapReply::url() const
+{
+    return d_func()->request.url();
+}
+
 void QCoapReply::setRequest(const QCoapRequest& request)
 {
     Q_D(QCoapReply);
     d->request = request;
 }
 
-void QCoapReply::updateWithInternalReply(const QCoapInternalReply& internalReply)
+void QCoapReply::updateFromInternalReply(const QCoapInternalReply& internalReply)
 {
     d_func()->message.setPayload(internalReply.payload());
     d_func()->message.setType(internalReply.type());

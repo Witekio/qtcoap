@@ -55,31 +55,6 @@ QCoapRequest::~QCoapRequest()
 {
 }
 
-void QCoapRequest::sendRequest() const
-{
-    // TODO : move to the client
-    /*QCoapRequestPrivate* d = static_cast<QCoapRequestPrivate*>(d_ptr);
-
-    QThread *thread = new QThread();
-
-   d->protocol->prepareToSendRequest(QCoapInternalRequest::fromQCoapRequest(*this),
-                                      d->connection);
-
-    QObject::connect(thread, SIGNAL(started()), d->protocol, SLOT(startToSend()));
-    QObject::connect(d->reply, SIGNAL(finished()), thread, SLOT(quit()));
-    QObject::connect(thread, SIGNAL(finished()), thread, SLOT(deleteLater()));
-
-    QObject::connect(d->protocol, SIGNAL(lastBlockReceived(const QCoapInternalReply&)),
-                     d->reply, SLOT(updateWithInternalReply(const QCoapInternalReply&)));
-
-    d->reply->moveToThread(thread); // To use the parameter in the signals/slots
-    d->connection->moveToThread(thread);
-    d->connection->socket()->moveToThread(thread); // The socket is not directly a child of connection
-    d->protocol->moveToThread(thread);
-
-    thread->start();*/
-}
-
 void QCoapRequest::parseUri()
 {
     QCoapRequestPrivate* d = static_cast<QCoapRequestPrivate*>(d_ptr);

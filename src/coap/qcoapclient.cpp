@@ -51,6 +51,17 @@ QCoapReply* QCoapClient::put(const QCoapRequest& request, const QByteArray& data
     return reply;
 }
 
+QCoapReply* QCoapClient::put(const QCoapRequest& request, QIODevice* device)
+{
+    if (!device->isReadable())
+        device->open(device->openMode() | QIODevice::ReadOnly);
+
+    if (!device->isSequential())
+        device->seek(0);
+
+    return put(request, device->readAll());
+}
+
 QCoapReply* QCoapClient::post(const QCoapRequest& request, const QByteArray& data)
 {
     qDebug() << "QCoapClient : post()";
@@ -62,6 +73,17 @@ QCoapReply* QCoapClient::post(const QCoapRequest& request, const QByteArray& dat
     QCoapReply* reply = sendRequest(copyRequest);
 
     return reply;
+}
+
+QCoapReply* QCoapClient::post(const QCoapRequest& request, QIODevice* device)
+{
+    if (!device->isReadable())
+        device->open(device->openMode() | QIODevice::ReadOnly);
+
+    if (!device->isSequential())
+        device->seek(0);
+
+    return post(request, device->readAll());
 }
 
 QCoapReply* QCoapClient::deleteResource(const QCoapRequest& request)
@@ -130,8 +152,8 @@ QCoapReply* QCoapClient::sendRequest(const QCoapRequest& request)
         connection = new QCoapConnection(request.url().host(), request.url().port());
         connection->connectToHost();
         d->connections.push_back(connection);
-        /*connect(connection, SIGNAL(readyRead(const QByteArray&)),
-                d->protocol, SLOT(messageReceived(const QByteArray&)));*/
+        connect(connection, SIGNAL(readyRead(const QByteArray&)),
+                d->protocol, SLOT(messageReceived(const QByteArray&)));
         connection->moveToThread(workerThread);
         //connection->socket()->moveToThread(workerThread); // The socket is not directly a child of connection
     }
@@ -141,7 +163,7 @@ QCoapReply* QCoapClient::sendRequest(const QCoapRequest& request)
     reply->setRequest(request);
     //reply->moveToThread(workerThread); // To use the parameter in the signals/slots
 
-    d->requestsMap[request] = reply;
+    d->requestMap[request] = reply;
     d->protocol->sendRequest(reply, connection);
 
     //connect(workerThread, SIGNAL(started()), d->protocol, SLOT(startToSend()));
@@ -149,7 +171,7 @@ QCoapReply* QCoapClient::sendRequest(const QCoapRequest& request)
     connect(workerThread, SIGNAL(finished()), workerThread, SLOT(deleteLater()));
 
     /*connect(d->protocol, SIGNAL(lastBlockReceived(const QCoapInternalReply&)),
-                     reply, SLOT(updateWithInternalReply(const QCoapInternalReply&)));*/
+                     reply, SLOT(updateFromInternalReply(const QCoapInternalReply&)));*/
 
     //workerThread->start();
     //request.sendRequest();

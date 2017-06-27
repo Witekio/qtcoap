@@ -14,7 +14,7 @@ class QCoapClientPrivate : public QObjectPrivate
 public:
     QCoapClientPrivate();
 
-    CoapMessageMap requestsMap;
+    CoapMessageMap requestMap;
     QCoapProtocol* protocol;
     QList<QCoapConnection*> connections;
     QList<QCoapResource*> resources;

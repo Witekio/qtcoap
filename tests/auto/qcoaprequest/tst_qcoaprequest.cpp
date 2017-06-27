@@ -31,8 +31,6 @@ private slots:
     void setOperation();
     void internalRequestToFrame_data();
     void internalRequestToFrame();
-    void sendRequest_data();
-    void sendRequest();
 };
 
 class QCoapRequestForTests : public QCoapRequest {
@@ -50,8 +48,8 @@ public:
         setReply(reply);
     }*/
 
-    /*void readReplyForTest() {
-        readReply();
+    /*void readAllForTest() {
+        readAll();
     }*/
 };
 
@@ -172,33 +170,6 @@ void tst_QCoapRequest::internalRequestToFrame()
 
     QCoapInternalRequest internalRequest(request);
     QCOMPARE(internalRequest.toQByteArray().toHex(), pdu);
-}
-
-void tst_QCoapRequest::sendRequest_data()
-{
-    QTest::addColumn<QUrl>("url");
-    QTest::addColumn<QCoapOperation>("operation");
-    QTest::addColumn<QCoapMessage::QCoapMessageType>("type");
-
-    QTest::newRow("get_nonconfirmable") << QUrl("coap://172.17.0.3:5683/test") << GET << QCoapMessage::NONCONFIRMABLE;
-}
-
-void tst_QCoapRequest::sendRequest()
-{
-    QFETCH(QUrl, url);
-    QFETCH(QCoapOperation, operation);
-    QFETCH(QCoapMessage::QCoapMessageType, type);
-
-    QFAIL("Connection moved to the client");
-    QCoapRequestForTests request(url);
-    request.setType(type);
-    request.setOperation(operation);
-    request.setToken(QByteArray("abcd"));
-
-    QSignalSpy spyConnectionReadyRead(request.connection(), SIGNAL(readyRead(const QByteArray&)));
-    request.sendRequest();
-
-    QTRY_COMPARE_WITH_TIMEOUT(spyConnectionReadyRead.count(), 1, 1000);
 }
 
 QTEST_MAIN(tst_QCoapRequest)

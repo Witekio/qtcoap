@@ -15,10 +15,19 @@ typedef QMap<QCoapReply*, QPair<QCoapInternalRequest, QList<QCoapInternalReply>>
 class QCoapProtocolPrivate : public QObjectPrivate
 {
 public:
+    enum ProtocolState {
+        WAITING,
+        SENDING
+    };
+
     QCoapProtocolPrivate();
+
+    void setState(ProtocolState newState);
+    void sendRequest(const QCoapInternalRequest& request);
 
     InternalMessageMap internalReplies;
     QQueue<QByteArray> frameQueue;
+    ProtocolState state;
 
     Q_DECLARE_PUBLIC(QCoapProtocol)
 };

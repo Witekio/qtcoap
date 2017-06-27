@@ -171,7 +171,6 @@ void tst_QCoapReply::updateReply_data()
 
 void tst_QCoapReply::updateReply()
 {
-    // TODO : find a way to update the user reply when private reply is complete
     QFETCH(QString, data);
 
     QCoapReply* reply = new QCoapReply();
@@ -179,7 +178,7 @@ void tst_QCoapReply::updateReply()
     internalReply.setPayload(data.toUtf8());
     QSignalSpy spyReplyFinished(reply, SIGNAL(finished()));
 
-    reply->updateWithInternalReply(internalReply);
+    reply->updateFromInternalReply(internalReply);
 
     QTRY_COMPARE_WITH_TIMEOUT(spyReplyFinished.count(), 1, 1000);
     QCOMPARE(reply->readAll(), data.toUtf8());

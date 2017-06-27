@@ -32,15 +32,15 @@ QCoapInternalReply QCoapInternalReply::fromQByteArray(const QByteArray& reply)
     // Parse Header and Token
     d->version = (pduData[0] >> 6) & 0x03;
     d->type = QCoapMessageType((pduData[0] >> 4) & 0x03);
-    d->tokenLength = (pduData[0]) & 0x0F;
+    quint8 tokenLength = (pduData[0]) & 0x0F;
     d->statusCode = static_cast<QCoapStatusCode>(pduData[1]);
     d->messageId = (static_cast<quint16>(pduData[2]) << 8)
                        | static_cast<quint16>(pduData[3]);
     d->token = QByteArray(reinterpret_cast<char *>(pduData + 4),
-                            d->tokenLength);
+                            tokenLength);
 
     // Parse Options
-    int i = 4 + d->tokenLength;
+    int i = 4 + tokenLength;
     quint16 lastOptionNumber = 0;
     while (i != reply.length() && static_cast<quint8>(pduData[i]) != 0xFF) {
         quint16 optionDelta = static_cast<quint16>((pduData[i] >> 4) & 0x0F);

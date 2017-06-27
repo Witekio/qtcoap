@@ -21,6 +21,8 @@ public:
     QCoapConnection::QCoapConnectionSendingState sendingState;
     QByteArray lastReply; // Temporary store the last reply
 
+    void boundToHost();
+
     void _q_connectedToHost();
     void _q_disconnectedFromHost();
     void _q_socketReadyRead();

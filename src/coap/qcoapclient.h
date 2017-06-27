@@ -23,7 +23,9 @@ public:
 
     QCoapReply* get(const QCoapRequest& request);
     QCoapReply* put(const QCoapRequest& request, const QByteArray& data = QByteArray());
+    QCoapReply* put(const QCoapRequest& request, QIODevice* device);
     QCoapReply* post(const QCoapRequest& request, const QByteArray& data = QByteArray());
+    QCoapReply* post(const QCoapRequest& request, QIODevice* device);
     QCoapReply* deleteResource(const QCoapRequest& request);
     QCoapReply* observe(const QCoapRequest& request);
     //void cancelObserve(QCoapRequest* request);

@@ -80,7 +80,7 @@ void tst_QCoapConnection::ctor()
     QFETCH(QString, host);
     QFETCH(int, port);
 
-    QCoapConnection* connection;
+    QCoapConnection* connection = nullptr;
 
     if (qstrcmp(QTest::currentDataTag(), "nothing") == 0)
         connection = new QCoapConnection();
@@ -181,7 +181,7 @@ void tst_QCoapConnection::sendRequest()
     QTRY_COMPARE_WITH_TIMEOUT(spySocketReadyRead.count(), 1, 5000);
     QTRY_COMPARE_WITH_TIMEOUT(spyConnectionReadyRead.count(), 1, 5000);
 
-    QByteArray reply = connection.readReply();
+    QByteArray reply = connection.readAll();
 
     QVERIFY(QString(reply.toHex()).startsWith(dataHexaHeader));
     QVERIFY(QString(reply.toHex()).endsWith(dataHexaPayload));
@@ -204,7 +204,7 @@ void tst_QCoapConnection::writeToSocket()
     connection.setSocketForTest(socket);
     connection.writeToSocketForTests(data.toUtf8());
 
-    QCOMPARE(connection.readReply(), data.toUtf8());
+    QCOMPARE(connection.readAll(), data.toUtf8());
 }
 
 QTEST_MAIN(tst_QCoapConnection)

@@ -27,10 +27,11 @@ public:
 
     explicit QCoapConnection(const QString& host = "localhost", int port = 5683, QObject* parent = nullptr);
     QCoapConnection(QCoapConnectionPrivate& dd, const QString& host = "localhost", int port = 5683, QObject* parent = nullptr);
+    ~QCoapConnection();
 
     void connectToHost();
     void sendRequest(const QByteArray& pduRequest);
-    QByteArray readReply();
+    QByteArray readAll();
 
     QString host() const;
     int port() const;
@@ -42,7 +43,11 @@ public:
 signals:
     void connected();
     void disconnected();
+    void bound();
     void readyRead(const QByteArray& frame);
+
+private slots:
+    void onSocketError(QAbstractSocket::SocketError error);
 
 protected:
     void bindToHost();

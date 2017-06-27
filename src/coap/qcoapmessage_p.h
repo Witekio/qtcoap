@@ -18,7 +18,7 @@ public:
     QCoapMessage::QCoapMessageType type;
     quint16 messageId;
     QByteArray token;
-    quint8 tokenLength;
+    //quint8 tokenLength;
     QList<QCoapOption> options;
     QByteArray payload;
 };

@@ -4,7 +4,7 @@
 #include "qcoapglobal.h"
 #include "qcoapinternalmessage.h"
 #include "qcoapinternalmessage_p.h"
-//#include "qcoapconnection.h"
+#include "qcoapconnection.h"
 
 QT_BEGIN_NAMESPACE
 
@@ -25,9 +25,9 @@ public:
     void setRequestToAskBlock(uint blockNumber);
 
     bool isValid() const;
-    //QCoapConnection* connection() const;
+    QCoapConnection* connection() const;
     void setOperation(QCoapOperation operation);
-    //void setConnection(QCoapConnection* connection);
+    void setConnection(QCoapConnection* connection);
 
     bool operator<(const QCoapInternalRequest& other) const;
 
@@ -41,7 +41,7 @@ public:
     QCoapInternalRequestPrivate();
 
     QCoapOperation operation;
-    //QCoapConnection* connection;
+    QCoapConnection* connection;
     bool isValid;
 };
 

@@ -36,8 +36,6 @@ public:
     QCoapRequest& operator=(const QCoapRequest& other);
     bool operator<(const QCoapRequest& other) const;
 
-    void sendRequest() const;
-
     QUrl url() const;
     QCoapOperation operation() const;
     //QCoapReply* reply() const;
