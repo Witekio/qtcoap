@@ -23,7 +23,9 @@ HEADERS += \
     qcoapinternalmessage_p.h \
     qcoapinternalrequest_p.h \
     qcoapinternalreply_p.h \
-    qcoapglobal.h
+    qcoapglobal.h \
+    qcoapdiscoveryreply.h \
+    qcoapdiscoveryreply_p.h
 
 SOURCES += \
     qcoapclient.cpp \
@@ -36,4 +38,5 @@ SOURCES += \
     qcoapprotocol.cpp \
     qcoapinternalmessage.cpp \
     qcoapinternalreply.cpp \
-    qcoapinternalrequest.cpp
+    qcoapinternalrequest.cpp \
+    qcoapdiscoveryreply.cpp

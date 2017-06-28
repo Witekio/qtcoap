@@ -3,7 +3,8 @@
 
 QCoapInternalRequestPrivate::QCoapInternalRequestPrivate() :
     operation(EMPTY),
-    isValid(true)
+    isValid(true),
+    cancelObserve(false)
 {
 }
 
@@ -142,6 +143,26 @@ void QCoapInternalRequest::setRequestToAskBlock(uint blockNumber)
     setMessageId(d_ptr->messageId+1);
 }
 
+void QCoapInternalRequest::setRequestForAck(quint16 messageId, const QByteArray& token)
+{
+    setType(ACKNOWLEDGMENT);
+    setOperation(EMPTY);
+    setMessageId(messageId);
+    setToken(token);
+    setPayload(QByteArray());
+    removeAllOptions();
+}
+
+void QCoapInternalRequest::setRequestForReset(quint16 messageId)
+{
+    setType(RESET);
+    setOperation(EMPTY);
+    setMessageId(messageId);
+    setToken(QByteArray());
+    setPayload(QByteArray());
+    removeAllOptions();
+}
+
 quint16 QCoapInternalRequest::generateMessageId()
 {
     quint16 id = qrand() % 65536;
@@ -174,6 +195,11 @@ QCoapConnection* QCoapInternalRequest::connection() const
     return d_func()->connection;
 }
 
+bool QCoapInternalRequest::cancelObserve() const
+{
+    return d_func()->cancelObserve;
+}
+
 void QCoapInternalRequest::setOperation(QCoapOperation operation)
 {
     QCoapInternalRequestPrivate* d = d_func();
@@ -190,6 +216,15 @@ void QCoapInternalRequest::setConnection(QCoapConnection* connection)
         return;
 
     d->connection = connection;
+}
+
+void QCoapInternalRequest::setCancelObserve(bool cancelObserve)
+{
+    QCoapInternalRequestPrivate* d = d_func();
+    if (d->cancelObserve == cancelObserve)
+        return;
+
+    d->cancelObserve = cancelObserve;
 }
 
 QCoapInternalRequestPrivate* QCoapInternalRequest::d_func() const

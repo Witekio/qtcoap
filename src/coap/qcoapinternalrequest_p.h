@@ -19,15 +19,18 @@ public:
     static QCoapInternalRequest invalidRequest();
     static QCoapInternalRequest fromQCoapRequest(const QCoapRequest& request);
     QByteArray toQByteArray() const;
-
     quint16 generateMessageId();
     QByteArray generateToken();
     void setRequestToAskBlock(uint blockNumber);
+    void setRequestForAck(quint16 messageId, const QByteArray& token);
+    void setRequestForReset(quint16 messageId);
 
     bool isValid() const;
+    bool cancelObserve() const;
     QCoapConnection* connection() const;
     void setOperation(QCoapOperation operation);
     void setConnection(QCoapConnection* connection);
+    void setCancelObserve(bool cancelObserve);
 
     bool operator<(const QCoapInternalRequest& other) const;
 
@@ -43,6 +46,7 @@ public:
     QCoapOperation operation;
     QCoapConnection* connection;
     bool isValid;
+    bool cancelObserve;
 };
 
 QT_END_NAMESPACE

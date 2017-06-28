@@ -115,39 +115,6 @@ void QCoapResource::setContentFormat(uint contentFormat)
     d_ptr->contentFormat = contentFormat;
 }
 
-QList<QCoapResource*> QCoapResource::fromCoreLinkList(const QByteArray& data)
-{
-    QList<QCoapResource*> resourceList;
 
-    QList<QByteArray> links = data.split(',');
-    for (QByteArray link : links)
-    {
-        QCoapResource* resource = new QCoapResource();
-        QList<QByteArray> parameterList = link.split(';');
-        for (QByteArray parameter : parameterList)
-        {
-            int length = parameter.length();
-            if (parameter.startsWith('<'))
-                resource->setPath(QString(parameter).mid(1, length-2));
-            else if (parameter.startsWith("title="))
-                resource->setTitle(QString(parameter).right(length-6).remove("\""));
-            else if (parameter.startsWith("rt="))
-                resource->setResourceType(QString(parameter).right(length-3).remove("\""));
-            else if (parameter.startsWith("if="))
-                resource->setInterface(QString(parameter).right(length-3).remove("\""));
-            else if (parameter.startsWith("sz="))
-                resource->setMaximumSize(QString(parameter).right(length-3).remove("\"").toInt());
-            else if (parameter.startsWith("ct="))
-                resource->setContentFormat(QString(parameter).right(length-3).remove("\"").toUInt());
-            else if (parameter == "obs")
-                resource->setObservable(true);
-        }
-
-        if (!resource->path().isEmpty())
-            resourceList.push_back(resource);
-    }
-
-    return resourceList;
-}
 
 QT_END_NAMESPACE

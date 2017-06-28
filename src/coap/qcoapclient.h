@@ -9,6 +9,7 @@
 #include "qcoapreply.h"
 #include "qcoaprequest.h"
 #include "qcoapprotocol.h"
+#include "qcoapdiscoveryreply.h"
 
 QT_BEGIN_NAMESPACE
 
@@ -28,13 +29,15 @@ public:
     QCoapReply* post(const QCoapRequest& request, QIODevice* device);
     QCoapReply* deleteResource(const QCoapRequest& request);
     QCoapReply* observe(const QCoapRequest& request);
-    //void cancelObserve(QCoapRequest* request);
+    void cancelObserve(QCoapReply* notifiedReply);
 
-    QList<QCoapResource*> discover(const QUrl& url, const QString& discoveryPath = "/.well-known/core");
+    QCoapDiscoveryReply* discover(const QUrl& url, const QString& discoveryPath = "/.well-known/core");
 
 protected:
     QCoapConnection* findConnection(QString host, int port);
+    QCoapConnection* addConnection(const QString& host, int port);
     QCoapReply* sendRequest(const QCoapRequest& request);
+    QCoapDiscoveryReply* sendDiscovery(const QCoapRequest& request);
 
     Q_DECLARE_PRIVATE(QCoapClient)
 };

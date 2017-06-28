@@ -70,28 +70,6 @@ void QCoapRequest::parseUri()
     d->connection->setPort(d->url.port(5683));
 }
 
-/*void QCoapRequest::setRequestForAck(quint16 messageId, const QByteArray& payload)
-{
-    setType(ACKNOWLEDGMENT);
-    setOperation(EMPTY);
-    setMessageId(messageId);
-    // NOTE : verify if we change the token, if we use the reply token or if we have no token
-    // (and for the reset message too)
-    // setToken(token);
-    setPayload(payload);
-    removeAllOptions();
-}
-
-void QCoapRequest::setRequestForReset(quint16 messageId)
-{
-    setType(RESET);
-    setOperation(EMPTY);
-    setMessageId(messageId);
-    //setToken(QByteArray(""));
-    setPayload(QByteArray(""));
-    removeAllOptions();
-}*/
-
 /*QCoapReply* QCoapRequest::reply() const
 {
     QCoapRequestPrivate* d = static_cast<QCoapRequestPrivate*>(d_ptr);

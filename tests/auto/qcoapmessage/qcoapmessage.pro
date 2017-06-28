@@ -27,7 +27,9 @@ HEADERS += \
     ../../../src/coap/qcoapinternalmessage_p.h \
     ../../../src/coap/qcoapinternalreply_p.h \
     ../../../src/coap/qcoapinternalrequest_p.h \
-    ../../../src/coap/qcoapglobal.h
+    ../../../src/coap/qcoapglobal.h \
+    ../../../src/coap/qcoapdiscoveryreply.h \
+    ../../../src/coap/qcoapdiscoveryreply_p.h
 
 SOURCES += \
     ../../../src/coap/qcoapclient.cpp \
@@ -40,7 +42,8 @@ SOURCES += \
     ../../../src/coap/qcoapprotocol.cpp \
     ../../../src/coap/qcoapinternalmessage.cpp \
     ../../../src/coap/qcoapinternalreply.cpp \
-    ../../../src/coap/qcoapinternalrequest.cpp
+    ../../../src/coap/qcoapinternalrequest.cpp \
+    ../../../src/coap/qcoapdiscoveryreply.cpp
 
 SOURCES +=  tst_qcoapmessage.cpp
 

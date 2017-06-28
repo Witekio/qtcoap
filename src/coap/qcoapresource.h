@@ -28,8 +28,6 @@ public:
     void setMaximumSize(int maximumSize);
     void setContentFormat(uint contentFormat);
 
-    static QList<QCoapResource*> fromCoreLinkList(const QByteArray& data);
-
 private:
     QCoapResourcePrivate *d_ptr;
 };

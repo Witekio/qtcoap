@@ -26,10 +26,14 @@ public:
     void setRequest(const QCoapRequest& request);
 
 public slots:
-    void updateFromInternalReply(const QCoapInternalReply& pdu); // remove public (friend ?)
+    virtual void updateFromInternalReply(const QCoapInternalReply& internalReply); // remove public (friend ?)
 
 signals:
     void finished();
+    void notified(const QByteArray& data);
+
+protected:
+    QCoapReply(QCoapReplyPrivate &dd, QObject* parent = Q_NULLPTR);
 
 private :
     qint64 readData(char* data, qint64 maxSize) Q_DECL_OVERRIDE;

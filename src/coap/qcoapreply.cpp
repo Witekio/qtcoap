@@ -12,7 +12,12 @@ QCoapReplyPrivate::QCoapReplyPrivate() :
 }
 
 QCoapReply::QCoapReply(QObject* parent) :
-    QIODevice(* new QCoapReplyPrivate, parent)
+    QCoapReply(* new QCoapReplyPrivate, parent)
+{
+}
+
+QCoapReply::QCoapReply(QCoapReplyPrivate &dd, QObject* parent) :
+    QIODevice(dd, parent)
 {
     open(QIODevice::ReadOnly);
 }
@@ -79,6 +84,9 @@ void QCoapReply::updateFromInternalReply(const QCoapInternalReply& internalReply
 
     d_func()->isFinished = true;
     d_func()->isRunning = false;
+
+    if (d_func()->request.observe())
+        emit notified(internalReply.payload());
 
     emit finished();
 }

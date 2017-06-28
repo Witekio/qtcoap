@@ -37,7 +37,7 @@ public:
     void setMessageId(quint16);
     void setPayload(const QByteArray& payload);
 
-    void addOption(QCoapOption::QCoapOptionName name, const QByteArray& value);
+    void addOption(QCoapOption::QCoapOptionName name, const QByteArray& value = QByteArray());
     virtual void addOption(const QCoapOption& option);
     void removeOption(const QCoapOption& option);
     void removeOptionByName(QCoapOption::QCoapOptionName name);
