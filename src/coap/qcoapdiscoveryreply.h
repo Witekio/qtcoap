@@ -14,11 +14,10 @@ class QCoapDiscoveryReply : public QCoapReply
 public:
     QCoapDiscoveryReply(QObject *parent = nullptr);
 
-    void updateFromInternalReply(const QCoapInternalReply& internalReply) Q_DECL_OVERRIDE; // remove public (friend ?)
-
-    QList<QCoapResource> resourceList();
+    QList<QCoapResource> resourceList() const;
 
 private:
+    void updateFromInternalReply(const QCoapInternalReply& internalReply) Q_DECL_OVERRIDE;
     Q_DECLARE_PRIVATE(QCoapDiscoveryReply)
 
 };

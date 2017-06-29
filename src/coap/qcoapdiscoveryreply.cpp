@@ -7,7 +7,7 @@ QCoapDiscoveryReply::QCoapDiscoveryReply(QObject *parent) :
 
 }
 
-QList<QCoapResource> QCoapDiscoveryReply::resourceList()
+QList<QCoapResource> QCoapDiscoveryReply::resourceList() const
 {
     return d_func()->resources;
 }

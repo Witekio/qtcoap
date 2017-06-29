@@ -40,17 +40,13 @@ void QCoapInternalMessage::addOption(const QCoapOption& option)
     if (option.name() == QCoapOption::BLOCK1
         || option.name() == QCoapOption::BLOCK2) {
         quint32 blockNumber = 0;
-        quint8 *optionData = (quint8 *)option.value().data();
+        quint8 *optionData = reinterpret_cast<quint8 *>(option.value().data());
         for (int i = 0; i < option.length() - 1; ++i)
             blockNumber = (blockNumber << 8) | optionData[i];
         blockNumber = (blockNumber << 4) | ((optionData[option.length()-1]) >> 4);
         d->currentBlockNumber = blockNumber;
         d->hasNextBlock = ((optionData[option.length()-1] & 0x8) == 0x8);
         d->blockSize = qPow(2, (optionData[option.length()-1] & 0x7) + 4);
-        //qDebug() << option->length();
-        /*qDebug() << "ADD BLOCK : " << d->currentBlockNumber
-                 << " - " << d->hasNextBlock
-                 << " - " << option->value().toHex();*/
     }
 
     QCoapMessage::addOption(option);

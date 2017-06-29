@@ -54,10 +54,10 @@ QByteArray QCoapInternalRequest::toQByteArray() const
             | (quint32(d->operation) << 16)             // Operation type
             | (quint32(d->messageId));                  // Message ID
 
-    pdu.append(static_cast<quint8>(coapHeader >> 24));
-    pdu.append(static_cast<quint8>((coapHeader >> 16) & 0xFF));
-    pdu.append(static_cast<quint8>((coapHeader >> 8) & 0xFF));
-    pdu.append(static_cast<quint8>(coapHeader & 0xFF));
+    pdu.append(static_cast<char>(coapHeader >> 24));
+    pdu.append(static_cast<char>((coapHeader >> 16) & 0xFF));
+    pdu.append(static_cast<char>((coapHeader >> 8) & 0xFF));
+    pdu.append(static_cast<char>(coapHeader & 0xFF));
 
     // Insert Token
     pdu.append(d->token);
@@ -104,14 +104,14 @@ QByteArray QCoapInternalRequest::toQByteArray() const
                 isOptionLengthExtended = true;
             }
 
-            optionPdu = (static_cast<quint8>(optionDelta) << 4)          // Option Delta
-                        | (static_cast<quint8>(optionLength) & 0x0F);    // Option Length
-            pdu.append(optionPdu);
+            optionPdu = static_cast<quint8>((static_cast<quint8>(optionDelta) << 4)         // Option Delta
+                                            | (static_cast<quint8>(optionLength) & 0x0F));  // Option Length
+            pdu.append(static_cast<char>(optionPdu));
             if (isOptionDeltaExtended)
-                pdu.append(optionDeltaExtended);    // Option Delta Extended
+                pdu.append(static_cast<char>(optionDeltaExtended));     // Option Delta Extended
             if (isOptionLengthExtended)
-                pdu.append(optionLengthExtended);   // Option Length Extended
-            pdu.append(option.value());            // Option Value
+                pdu.append(static_cast<char>(optionLengthExtended));    // Option Length Extended
+            pdu.append(option.value());                                 // Option Value
 
             lastOptionNumber = option.name();
         }
@@ -132,10 +132,10 @@ void QCoapInternalRequest::setRequestToAskBlock(uint blockNumber)
     quint32 block2Data = (blockNumber << 4) | 2;
     QByteArray block2Value = QByteArray();
     if (block2Data > 0xFFFF)
-        block2Value.append(block2Data >> 16);
+        block2Value.append(static_cast<char>(block2Data >> 16));
     if (block2Data > 0xFF)
-        block2Value.append(block2Data >> 8 & 0xFF);
-    block2Value.append(block2Data & 0xFF);
+        block2Value.append(static_cast<char>(block2Data >> 8 & 0xFF));
+    block2Value.append(static_cast<char>(block2Data & 0xFF));
 
     removeOptionByName(QCoapOption::BLOCK2);
     addOption(QCoapOption::BLOCK2, block2Value);
@@ -165,7 +165,7 @@ void QCoapInternalRequest::setRequestForReset(quint16 messageId)
 
 quint16 QCoapInternalRequest::generateMessageId()
 {
-    quint16 id = qrand() % 65536;
+    quint16 id = static_cast<quint16>(qrand() % 65536);
     setMessageId(id);
     return id;
 }
@@ -176,9 +176,9 @@ QByteArray QCoapInternalRequest::generateToken()
     quint8 length = (qrand() % 7) + 1;
     token.resize(length);
 
-    quint8 *tokenData = (quint8 *)token.data();
+    quint8 *tokenData = reinterpret_cast<quint8 *>(token.data());
     for (int i = 0; i < token.size(); ++i)
-        tokenData[i] = qrand() % 256;
+        tokenData[i] = static_cast<quint8>(qrand() % 256);
 
     setToken(token);
     return token;

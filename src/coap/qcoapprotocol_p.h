@@ -9,8 +9,15 @@
 
 QT_BEGIN_NAMESPACE
 
+struct InternalMessagePair {
+    QCoapInternalRequest request;
+    QList<QCoapInternalReply> replies;
+};
+
+// TODO : make a struct
 //typedef QMap<QCoapInternalRequest, QList<QCoapInternalReply>> InternalMessageMap;
-typedef QMap<QCoapReply*, QPair<QCoapInternalRequest, QList<QCoapInternalReply>>> InternalMessageMap;
+//typedef QMap<QCoapReply*, QPair<QCoapInternalRequest, QList<QCoapInternalReply>>> InternalMessageMap;
+typedef QMap<QCoapReply*, InternalMessagePair> InternalMessageMap;
 
 class QCoapProtocolPrivate : public QObjectPrivate
 {
@@ -23,13 +30,20 @@ public:
     QCoapProtocolPrivate();
 
     void handleFrame();
+    void handleFrame(const QByteArray& frame);
+    void onLastBlock(QCoapReply* request);
+    void onNextBlock(QCoapReply* reply, uint currentBlockNumber);
+    void sendAcknowledgment(QCoapReply* reply);
+    void sendReset(QCoapReply* reply);
+    QByteArray encode(const QCoapInternalRequest& request);
+    QCoapInternalReply decode(const QByteArray& message);
 
     void setState(ProtocolState newState);
     void sendRequest(const QCoapInternalRequest& request);
     bool containsMessageId(quint16 id);
     bool containsToken(const QByteArray& token);
-    //QCoapInternalRequest findInternalRequestByToken(const QByteArray& token);
     QCoapReply* findReplyByToken(const QByteArray& token);
+    QCoapReply* findReplyByMessageId(quint16 messageId);
 
     InternalMessageMap internalReplies;
     QQueue<QByteArray> frameQueue;

@@ -162,6 +162,14 @@ void tst_QCoapReply::parseReplyPdu()
     QCOMPARE(reply.payload(), payload);
 }
 
+class QCoapReplyForTests : public QCoapReply
+{
+public:
+    void updateFromInternalReplyForTests(const QCoapInternalReply& internal) {
+        updateFromInternalReply(internal);
+    }
+};
+
 void tst_QCoapReply::updateReply_data()
 {
     QTest::addColumn<QString>("data");
@@ -173,12 +181,12 @@ void tst_QCoapReply::updateReply()
 {
     QFETCH(QString, data);
 
-    QCoapReply* reply = new QCoapReply();
+    QCoapReplyForTests* reply = new QCoapReplyForTests();
     QCoapInternalReply internalReply;
     internalReply.setPayload(data.toUtf8());
     QSignalSpy spyReplyFinished(reply, SIGNAL(finished()));
 
-    reply->updateFromInternalReply(internalReply);
+    reply->updateFromInternalReplyForTests(internalReply);
 
     QTRY_COMPARE_WITH_TIMEOUT(spyReplyFinished.count(), 1, 1000);
     QCOMPARE(reply->readAll(), data.toUtf8());

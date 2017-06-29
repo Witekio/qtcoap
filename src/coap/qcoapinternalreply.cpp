@@ -27,17 +27,16 @@ QCoapInternalReply QCoapInternalReply::fromQByteArray(const QByteArray& reply)
     QCoapInternalReply internalReply;
     QCoapInternalReplyPrivate* d = internalReply.d_func();
 
-    quint8 *pduData = (quint8 *)reply.data();
+    quint8 *pduData = reinterpret_cast<quint8 *>(const_cast<char *>(reply.data()));
 
     // Parse Header and Token
     d->version = (pduData[0] >> 6) & 0x03;
     d->type = QCoapMessageType((pduData[0] >> 4) & 0x03);
     quint8 tokenLength = (pduData[0]) & 0x0F;
     d->statusCode = static_cast<QCoapStatusCode>(pduData[1]);
-    d->messageId = (static_cast<quint16>(pduData[2]) << 8)
-                       | static_cast<quint16>(pduData[3]);
-    d->token = QByteArray(reinterpret_cast<char *>(pduData + 4),
-                            tokenLength);
+    d->messageId = static_cast<quint16>((static_cast<quint16>(pduData[2]) << 8)
+                                         | static_cast<quint16>(pduData[3]));
+    d->token = QByteArray(reinterpret_cast<char *>(pduData + 4), tokenLength);
 
     // Parse Options
     int i = 4 + tokenLength;

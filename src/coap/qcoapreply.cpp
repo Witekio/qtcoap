@@ -31,7 +31,7 @@ qint64 QCoapReply::readData(char* data, qint64 maxSize)
     qint64 len = qMin(maxSize, qint64(payload.size()) - pos());
     if (len <= 0)
         return qint64(0);
-    memcpy(data, payload.constData() + pos(), len);
+    memcpy(data, payload.constData() + pos(), static_cast<size_t>(len));
 
     return len;
 }
@@ -69,10 +69,21 @@ QUrl QCoapReply::url() const
     return d_func()->request.url();
 }
 
+QCoapOperation QCoapReply::operation() const
+{
+    return d_func()->request.operation();
+}
+
 void QCoapReply::setRequest(const QCoapRequest& request)
 {
     Q_D(QCoapReply);
     d->request = request;
+}
+
+void QCoapReply::setIsRunning(bool isRunning)
+{
+    Q_D(QCoapReply);
+    d->isRunning = isRunning;
 }
 
 void QCoapReply::updateFromInternalReply(const QCoapInternalReply& internalReply)

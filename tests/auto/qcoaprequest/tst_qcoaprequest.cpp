@@ -33,26 +33,6 @@ private slots:
     void internalRequestToFrame();
 };
 
-class QCoapRequestForTests : public QCoapRequest {
-public:
-    QCoapRequestForTests(const QUrl& url = QUrl()) :
-        QCoapRequest(url)
-    {
-    }
-
-    void setConnectionForTests(QCoapConnection* connection) {
-        setConnection(connection);
-    }
-
-    /*void setReplyForTests(QCoapReply* reply) {
-        setReply(reply);
-    }*/
-
-    /*void readAllForTest() {
-        readAll();
-    }*/
-};
-
 tst_QCoapRequest::tst_QCoapRequest()
 {
 }
@@ -81,10 +61,10 @@ void tst_QCoapRequest::ctor()
 {
     QFETCH(QUrl, url);
 
-    QCoapRequestForTests request(url);
+    QCoapRequest request(url);
     QCOMPARE(request.url(), url);
     //QVERIFY(request.reply() != nullptr);
-    QVERIFY(request.connection() != nullptr);
+    //QVERIFY(request.connection() != nullptr);
 }
 
 void tst_QCoapRequest::setUrl_data()

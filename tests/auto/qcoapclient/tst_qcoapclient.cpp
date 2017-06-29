@@ -198,8 +198,8 @@ void tst_QCoapClient::multipleRequests()
     QVERIFY(replyGet3 != nullptr);
     QVERIFY(replyGet4 != nullptr);
 
-    QTRY_COMPARE_WITH_TIMEOUT(spyReplyGet1Finished.count(), 1, 2000);
-    QTRY_COMPARE_WITH_TIMEOUT(spyReplyGet2Finished.count(), 1, 2000);
+    QTRY_COMPARE_WITH_TIMEOUT(spyReplyGet1Finished.count(), 1, 5000);
+    QTRY_COMPARE_WITH_TIMEOUT(spyReplyGet2Finished.count(), 1, 5000);
     QTRY_COMPARE_WITH_TIMEOUT(spyReplyGet3Finished.count(), 1, 5000);
     QTRY_COMPARE_WITH_TIMEOUT(spyReplyGet4Finished.count(), 1, 5000);
 
@@ -262,19 +262,17 @@ void tst_QCoapClient::blockwiseReply()
     QFETCH(QByteArray, replyData);
 
     //QFAIL("Broken");
-    for (int i = 0; i < 10; ++i) {
-        QCoapClient client;
-        QCoapRequest request(url);
+    QCoapClient client;
+    QCoapRequest request(url);
 
-        request.setType(type);
-        QCoapReply* reply = client.get(request);
-        QSignalSpy spyReplyFinished(reply, SIGNAL(finished()));
+    request.setType(type);
+    QCoapReply* reply = client.get(request);
+    QSignalSpy spyReplyFinished(reply, SIGNAL(finished()));
 
-        QTRY_COMPARE_WITH_TIMEOUT(spyReplyFinished.count(), 1, 60000);
+    QTRY_COMPARE_WITH_TIMEOUT(spyReplyFinished.count(), 1, 60000);
 
-        QByteArray dataReply = reply->readAll();
-        QCOMPARE(dataReply, replyData);
-    }
+    QByteArray dataReply = reply->readAll();
+    QCOMPARE(dataReply, replyData);
 }
 
 void tst_QCoapClient::discover_data()
@@ -292,8 +290,7 @@ void tst_QCoapClient::discover()
     QFETCH(int, resourceNumber);
 
     //QFAIL("Broken when protocol added");
-    //for (int i = 0; i < 20; ++i) {
-    //    qDebug() << i;
+    for (int i = 0; i < 20; ++i) {
         QCoapClientForTests client;
 
         QCoapDiscoveryReply* resourcesReply = client.discover(url); // /.well-known/core
@@ -301,7 +298,7 @@ void tst_QCoapClient::discover()
 
         QTRY_COMPARE_WITH_TIMEOUT(spyReplyFinished.count(), 1, 30000);
         QCOMPARE(resourcesReply->resourceList().length(), resourceNumber);
-    //}
+    }
 }
 
 void tst_QCoapClient::observe_data()
@@ -324,14 +321,14 @@ void tst_QCoapClient::observe()
     reply = client.observe(request);
     QSignalSpy spyReplyFinished(reply, SIGNAL(notified(const QByteArray&)));
 
-    QTRY_COMPARE_WITH_TIMEOUT(spyReplyFinished.count(), 4, 30000);
+    QTRY_COMPARE_WITH_TIMEOUT(spyReplyFinished.count(), 3, 30000);
     for (QList<QVariant> receivedSignals : spyReplyFinished) {
         qDebug() << receivedSignals.first().toByteArray();
     }
 
     client.cancelObserve(reply);
     QThread::sleep(12);
-    QTRY_COMPARE_WITH_TIMEOUT(spyReplyFinished.count(), 5, 30000);
+    QTRY_COMPARE_WITH_TIMEOUT(spyReplyFinished.count(), 4, 30000);
     for (QList<QVariant> receivedSignals : spyReplyFinished) {
         qDebug() << receivedSignals.first().toByteArray();
     }

@@ -14,11 +14,10 @@ public:
     ~QCoapConnectionPrivate();
 
     QString host;
-    int port;
+    quint16 port;
     QIODevice* udpSocket;
     QByteArray currentPdu;
     QCoapConnection::QCoapConnectionState state;
-    QCoapConnection::QCoapConnectionSendingState sendingState;
     QByteArray lastReply; // Temporary store the last reply
 
     void boundToHost();

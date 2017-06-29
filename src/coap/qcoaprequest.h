@@ -21,25 +21,17 @@ class QCoapRequestPrivate;
 class QCoapRequest : public QCoapMessage
 {
 public:
-    enum QCoapRequestState {
-        WAITING,
-        SENT,
-        REPLIED,
-        REPLYCOMPLETE
-    };
-
     QCoapRequest(const QUrl& url = QUrl(),
                  QCoapMessageType type = NONCONFIRMABLE);
     QCoapRequest(const QCoapRequest &other);
-    ~QCoapRequest();
+    ~QCoapRequest() {};
 
     QCoapRequest& operator=(const QCoapRequest& other);
     bool operator<(const QCoapRequest& other) const;
 
     QUrl url() const;
     QCoapOperation operation() const;
-    //QCoapReply* reply() const;
-    QCoapConnection* connection() const;
+    //QCoapConnection* connection() const;
     bool observe() const;
     void setUrl(const QUrl& url);
     void setOperation(QCoapOperation operation);
@@ -47,12 +39,6 @@ public:
 
 protected:
     void parseUri();
-    //void setReply(QCoapReply* reply);
-    void setConnection(QCoapConnection* connection);
-    //void setProtocol(QCoapProtocol* protocol);
-    void setState(QCoapRequestState state);
-    //void setRequestForAck(quint16 messageId, const QByteArray& payload = QByteArray());
-    //void setRequestForReset(quint16 messageId);
 };
 
 QT_END_NAMESPACE

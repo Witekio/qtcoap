@@ -29,13 +29,14 @@ public:
     QCoapReply* post(const QCoapRequest& request, QIODevice* device);
     QCoapReply* deleteResource(const QCoapRequest& request);
     QCoapReply* observe(const QCoapRequest& request);
+    void cancelObserve(const QCoapRequest& request);
     void cancelObserve(QCoapReply* notifiedReply);
 
     QCoapDiscoveryReply* discover(const QUrl& url, const QString& discoveryPath = "/.well-known/core");
 
 protected:
-    QCoapConnection* findConnection(QString host, int port);
-    QCoapConnection* addConnection(const QString& host, int port);
+    QCoapConnection* findConnection(QString host, quint16 port);
+    QCoapConnection* addConnection(const QString& host, quint16 port);
     QCoapReply* sendRequest(const QCoapRequest& request);
     QCoapDiscoveryReply* sendDiscovery(const QCoapRequest& request);
 
