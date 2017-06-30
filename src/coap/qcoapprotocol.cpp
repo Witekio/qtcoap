@@ -280,7 +280,7 @@ void QCoapProtocolPrivate::onLastBlock(const QCoapInternalRequest& request)
 
     QCoapInternalReply finalReply(replies.last());
     if (finalReply.type() == QCoapMessage::ACKNOWLEDGMENT
-            && finalReply.statusCode() == EMPTY)
+            && finalReply.statusCode() == InvalidCode)
         return;
 
     // If multiple blocks : append data from all blocks to the final reply
@@ -423,6 +423,8 @@ QCoapInternalReply QCoapProtocolPrivate::decode(const QByteArray& message)
 
 void QCoapProtocol::abortRequest(QCoapReply* reply)
 {
+    // TODO : abortRequest or remove
+    Q_UNUSED(reply);
     /*qDebug() << "abortRequest()";
 
 
