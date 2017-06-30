@@ -24,6 +24,7 @@ public:
 
 public slots:
     void messageReceived(const QByteArray& frameReply);
+    void abortRequest(QCoapReply* reply);
 
 private:
     Q_DECLARE_PRIVATE(QCoapProtocol)

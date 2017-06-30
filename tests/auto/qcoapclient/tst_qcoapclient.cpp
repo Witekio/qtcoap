@@ -21,9 +21,10 @@ public:
 private slots:
     void initTestCase();
     void cleanupTestCase();
-    void uniqueTokensAndMessageIds();
     void operations_data();
     void operations();
+    void removeReply_data();
+    void removeReply();
     void requestWithQIODevice_data();
     void requestWithQIODevice();
     void multipleRequests_data();
@@ -52,30 +53,6 @@ void tst_QCoapClient::cleanupTestCase()
 {
 }
 
-class QCoapClientForTests : public QCoapClient
-{
-public:
-    QCoapClientForTests() : QCoapClient() {}
-
-    //void addNewRequest(const QCoapRequest& req) { addRequest(req); }
-};
-
-void tst_QCoapClient::uniqueTokensAndMessageIds()
-{
-    /*QCoapClientForTests client;
-
-    QList<QByteArray> tokenList;
-    QList<quint16> ids;
-    for (int i = 0; i < 100; ++i) {
-        QCoapRequest* request = new QCoapRequest();
-        client.addNewRequest(request);
-        QVERIFY(!tokenList.contains(request->token()));
-        QVERIFY(!ids.contains(request->messageId()));
-        tokenList.push_back(request->token());
-        ids.push_back(request->messageId());
-    }*/
-}
-
 void tst_QCoapClient::operations_data()
 {
     QTest::addColumn<QUrl>("url");
@@ -92,7 +69,7 @@ void tst_QCoapClient::operations()
 
     //QFAIL("Uncomment the QFAIL");
 
-    QCoapClientForTests client;
+    QCoapClient client;
     QCoapRequest request(url);
 
     QCoapReply* reply = nullptr;
@@ -113,19 +90,45 @@ void tst_QCoapClient::operations()
 
     if (qstrcmp(QTest::currentDataTag(), "get") == 0) {
         QVERIFY(!replyData.isEmpty());
-        QCOMPARE(reply->statusCode(), CONTENT);
+        QCOMPARE(reply->statusCode(), ContentCode);
     } else if (qstrcmp(QTest::currentDataTag(), "post") == 0) {
         QVERIFY(replyData.isEmpty());
-        QCOMPARE(reply->statusCode(), CREATED);
+        QCOMPARE(reply->statusCode(), CreatedCode);
     } else if (qstrcmp(QTest::currentDataTag(), "put") == 0) {
         QVERIFY(replyData.isEmpty());
-        QCOMPARE(reply->statusCode(), CHANGED);
+        QCOMPARE(reply->statusCode(), ChangedCode);
     } else if (qstrcmp(QTest::currentDataTag(), "delete") == 0) {
         QVERIFY(replyData.isEmpty());
-        QCOMPARE(reply->statusCode(), DELETED);
+        QCOMPARE(reply->statusCode(), DeletedCode);
     }
 
     delete reply;
+}
+
+void tst_QCoapClient::removeReply_data()
+{
+    QTest::addColumn<QUrl>("url");
+
+    QTest::newRow("get") << QUrl("coap://172.17.0.3:5683/test");
+}
+
+void tst_QCoapClient::removeReply()
+{
+    QFETCH(QUrl, url);
+
+    //QFAIL("Uncomment the QFAIL");
+
+    QCoapClient client;
+    QCoapRequest request(url);
+
+    QCoapReply* reply = nullptr;
+    reply = client.get(request);
+    QSignalSpy spyReplyFinished(reply, SIGNAL(finished()));
+    delete reply;
+    reply = 0;
+
+    QThread::sleep(2);
+    QCOMPARE(spyReplyFinished.count(), 0);
 }
 
 void tst_QCoapClient::requestWithQIODevice_data()
@@ -140,7 +143,7 @@ void tst_QCoapClient::requestWithQIODevice()
 {
     QFETCH(QUrl, url);
 
-    QCoapClientForTests client;
+    QCoapClient client;
     QCoapRequest request(url);
 
     QCoapReply* reply = nullptr;
@@ -161,10 +164,10 @@ void tst_QCoapClient::requestWithQIODevice()
 
     if (qstrcmp(QTest::currentDataTag(), "post") == 0) {
         QVERIFY(replyData.isEmpty());
-        QCOMPARE(reply->statusCode(), CREATED);
+        QCOMPARE(reply->statusCode(), CreatedCode);
     } else if (qstrcmp(QTest::currentDataTag(), "put") == 0) {
         QVERIFY(replyData.isEmpty());
-        QCOMPARE(reply->statusCode(), CHANGED);
+        QCOMPARE(reply->statusCode(), ChangedCode);
     }
 
     delete reply;
@@ -181,7 +184,7 @@ void tst_QCoapClient::multipleRequests()
 {
     QFETCH(QUrl, url);
 
-    QCoapClientForTests client;
+    QCoapClient client;
     //QCoapRequest request(url);
 
     QCoapReply* replyGet1 = client.get(QCoapRequest(url));
@@ -213,13 +216,13 @@ void tst_QCoapClient::multipleRequests()
     qDebug() << "replyGet4Data : " << replyGet4Data;
 
     QVERIFY(!replyGet1Data.isEmpty());
-    QCOMPARE(replyGet1->statusCode(), CONTENT);
+    QCOMPARE(replyGet1->statusCode(), ContentCode);
     QVERIFY(!replyGet2Data.isEmpty());
-    QCOMPARE(replyGet2->statusCode(), CONTENT);
+    QCOMPARE(replyGet2->statusCode(), ContentCode);
     QVERIFY(!replyGet3Data.isEmpty());
-    QCOMPARE(replyGet3->statusCode(), CONTENT);
+    QCOMPARE(replyGet3->statusCode(), ContentCode);
     QVERIFY(!replyGet4Data.isEmpty());
-    QCOMPARE(replyGet4->statusCode(), CONTENT);
+    QCOMPARE(replyGet4->statusCode(), ContentCode);
 }
 
 void tst_QCoapClient::blockwiseReply_data()
@@ -291,7 +294,7 @@ void tst_QCoapClient::discover()
 
     //QFAIL("Broken when protocol added");
     for (int i = 0; i < 20; ++i) {
-        QCoapClientForTests client;
+        QCoapClient client;
 
         QCoapDiscoveryReply* resourcesReply = client.discover(url); // /.well-known/core
         QSignalSpy spyReplyFinished(resourcesReply, SIGNAL(finished()));
@@ -313,7 +316,7 @@ void tst_QCoapClient::observe()
     QFETCH(QUrl, url);
 
     //QFAIL("Does not work for instance");
-    QCoapClientForTests client;
+    QCoapClient client;
     QCoapRequest request(url);
 
     QCoapReply* reply = nullptr;

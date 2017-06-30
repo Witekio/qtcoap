@@ -177,7 +177,7 @@ QCoapReply* QCoapClient::sendRequest(const QCoapRequest& request)
                                                     static_cast<quint16>(request.url().port()));
 
     // Prepare the reply and send it
-    QCoapReply* reply = new QCoapReply();
+    QCoapReply* reply = new QCoapReply(this);
     reply->setRequest(request);
 
     d->protocol->sendRequest(reply, connection);
@@ -198,7 +198,7 @@ QCoapDiscoveryReply* QCoapClient::sendDiscovery(const QCoapRequest& request)
                                                     static_cast<quint16>(request.url().port()));
 
     // Prepare the reply and send it
-    QCoapDiscoveryReply* reply = new QCoapDiscoveryReply();
+    QCoapDiscoveryReply* reply = new QCoapDiscoveryReply(this);
     reply->setRequest(request);
 
     d->protocol->sendRequest(reply, connection);

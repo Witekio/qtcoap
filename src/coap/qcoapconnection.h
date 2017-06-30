@@ -37,10 +37,8 @@ signals:
     void connected();
     void disconnected();
     void bound();
+    void error(QAbstractSocket::SocketError);
     void readyRead(const QByteArray& frame);
-
-private slots:
-    void onSocketError(QAbstractSocket::SocketError error);
 
 protected:
     QCoapConnection(QCoapConnectionPrivate& dd, const QString& host = "localhost", quint16 port = 5683, QObject* parent = nullptr);
@@ -55,6 +53,7 @@ protected:
     Q_PRIVATE_SLOT(d_func(), void _q_disconnectedFromHost())
     Q_PRIVATE_SLOT(d_func(), void _q_socketReadyRead())
     Q_PRIVATE_SLOT(d_func(), void _q_startToSendRequest())
+    Q_PRIVATE_SLOT(d_func(), void _q_socketError(QAbstractSocket::SocketError))
 };
 
 QT_END_NAMESPACE

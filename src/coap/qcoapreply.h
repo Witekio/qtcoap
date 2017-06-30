@@ -17,7 +17,15 @@ class QCoapReply : public QIODevice
 {
     Q_OBJECT
 public:
+    enum QCoapNetworkError {
+        NoCoapError,
+        HostNotFoundCoapError,
+        BadRequestCoapError
+        UnknownCoapError
+    };
+
     QCoapReply(QObject* parent = Q_NULLPTR);
+    ~QCoapReply();
 
     QCoapStatusCode statusCode() const;
     QCoapMessage message() const;
@@ -32,7 +40,12 @@ signals:
     void finished();
     void notified(const QByteArray& data);
     // TODO : handle error(QCoapError) signal
-    void error();
+    void error(QCoapNetworkError);
+    void abortRequest(QCoapReply*);
+
+private slots:
+    void connectionError(QAbstractSocket::SocketError);
+    void replyError(QCoapStatusCode);
 
 protected:
     friend class QCoapProtocol;

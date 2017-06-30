@@ -26,6 +26,7 @@ public:
     void _q_disconnectedFromHost();
     void _q_socketReadyRead();
     void _q_startToSendRequest();
+    void _q_socketError(QAbstractSocket::SocketError);
 
     Q_DECLARE_PUBLIC(QCoapConnection)
 };

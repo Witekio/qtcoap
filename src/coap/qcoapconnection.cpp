@@ -52,6 +52,7 @@ void QCoapConnection::connectToHost()
     connect(socket, SIGNAL(connected()), this, SLOT(_q_connectedToHost()));
     connect(socket, SIGNAL(disconnected()), this, SLOT(_q_disconnectedFromHost()));
     connect(socket, SIGNAL(readyRead()), this, SLOT(_q_socketReadyRead()));
+    connect(socket, SIGNAL(error(QAbstractSocket::SocketError)), this, SLOT(_q_socketError(QAbstractSocket::SocketError)));
 
     socket->connectToHost(d->host, d->port);
 }
@@ -183,9 +184,12 @@ void QCoapConnectionPrivate::_q_socketReadyRead()
     emit q->readyRead(q->readAll());
 }
 
-void QCoapConnection::onSocketError(QAbstractSocket::SocketError error)
+void QCoapConnectionPrivate::_q_socketError(QAbstractSocket::SocketError error)
 {
-    qDebug() << "Socket error" << error << d_func()->udpSocket->errorString();
+    Q_Q(QCoapConnection);
+
+    qDebug() << "Socket error" << error << udpSocket->errorString();
+    emit q->error(error);
 }
 
 QString QCoapConnection::host() const

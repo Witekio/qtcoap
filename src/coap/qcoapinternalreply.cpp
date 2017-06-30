@@ -1,7 +1,7 @@
 #include "qcoapinternalreply_p.h"
 
 QCoapInternalReplyPrivate::QCoapInternalReplyPrivate():
-    statusCode(INVALIDCODE)
+    statusCode(InvalidCode)
 {
 }
 

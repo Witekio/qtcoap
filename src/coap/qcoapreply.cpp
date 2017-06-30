@@ -4,7 +4,7 @@
 #include <QtMath>
 
 QCoapReplyPrivate::QCoapReplyPrivate() :
-    status(INVALIDCODE),
+    status(InvalidCode),
     message(QCoapMessage()),
     isRunning(false),
     isFinished(false)
@@ -20,6 +20,13 @@ QCoapReply::QCoapReply(QCoapReplyPrivate &dd, QObject* parent) :
     QIODevice(dd, parent)
 {
     open(QIODevice::ReadOnly);
+}
+
+QCoapReply::~QCoapReply()
+{
+    qDebug() << "~QCoapReply()";
+    /*deleteLater();
+    emit abortRequest(this);*/
 }
 
 // TODO : set isRunning to true when the request is launched
@@ -88,17 +95,48 @@ void QCoapReply::setIsRunning(bool isRunning)
 
 void QCoapReply::updateFromInternalReply(const QCoapInternalReply& internalReply)
 {
+    qDebug() << "QCoapReply::updateFromInternalReply()";
     d_func()->message.setPayload(internalReply.payload());
     d_func()->message.setType(internalReply.type());
     d_func()->message.setVersion(internalReply.version());
     d_func()->status = internalReply.statusCode();
-
     d_func()->isFinished = true;
     d_func()->isRunning = false;
 
+    if (d_func()->status >= BadRequestCode)
+        replyError(d_func()->status);
     if (d_func()->request.observe())
         emit notified(internalReply.payload());
 
     emit finished();
+}
+
+void QCoapReply::replyError(QCoapStatusCode error)
+{
+    QCoapNetworkError networkError;
+    switch (error) {
+    case BadRequestCode:
+        networkError = BadRequestCoapError;
+        break;
+    default:
+        networkError = UnknownCoapError;
+    }
+
+    emit error(networkError);
+}
+
+void QCoapReply::connectionError(QAbstractSocket::SocketError socketError)
+{
+    QCoapNetworkError networkError;
+    switch (socketError) {
+    case QAbstractSocket::HostNotFoundError :
+        networkError = HostNotFoundCoapError;
+        break;
+
+    default:
+        networkError = UnknownCoapError;
+    }
+
+    emit error(networkError);
 }
 

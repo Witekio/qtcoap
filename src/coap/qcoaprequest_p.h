@@ -14,7 +14,7 @@ public:
     ~QCoapRequestPrivate() {};
 
     QUrl url;
-    // TODO : remove connection
+    // TODO : remove connection ?
     //QCoapConnection* connection;
     QCoapOperation operation;
     bool observe;
