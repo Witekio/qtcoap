@@ -23,6 +23,8 @@ private slots:
     void cleanupTestCase();
     void operations_data();
     void operations();
+    void separateOperation_data();
+    void separateOperation();
     void removeReply_data();
     void removeReply();
     void requestWithQIODevice_data();
@@ -105,6 +107,36 @@ void tst_QCoapClient::operations()
     delete reply;
 }
 
+void tst_QCoapClient::separateOperation_data()
+{
+    QTest::addColumn<QUrl>("url");
+
+    QTest::newRow("get") << QUrl("coap://172.17.0.3:5683/separate");
+}
+
+void tst_QCoapClient::separateOperation()
+{
+    QFETCH(QUrl, url);
+
+    //QFAIL("Uncomment the QFAIL");
+
+    QCoapClient client;
+    QCoapRequest request(url);
+
+    QCoapReply* reply = client.get(request);
+
+    QSignalSpy spyReplyFinished(reply, SIGNAL(finished()));
+    QTRY_COMPARE_WITH_TIMEOUT(spyReplyFinished.count(), 1, 5000);
+
+    QVERIFY(reply != nullptr);
+    QByteArray replyData = reply->readAll();
+
+    QVERIFY(!replyData.isEmpty());
+    QCOMPARE(reply->statusCode(), ContentCode);
+
+    delete reply;
+}
+
 void tst_QCoapClient::removeReply_data()
 {
     QTest::addColumn<QUrl>("url");
@@ -116,7 +148,7 @@ void tst_QCoapClient::removeReply()
 {
     QFETCH(QUrl, url);
 
-    //QFAIL("Uncomment the QFAIL");
+    QFAIL("Comment the QFAIL to test it");
 
     QCoapClient client;
     QCoapRequest request(url);
@@ -256,6 +288,15 @@ void tst_QCoapClient::blockwiseReply_data()
     QTest::newRow("get_large") << QUrl("coap://172.17.0.3:5683/large")
                                << QCoapMessage::NONCONFIRMABLE
                                << data;
+    QTest::newRow("get_large_separate") << QUrl("coap://172.17.0.3:5683/large-separate")
+                               << QCoapMessage::NONCONFIRMABLE
+                               << data;
+    QTest::newRow("get_large_confirmable") << QUrl("coap://172.17.0.3:5683/large")
+                               << QCoapMessage::CONFIRMABLE
+                               << data;
+    QTest::newRow("get_large_separate_confirmable") << QUrl("coap://172.17.0.3:5683/large-separate")
+                               << QCoapMessage::CONFIRMABLE
+                               << data;
 }
 
 void tst_QCoapClient::blockwiseReply()
@@ -264,7 +305,6 @@ void tst_QCoapClient::blockwiseReply()
     QFETCH(QCoapMessage::QCoapMessageType, type);
     QFETCH(QByteArray, replyData);
 
-    //QFAIL("Broken");
     QCoapClient client;
     QCoapRequest request(url);
 
@@ -272,7 +312,7 @@ void tst_QCoapClient::blockwiseReply()
     QCoapReply* reply = client.get(request);
     QSignalSpy spyReplyFinished(reply, SIGNAL(finished()));
 
-    QTRY_COMPARE_WITH_TIMEOUT(spyReplyFinished.count(), 1, 60000);
+    QTRY_COMPARE_WITH_TIMEOUT(spyReplyFinished.count(), 1, 30000);
 
     QByteArray dataReply = reply->readAll();
     QCOMPARE(dataReply, replyData);
@@ -307,20 +347,29 @@ void tst_QCoapClient::discover()
 void tst_QCoapClient::observe_data()
 {
     QTest::addColumn<QUrl>("url");
+    QTest::addColumn<QCoapMessage::QCoapMessageType>("type");
 
-    QTest::newRow("observe") << QUrl("coap://172.17.0.3:5683/obs");
+    QTest::newRow("observe") << QUrl("coap://172.17.0.3:5683/obs")
+                             << QCoapMessage::NONCONFIRMABLE;
+    QTest::newRow("observe_confirmable") << QUrl("coap://172.17.0.3:5683/obs")
+                                         << QCoapMessage::CONFIRMABLE;
+    QTest::newRow("observe_receive_non") << QUrl("coap://172.17.0.3:5683/obs-non")
+                             << QCoapMessage::NONCONFIRMABLE;
+    QTest::newRow("observe_receive_non_confirmable") << QUrl("coap://172.17.0.3:5683/obs-non")
+                                         << QCoapMessage::CONFIRMABLE;
 }
 
 void tst_QCoapClient::observe()
 {
     QFETCH(QUrl, url);
+    QFETCH(QCoapMessage::QCoapMessageType, type);
 
     //QFAIL("Does not work for instance");
     QCoapClient client;
     QCoapRequest request(url);
-
     QCoapReply* reply = nullptr;
 
+    request.setType(type);
     reply = client.observe(request);
     QSignalSpy spyReplyFinished(reply, SIGNAL(notified(const QByteArray&)));
 

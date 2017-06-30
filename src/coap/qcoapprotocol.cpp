@@ -92,7 +92,7 @@ void QCoapProtocolPrivate::sendRequest(const QCoapInternalRequest& request)
 
 void QCoapProtocol::messageReceived(const QByteArray& frameReply)
 {
-    qDebug() << "QCoapProtocol::messageReceived()";
+    qDebug() << "QCoapProtocol::messageReceived() - " << frameReply;
     Q_D(QCoapProtocol);
 
     d->frameQueue.enqueue(frameReply);
@@ -143,13 +143,15 @@ void QCoapProtocolPrivate::handleFrame()
 
 void QCoapProtocolPrivate::handleFrame(const QByteArray& frame)
 {
-    //qDebug() << "QCoapProtocol::handleFrame()";
+    qDebug() << "QCoapProtocol::handleFrame()";
     QCoapInternalReply internalReply = decode(frame);
-    QCoapInternalRequest request;
+    QCoapInternalRequest request = QCoapInternalRequest::invalidRequest();
+
+    qDebug() << "MID : " << internalReply.messageId()
+             << " - Token : " << internalReply.token();
+
     if (!internalReply.token().isEmpty())
         request = findReplyByToken(internalReply.token());
-    else
-        return;
 
     if (!request.isValid()) {
         request = findReplyByMessageId(internalReply.messageId());
@@ -175,6 +177,7 @@ void QCoapProtocolPrivate::handleFrame(const QByteArray& frame)
 
     // Take the next frame if needed
     frameQueue.dequeue();
+    qDebug() << frameQueue.length();
     if (!frameQueue.isEmpty())
         handleFrame();
 }
@@ -276,6 +279,9 @@ void QCoapProtocolPrivate::onLastBlock(const QCoapInternalRequest& request)
         return;
 
     QCoapInternalReply finalReply(replies.last());
+    if (finalReply.type() == QCoapMessage::ACKNOWLEDGMENT
+            && finalReply.statusCode() == EMPTY)
+        return;
 
     // If multiple blocks : append data from all blocks to the final reply
     if (replies.size() > 1 && !userReply->request().observe()) {
@@ -301,13 +307,8 @@ void QCoapProtocolPrivate::onLastBlock(const QCoapInternalRequest& request)
         internalReplies.remove(request);
 
     if (userReply) {
-        qDebug() << "USER REPLY EXIST 1";
         userReply->updateFromInternalReply(finalReply);
-        qDebug() << "USER REPLY EXIST 2";
     }
-    /*qDebug() << "BEGIN";
-    while (userReply) QThread::msleep(10);
-    qDebug() << "END";*/
 }
 
 /*void QCoapProtocolPrivate::onNextBlock(QCoapReply* reply, uint currentBlockNumber)
@@ -324,7 +325,7 @@ void QCoapProtocolPrivate::onLastBlock(const QCoapInternalRequest& request)
 
 void QCoapProtocolPrivate::onNextBlock(const QCoapInternalRequest& request, uint currentBlockNumber)
 {
-    //qDebug() << "QCoapProtocol::onNextBlock()";
+    qDebug() << "QCoapProtocol::onNextBlock()";
     QCoapInternalRequest copyRequest = request;
 
     copyRequest.setRequestToAskBlock(currentBlockNumber+1);

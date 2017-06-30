@@ -71,6 +71,11 @@ bool QCoapReply::isFinished() const
     return d_func()->isFinished;
 }
 
+bool QCoapReply::isRunning() const
+{
+    return d_func()->isRunning;
+}
+
 QUrl QCoapReply::url() const
 {
     return d_func()->request.url();
@@ -111,10 +116,10 @@ void QCoapReply::updateFromInternalReply(const QCoapInternalReply& internalReply
     emit finished();
 }
 
-void QCoapReply::replyError(QCoapStatusCode error)
+void QCoapReply::replyError(QCoapStatusCode errorCode)
 {
     QCoapNetworkError networkError;
-    switch (error) {
+    switch (errorCode) {
     case BadRequestCode:
         networkError = BadRequestCoapError;
         break;

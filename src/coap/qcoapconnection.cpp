@@ -180,7 +180,7 @@ void QCoapConnectionPrivate::_q_socketReadyRead()
 {
     Q_Q(QCoapConnection);
 
-    qDebug() << "QCoapConnectionPrivate::_q_socketReadyRead() - " << q->readAll();
+    //qDebug() << "QCoapConnectionPrivate::_q_socketReadyRead() - " << q->readAll();
     emit q->readyRead(q->readAll());
 }
 

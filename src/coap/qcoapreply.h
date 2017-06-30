@@ -20,7 +20,7 @@ public:
     enum QCoapNetworkError {
         NoCoapError,
         HostNotFoundCoapError,
-        BadRequestCoapError
+        BadRequestCoapError,
         UnknownCoapError
     };
 
@@ -32,7 +32,7 @@ public:
     QCoapRequest request() const;
     QUrl url() const;
     QCoapOperation operation() const;
-    // TODO : bool isRunning() const
+    bool isRunning() const;
     bool isFinished() const;
     void setRequest(const QCoapRequest& request);
 

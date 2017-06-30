@@ -135,7 +135,7 @@ QCoapReply* QCoapClient::observe(const QCoapRequest& request)
     QCoapRequest copyRequest(request);
     copyRequest.addOption(QCoapOption::OBSERVE);
     copyRequest.setObserve(true);
-    copyRequest.setType(QCoapMessage::CONFIRMABLE);
+    //copyRequest.setType(QCoapMessage::CONFIRMABLE);
 
     QCoapReply* reply = nullptr;
     reply = get(copyRequest);
