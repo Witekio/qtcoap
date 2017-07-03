@@ -297,6 +297,12 @@ void tst_QCoapClient::blockwiseReply_data()
     QTest::newRow("get_large_separate_confirmable") << QUrl("coap://172.17.0.3:5683/large-separate")
                                << QCoapMessage::CONFIRMABLE
                                << data;
+    QTest::newRow("get_large_16bits") << QUrl("coap://172.17.0.3:5683/large")
+                               << QCoapMessage::NONCONFIRMABLE
+                               << data;
+    QTest::newRow("get_large_16bits_confirmable") << QUrl("coap://172.17.0.3:5683/large")
+                               << QCoapMessage::CONFIRMABLE
+                               << data;
 }
 
 void tst_QCoapClient::blockwiseReply()
@@ -307,6 +313,10 @@ void tst_QCoapClient::blockwiseReply()
 
     QCoapClient client;
     QCoapRequest request(url);
+
+    if (qstrcmp(QTest::currentDataTag(), "get_large_16bits") == 0
+        || qstrcmp(QTest::currentDataTag(), "get_large_16bits_confirmable") == 0)
+        client.setBlockSize(16);
 
     request.setType(type);
     QCoapReply* reply = client.get(request);

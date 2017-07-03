@@ -37,7 +37,7 @@ public:
     //void onLastBlock(QCoapReply* request);
     void onLastBlock(const QCoapInternalRequest& request);
     //void onNextBlock(QCoapReply* reply, uint currentBlockNumber);
-    void onNextBlock(const QCoapInternalRequest& request, uint currentBlockNumber);
+    void onNextBlock(const QCoapInternalRequest& request, uint currentBlockNumber, uint blockSize);
     //void sendAcknowledgment(QCoapReply* reply);
     void sendAcknowledgment(const QCoapInternalRequest& request);
     //void sendReset(QCoapReply* reply);
@@ -57,6 +57,7 @@ public:
     InternalMessageMap internalReplies;
     QQueue<QByteArray> frameQueue;
     ProtocolState state;
+    quint16 blockSize;
 
     Q_DECLARE_PUBLIC(QCoapProtocol)
 };

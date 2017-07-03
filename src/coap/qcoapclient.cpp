@@ -221,6 +221,22 @@ QCoapConnection* QCoapClient::addConnection(const QString& host, quint16 port)
     return connection;
 }
 
+void QCoapClient::setBlockSize(quint16 blockSize)
+{
+    Q_D(QCoapClient);
+    // If it is not a power of two
+    if ((blockSize & (blockSize-1)) == 0)
+        return;
+
+    d->protocol->setBlockSize(blockSize);
+}
+
+void QCoapClient::setProtocol(QCoapProtocol* protocol)
+{
+    Q_D(QCoapClient);
+    d->protocol = protocol;
+}
+
 QT_END_NAMESPACE
 
 #include "moc_qcoapclient.cpp"

@@ -155,10 +155,11 @@ QByteArray QCoapInternalRequest::toQByteArray() const
     return pdu;
 }
 
-void QCoapInternalRequest::setRequestToAskBlock(uint blockNumber)
+void QCoapInternalRequest::setRequestToAskBlock(uint blockNumber, uint blockSize)
 {
     // Set the BLOCK2 option to get the new block
-    quint32 block2Data = (blockNumber << 4) | 2;
+    // size = (2^(SZX + 4))
+    quint32 block2Data = (blockNumber << 4) | static_cast<quint32>(log2(blockSize)-4);
     QByteArray block2Value = QByteArray();
     if (block2Data > 0xFFFF)
         block2Value.append(static_cast<char>(block2Data >> 16));

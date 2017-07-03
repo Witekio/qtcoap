@@ -24,7 +24,7 @@ public:
     QByteArray toQByteArray() const;
     quint16 generateMessageId();
     QByteArray generateToken();
-    void setRequestToAskBlock(uint blockNumber);
+    void setRequestToAskBlock(uint blockNumber, uint blockSize);
 
     bool isValid() const;
     bool cancelObserve() const;

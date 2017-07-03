@@ -34,6 +34,9 @@ public:
 
     QCoapDiscoveryReply* discover(const QUrl& url, const QString& discoveryPath = "/.well-known/core");
 
+    void setBlockSize(quint16 blockSize);
+    void setProtocol(QCoapProtocol* protocol);
+
 protected:
     QCoapConnection* findConnection(QString host, quint16 port);
     QCoapConnection* addConnection(const QString& host, quint16 port);

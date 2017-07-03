@@ -2,7 +2,8 @@
 #include "qcoapprotocol_p.h"
 
 QCoapProtocolPrivate::QCoapProtocolPrivate() :
-    state(WAITING)
+    state(WAITING),
+    blockSize(0)
 {
 }
 
@@ -80,6 +81,12 @@ void QCoapProtocol::sendRequest(QCoapReply* reply, QCoapConnection* connection)
             d->internalReplies[copyInternalRequest] = pair;
     }
 
+    // If the user specified a size for blockwise request/replies
+
+    qDebug() << "Blocksize = " << d->blockSize;
+    if (d->blockSize > 0) {
+        copyInternalRequest.setRequestToAskBlock(0, d->blockSize);
+    }
     reply->setIsRunning(true);
     d->sendRequest(copyInternalRequest);
 }
@@ -171,7 +178,7 @@ void QCoapProtocolPrivate::handleFrame(const QByteArray& frame)
 
     // Ask next block or process the final reply
     if (internalReply.hasNextBlock())
-        onNextBlock(request, internalReply.currentBlockNumber());
+        onNextBlock(request, internalReply.currentBlockNumber(), internalReply.blockSize());
     else
         onLastBlock(request);
 
@@ -323,12 +330,14 @@ void QCoapProtocolPrivate::onLastBlock(const QCoapInternalRequest& request)
     sendRequest(copyRequest);
 }*/
 
-void QCoapProtocolPrivate::onNextBlock(const QCoapInternalRequest& request, uint currentBlockNumber)
+void QCoapProtocolPrivate::onNextBlock(const QCoapInternalRequest& request,
+                                       uint currentBlockNumber,
+                                       uint blockSize)
 {
     //qDebug() << "QCoapProtocol::onNextBlock()";
     QCoapInternalRequest copyRequest = request;
 
-    copyRequest.setRequestToAskBlock(currentBlockNumber+1);
+    copyRequest.setRequestToAskBlock(currentBlockNumber+1, blockSize);
     sendRequest(copyRequest);
 }
 
@@ -502,6 +511,13 @@ bool QCoapProtocolPrivate::containsMessageId(quint16 id)
     }
 
     return false;
+}
+
+void QCoapProtocol::setBlockSize(quint16 blockSize)
+{
+    // a size of 0 mean that the server choose the blocks size
+    Q_D(QCoapProtocol);
+    d->blockSize = blockSize;
 }
 
 void QCoapProtocolPrivate::setState(ProtocolState newState)
