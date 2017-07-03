@@ -34,6 +34,35 @@ QCoapInternalRequest QCoapInternalRequest::fromQCoapRequest(const QCoapRequest& 
     return internalRequest;
 }
 
+QCoapInternalRequest QCoapInternalRequest::createAcknowledgment(quint16 messageId,
+                                                                const QByteArray& token)
+{
+    QCoapInternalRequest internalRequest;
+
+    internalRequest.setType(ACKNOWLEDGMENT);
+    internalRequest.setOperation(EMPTY);
+    internalRequest.setMessageId(messageId);
+    internalRequest.setToken(token);
+    internalRequest.setPayload(QByteArray());
+    internalRequest.removeAllOptions();
+
+    return internalRequest;
+}
+
+QCoapInternalRequest QCoapInternalRequest::createReset(quint16 messageId)
+{
+    QCoapInternalRequest internalRequest;
+
+    internalRequest.setType(RESET);
+    internalRequest.setOperation(EMPTY);
+    internalRequest.setMessageId(messageId);
+    internalRequest.setToken(QByteArray());
+    internalRequest.setPayload(QByteArray());
+    internalRequest.removeAllOptions();
+
+    return internalRequest;
+}
+
 QCoapInternalRequest QCoapInternalRequest::invalidRequest()
 {
     QCoapInternalRequest internalRequest;
@@ -141,26 +170,6 @@ void QCoapInternalRequest::setRequestToAskBlock(uint blockNumber)
     addOption(QCoapOption::BLOCK2, block2Value);
 
     setMessageId(d_ptr->messageId+1);
-}
-
-void QCoapInternalRequest::setRequestForAck(quint16 messageId, const QByteArray& token)
-{
-    setType(ACKNOWLEDGMENT);
-    setOperation(EMPTY);
-    setMessageId(messageId);
-    setToken(token);
-    setPayload(QByteArray());
-    removeAllOptions();
-}
-
-void QCoapInternalRequest::setRequestForReset(quint16 messageId)
-{
-    setType(RESET);
-    setOperation(EMPTY);
-    setMessageId(messageId);
-    setToken(QByteArray());
-    setPayload(QByteArray());
-    removeAllOptions();
 }
 
 quint16 QCoapInternalRequest::generateMessageId()

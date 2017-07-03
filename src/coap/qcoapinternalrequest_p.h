@@ -18,12 +18,13 @@ public:
 
     static QCoapInternalRequest invalidRequest();
     static QCoapInternalRequest fromQCoapRequest(const QCoapRequest& request);
+    static QCoapInternalRequest createAcknowledgment(quint16 messageId, const QByteArray& token);
+    static QCoapInternalRequest createReset(quint16 messageId);
+
     QByteArray toQByteArray() const;
     quint16 generateMessageId();
     QByteArray generateToken();
     void setRequestToAskBlock(uint blockNumber);
-    void setRequestForAck(quint16 messageId, const QByteArray& token);
-    void setRequestForReset(quint16 messageId);
 
     bool isValid() const;
     bool cancelObserve() const;
