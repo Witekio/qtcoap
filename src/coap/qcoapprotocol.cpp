@@ -291,7 +291,7 @@ void QCoapProtocolPrivate::onLastBlock(const QCoapInternalRequest& request)
         return;
 
     // If multiple blocks : append data from all blocks to the final reply
-    if (replies.size() > 1 && !userReply->request().observe()) {
+    if (replies.size() > 1) {
         qSort(std::begin(replies), std::end(replies),
               [](const QCoapInternalReply& a, const QCoapInternalReply& b) -> bool {
             return (a.currentBlockNumber() < b.currentBlockNumber());
@@ -309,13 +309,14 @@ void QCoapProtocolPrivate::onLastBlock(const QCoapInternalRequest& request)
         finalReply.setPayload(finalPayload);
     }
 
-    // Remove the reply
+    // Remove the request or the replies
     if (!userReply->request().observe())
         internalReplies.remove(request);
+    else
+        internalReplies[request].replies.clear();
 
-    if (userReply) {
+    if (userReply)
         userReply->updateFromInternalReply(finalReply);
-    }
 }
 
 /*void QCoapProtocolPrivate::onNextBlock(QCoapReply* reply, uint currentBlockNumber)

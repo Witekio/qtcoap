@@ -367,6 +367,9 @@ void tst_QCoapClient::observe_data()
                              << QCoapMessage::NONCONFIRMABLE;
     QTest::newRow("observe_receive_non_confirmable") << QUrl("coap://172.17.0.3:5683/obs-non")
                                          << QCoapMessage::CONFIRMABLE;
+    QTest::newRow("observe_large") << QUrl("coap://172.17.0.3:5683/obs-large")
+                                         << QCoapMessage::NONCONFIRMABLE;
+
 }
 
 void tst_QCoapClient::observe()
@@ -381,17 +384,17 @@ void tst_QCoapClient::observe()
 
     request.setType(type);
     reply = client.observe(request);
-    QSignalSpy spyReplyFinished(reply, SIGNAL(notified(const QByteArray&)));
+    QSignalSpy spyReplyNotified(reply, SIGNAL(notified(const QByteArray&)));
 
-    QTRY_COMPARE_WITH_TIMEOUT(spyReplyFinished.count(), 3, 30000);
-    for (QList<QVariant> receivedSignals : spyReplyFinished) {
+    QTRY_COMPARE_WITH_TIMEOUT(spyReplyNotified.count(), 3, 30000);
+    for (QList<QVariant> receivedSignals : spyReplyNotified) {
         qDebug() << receivedSignals.first().toByteArray();
     }
 
     client.cancelObserve(reply);
     QThread::sleep(12);
-    QTRY_COMPARE_WITH_TIMEOUT(spyReplyFinished.count(), 4, 30000);
-    for (QList<QVariant> receivedSignals : spyReplyFinished) {
+    QTRY_COMPARE_WITH_TIMEOUT(spyReplyNotified.count(), 4, 30000);
+    for (QList<QVariant> receivedSignals : spyReplyNotified) {
         qDebug() << receivedSignals.first().toByteArray();
     }
 

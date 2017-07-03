@@ -39,7 +39,6 @@ public:
 signals:
     void finished();
     void notified(const QByteArray& data);
-    // TODO : handle error(QCoapError) signal
     void error(QCoapNetworkError);
     void abortRequest(QCoapReply*);
 

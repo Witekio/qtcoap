@@ -29,8 +29,6 @@ QCoapReply::~QCoapReply()
     emit abortRequest(this);*/
 }
 
-// TODO : set isRunning to true when the request is launched
-
 qint64 QCoapReply::readData(char* data, qint64 maxSize)
 {
     QByteArray payload = d_func()->message.payload();
