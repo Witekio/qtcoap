@@ -11,25 +11,25 @@ class QCoapOption
 {
 public:
     enum QCoapOptionName {
-        IFMATCH         = 1,
-        URIHOST         = 3,
-        ETAG            = 4,
-        IFNONEMATCH     = 5,
-        OBSERVE         = 6,
-        URIPORT         = 7,
-        LOCATIONPATH    = 8,
-        URIPATH         = 11,
-        CONTENTFORMAT   = 12,
-        MAXAGE          = 14,
-        URIQUERY        = 15,
-        ACCEPT          = 17,
-        LOCATIONQUERY   = 20,
-        BLOCK2          = 23,
-        BLOCK1          = 27,
-        SIZE2           = 28,
-        PROXYURI        = 35,
-        PROXYSCHEME     = 39,
-        SIZE1           = 60
+        IfMatchOption         = 1,
+        UriHostOption         = 3,
+        EtagOption            = 4,
+        IfNoneMatchOption     = 5,
+        ObserveOption         = 6,
+        UriPortOption         = 7,
+        LocationPathOption    = 8,
+        UriPathOption         = 11,
+        ContentFormatOption   = 12,
+        MaxAgeOption          = 14,
+        UriQueryOption        = 15,
+        AcceptOption          = 17,
+        LocationQueryOption   = 20,
+        Block2Option          = 23,
+        Block1Option          = 27,
+        Size2Option           = 28,
+        ProxyUriOption        = 35,
+        ProxySchemeOption     = 39,
+        Size1Option           = 60
     };
 
     QCoapOption(QCoapOptionName name, const QByteArray& value);

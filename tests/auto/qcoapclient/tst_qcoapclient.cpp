@@ -286,22 +286,22 @@ void tst_QCoapClient::blockwiseReply_data()
     data.append("\\-------------------------------------------------------------/\n");
 
     QTest::newRow("get_large") << QUrl("coap://172.17.0.3:5683/large")
-                               << QCoapMessage::NONCONFIRMABLE
+                               << QCoapMessage::NonConfirmableMessage
                                << data;
     QTest::newRow("get_large_separate") << QUrl("coap://172.17.0.3:5683/large-separate")
-                               << QCoapMessage::NONCONFIRMABLE
+                               << QCoapMessage::NonConfirmableMessage
                                << data;
     QTest::newRow("get_large_confirmable") << QUrl("coap://172.17.0.3:5683/large")
-                               << QCoapMessage::CONFIRMABLE
+                               << QCoapMessage::ConfirmableMessage
                                << data;
     QTest::newRow("get_large_separate_confirmable") << QUrl("coap://172.17.0.3:5683/large-separate")
-                               << QCoapMessage::CONFIRMABLE
+                               << QCoapMessage::ConfirmableMessage
                                << data;
     QTest::newRow("get_large_16bits") << QUrl("coap://172.17.0.3:5683/large")
-                               << QCoapMessage::NONCONFIRMABLE
+                               << QCoapMessage::NonConfirmableMessage
                                << data;
     QTest::newRow("get_large_16bits_confirmable") << QUrl("coap://172.17.0.3:5683/large")
-                               << QCoapMessage::CONFIRMABLE
+                               << QCoapMessage::ConfirmableMessage
                                << data;
 }
 
@@ -360,17 +360,21 @@ void tst_QCoapClient::observe_data()
     QTest::addColumn<QCoapMessage::QCoapMessageType>("type");
 
     QTest::newRow("observe") << QUrl("coap://172.17.0.3:5683/obs")
-                             << QCoapMessage::NONCONFIRMABLE;
+                             << QCoapMessage::NonConfirmableMessage;
     QTest::newRow("observe_confirmable") << QUrl("coap://172.17.0.3:5683/obs")
-                                         << QCoapMessage::CONFIRMABLE;
+                                         << QCoapMessage::ConfirmableMessage;
     QTest::newRow("observe_receive_non") << QUrl("coap://172.17.0.3:5683/obs-non")
-                             << QCoapMessage::NONCONFIRMABLE;
+                             << QCoapMessage::NonConfirmableMessage;
     QTest::newRow("observe_receive_non_confirmable") << QUrl("coap://172.17.0.3:5683/obs-non")
-                                         << QCoapMessage::CONFIRMABLE;
+                                         << QCoapMessage::ConfirmableMessage;
     QTest::newRow("observe_large") << QUrl("coap://172.17.0.3:5683/obs-large")
-                                         << QCoapMessage::NONCONFIRMABLE;
+                                         << QCoapMessage::NonConfirmableMessage;
     QTest::newRow("observe_large_confirmable") << QUrl("coap://172.17.0.3:5683/obs-large")
-                                         << QCoapMessage::CONFIRMABLE;
+                                         << QCoapMessage::ConfirmableMessage;
+    QTest::newRow("observe_pumping") << QUrl("coap://172.17.0.3:5683/obs-pumping")
+                                         << QCoapMessage::NonConfirmableMessage;
+    QTest::newRow("observe_pumping_confirmable") << QUrl("coap://172.17.0.3:5683/obs-pumping")
+                                         << QCoapMessage::ConfirmableMessage;
 
 }
 

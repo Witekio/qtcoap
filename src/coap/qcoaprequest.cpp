@@ -8,7 +8,7 @@ QT_BEGIN_NAMESPACE
 QCoapRequestPrivate::QCoapRequestPrivate() :
     url(QUrl()),
     //connection(new QCoapConnection),
-    operation(EMPTY),
+    operation(EmptyOperation),
     observe(false)
 {
 }
@@ -47,7 +47,7 @@ void QCoapRequest::parseUri()
     QStringList listPath = path.split("/");
     for (QString pathPart : listPath) {
         if (!pathPart.isEmpty())
-            addOption(QCoapOption::URIPATH, pathPart.toUtf8());
+            addOption(QCoapOption::UriPathOption, pathPart.toUtf8());
     }
 
     //d->connection->setHost(d->url.host());

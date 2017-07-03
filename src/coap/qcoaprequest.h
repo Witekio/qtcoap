@@ -22,9 +22,9 @@ class QCoapRequest : public QCoapMessage
 {
 public:
     QCoapRequest(const QUrl& url = QUrl(),
-                 QCoapMessageType type = NONCONFIRMABLE);
+                 QCoapMessageType type = NonConfirmableMessage);
     QCoapRequest(const QCoapRequest &other);
-    ~QCoapRequest() {};
+    ~QCoapRequest() {}
 
     QCoapRequest& operator=(const QCoapRequest& other);
     bool operator<(const QCoapRequest& other) const;

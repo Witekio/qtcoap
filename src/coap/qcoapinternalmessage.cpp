@@ -37,8 +37,8 @@ void QCoapInternalMessage::addOption(const QCoapOption& option)
 {
     QCoapInternalMessagePrivate* d = d_func();
     // If it is a BLOCK option, we need to know the block number
-    if (option.name() == QCoapOption::BLOCK1
-        || option.name() == QCoapOption::BLOCK2) {
+    if (option.name() == QCoapOption::Block1Option
+        || option.name() == QCoapOption::Block2Option) {
         quint32 blockNumber = 0;
         quint8 *optionData = reinterpret_cast<quint8 *>(option.value().data());
         for (int i = 0; i < option.length() - 1; ++i)

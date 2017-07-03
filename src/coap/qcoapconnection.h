@@ -14,9 +14,9 @@ class QCoapConnection : public QObject
 
 public:
     enum QCoapConnectionState {
-        UNCONNECTED,
-        CONNECTED,
-        BOUND
+        Unconnected,
+        Connected,
+        Bound
     };
 
     explicit QCoapConnection(const QString& host = "localhost", quint16 port = 5683, QObject* parent = nullptr);

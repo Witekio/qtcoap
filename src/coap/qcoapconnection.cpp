@@ -10,7 +10,7 @@ QCoapConnectionPrivate::QCoapConnectionPrivate() :
     port(0),
     udpSocket(nullptr),
     currentPdu(QByteArray()),
-    state(QCoapConnection::UNCONNECTED)
+    state(QCoapConnection::Unconnected)
 {
 }
 
@@ -85,21 +85,21 @@ void QCoapConnection::sendRequest(const QByteArray& request)
 
     d->currentPdu = request;
 
-    if (d->state == UNCONNECTED) {
-        //qDebug() << "QCoapConnection : sendRequest() - UNCONNECTED";
+    if (d->state == Unconnected) {
+        //qDebug() << "QCoapConnection : sendRequest() - Unconnected";
         connect(this, SIGNAL(connected()), this, SLOT(_q_startToSendRequest()));
         connectToHost();
-    } else if (d->state == CONNECTED) {
-        //qDebug() << "QCoapConnection : sendRequest() - CONNECTED";
+    } else if (d->state == Connected) {
+        //qDebug() << "QCoapConnection : sendRequest() - Connected";
         d->_q_startToSendRequest();
     }
 
-//    if (d->state == BOUND || d->state == CONNECTED) {
-//        qDebug() << "QCoapConnection : sendRequest() - BOUND or CONNECTED";
+//    if (d->state == Bound || d->state == Connected) {
+//        qDebug() << "QCoapConnection : sendRequest() - Bound or Connected";
 //        // QMetaObject::invokeMethod() ???
 //        d->_q_startToSendRequest();
-//    } else if (d->state == UNCONNECTED) {
-//        qDebug() << "QCoapConnection : sendRequest() - UNCONNECTED";
+//    } else if (d->state == Unconnected) {
+//        qDebug() << "QCoapConnection : sendRequest() - Unconnected";
 //        bindToHost();
 //    }
 }
@@ -140,10 +140,10 @@ void QCoapConnectionPrivate::boundToHost()
     qDebug() << "QCoapConnectionPrivate::boundToHost()";
     Q_Q(QCoapConnection);
 
-    if (state == QCoapConnection::BOUND)
+    if (state == QCoapConnection::Bound)
         return;
 
-     q->setState(QCoapConnection::BOUND);
+     q->setState(QCoapConnection::Bound);
      emit q->bound();
 }
 
@@ -158,10 +158,10 @@ void QCoapConnectionPrivate::_q_connectedToHost()
 {
     Q_Q(QCoapConnection);
 
-    if (state == QCoapConnection::CONNECTED)
+    if (state == QCoapConnection::Connected)
         return;
 
-     q->setState(QCoapConnection::CONNECTED);
+     q->setState(QCoapConnection::Connected);
      emit q->connected();
 }
 
@@ -169,10 +169,10 @@ void QCoapConnectionPrivate::_q_disconnectedFromHost()
 {
     Q_Q(QCoapConnection);
 
-    if (state == QCoapConnection::UNCONNECTED)
+    if (state == QCoapConnection::Unconnected)
         return;
 
-     q->setState(QCoapConnection::UNCONNECTED);
+     q->setState(QCoapConnection::Unconnected);
      emit q->disconnected();
 }
 

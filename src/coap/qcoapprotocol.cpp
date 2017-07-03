@@ -76,7 +76,7 @@ void QCoapProtocol::sendRequest(QCoapReply* reply, QCoapConnection* connection)
     copyInternalRequest.setConnection(connection);
 
     // If this request does not already exist we add it to the map
-    if (!d->findReplyByToken(copyInternalRequest.token()).isValid()) {
+    if (!d->findRequestByToken(copyInternalRequest.token()).isValid()) {
             InternalMessagePair pair = { reply , QList<QCoapInternalReply>() };
             d->internalReplies[copyInternalRequest] = pair;
     }
@@ -131,7 +131,7 @@ void QCoapProtocolPrivate::handleFrame()
     // Reply when the server ask an ACK
     if (internalReplies[reply].request.cancelObserve())
         sendReset(reply);
-    else if (internalReply.type() == QCoapMessage::CONFIRMABLE)
+    else if (internalReply.type() == QCoapMessage::ConfirmableMessage)
         sendAcknowledgment(reply);
 
     // Ask next block or process the final reply
@@ -156,10 +156,10 @@ void QCoapProtocolPrivate::handleFrame(const QByteArray& frame)
              << " - Token : " << internalReply.token();*/
 
     if (!internalReply.token().isEmpty())
-        request = findReplyByToken(internalReply.token());
+        request = findRequestByToken(internalReply.token());
 
     if (!request.isValid()) {
-        request = findReplyByMessageId(internalReply.messageId());
+        request = findRequestByMessageId(internalReply.messageId());
         if (!request.isValid()) {
             qDebug() << "No request found (handleFrame)";
             return;
@@ -171,10 +171,10 @@ void QCoapProtocolPrivate::handleFrame(const QByteArray& frame)
     // Reply when the server ask an ACK
     if (request.cancelObserve()) {
         // Remove option to ensure that it will stop
-        request.removeOptionByName(QCoapOption::OBSERVE);
+        request.removeOptionByName(QCoapOption::ObserveOption);
         sendReset(request);
     }
-    else if (internalReply.type() == QCoapMessage::CONFIRMABLE)
+    else if (internalReply.type() == QCoapMessage::ConfirmableMessage)
         sendAcknowledgment(request);
 
     // Ask next block or process the final reply
@@ -200,7 +200,7 @@ void QCoapProtocolPrivate::handleFrame(const QByteArray& frame)
     return nullptr;
 }*/
 
-QCoapInternalRequest QCoapProtocolPrivate::findReplyByToken(const QByteArray& token)
+QCoapInternalRequest QCoapProtocolPrivate::findRequestByToken(const QByteArray& token)
 {
     for (QCoapInternalRequest request : internalReplies.keys()) {
         if (request.token() == token)
@@ -220,7 +220,7 @@ QCoapInternalRequest QCoapProtocolPrivate::findReplyByToken(const QByteArray& to
     return nullptr;
 }*/
 
-QCoapInternalRequest QCoapProtocolPrivate::findReplyByMessageId(quint16 messageId)
+QCoapInternalRequest QCoapProtocolPrivate::findRequestByMessageId(quint16 messageId)
 {
     for (QCoapInternalRequest request : internalReplies.keys()) {
         if (request.messageId() == messageId)
@@ -287,7 +287,7 @@ void QCoapProtocolPrivate::onLastBlock(const QCoapInternalRequest& request)
         return;
 
     QCoapInternalReply finalReply(replies.last());
-    if (finalReply.type() == QCoapMessage::ACKNOWLEDGMENT
+    if (finalReply.type() == QCoapMessage::AcknowledgmentMessage
             && finalReply.statusCode() == InvalidCode)
         return;
 

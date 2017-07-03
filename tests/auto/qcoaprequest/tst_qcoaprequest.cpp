@@ -88,11 +88,11 @@ void tst_QCoapRequest::setOperation_data()
 {
     QTest::addColumn<QCoapOperation>("operation");
 
-    QTest::newRow("get") << GET;
-    QTest::newRow("put") << PUT;
-    QTest::newRow("post") << POST;
-    QTest::newRow("delete") << DELETE;
-    QTest::newRow("other") << OTHER;
+    QTest::newRow("get") << GetOperation;
+    QTest::newRow("put") << PutOperation;
+    QTest::newRow("post") << PostOperation;
+    QTest::newRow("delete") << DeleteOperation;
+    QTest::newRow("other") << OtherOperation;
 }
 
 void tst_QCoapRequest::setOperation()
@@ -114,12 +114,12 @@ void tst_QCoapRequest::internalRequestToFrame_data()
     QTest::addColumn<QString>("pduHeader");
     QTest::addColumn<QString>("pduPayload");
 
-    QTest::newRow("request_with_option_and_payload") << QUrl("coap://vs0.inf.ethz.ch:5683/test") << GET << QCoapRequest::NONCONFIRMABLE << quint16(56400) << QByteArray::fromHex("4647f09b") << "5401dc504647f09bb474657374ff" << "Some payload";
-    QTest::newRow("request_without_payload") << QUrl("coap://vs0.inf.ethz.ch:5683/test") << GET << QCoapRequest::NONCONFIRMABLE << quint16(56400) << QByteArray::fromHex("4647f09b") << "5401dc504647f09bb474657374" << "";
-    QTest::newRow("request_without_option") << QUrl("coap://vs0.inf.ethz.ch:5683/") << PUT << QCoapRequest::CONFIRMABLE << quint16(56400) << QByteArray::fromHex("4647f09b") << "4403dc504647f09bff" << "Some payload";
-    QTest::newRow("request_only") << QUrl("coap://vs0.inf.ethz.ch:5683/") << GET << QCoapRequest::NONCONFIRMABLE << quint16(56400) << QByteArray::fromHex("4647f09b") << "5401dc504647f09b" << "";
-    QTest::newRow("request_with_multiple_options") << QUrl("coap://vs0.inf.ethz.ch:5683/test/oui") << GET << QCoapRequest::NONCONFIRMABLE << quint16(56400) << QByteArray::fromHex("4647f09b") << "5401dc504647f09bb474657374036f7569" << "";
-    QTest::newRow("request_with_big_option_number") << QUrl("coap://vs0.inf.ethz.ch:5683/test") << GET << QCoapRequest::NONCONFIRMABLE << quint16(56400) << QByteArray::fromHex("4647f09b") << "5401dc504647f09bb474657374dd240d6162636465666768696a6b6c6d6e6f707172737475767778797aff" << "Some payload";
+    QTest::newRow("request_with_option_and_payload") << QUrl("coap://vs0.inf.ethz.ch:5683/test") << GetOperation << QCoapRequest::NonConfirmableMessage << quint16(56400) << QByteArray::fromHex("4647f09b") << "5401dc504647f09bb474657374ff" << "Some payload";
+    QTest::newRow("request_without_payload") << QUrl("coap://vs0.inf.ethz.ch:5683/test") << GetOperation << QCoapRequest::NonConfirmableMessage << quint16(56400) << QByteArray::fromHex("4647f09b") << "5401dc504647f09bb474657374" << "";
+    QTest::newRow("request_without_option") << QUrl("coap://vs0.inf.ethz.ch:5683/") << PutOperation << QCoapRequest::ConfirmableMessage << quint16(56400) << QByteArray::fromHex("4647f09b") << "4403dc504647f09bff" << "Some payload";
+    QTest::newRow("request_only") << QUrl("coap://vs0.inf.ethz.ch:5683/") << GetOperation << QCoapRequest::NonConfirmableMessage << quint16(56400) << QByteArray::fromHex("4647f09b") << "5401dc504647f09b" << "";
+    QTest::newRow("request_with_multiple_options") << QUrl("coap://vs0.inf.ethz.ch:5683/test/oui") << GetOperation << QCoapRequest::NonConfirmableMessage << quint16(56400) << QByteArray::fromHex("4647f09b") << "5401dc504647f09bb474657374036f7569" << "";
+    QTest::newRow("request_with_big_option_number") << QUrl("coap://vs0.inf.ethz.ch:5683/test") << GetOperation << QCoapRequest::NonConfirmableMessage << quint16(56400) << QByteArray::fromHex("4647f09b") << "5401dc504647f09bb474657374dd240d6162636465666768696a6b6c6d6e6f707172737475767778797aff" << "Some payload";
 }
 
 void tst_QCoapRequest::internalRequestToFrame()
@@ -139,7 +139,7 @@ void tst_QCoapRequest::internalRequestToFrame()
     request.setMessageId(messageId);
     request.setToken(token);
     if (qstrcmp(QTest::currentDataTag(), "request_with_big_option_number") == 0) {
-        request.addOption(QCoapOption::SIZE1, QByteArray("abcdefghijklmnopqrstuvwxyz"));
+        request.addOption(QCoapOption::Size1Option, QByteArray("abcdefghijklmnopqrstuvwxyz"));
     }
 
     QByteArray pdu;

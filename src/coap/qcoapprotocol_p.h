@@ -50,9 +50,9 @@ public:
     bool containsMessageId(quint16 id);
     bool containsToken(const QByteArray& token);
     //QCoapReply* findReplyByToken(const QByteArray& token);
-    QCoapInternalRequest findReplyByToken(const QByteArray& token);
+    QCoapInternalRequest findRequestByToken(const QByteArray& token);
     //QCoapReply* findReplyByMessageId(quint16 messageId);
-    QCoapInternalRequest findReplyByMessageId(quint16 messageId);
+    QCoapInternalRequest findRequestByMessageId(quint16 messageId);
 
     InternalMessageMap internalReplies;
     QQueue<QByteArray> frameQueue;

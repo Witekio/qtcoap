@@ -2,12 +2,12 @@
 #define QCOAPGLOBAL_H
 
 enum QCoapOperation {
-    EMPTY,
-    GET,
-    POST,
-    PUT,
-    DELETE,
-    OTHER
+    EmptyOperation,
+    GetOperation,
+    PostOperation,
+    PutOperation,
+    DeleteOperation,
+    OtherOperation
 };
 
 enum QCoapStatusCode {

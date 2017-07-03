@@ -39,7 +39,7 @@ QCoapReply* QCoapClient::get(const QCoapRequest& request)
     qDebug() << "QCoapClient : get()";
 
     QCoapRequest copyRequest(request);
-    copyRequest.setOperation(GET);
+    copyRequest.setOperation(GetOperation);
 
     QCoapReply* reply = sendRequest(copyRequest);
     d->requestMap[request] = reply;
@@ -53,7 +53,7 @@ QCoapReply* QCoapClient::put(const QCoapRequest& request, const QByteArray& data
     qDebug() << "QCoapClient : put()";
 
     QCoapRequest copyRequest(request);
-    copyRequest.setOperation(PUT);
+    copyRequest.setOperation(PutOperation);
     copyRequest.setPayload(data);
 
     QCoapReply* reply = sendRequest(copyRequest);
@@ -79,7 +79,7 @@ QCoapReply* QCoapClient::post(const QCoapRequest& request, const QByteArray& dat
     qDebug() << "QCoapClient : post()";
 
     QCoapRequest copyRequest(request);
-    copyRequest.setOperation(POST);
+    copyRequest.setOperation(PostOperation);
     copyRequest.setPayload(data);
 
     QCoapReply* reply = sendRequest(copyRequest);
@@ -106,7 +106,7 @@ QCoapReply* QCoapClient::deleteResource(const QCoapRequest& request)
     qDebug() << "QCoapClient : delete()";
 
     QCoapRequest copyRequest(request);
-    copyRequest.setOperation(DELETE);
+    copyRequest.setOperation(DeleteOperation);
 
     QCoapReply* reply = sendRequest(copyRequest);
     d->requestMap[request] = reply;
@@ -120,7 +120,7 @@ QCoapDiscoveryReply* QCoapClient::discover(const QUrl& url, const QString& disco
     QUrl discoveryUrl(url.toString().append(discoveryPath));
 
     QCoapRequest request(discoveryUrl);
-    request.setOperation(GET);
+    request.setOperation(GetOperation);
 
     QCoapDiscoveryReply* reply = sendDiscovery(request);
     d->requestMap[request] = reply;
@@ -133,9 +133,9 @@ QCoapReply* QCoapClient::observe(const QCoapRequest& request)
     Q_D(QCoapClient);
 
     QCoapRequest copyRequest(request);
-    copyRequest.addOption(QCoapOption::OBSERVE);
+    copyRequest.addOption(QCoapOption::ObserveOption);
     copyRequest.setObserve(true);
-    //copyRequest.setType(QCoapMessage::CONFIRMABLE);
+    //copyRequest.setType(QCoapMessage::ConfirmableMessage);
 
     QCoapReply* reply = nullptr;
     reply = get(copyRequest);

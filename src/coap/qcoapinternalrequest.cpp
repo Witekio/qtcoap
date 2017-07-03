@@ -2,7 +2,7 @@
 #include "qcoaprequest.h"
 
 QCoapInternalRequestPrivate::QCoapInternalRequestPrivate() :
-    operation(EMPTY),
+    operation(EmptyOperation),
     isValid(true),
     cancelObserve(false)
 {
@@ -39,8 +39,8 @@ QCoapInternalRequest QCoapInternalRequest::createAcknowledgment(quint16 messageI
 {
     QCoapInternalRequest internalRequest;
 
-    internalRequest.setType(ACKNOWLEDGMENT);
-    internalRequest.setOperation(EMPTY);
+    internalRequest.setType(AcknowledgmentMessage);
+    internalRequest.setOperation(EmptyOperation);
     internalRequest.setMessageId(messageId);
     internalRequest.setToken(token);
     internalRequest.setPayload(QByteArray());
@@ -53,8 +53,8 @@ QCoapInternalRequest QCoapInternalRequest::createReset(quint16 messageId)
 {
     QCoapInternalRequest internalRequest;
 
-    internalRequest.setType(RESET);
-    internalRequest.setOperation(EMPTY);
+    internalRequest.setType(ResetMessage);
+    internalRequest.setOperation(EmptyOperation);
     internalRequest.setMessageId(messageId);
     internalRequest.setToken(QByteArray());
     internalRequest.setPayload(QByteArray());
@@ -157,7 +157,7 @@ QByteArray QCoapInternalRequest::toQByteArray() const
 
 void QCoapInternalRequest::setRequestToAskBlock(uint blockNumber, uint blockSize)
 {
-    // Set the BLOCK2 option to get the new block
+    // Set the Block2Option option to get the new block
     // size = (2^(SZX + 4))
     quint32 block2Data = (blockNumber << 4) | static_cast<quint32>(log2(blockSize)-4);
     QByteArray block2Value = QByteArray();
@@ -167,8 +167,8 @@ void QCoapInternalRequest::setRequestToAskBlock(uint blockNumber, uint blockSize
         block2Value.append(static_cast<char>(block2Data >> 8 & 0xFF));
     block2Value.append(static_cast<char>(block2Data & 0xFF));
 
-    removeOptionByName(QCoapOption::BLOCK2);
-    addOption(QCoapOption::BLOCK2, block2Value);
+    removeOptionByName(QCoapOption::Block2Option);
+    addOption(QCoapOption::Block2Option, block2Value);
 
     setMessageId(d_ptr->messageId+1);
 }

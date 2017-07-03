@@ -19,8 +19,8 @@ public:
 
     void sendRequest(QCoapReply* reply, QCoapConnection* connection);
     void cancelObserve(QCoapReply* reply);
-
     void setBlockSize(quint16 blockSize);
+
     static QList<QCoapResource> resourcesFromCoreLinkList(const QByteArray& data);
 
 public slots:

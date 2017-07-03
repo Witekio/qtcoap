@@ -5,7 +5,7 @@
 QCoapMessagePrivate::QCoapMessagePrivate() :
     QSharedData(),
     version(1),
-    type(QCoapMessage::NONCONFIRMABLE),
+    type(QCoapMessage::NonConfirmableMessage),
     messageId(0),
     token(QByteArray()),
     payload(QByteArray())
@@ -39,6 +39,10 @@ QCoapMessage::QCoapMessage(const QCoapMessage& other) :
 
 QCoapMessage::QCoapMessage(QCoapMessagePrivate &dd) :
     d_ptr(&dd)
+{
+}
+
+QCoapMessage::~QCoapMessage()
 {
 }
 

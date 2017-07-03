@@ -13,15 +13,15 @@ class QCoapMessage
 {
 public:
     enum QCoapMessageType {
-        CONFIRMABLE,
-        NONCONFIRMABLE,
-        ACKNOWLEDGMENT,
-        RESET
+        ConfirmableMessage,
+        NonConfirmableMessage,
+        AcknowledgmentMessage,
+        ResetMessage
     };
 
     QCoapMessage();
     QCoapMessage(const QCoapMessage& other);
-    virtual ~QCoapMessage() {}
+    virtual ~QCoapMessage();
 
     quint8 version() const;
     QCoapMessageType type() const;
