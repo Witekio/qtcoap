@@ -369,6 +369,8 @@ void tst_QCoapClient::observe_data()
                                          << QCoapMessage::CONFIRMABLE;
     QTest::newRow("observe_large") << QUrl("coap://172.17.0.3:5683/obs-large")
                                          << QCoapMessage::NONCONFIRMABLE;
+    QTest::newRow("observe_large_confirmable") << QUrl("coap://172.17.0.3:5683/obs-large")
+                                         << QCoapMessage::CONFIRMABLE;
 
 }
 

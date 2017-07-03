@@ -77,16 +77,14 @@ void QCoapProtocol::sendRequest(QCoapReply* reply, QCoapConnection* connection)
 
     // If this request does not already exist we add it to the map
     if (!d->findReplyByToken(copyInternalRequest.token()).isValid()) {
-            InternalMessagePair pair = {reply , QList<QCoapInternalReply>() };
+            InternalMessagePair pair = { reply , QList<QCoapInternalReply>() };
             d->internalReplies[copyInternalRequest] = pair;
     }
 
     // If the user specified a size for blockwise request/replies
-
-    qDebug() << "Blocksize = " << d->blockSize;
-    if (d->blockSize > 0) {
+    if (d->blockSize > 0)
         copyInternalRequest.setRequestToAskBlock(0, d->blockSize);
-    }
+
     reply->setIsRunning(true);
     d->sendRequest(copyInternalRequest);
 }
@@ -171,8 +169,11 @@ void QCoapProtocolPrivate::handleFrame(const QByteArray& frame)
     internalReplies[request].replies.push_back(internalReply);
 
     // Reply when the server ask an ACK
-    if (request.cancelObserve())
+    if (request.cancelObserve()) {
+        // Remove option to ensure that it will stop
+        request.removeOptionByName(QCoapOption::OBSERVE);
         sendReset(request);
+    }
     else if (internalReply.type() == QCoapMessage::CONFIRMABLE)
         sendAcknowledgment(request);
 
