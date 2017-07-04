@@ -1,5 +1,6 @@
 #include "qcoapinternalrequest_p.h"
 #include "qcoaprequest.h"
+#include <QtMath>
 
 QCoapInternalRequestPrivate::QCoapInternalRequestPrivate() :
     operation(EmptyOperation),
@@ -31,6 +32,7 @@ QCoapInternalRequest::QCoapInternalRequest(const QCoapRequest& request) :
 QCoapInternalRequest QCoapInternalRequest::fromQCoapRequest(const QCoapRequest& request)
 {
     QCoapInternalRequest internalRequest(request);
+    internalRequest.d_func()->fullPayload = request.payload();
     return internalRequest;
 }
 
@@ -168,7 +170,34 @@ void QCoapInternalRequest::setRequestToAskBlock(uint blockNumber, uint blockSize
     block2Value.append(static_cast<char>(block2Data & 0xFF));
 
     removeOptionByName(QCoapOption::Block2Option);
+    removeOptionByName(QCoapOption::Block1Option);
     addOption(QCoapOption::Block2Option, block2Value);
+
+    setMessageId(d_ptr->messageId+1);
+}
+
+void QCoapInternalRequest::setRequestToSendBlock(uint blockNumber, uint blockSize)
+{
+    QCoapInternalRequestPrivate* d = d_func();
+
+    setPayload(d->fullPayload.mid(blockNumber*blockSize, blockSize));
+
+    // Set the Block2Option option to get the new block
+    // size = (2^(SZX + 4))
+    quint32 block2Data = (blockNumber << 4) | static_cast<quint32>(log2(blockSize)-4);
+    if ((blockNumber * blockSize) + blockSize < d->fullPayload.length())
+        block2Data = block2Data | 8; // Put the "more flag" to 1
+
+    QByteArray block2Value = QByteArray();
+    if (block2Data > 0xFFFF)
+        block2Value.append(static_cast<char>(block2Data >> 16));
+    if (block2Data > 0xFF)
+        block2Value.append(static_cast<char>(block2Data >> 8 & 0xFF));
+    block2Value.append(static_cast<char>(block2Data & 0xFF));
+
+    removeOptionByName(QCoapOption::Block1Option);
+    //removeOptionByName(QCoapOption::Block2Option);
+    addOption(QCoapOption::Block1Option, block2Value);
 
     setMessageId(d_ptr->messageId+1);
 }
@@ -194,6 +223,23 @@ QByteArray QCoapInternalRequest::generateToken()
     return token;
 }
 
+void QCoapInternalRequest::addOption(const QCoapOption& option)
+{
+    QCoapInternalMessagePrivate* d = d_func();
+    // If it is a BLOCK option, we need to know the block number
+    if (option.name() == QCoapOption::Block1Option) {
+        quint32 blockNumber = 0;
+        quint8 *optionData = reinterpret_cast<quint8 *>(option.value().data());
+        for (int i = 0; i < option.length() - 1; ++i)
+            blockNumber = (blockNumber << 8) | optionData[i];
+        blockNumber = (blockNumber << 4) | ((optionData[option.length()-1]) >> 4);
+        d->currentBlockNumber = blockNumber;
+        d->hasNextBlock = ((optionData[option.length()-1] & 0x8) == 0x8);
+        d->blockSize = qPow(2, (optionData[option.length()-1] & 0x7) + 4);
+    }
+
+    QCoapMessage::addOption(option);
+}
 
 bool QCoapInternalRequest::isValid() const
 {

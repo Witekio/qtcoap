@@ -1,4 +1,5 @@
 #include "qcoapinternalreply_p.h"
+#include <QtMath>
 
 QCoapInternalReplyPrivate::QCoapInternalReplyPrivate():
     statusCode(InvalidCode)
@@ -94,6 +95,46 @@ QCoapInternalReply QCoapInternalReply::fromQByteArray(const QByteArray& reply)
 void QCoapInternalReply::appendData(const QByteArray& data)
 {
     d_func()->payload.append(data);
+}
+
+void QCoapInternalReply::addOption(const QCoapOption& option)
+{
+    QCoapInternalMessagePrivate* d = d_func();
+    // If it is a BLOCK option, we need to know the block number
+    if (option.name() == QCoapOption::Block2Option) {
+        quint32 blockNumber = 0;
+        quint8 *optionData = reinterpret_cast<quint8 *>(option.value().data());
+        for (int i = 0; i < option.length() - 1; ++i)
+            blockNumber = (blockNumber << 8) | optionData[i];
+        blockNumber = (blockNumber << 4) | ((optionData[option.length()-1]) >> 4);
+        d->currentBlockNumber = blockNumber;
+        d->hasNextBlock = ((optionData[option.length()-1] & 0x8) == 0x8);
+        d->blockSize = qPow(2, (optionData[option.length()-1] & 0x7) + 4);
+    }
+
+    QCoapMessage::addOption(option);
+}
+
+int QCoapInternalReply::wantNextBlock()
+{
+    QCoapOption option = findOptionByName(QCoapOption::Block1Option);
+    if (option.name() != QCoapOption::InvalidOption) {
+        quint8 *optionData = reinterpret_cast<quint8 *>(option.value().data());
+
+        bool hasNextBlock = ((optionData[option.length()-1] & 0x8) == 0x8);
+        //int blockSize = qPow(2, (optionData[option.length()-1] & 0x7) + 4);
+
+        if (hasNextBlock) {
+            quint32 blockNumber = 0;
+            for (int i = 0; i < option.length() - 1; ++i)
+                blockNumber = (blockNumber << 8) | optionData[i];
+            blockNumber = (blockNumber << 4) | ((optionData[option.length()-1]) >> 4);
+            return static_cast<int>(blockNumber) + 1;
+        } else
+            return -1;
+    }
+
+    return -1;
 }
 
 QCoapStatusCode QCoapInternalReply::statusCode() const

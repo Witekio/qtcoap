@@ -225,8 +225,9 @@ void QCoapClient::setBlockSize(quint16 blockSize)
 {
     Q_D(QCoapClient);
     // If it is not a power of two
-    if ((blockSize & (blockSize-1)) == 0)
+    if ((blockSize & (blockSize-1)) != 0) {
         return;
+    }
 
     d->protocol->setBlockSize(blockSize);
 }

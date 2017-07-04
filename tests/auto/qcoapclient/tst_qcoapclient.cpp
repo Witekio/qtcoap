@@ -7,6 +7,7 @@
 #include "qcoapreply.h"
 #include <QBuffer>
 
+Q_DECLARE_METATYPE(QCoapStatusCode);
 Q_DECLARE_METATYPE(QCoapOperation)
 Q_DECLARE_METATYPE(QCoapMessage::QCoapMessageType)
 
@@ -33,6 +34,8 @@ private slots:
     void multipleRequests();
     void blockwiseReply_data();
     void blockwiseReply();
+    void blockwiseRequest_data();
+    void blockwiseRequest();
     void discover_data();
     void discover();
     void observe_data();
@@ -326,6 +329,56 @@ void tst_QCoapClient::blockwiseReply()
 
     QByteArray dataReply = reply->readAll();
     QCOMPARE(dataReply, replyData);
+}
+
+void tst_QCoapClient::blockwiseRequest_data()
+{
+    QTest::addColumn<QUrl>("url");
+    QTest::addColumn<QCoapMessage::QCoapMessageType>("type");
+    QTest::addColumn<QByteArray>("requestData");
+    QTest::addColumn<QCoapStatusCode>("statusCode");
+    QTest::addColumn<QByteArray>("replyData");
+
+    QByteArray data;
+    data.append("abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyz");
+    data.append("abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyz");
+    data.append("abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyz");
+
+    QTest::newRow("large_post_empty_reply") << QUrl("coap://172.17.0.3:5683/query")
+                               << QCoapMessage::NonConfirmableMessage
+                               << data
+                               << MethodNotAllowedCode
+                               << QByteArray();
+    QTest::newRow("large_post_large_reply") << QUrl("coap://172.17.0.3:5683/large-post")
+                               << QCoapMessage::NonConfirmableMessage
+                               << data
+                               << ChangedCode
+                               << data.toUpper();
+}
+
+void tst_QCoapClient::blockwiseRequest()
+{
+    QFETCH(QUrl, url);
+    QFETCH(QCoapMessage::QCoapMessageType, type);
+    QFETCH(QByteArray, requestData);
+    QFETCH(QCoapStatusCode, statusCode);
+    QFETCH(QByteArray, replyData);
+
+    QCoapClient client;
+    client.setBlockSize(16);
+
+    QCoapRequest request(url);
+    request.setType(type);
+    request.addOption(QCoapOption::ContentFormatOption);
+
+    QCoapReply* reply = client.post(request, requestData);
+    QSignalSpy spyReplyFinished(reply, SIGNAL(finished()));
+
+    QTRY_COMPARE_WITH_TIMEOUT(spyReplyFinished.count(), 1, 30000);
+
+    QByteArray dataReply = reply->readAll();
+    QCOMPARE(dataReply, replyData);
+    QCOMPARE(reply->statusCode(), statusCode);
 }
 
 void tst_QCoapClient::discover_data()

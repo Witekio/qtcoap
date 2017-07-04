@@ -16,6 +16,11 @@ public:
 
     static QCoapInternalReply fromQByteArray(const QByteArray& reply);
     void appendData(const QByteArray& data);
+    int wantNextBlock();
+
+    using QCoapMessage::addOption;
+    void addOption(const QCoapOption& option);
+
     QCoapStatusCode statusCode() const;
 
 private:

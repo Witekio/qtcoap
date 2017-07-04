@@ -39,6 +39,7 @@ public:
 
     void addOption(QCoapOption::QCoapOptionName name, const QByteArray& value = QByteArray());
     virtual void addOption(const QCoapOption& option);
+    QCoapOption findOptionByName(QCoapOption::QCoapOptionName name);
     void removeOption(const QCoapOption& option);
     void removeOptionByName(QCoapOption::QCoapOptionName name);
     void removeAllOptions();

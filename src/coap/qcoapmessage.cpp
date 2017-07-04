@@ -72,6 +72,16 @@ void QCoapMessage::removeOptionByName(QCoapOption::QCoapOptionName name)
     }
 }
 
+QCoapOption QCoapMessage::findOptionByName(QCoapOption::QCoapOptionName name)
+{
+    for (QCoapOption option : d_ptr->options) {
+        if (option.name() == name)
+            return option;
+    }
+
+    return QCoapOption(QCoapOption::InvalidOption, QByteArray());
+}
+
 void QCoapMessage::removeAllOptions()
 {
     d_ptr->options.clear();

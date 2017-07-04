@@ -29,7 +29,8 @@ public:
         Size2Option           = 28,
         ProxyUriOption        = 35,
         ProxySchemeOption     = 39,
-        Size1Option           = 60
+        Size1Option           = 60,
+        InvalidOption
     };
 
     QCoapOption(QCoapOptionName name, const QByteArray& value);

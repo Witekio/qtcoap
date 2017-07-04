@@ -25,6 +25,10 @@ public:
     quint16 generateMessageId();
     QByteArray generateToken();
     void setRequestToAskBlock(uint blockNumber, uint blockSize);
+    void setRequestToSendBlock(uint blockNumber, uint blockSize);
+
+    using QCoapMessage::addOption;
+    void addOption(const QCoapOption& option);
 
     bool isValid() const;
     bool cancelObserve() const;
@@ -48,6 +52,7 @@ public:
     QCoapConnection* connection;
     bool isValid;
     bool cancelObserve;
+    QByteArray fullPayload;
 };
 
 QT_END_NAMESPACE

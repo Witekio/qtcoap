@@ -82,8 +82,13 @@ void QCoapProtocol::sendRequest(QCoapReply* reply, QCoapConnection* connection)
     }
 
     // If the user specified a size for blockwise request/replies
-    if (d->blockSize > 0)
+    qDebug() << "payload length : " << copyInternalRequest.payload().length()
+             << " - blockSize : " << d->blockSize;
+    if (d->blockSize > 0) {
         copyInternalRequest.setRequestToAskBlock(0, d->blockSize);
+        if (copyInternalRequest.payload().length() > d->blockSize)
+            copyInternalRequest.setRequestToSendBlock(0, d->blockSize);
+    }
 
     reply->setIsRunning(true);
     d->sendRequest(copyInternalRequest);
@@ -177,10 +182,17 @@ void QCoapProtocolPrivate::handleFrame(const QByteArray& frame)
     else if (internalReply.type() == QCoapMessage::ConfirmableMessage)
         sendAcknowledgment(request);
 
+    // Add Block1 option if it is a blockwise request
+    int nextBlockWanted = internalReply.wantNextBlock();
+
+
     // Ask next block or process the final reply
-    if (internalReply.hasNextBlock())
+    if (internalReply.hasNextBlock()) {
         onNextBlock(request, internalReply.currentBlockNumber(), internalReply.blockSize());
-    else
+    } else if (nextBlockWanted >= 0) {
+        request.setRequestToSendBlock(static_cast<uint>(nextBlockWanted), blockSize);
+        sendRequest(request);
+    } else
         onLastBlock(request);
 
     // Take the next frame if needed
@@ -278,7 +290,7 @@ QCoapInternalRequest QCoapProtocolPrivate::findRequestByMessageId(quint16 messag
 
 void QCoapProtocolPrivate::onLastBlock(const QCoapInternalRequest& request)
 {
-    //qDebug() << "QCoapProtocol::onLastBlock()";
+    qDebug() << "QCoapProtocol::onLastBlock()";
 
     QList<QCoapInternalReply> replies = internalReplies[request].replies;
     QCoapReply* userReply = internalReplies[request].userReply;
@@ -336,7 +348,7 @@ void QCoapProtocolPrivate::onNextBlock(const QCoapInternalRequest& request,
                                        uint currentBlockNumber,
                                        uint blockSize)
 {
-    //qDebug() << "QCoapProtocol::onNextBlock()";
+    // qDebug() << "QCoapProtocol::onNextBlock()";
     QCoapInternalRequest copyRequest = request;
 
     copyRequest.setRequestToAskBlock(currentBlockNumber+1, blockSize);
@@ -517,7 +529,7 @@ bool QCoapProtocolPrivate::containsMessageId(quint16 id)
 
 void QCoapProtocol::setBlockSize(quint16 blockSize)
 {
-    // a size of 0 mean that the server choose the blocks size
+    // A size of 0 mean that the server choose the blocks size
     Q_D(QCoapProtocol);
     d->blockSize = blockSize;
 }
