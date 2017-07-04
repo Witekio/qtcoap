@@ -42,12 +42,35 @@ QCoapRequest::QCoapRequest(const QCoapRequest &other) :
 void QCoapRequest::parseUri()
 {
     QCoapRequestPrivate* d = static_cast<QCoapRequestPrivate*>(d_ptr);
+
+    // Convert host to QCoapOption if it is not an ip address
+    // TODO : ipv6
+    QRegExp ipv4Regex("^([0-9]{1,3}.){3}([0-9]{1,3})$");
+    QString host = d->url.host();
+    if (!ipv4Regex.exactMatch(host)) {
+        addOption(QCoapOption::UriHostOption, host.toUtf8());
+    }
+
+    // Convert port into QCoapOption if it is not the default port
+    int port = d->url.port();
+    if (port > 0 && port != 5683){
+        addOption(QCoapOption::UriPortOption, QByteArray::number(port, 10));
+    }
+
     // Convert path into QCoapOptions
     QString path = d->url.path();
     QStringList listPath = path.split("/");
     for (QString pathPart : listPath) {
         if (!pathPart.isEmpty())
             addOption(QCoapOption::UriPathOption, pathPart.toUtf8());
+    }
+
+    // Convert query into QCoapOptions
+    QString query = d->url.query();
+    QStringList listQuery = query.split("&");
+    for (QString query : listQuery) {
+        if (!query.isEmpty())
+            addOption(QCoapOption::UriQueryOption, query.toUtf8());
     }
 
     //d->connection->setHost(d->url.host());

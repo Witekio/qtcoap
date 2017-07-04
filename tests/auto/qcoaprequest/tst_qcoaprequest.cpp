@@ -31,6 +31,8 @@ private slots:
     void setOperation();
     void internalRequestToFrame_data();
     void internalRequestToFrame();
+    void parseUri_data();
+    void parseUri();
 };
 
 tst_QCoapRequest::tst_QCoapRequest()
@@ -114,12 +116,12 @@ void tst_QCoapRequest::internalRequestToFrame_data()
     QTest::addColumn<QString>("pduHeader");
     QTest::addColumn<QString>("pduPayload");
 
-    QTest::newRow("request_with_option_and_payload") << QUrl("coap://vs0.inf.ethz.ch:5683/test") << GetOperation << QCoapRequest::NonConfirmableMessage << quint16(56400) << QByteArray::fromHex("4647f09b") << "5401dc504647f09bb474657374ff" << "Some payload";
-    QTest::newRow("request_without_payload") << QUrl("coap://vs0.inf.ethz.ch:5683/test") << GetOperation << QCoapRequest::NonConfirmableMessage << quint16(56400) << QByteArray::fromHex("4647f09b") << "5401dc504647f09bb474657374" << "";
-    QTest::newRow("request_without_option") << QUrl("coap://vs0.inf.ethz.ch:5683/") << PutOperation << QCoapRequest::ConfirmableMessage << quint16(56400) << QByteArray::fromHex("4647f09b") << "4403dc504647f09bff" << "Some payload";
-    QTest::newRow("request_only") << QUrl("coap://vs0.inf.ethz.ch:5683/") << GetOperation << QCoapRequest::NonConfirmableMessage << quint16(56400) << QByteArray::fromHex("4647f09b") << "5401dc504647f09b" << "";
-    QTest::newRow("request_with_multiple_options") << QUrl("coap://vs0.inf.ethz.ch:5683/test/oui") << GetOperation << QCoapRequest::NonConfirmableMessage << quint16(56400) << QByteArray::fromHex("4647f09b") << "5401dc504647f09bb474657374036f7569" << "";
-    QTest::newRow("request_with_big_option_number") << QUrl("coap://vs0.inf.ethz.ch:5683/test") << GetOperation << QCoapRequest::NonConfirmableMessage << quint16(56400) << QByteArray::fromHex("4647f09b") << "5401dc504647f09bb474657374dd240d6162636465666768696a6b6c6d6e6f707172737475767778797aff" << "Some payload";
+    QTest::newRow("request_with_option_and_payload") << QUrl("coap://172.17.0.3:5683/test") << GetOperation << QCoapRequest::NonConfirmableMessage << quint16(56400) << QByteArray::fromHex("4647f09b") << "5401dc504647f09bb474657374ff" << "Some payload";
+    QTest::newRow("request_without_payload") << QUrl("coap://172.17.0.3:5683/test") << GetOperation << QCoapRequest::NonConfirmableMessage << quint16(56400) << QByteArray::fromHex("4647f09b") << "5401dc504647f09bb474657374" << "";
+    QTest::newRow("request_without_option") << QUrl("coap://172.17.0.3:5683/") << PutOperation << QCoapRequest::ConfirmableMessage << quint16(56400) << QByteArray::fromHex("4647f09b") << "4403dc504647f09bff" << "Some payload";
+    QTest::newRow("request_only") << QUrl("coap://172.17.0.3:5683/") << GetOperation << QCoapRequest::NonConfirmableMessage << quint16(56400) << QByteArray::fromHex("4647f09b") << "5401dc504647f09b" << "";
+    QTest::newRow("request_with_multiple_options") << QUrl("coap://172.17.0.3:5683/test/oui") << GetOperation << QCoapRequest::NonConfirmableMessage << quint16(56400) << QByteArray::fromHex("4647f09b") << "5401dc504647f09bb474657374036f7569" << "";
+    QTest::newRow("request_with_big_option_number") << QUrl("coap://172.17.0.3:5683/test") << GetOperation << QCoapRequest::NonConfirmableMessage << quint16(56400) << QByteArray::fromHex("4647f09b") << "5401dc504647f09bb474657374dd240d6162636465666768696a6b6c6d6e6f707172737475767778797aff" << "Some payload";
 }
 
 void tst_QCoapRequest::internalRequestToFrame()
@@ -151,6 +153,31 @@ void tst_QCoapRequest::internalRequestToFrame()
     QCoapInternalRequest internalRequest(request);
     QCOMPARE(internalRequest.toQByteArray().toHex(), pdu);
 }
+
+void tst_QCoapRequest::parseUri_data()
+{
+    QTest::addColumn<QUrl>("url");
+    QTest::addColumn<int>("optionsNumber");
+
+    QTest::newRow("uri1") << QUrl("coap://vs0.inf.ethz.ch:5683/test/path1/?rd=25&nd=4")
+                             << 5;
+    QTest::newRow("uri2") << QUrl("coap://172.17.0.3/test/path1/?rd=25&nd=4")
+                             << 4;
+    QTest::newRow("uri3") << QUrl("coap://172.17.0.3:5684/test/path1")
+                             << 3;
+}
+
+void tst_QCoapRequest::parseUri()
+{
+    QFETCH(QUrl, url);
+    QFETCH(int, optionsNumber);
+
+    QCoapRequest request(url);
+
+    QCOMPARE(request.optionsLength(), optionsNumber);
+}
+
+
 
 QTEST_MAIN(tst_QCoapRequest)
 
