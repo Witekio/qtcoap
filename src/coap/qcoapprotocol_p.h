@@ -59,6 +59,11 @@ public:
     ProtocolState state;
     quint16 blockSize;
 
+    uint ackTimeout;
+    double ackRandomFactor;
+    uint maxRetransmit;
+    //uint maxTransmitSpan;
+
     Q_DECLARE_PUBLIC(QCoapProtocol)
 };
 

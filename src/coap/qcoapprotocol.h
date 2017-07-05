@@ -19,6 +19,14 @@ public:
 
     void sendRequest(QCoapReply* reply, QCoapConnection* connection);
     void cancelObserve(QCoapReply* reply);
+
+    uint ackTimeout() const;
+    double ackRandomFactor() const;
+    uint maxRetransmit() const;
+    quint16 blockSize() const;
+    void setAckTimeout(uint ackTimeout);
+    void setAckRandomFactor(double ackRandomFactor);
+    void setMaxRetransmit(uint maxRetransmit);
     void setBlockSize(quint16 blockSize);
 
     static QList<QCoapResource> resourcesFromCoreLinkList(const QByteArray& data);

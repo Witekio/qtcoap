@@ -3,7 +3,10 @@
 
 QCoapProtocolPrivate::QCoapProtocolPrivate() :
     state(WAITING),
-    blockSize(0)
+    blockSize(0),
+    ackTimeout(2000),
+    ackRandomFactor(1.5),
+    maxRetransmit(4)
 {
 }
 
@@ -91,13 +94,19 @@ void QCoapProtocol::sendRequest(QCoapReply* reply, QCoapConnection* connection)
     }
 
     reply->setIsRunning(true);
+    copyInternalRequest.retransmit();
+    copyInternalRequest.setTimeout(d->ackTimeout);
+    // TODO : something like this but we need the request to resend
+    // connect(copyInternalRequest.timer(), SIGNAL(timeout(QCoapInternalRequest*)),
+    //         this, SLOT(resend(QCoapInternalRequest*)));
     d->sendRequest(copyInternalRequest);
 }
 
 void QCoapProtocolPrivate::sendRequest(const QCoapInternalRequest& request)
 {
-    QByteArray requestFrame = encode(request);
-    request.connection()->sendRequest(requestFrame);
+    QCoapInternalRequest copyRequest = request;
+    QByteArray requestFrame = encode(copyRequest);
+    copyRequest.connection()->sendRequest(requestFrame);
 }
 
 void QCoapProtocol::messageReceived(const QByteArray& frameReply)
@@ -114,6 +123,17 @@ void QCoapProtocolPrivate::handleFrame()
 {
     handleFrame(frameQueue.head());
 }
+
+/*void QCoapProtocolPrivate::resend(QCoapInternalRequest*)
+{
+    // In case of retransmission, check if it is not the last try
+    if (copyRequest.retransmissionCounter() < maxRetransmit) {
+        copyRequest.retransmit();
+        copyRequest.connection()->sendRequest(requestFrame);
+    }
+    // TODO : else abort and send timeout error
+    //connect request timeout to protocol slot resend
+}*/
 
 /*void QCoapProtocolPrivate::handleFrame(const QByteArray& frame)
 {
@@ -525,6 +545,44 @@ bool QCoapProtocolPrivate::containsMessageId(quint16 id)
     }
 
     return false;
+}
+
+uint QCoapProtocol::ackTimeout() const
+{
+    return d_func()->ackTimeout;
+}
+
+double QCoapProtocol::ackRandomFactor() const
+{
+    return d_func()->ackRandomFactor;
+}
+
+uint QCoapProtocol::maxRetransmit() const
+{
+    return d_func()->maxRetransmit;
+}
+
+quint16 QCoapProtocol::blockSize() const
+{
+    return d_func()->blockSize;
+}
+
+void QCoapProtocol::setAckTimeout(uint ackTimeout)
+{
+    Q_D(QCoapProtocol);
+    d->ackTimeout = ackTimeout;
+}
+
+void QCoapProtocol::setAckRandomFactor(double ackRandomFactor)
+{
+    Q_D(QCoapProtocol);
+    d->ackRandomFactor = ackRandomFactor;
+}
+
+void QCoapProtocol::setMaxRetransmit(uint maxRetransmit)
+{
+    Q_D(QCoapProtocol);
+    d->maxRetransmit = maxRetransmit;
 }
 
 void QCoapProtocol::setBlockSize(quint16 blockSize)

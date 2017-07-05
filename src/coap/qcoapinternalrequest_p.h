@@ -6,6 +6,8 @@
 #include "qcoapinternalmessage_p.h"
 #include "qcoapconnection.h"
 
+#include <QTimer>
+
 QT_BEGIN_NAMESPACE
 
 class QCoapRequest;
@@ -33,9 +35,14 @@ public:
     bool isValid() const;
     bool cancelObserve() const;
     QCoapConnection* connection() const;
+    QTimer* timer() const;
+    uint retransmissionCounter() const;
     void setOperation(QCoapOperation operation);
     void setConnection(QCoapConnection* connection);
     void setCancelObserve(bool cancelObserve);
+
+    void setTimeout(uint timeout);
+    void retransmit();
 
     bool operator<(const QCoapInternalRequest& other) const;
 
@@ -53,6 +60,10 @@ public:
     bool isValid;
     bool cancelObserve;
     QByteArray fullPayload;
+
+    uint retransmissionCounter;
+    uint timeout;
+    QTimer* timer;
 };
 
 QT_END_NAMESPACE
