@@ -3,8 +3,9 @@
 
 #include "qcoapinternalmessage.h"
 #include "qcoapmessage_p.h"
+#include <private/qobject_p.h>
 
-class QCoapInternalMessagePrivate //: public QCoapMessagePrivate
+class QCoapInternalMessagePrivate : public QObjectPrivate //: public QCoapMessagePrivate
 {
 public:
     QCoapInternalMessagePrivate();

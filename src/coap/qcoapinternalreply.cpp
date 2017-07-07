@@ -14,13 +14,13 @@ QCoapInternalReplyPrivate::QCoapInternalReplyPrivate
 {
 }
 
-QCoapInternalReply::QCoapInternalReply() :
-    QCoapInternalMessage (*new QCoapInternalReplyPrivate)
+QCoapInternalReply::QCoapInternalReply(QObject* parent) :
+    QCoapInternalMessage (*new QCoapInternalReplyPrivate, parent)
 {
 }
 
-QCoapInternalReply::QCoapInternalReply(const QCoapInternalReply& other) :
-    QCoapInternalMessage(other)
+QCoapInternalReply::QCoapInternalReply(const QCoapInternalReply& other, QObject* parent) :
+    QCoapInternalMessage(other, parent)
 {
 }
 
@@ -102,7 +102,7 @@ void QCoapInternalReply::appendData(const QByteArray& data)
 
 void QCoapInternalReply::addOption(const QCoapOption& option)
 {
-    QCoapInternalMessagePrivate* d = d_func();
+    Q_D(QCoapInternalReply);
     // If it is a BLOCK option, we need to know the block number
     if (option.name() == QCoapOption::Block2Option) {
         quint32 blockNumber = 0;
@@ -143,9 +143,4 @@ int QCoapInternalReply::wantNextBlock()
 QCoapStatusCode QCoapInternalReply::statusCode() const
 {
     return d_func()->statusCode;
-}
-
-QCoapInternalReplyPrivate* QCoapInternalReply::d_func() const
-{
-    return static_cast<QCoapInternalReplyPrivate*>(d_ptr);
 }

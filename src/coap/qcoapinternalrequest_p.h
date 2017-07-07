@@ -15,13 +15,12 @@ class QCoapInternalRequestPrivate;
 class QCoapInternalRequest : public QCoapInternalMessage
 {
 public:
-    QCoapInternalRequest();
-    QCoapInternalRequest(const QCoapRequest& request);
+    QCoapInternalRequest(QObject* parent = Q_NULLPTR);
+    QCoapInternalRequest(const QCoapRequest& request, QObject* parent = Q_NULLPTR);
 
     static QCoapInternalRequest invalidRequest();
-    static QCoapInternalRequest fromQCoapRequest(const QCoapRequest& request);
-    static QCoapInternalRequest createAcknowledgment(quint16 messageId, const QByteArray& token);
-    static QCoapInternalRequest createReset(quint16 messageId);
+    void initForAcknowledgment(quint16 messageId, const QByteArray& token);
+    void initForReset(quint16 messageId);
 
     QByteArray toQByteArray() const;
     quint16 generateMessageId();
@@ -47,7 +46,8 @@ public:
     bool operator<(const QCoapInternalRequest& other) const;
 
 private:
-    QCoapInternalRequestPrivate* d_func() const;
+    Q_DECLARE_PRIVATE(QCoapInternalRequest)
+    //QCoapInternalRequestPrivate* d_func() const;
 };
 
 class QCoapInternalRequestPrivate : public QCoapInternalMessagePrivate

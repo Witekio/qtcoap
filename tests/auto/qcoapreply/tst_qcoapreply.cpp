@@ -144,8 +144,7 @@ void tst_QCoapReply::parseReplyPdu()
     QFETCH(QString, payload);
     QFETCH(QString, pduHexa);
 
-    QCoapInternalReply reply;
-    reply = QCoapInternalReply::fromQByteArray(QByteArray::fromHex(pduHexa.toUtf8()));
+    QCoapInternalReply reply = QCoapInternalReply::fromQByteArray(QByteArray::fromHex(pduHexa.toUtf8()));
 
     QCOMPARE(reply.message()->type(), type);
     QCOMPARE(reply.message()->tokenLength(), tokenLength);

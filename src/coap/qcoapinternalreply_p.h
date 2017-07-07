@@ -10,11 +10,13 @@ QT_BEGIN_NAMESPACE
 class QCoapInternalReplyPrivate;
 class QCoapInternalReply : public QCoapInternalMessage
 {
+    Q_OBJECT
 public:
-    QCoapInternalReply();
-    QCoapInternalReply(const QCoapInternalReply& other);
+    QCoapInternalReply(QObject* parent = Q_NULLPTR);
+    QCoapInternalReply(const QCoapInternalReply& other, QObject* parent = Q_NULLPTR);
 
     static QCoapInternalReply fromQByteArray(const QByteArray& reply);
+    //void initFromQByteArray(const QByteArray& reply);
     void appendData(const QByteArray& data);
     int wantNextBlock();
 
@@ -24,7 +26,7 @@ public:
     QCoapStatusCode statusCode() const;
 
 private:
-    QCoapInternalReplyPrivate* d_func() const;
+    Q_DECLARE_PRIVATE(QCoapInternalReply)
 };
 
 class QCoapInternalReplyPrivate : public QCoapInternalMessagePrivate

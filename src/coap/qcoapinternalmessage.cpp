@@ -13,6 +13,7 @@ QCoapInternalMessagePrivate::QCoapInternalMessagePrivate() :
 
 QCoapInternalMessagePrivate::QCoapInternalMessagePrivate
     (const QCoapInternalMessagePrivate& other) :
+    QObjectPrivate (other),
     message(new QCoapMessage(*(other.message))),
     currentBlockNumber(other.currentBlockNumber),
     hasNextBlock(other.hasNextBlock),
@@ -25,24 +26,26 @@ QCoapInternalMessagePrivate::~QCoapInternalMessagePrivate()
     delete message;
 }
 
-QCoapInternalMessage::QCoapInternalMessage() :
-    d_ptr(new QCoapInternalMessagePrivate)
+QCoapInternalMessage::QCoapInternalMessage(QObject* parent) :
+    QObject(* new QCoapInternalMessagePrivate, parent)
+    //d_ptr(new QCoapInternalMessagePrivate)
 {
 }
 
-QCoapInternalMessage::QCoapInternalMessage(QCoapMessage* message) :
-    QCoapInternalMessage()
+QCoapInternalMessage::QCoapInternalMessage(QCoapMessage* message, QObject* parent) :
+    QCoapInternalMessage(parent)
 {
-    d_ptr->message = message;
+    Q_D(QCoapInternalMessage);
+    d->message = message;
 }
 
-/*QCoapInternalMessage::QCoapInternalMessage(const QCoapInternalMessage& other) :
-    QCoapMessage(other)
+QCoapInternalMessage::QCoapInternalMessage(const QCoapInternalMessage& other, QObject* parent) :
+    QObject(* new QCoapInternalMessagePrivate(*other.d_func()), parent)
 {
-}*/
+}
 
-QCoapInternalMessage::QCoapInternalMessage(QCoapInternalMessagePrivate &dd):
-    d_ptr(&dd)
+QCoapInternalMessage::QCoapInternalMessage(QCoapInternalMessagePrivate &dd, QObject* parent):
+    QObject(dd, parent)
 {
 }
 
@@ -54,8 +57,7 @@ void QCoapInternalMessage::addOption(QCoapOption::QCoapOptionName name, const QB
 
 void QCoapInternalMessage::addOption(const QCoapOption& option)
 {
-    QCoapInternalMessagePrivate* d = d_func();
-
+    Q_D(QCoapInternalMessage);
     d->message->addOption(option);
 }
 
@@ -77,9 +79,4 @@ bool QCoapInternalMessage::hasNextBlock() const
 uint QCoapInternalMessage::blockSize() const
 {
     return d_func()->blockSize;
-}
-
-QCoapInternalMessagePrivate* QCoapInternalMessage::d_func() const
-{
-    return static_cast<QCoapInternalMessagePrivate*>(d_ptr);
 }
