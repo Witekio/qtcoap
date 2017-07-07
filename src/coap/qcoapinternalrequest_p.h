@@ -29,7 +29,7 @@ public:
     void setRequestToAskBlock(uint blockNumber, uint blockSize);
     void setRequestToSendBlock(uint blockNumber, uint blockSize);
 
-    using QCoapMessage::addOption;
+    using QCoapInternalMessage::addOption;
     void addOption(const QCoapOption& option);
 
     bool isValid() const;

@@ -30,6 +30,7 @@ public:
     quint16 messageId() const;
     QByteArray payload() const;
     QCoapOption option(int index) const;
+    QList<QCoapOption> optionList() const;
     int optionsLength() const;
     void setVersion(quint8 version);
     void setType(const QCoapMessageType& type);

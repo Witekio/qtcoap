@@ -122,6 +122,11 @@ QCoapOption QCoapMessage::option(int index) const
     return d_ptr->options.at(index);
 }
 
+QList<QCoapOption> QCoapMessage::optionList() const
+{
+    return d_ptr->options;
+}
+
 int QCoapMessage::optionsLength() const
 {
     return d_ptr->options.length();

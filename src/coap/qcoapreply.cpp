@@ -99,9 +99,10 @@ void QCoapReply::setIsRunning(bool isRunning)
 void QCoapReply::updateFromInternalReply(const QCoapInternalReply& internalReply)
 {
     qDebug() << "QCoapReply::updateFromInternalReply()";
-    d_func()->message.setPayload(internalReply.payload());
-    d_func()->message.setType(internalReply.type());
-    d_func()->message.setVersion(internalReply.version());
+    QCoapMessage* internalReplyMessage = internalReply.message();
+    d_func()->message.setPayload(internalReplyMessage->payload());
+    d_func()->message.setType(internalReplyMessage->type());
+    d_func()->message.setVersion(internalReplyMessage->version());
     d_func()->status = internalReply.statusCode();
     d_func()->isFinished = true;
     d_func()->isRunning = false;
@@ -109,7 +110,7 @@ void QCoapReply::updateFromInternalReply(const QCoapInternalReply& internalReply
     if (d_func()->status >= BadRequestCode)
         replyError(d_func()->status);
     if (d_func()->request.observe())
-        emit notified(internalReply.payload());
+        emit notified(internalReplyMessage->payload());
 
     emit finished();
 }

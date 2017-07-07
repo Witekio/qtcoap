@@ -396,7 +396,7 @@ void tst_QCoapClient::discover()
     QFETCH(int, resourceNumber);
 
     //QFAIL("Broken when protocol added");
-    for (int i = 0; i < 20; ++i) {
+    //for (int i = 0; i < 20; ++i) {
         QCoapClient client;
 
         QCoapDiscoveryReply* resourcesReply = client.discover(url); // /.well-known/core
@@ -404,7 +404,7 @@ void tst_QCoapClient::discover()
 
         QTRY_COMPARE_WITH_TIMEOUT(spyReplyFinished.count(), 1, 30000);
         QCOMPARE(resourcesReply->resourceList().length(), resourceNumber);
-    }
+    //}
 }
 
 void tst_QCoapClient::observe_data()

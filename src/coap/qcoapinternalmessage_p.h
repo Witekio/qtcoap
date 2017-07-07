@@ -4,11 +4,14 @@
 #include "qcoapinternalmessage.h"
 #include "qcoapmessage_p.h"
 
-class QCoapInternalMessagePrivate : public QCoapMessagePrivate
+class QCoapInternalMessagePrivate //: public QCoapMessagePrivate
 {
 public:
     QCoapInternalMessagePrivate();
     QCoapInternalMessagePrivate(const QCoapInternalMessagePrivate& other);
+    ~QCoapInternalMessagePrivate();
+
+    QCoapMessage* message;
 
     uint currentBlockNumber;
     bool hasNextBlock;

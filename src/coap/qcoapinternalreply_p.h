@@ -18,7 +18,7 @@ public:
     void appendData(const QByteArray& data);
     int wantNextBlock();
 
-    using QCoapMessage::addOption;
+    using QCoapInternalMessage::addOption;
     void addOption(const QCoapOption& option);
 
     QCoapStatusCode statusCode() const;
