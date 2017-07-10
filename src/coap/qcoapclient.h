@@ -17,7 +17,6 @@ class QCoapClientPrivate;
 class QCoapClient : public QObject
 {
     Q_OBJECT
-
 public:
     QCoapClient(QObject* parent = nullptr);
     ~QCoapClient();

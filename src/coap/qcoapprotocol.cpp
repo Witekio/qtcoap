@@ -63,6 +63,8 @@ void QCoapProtocol::sendRequest(QCoapReply* reply, QCoapConnection* connection)
         return;
 
     QCoapInternalRequest* copyInternalRequest = new QCoapInternalRequest(reply->request());
+    copyInternalRequest->moveToThread(this->thread()); // put "this" as parent does not work
+    qDebug() << copyInternalRequest->thread() << " " << this->thread();
     if (copyInternalRequest->message().messageId() == 0) {
         do {
             copyInternalRequest->generateMessageId();
@@ -189,6 +191,8 @@ void QCoapProtocolPrivate::handleFrame(const QByteArray& frame)
             return;
         }
     }
+
+    qDebug() << "request : " << request->thread() << " reply " << internalReply->thread();
 
     internalReplies[request].replies.push_back(internalReply);
 

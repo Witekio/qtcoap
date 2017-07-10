@@ -180,6 +180,8 @@ QCoapReply* QCoapClient::sendRequest(const QCoapRequest& request)
     QCoapReply* reply = new QCoapReply(this);
     reply->setRequest(request);
 
+    //qDebug() << "client : " << this->thread() << " protocol :" << d->protocol->thread();
+
     d->protocol->sendRequest(reply, connection);
 
     //connect(reply, SIGNAL(finished()), workerThread, SLOT(quit()));

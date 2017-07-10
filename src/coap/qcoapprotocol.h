@@ -32,6 +32,7 @@ public:
     static QList<QCoapResource> resourcesFromCoreLinkList(const QByteArray& data);
 
 public slots:
+    //void requestReceived(QCoapReply*, QCoapConnection* connection)
     void messageReceived(const QByteArray& frameReply);
     void abortRequest(QCoapReply* reply);
 
