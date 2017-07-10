@@ -26,6 +26,8 @@ private slots:
     void operations();
     void separateOperation_data();
     void separateOperation();
+    // TODO : void retransmission(); HOW ?
+    // TODO : void timeout();
     void removeReply_data();
     void removeReply();
     void requestWithQIODevice_data();
@@ -122,7 +124,7 @@ void tst_QCoapClient::separateOperation()
 {
     QFETCH(QUrl, url);
 
-    //QFAIL("Uncomment the QFAIL");
+    //QFAIL("Comment the QFAIL");
 
     QCoapClient client;
     QCoapRequest request(url);
@@ -140,6 +142,13 @@ void tst_QCoapClient::separateOperation()
 
     delete reply;
 }
+
+/*void tst_QCoapClient::timeout_data()
+{
+    QTest::addColumn<QUrl>("url");
+
+    QTest::newRow("get") << QUrl("coap://172.17.0.3:5683/timeout");
+}*/
 
 void tst_QCoapClient::removeReply_data()
 {
@@ -429,7 +438,6 @@ void tst_QCoapClient::observe_data()
                                          << QCoapMessage::NonConfirmableMessage;
     QTest::newRow("observe_pumping_confirmable") << QUrl("coap://172.17.0.3:5683/obs-pumping")
                                          << QCoapMessage::ConfirmableMessage;
-
 }
 
 void tst_QCoapClient::observe()

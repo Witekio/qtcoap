@@ -1,7 +1,8 @@
 #include "qcoapinternalrequest_p.h"
 #include "qcoaprequest.h"
-
 #include <QtMath>
+
+QT_BEGIN_NAMESPACE
 
 QCoapInternalRequestPrivate::QCoapInternalRequestPrivate() :
     operation(EmptyOperation),
@@ -9,15 +10,16 @@ QCoapInternalRequestPrivate::QCoapInternalRequestPrivate() :
     cancelObserve(false),
     retransmissionCounter(0),
     timeout(0),
-    timer(new QTimer)
+    timer(nullptr)
 {
 }
 
 QCoapInternalRequest::QCoapInternalRequest(QObject* parent) :
     QCoapInternalMessage(*new QCoapInternalRequestPrivate, parent)
 {
-    // TODO ? Transform into QObject
-    // connect(d_func()->timer, SIGNAL(timeout()), this, SLOT(_q_timeout))
+    Q_D(QCoapInternalRequest);
+    d->timer = new QTimer(this);
+    connect(d->timer, SIGNAL(timeout()), this, SLOT(_q_timeout()));
 }
 
 QCoapInternalRequest::QCoapInternalRequest(const QCoapRequest& request, QObject* parent) :
@@ -226,7 +228,7 @@ QByteArray QCoapInternalRequest::generateToken()
 
 void QCoapInternalRequest::addOption(const QCoapOption& option)
 {
-    QCoapInternalRequestPrivate* d = d_func();
+    Q_D(QCoapInternalRequest);
     // If it is a BLOCK option, we need to know the block number
     if (option.name() == QCoapOption::Block1Option) {
         quint32 blockNumber = 0;
@@ -242,15 +244,30 @@ void QCoapInternalRequest::addOption(const QCoapOption& option)
     d->message.addOption(option);
 }
 
-void QCoapInternalRequest::retransmit()
+void QCoapInternalRequest::beginTransmission()
 {
-    QCoapInternalRequestPrivate* d = d_func();
-    if (d->timeout <= 0)
-        return;
+    Q_D(QCoapInternalRequest);
+
+    if (d->retransmissionCounter > 0)
+        d->timeout *= 2;
 
     d->retransmissionCounter++;
-    d->timeout *= 2;
-    d->timer->start(static_cast<int>(d->timeout));
+    if (d->timeout > 0) // Start timer
+        d->timer->start(d->timeout);
+}
+
+void QCoapInternalRequest::stopTransmission()
+{
+    Q_D(QCoapInternalRequest);
+    d->retransmissionCounter = 0;
+    d->timer->stop();
+}
+
+void QCoapInternalRequestPrivate::_q_timeout()
+{
+    Q_Q(QCoapInternalRequest);
+    qDebug() << "TIMEOUT !!!";
+    emit q->timeout(q);
 }
 
 bool QCoapInternalRequest::isValid() const
@@ -310,7 +327,7 @@ void QCoapInternalRequest::setCancelObserve(bool cancelObserve)
     d->cancelObserve = cancelObserve;
 }
 
-void QCoapInternalRequest::setTimeout(uint timeout)
+void QCoapInternalRequest::setTimeout(int timeout)
 {
     Q_D(QCoapInternalRequest);
     d->timeout = timeout;
@@ -326,6 +343,10 @@ bool QCoapInternalRequest::operator<(const QCoapInternalRequest& other) const
 
 /*void QCoapInternalRequestPrivate::_q_timeout()
 {
-    Q_Q(QCoapInternalRequest)
+    Q_Q(QCoapInternalRequest);
     emit q->timeout(this);
 }*/
+
+QT_END_NAMESPACE
+
+#include "moc_qcoapinternalrequest_p.cpp"

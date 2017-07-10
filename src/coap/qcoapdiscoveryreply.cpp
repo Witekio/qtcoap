@@ -1,6 +1,8 @@
 #include "qcoapdiscoveryreply.h"
 #include "qcoapdiscoveryreply_p.h"
 
+QT_BEGIN_NAMESPACE
+
 QCoapDiscoveryReply::QCoapDiscoveryReply(QObject *parent) :
     QCoapReply (* new QCoapDiscoveryReplyPrivate, parent)
 {
@@ -30,3 +32,5 @@ void QCoapDiscoveryReply::updateFromInternalReply(const QCoapInternalReply& inte
 
     emit finished();
 }
+
+QT_END_NAMESPACE

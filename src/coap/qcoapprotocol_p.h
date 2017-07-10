@@ -9,17 +9,11 @@
 
 QT_BEGIN_NAMESPACE
 
-//struct InternalMessagePair {
-//    QCoapInternalRequest request;
-//    QList<QCoapInternalReply> replies;
-//};
-
 struct InternalMessagePair {
     QCoapReply* userReply;
     QList<QCoapInternalReply*> replies;
 };
 
-//typedef QMap<QCoapReply*, InternalMessagePair> InternalMessageMap;
 typedef QMap<QCoapInternalRequest*, InternalMessagePair> InternalMessageMap;
 
 class QCoapProtocolPrivate : public QObjectPrivate
@@ -47,6 +41,7 @@ public:
 
     void setState(ProtocolState newState);
     void sendRequest(QCoapInternalRequest* request);
+    void resendRequest(QCoapInternalRequest* request);
     bool containsMessageId(quint16 id);
     bool containsToken(const QByteArray& token);
     //QCoapReply* findReplyByToken(const QByteArray& token);

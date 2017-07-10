@@ -32,12 +32,13 @@ public:
     static QList<QCoapResource> resourcesFromCoreLinkList(const QByteArray& data);
 
 public slots:
-    //void requestReceived(QCoapReply*, QCoapConnection* connection)
     void messageReceived(const QByteArray& frameReply);
     void abortRequest(QCoapReply* reply);
 
 private:
     Q_DECLARE_PRIVATE(QCoapProtocol)
+    Q_PRIVATE_SLOT(d_func(), void resendRequest(QCoapInternalRequest*))
+    Q_PRIVATE_SLOT(d_func(), void sendRequest(QCoapInternalRequest*))
 };
 
 QT_END_NAMESPACE

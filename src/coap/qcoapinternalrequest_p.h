@@ -6,6 +6,7 @@
 #include "qcoapinternalmessage_p.h"
 #include "qcoapconnection.h"
 
+#include <QtCore/qglobal.h>
 #include <QTimer>
 
 QT_BEGIN_NAMESPACE
@@ -14,6 +15,7 @@ class QCoapRequest;
 class QCoapInternalRequestPrivate;
 class QCoapInternalRequest : public QCoapInternalMessage
 {
+    Q_OBJECT
 public:
     QCoapInternalRequest(QObject* parent = Q_NULLPTR);
     QCoapInternalRequest(const QCoapRequest& request, QObject* parent = Q_NULLPTR);
@@ -41,14 +43,18 @@ public:
     void setConnection(QCoapConnection* connection);
     void setCancelObserve(bool cancelObserve);
 
-    void setTimeout(uint timeout);
-    void retransmit();
+    void setTimeout(int timeout);
+    void beginTransmission();
+    void stopTransmission();
 
     bool operator<(const QCoapInternalRequest& other) const;
 
+signals:
+    void timeout(QCoapInternalRequest*);
+
 private:
     Q_DECLARE_PRIVATE(QCoapInternalRequest)
-    //QCoapInternalRequestPrivate* d_func() const;
+    Q_PRIVATE_SLOT(d_func(), void _q_timeout())
 };
 
 class QCoapInternalRequestPrivate : public QCoapInternalMessagePrivate
@@ -63,8 +69,12 @@ public:
     QByteArray fullPayload;
 
     uint retransmissionCounter;
-    uint timeout;
+    int timeout;
     QTimer* timer;
+
+    void _q_timeout();
+
+    Q_DECLARE_PUBLIC(QCoapInternalRequest)
 };
 
 QT_END_NAMESPACE

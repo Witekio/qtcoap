@@ -2,6 +2,8 @@
 #include <QtMath>
 #include <QDebug>
 
+QT_BEGIN_NAMESPACE
+
 QCoapInternalReplyPrivate::QCoapInternalReplyPrivate():
     statusCode(InvalidCode)
 {
@@ -146,3 +148,5 @@ QCoapStatusCode QCoapInternalReply::statusCode() const
 {
     return d_func()->statusCode;
 }
+
+QT_END_NAMESPACE

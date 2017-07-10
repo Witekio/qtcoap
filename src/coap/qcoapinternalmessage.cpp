@@ -2,6 +2,8 @@
 #include "qcoapinternalmessage_p.h"
 #include <QtMath>
 
+QT_BEGIN_NAMESPACE
+
 // TODO : remove pointer for message ?
 QCoapInternalMessagePrivate::QCoapInternalMessagePrivate() :
     currentBlockNumber(0),
@@ -84,3 +86,5 @@ uint QCoapInternalMessage::blockSize() const
 {
     return d_func()->blockSize;
 }
+
+QT_END_NAMESPACE

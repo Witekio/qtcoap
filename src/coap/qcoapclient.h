@@ -33,6 +33,8 @@ public:
 
     QCoapDiscoveryReply* discover(const QUrl& url, const QString& discoveryPath = "/.well-known/core");
 
+    QCoapProtocol* protocol() const;
+    QList<QCoapConnection*> connectionList() const;
     void setBlockSize(quint16 blockSize);
     void setProtocol(QCoapProtocol* protocol);
 

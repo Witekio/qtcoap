@@ -180,7 +180,7 @@ QCoapReply* QCoapClient::sendRequest(const QCoapRequest& request)
     QCoapReply* reply = new QCoapReply(this);
     reply->setRequest(request);
 
-    //qDebug() << "client : " << this->thread() << " protocol :" << d->protocol->thread();
+    qDebug() << "client : " << this->thread() << " protocol :" << d->protocol->thread();
 
     d->protocol->sendRequest(reply, connection);
 
@@ -221,6 +221,16 @@ QCoapConnection* QCoapClient::addConnection(const QString& host, quint16 port)
     connection->moveToThread(d->workerThread);
 
     return connection;
+}
+
+QCoapProtocol* QCoapClient::protocol() const
+{
+    return d_func()->protocol;
+}
+
+QList<QCoapConnection*> QCoapClient::connectionList() const
+{
+    return d_func()->connections;
 }
 
 void QCoapClient::setBlockSize(quint16 blockSize)

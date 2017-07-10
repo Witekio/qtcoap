@@ -1,6 +1,8 @@
 #include "qcoapprotocol.h"
 #include "qcoapprotocol_p.h"
 
+QT_BEGIN_NAMESPACE
+
 QCoapProtocolPrivate::QCoapProtocolPrivate() :
     state(WAITING),
     blockSize(0),
@@ -19,7 +21,6 @@ QCoapProtocol::QCoapProtocol(QObject *parent) :
 {
     Q_D(QCoapProtocol);
 
-    // TODO : find a way to secure from deleting the reply
     connect(reply, SIGNAL(abortRequest(QCoapReply*)), this, SLOT(abortRequest(QCoapReply*)), Qt::QueuedConnection);
 
     if(!reply)
@@ -94,18 +95,24 @@ void QCoapProtocol::sendRequest(QCoapReply* reply, QCoapConnection* connection)
     }
 
     reply->setIsRunning(true);
-    copyInternalRequest->retransmit();
     copyInternalRequest->setTimeout(d->ackTimeout);
     // TODO : something like this but we need the request to resend
-    // connect(copyInternalRequest.timer(), SIGNAL(timeout(QCoapInternalRequest*)),
-    //         this, SLOT(resend(QCoapInternalRequest*)));
-    d->sendRequest(copyInternalRequest);
+    connect(copyInternalRequest, SIGNAL(timeout(QCoapInternalRequest*)),
+            this, SLOT(resendRequest(QCoapInternalRequest*)));
+
+    // Invoke to change current thread
+    qRegisterMetaType<QCoapInternalRequest*>("QCoapInternalRequest*");
+    QMetaObject::invokeMethod(this, "sendRequest", Q_ARG(QCoapInternalRequest*, copyInternalRequest));
 }
 
 void QCoapProtocolPrivate::sendRequest(QCoapInternalRequest* request)
 {
+    /*qDebug() << request->thread()
+             << request->timer()->thread()
+             << QThread::currentThread()
+             << q_ptr->thread();*/
+    request->beginTransmission();
     QByteArray requestFrame = encode(request);
-    qDebug() << "QCoapProtocol::sendRequest() - " << requestFrame;
     request->connection()->sendRequest(requestFrame);
 }
 
@@ -124,16 +131,15 @@ void QCoapProtocolPrivate::handleFrame()
     handleFrame(frameQueue.head());
 }
 
-/*void QCoapProtocolPrivate::resend(QCoapInternalRequest*)
+void QCoapProtocolPrivate::resendRequest(QCoapInternalRequest* request)
 {
     // In case of retransmission, check if it is not the last try
-    if (copyRequest.retransmissionCounter() < maxRetransmit) {
-        copyRequest.retransmit();
-        copyRequest.connection()->sendRequest(requestFrame);
+    if (request->retransmissionCounter() < maxRetransmit) {
+        sendRequest(request);
     }
     // TODO : else abort and send timeout error
     //connect request timeout to protocol slot resend
-}*/
+}
 
 /*void QCoapProtocolPrivate::handleFrame(const QByteArray& frame)
 {
@@ -192,8 +198,7 @@ void QCoapProtocolPrivate::handleFrame(const QByteArray& frame)
         }
     }
 
-    qDebug() << "request : " << request->thread() << " reply " << internalReply->thread();
-
+    request->stopTransmission();
     internalReplies[request].replies.push_back(internalReply);
 
     // Reply when the server ask an ACK
@@ -201,14 +206,13 @@ void QCoapProtocolPrivate::handleFrame(const QByteArray& frame)
         // Remove option to ensure that it will stop
         request->removeOptionByName(QCoapOption::ObserveOption);
         sendReset(request);
-    }
-    else if (internalReplyMessage.type() == QCoapMessage::ConfirmableMessage)
+    } else if (internalReplyMessage.type() == QCoapMessage::ConfirmableMessage)
         sendAcknowledgment(request);
 
     // Check if it is a blockwise request
     int nextBlockWanted = internalReply->wantNextBlock();
 
-    // Ask next block or process the final reply
+    // Ask/Send next block or process the final reply
     if (internalReply->hasNextBlock()) {
         onNextBlock(request, internalReply->currentBlockNumber(), internalReply->blockSize());
     } else if (nextBlockWanted >= 0) {
@@ -612,3 +616,7 @@ void QCoapProtocolPrivate::setState(ProtocolState newState)
 {
     state = newState;
 }
+
+QT_END_NAMESPACE
+
+#include "moc_qcoapprotocol.cpp"
