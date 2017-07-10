@@ -22,6 +22,8 @@ QCoapInternalReply::QCoapInternalReply(QObject* parent) :
 QCoapInternalReply::QCoapInternalReply(const QCoapInternalReply& other, QObject* parent) :
     QCoapInternalMessage(other, parent)
 {
+    Q_D(QCoapInternalReply);
+    d->statusCode = other.statusCode();
 }
 
 QCoapInternalReply QCoapInternalReply::fromQByteArray(const QByteArray& reply)
@@ -32,13 +34,13 @@ QCoapInternalReply QCoapInternalReply::fromQByteArray(const QByteArray& reply)
     quint8 *pduData = reinterpret_cast<quint8 *>(const_cast<char *>(reply.data()));
 
     // Parse Header and Token
-    d->message->setVersion((pduData[0] >> 6) & 0x03);
-    d->message->setType(QCoapMessage::QCoapMessageType((pduData[0] >> 4) & 0x03));
+    d->message.setVersion((pduData[0] >> 6) & 0x03);
+    d->message.setType(QCoapMessage::QCoapMessageType((pduData[0] >> 4) & 0x03));
     quint8 tokenLength = (pduData[0]) & 0x0F;
     d->statusCode = static_cast<QCoapStatusCode>(pduData[1]);
-    d->message->setMessageId(static_cast<quint16>((static_cast<quint16>(pduData[2]) << 8)
+    d->message.setMessageId(static_cast<quint16>((static_cast<quint16>(pduData[2]) << 8)
                                          | static_cast<quint16>(pduData[3])));
-    d->message->setToken(QByteArray(reinterpret_cast<char *>(pduData + 4), tokenLength));
+    d->message.setToken(QByteArray(reinterpret_cast<char *>(pduData + 4), tokenLength));
 
     // Parse Options
     int i = 4 + tokenLength;
@@ -84,12 +86,12 @@ QCoapInternalReply QCoapInternalReply::fromQByteArray(const QByteArray& reply)
         i += (1 + optionLength);
     }
 
-    qDebug() << "options length : " << internalReply.message()->optionsLength();
+    qDebug() << "options length : " << internalReply.message().optionsLength();
 
     // Parse Payload
     if (static_cast<quint8>(pduData[i]) == 0xFF) {
         QByteArray currentPayload = reply.right(reply.length() - i - 1); // -1 because of 0xFF at the beginning
-        d->message->setPayload(d->message->payload().append(currentPayload));
+        d->message.setPayload(d->message.payload().append(currentPayload));
     }
 
     return internalReply;
@@ -97,7 +99,7 @@ QCoapInternalReply QCoapInternalReply::fromQByteArray(const QByteArray& reply)
 
 void QCoapInternalReply::appendData(const QByteArray& data)
 {
-    d_func()->message->setPayload(d_func()->message->payload().append(data));
+    d_func()->message.setPayload(d_func()->message.payload().append(data));
 }
 
 void QCoapInternalReply::addOption(const QCoapOption& option)
@@ -115,12 +117,12 @@ void QCoapInternalReply::addOption(const QCoapOption& option)
         d->blockSize = qPow(2, (optionData[option.length()-1] & 0x7) + 4);
     }
 
-    d->message->addOption(option);
+    d->message.addOption(option);
 }
 
 int QCoapInternalReply::wantNextBlock()
 {
-    QCoapOption option = d_func()->message->findOptionByName(QCoapOption::Block1Option);
+    QCoapOption option = d_func()->message.findOptionByName(QCoapOption::Block1Option);
     if (option.name() != QCoapOption::InvalidOption) {
         quint8 *optionData = reinterpret_cast<quint8 *>(option.value().data());
 

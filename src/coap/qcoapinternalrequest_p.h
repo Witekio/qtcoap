@@ -32,6 +32,7 @@ public:
     void addOption(const QCoapOption& option);
 
     bool isValid() const;
+    QCoapOperation operation() const;
     bool cancelObserve() const;
     QCoapConnection* connection() const;
     QTimer* timer() const;

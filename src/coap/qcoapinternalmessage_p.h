@@ -12,7 +12,7 @@ public:
     QCoapInternalMessagePrivate(const QCoapInternalMessagePrivate& other);
     ~QCoapInternalMessagePrivate();
 
-    QCoapMessage* message;
+    QCoapMessage message;
 
     uint currentBlockNumber;
     bool hasNextBlock;

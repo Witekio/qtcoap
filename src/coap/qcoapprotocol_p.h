@@ -42,7 +42,7 @@ public:
     void sendAcknowledgment(QCoapInternalRequest* request);
     //void sendReset(QCoapReply* reply);
     void sendReset(QCoapInternalRequest* request);
-    QByteArray encode(const QCoapInternalRequest& request);
+    QByteArray encode(QCoapInternalRequest* request);
     QCoapInternalReply* decode(const QByteArray& message);
 
     void setState(ProtocolState newState);

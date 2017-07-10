@@ -4,7 +4,6 @@
 
 // TODO : remove pointer for message ?
 QCoapInternalMessagePrivate::QCoapInternalMessagePrivate() :
-    message(new QCoapMessage),
     currentBlockNumber(0),
     hasNextBlock(false),
     blockSize(0)
@@ -14,7 +13,7 @@ QCoapInternalMessagePrivate::QCoapInternalMessagePrivate() :
 QCoapInternalMessagePrivate::QCoapInternalMessagePrivate
     (const QCoapInternalMessagePrivate& other) :
     QObjectPrivate (other),
-    message(new QCoapMessage(*(other.message))),
+    message(other.message),
     currentBlockNumber(other.currentBlockNumber),
     hasNextBlock(other.hasNextBlock),
     blockSize(other.blockSize)
@@ -23,7 +22,6 @@ QCoapInternalMessagePrivate::QCoapInternalMessagePrivate
 
 QCoapInternalMessagePrivate::~QCoapInternalMessagePrivate()
 {
-    delete message;
 }
 
 QCoapInternalMessage::QCoapInternalMessage(QObject* parent) :
@@ -32,7 +30,7 @@ QCoapInternalMessage::QCoapInternalMessage(QObject* parent) :
 {
 }
 
-QCoapInternalMessage::QCoapInternalMessage(QCoapMessage* message, QObject* parent) :
+QCoapInternalMessage::QCoapInternalMessage(const QCoapMessage& message, QObject* parent) :
     QCoapInternalMessage(parent)
 {
     Q_D(QCoapInternalMessage);
@@ -58,10 +56,16 @@ void QCoapInternalMessage::addOption(QCoapOption::QCoapOptionName name, const QB
 void QCoapInternalMessage::addOption(const QCoapOption& option)
 {
     Q_D(QCoapInternalMessage);
-    d->message->addOption(option);
+    d->message.addOption(option);
 }
 
-QCoapMessage* QCoapInternalMessage::message() const
+void QCoapInternalMessage::removeOptionByName(QCoapOption::QCoapOptionName name)
+{
+    Q_D(QCoapInternalMessage);
+    d->message.removeOptionByName(name);
+}
+
+QCoapMessage QCoapInternalMessage::message() const
 {
     return d_func()->message;
 }

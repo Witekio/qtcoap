@@ -16,17 +16,17 @@ void QCoapDiscoveryReply::updateFromInternalReply(const QCoapInternalReply& inte
 {
     Q_D(QCoapDiscoveryReply);
 
-    QCoapMessage* internalReplyMessage = internalReply.message();
+    QCoapMessage internalReplyMessage = internalReply.message();
 
-    d_func()->message.setPayload(internalReplyMessage->payload());
-    d_func()->message.setType(internalReplyMessage->type());
-    d_func()->message.setVersion(internalReplyMessage->version());
+    d_func()->message.setPayload(internalReplyMessage.payload());
+    d_func()->message.setType(internalReplyMessage.type());
+    d_func()->message.setVersion(internalReplyMessage.version());
     d_func()->status = internalReply.statusCode();
 
     d_func()->isFinished = true;
     d_func()->isRunning = false;
 
-    d->resources = QCoapProtocol::resourcesFromCoreLinkList(internalReplyMessage->payload());
+    d->resources = QCoapProtocol::resourcesFromCoreLinkList(internalReplyMessage.payload());
 
     emit finished();
 }

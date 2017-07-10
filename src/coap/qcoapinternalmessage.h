@@ -12,14 +12,15 @@ class QCoapInternalMessage : public QObject //: public QCoapMessage
     Q_OBJECT
 public:
     QCoapInternalMessage(QObject* parent = Q_NULLPTR);
-    QCoapInternalMessage(QCoapMessage* message, QObject* parent = Q_NULLPTR);
+    QCoapInternalMessage(const QCoapMessage& message, QObject* parent = Q_NULLPTR);
     QCoapInternalMessage(const QCoapInternalMessage& other, QObject* parent = Q_NULLPTR);
     virtual ~QCoapInternalMessage() {}
 
     void addOption(QCoapOption::QCoapOptionName name, const QByteArray& value);
     virtual void addOption(const QCoapOption& option);
+    void removeOptionByName(QCoapOption::QCoapOptionName name);
 
-    QCoapMessage* message() const;
+    QCoapMessage message() const;
     uint currentBlockNumber() const;
     bool hasNextBlock() const;
     uint blockSize() const;

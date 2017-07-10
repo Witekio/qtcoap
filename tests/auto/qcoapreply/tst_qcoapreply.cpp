@@ -146,19 +146,19 @@ void tst_QCoapReply::parseReplyPdu()
 
     QCoapInternalReply reply = QCoapInternalReply::fromQByteArray(QByteArray::fromHex(pduHexa.toUtf8()));
 
-    QCOMPARE(reply.message()->type(), type);
-    QCOMPARE(reply.message()->tokenLength(), tokenLength);
+    QCOMPARE(reply.message().type(), type);
+    QCOMPARE(reply.message().tokenLength(), tokenLength);
     QCOMPARE(reply.statusCode(), statusCode);
-    QCOMPARE(reply.message()->messageId(), messageId);
-    QCOMPARE(reply.message()->token().toHex(), token);
-    QCOMPARE(reply.message()->optionsLength(), optionsListLength);
+    QCOMPARE(reply.message().messageId(), messageId);
+    QCOMPARE(reply.message().token().toHex(), token);
+    QCOMPARE(reply.message().optionsLength(), optionsListLength);
     for (int i = 0; i < optionsListLength; ++i) {
-        QCoapOption option = reply.message()->option(i);
+        QCoapOption option = reply.message().option(i);
         QCOMPARE(option.name(), optionsNames.at(i));
         QCOMPARE(option.length(), optionsLengths.at(i));
         QCOMPARE(option.value(), optionsValues.at(i));
     }
-    QCOMPARE(reply.message()->payload(), payload);
+    QCOMPARE(reply.message().payload(), payload);
 }
 
 class QCoapReplyForTests : public QCoapReply
@@ -182,7 +182,7 @@ void tst_QCoapReply::updateReply()
 
     QCoapReplyForTests* reply = new QCoapReplyForTests();
     QCoapInternalReply internalReply;
-    internalReply.message()->setPayload(data.toUtf8());
+    internalReply.message().setPayload(data.toUtf8());
     QSignalSpy spyReplyFinished(reply, SIGNAL(finished()));
 
     reply->updateFromInternalReplyForTests(internalReply);

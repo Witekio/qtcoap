@@ -54,7 +54,6 @@ QCoapProtocol::QCoapProtocol(QObject *parent) :
 void QCoapProtocol::sendRequest(QCoapReply* reply, QCoapConnection* connection)
 {
     Q_D(QCoapProtocol);
-    qDebug() << "QCoapProtocol::sendRequest()";
 
     // TODO : find a way to secure from deleting the reply
     connect(reply, SIGNAL(abortRequest(QCoapReply*)), this, SLOT(abortRequest(QCoapReply*)), Qt::QueuedConnection);
@@ -64,32 +63,31 @@ void QCoapProtocol::sendRequest(QCoapReply* reply, QCoapConnection* connection)
         return;
 
     QCoapInternalRequest* copyInternalRequest = new QCoapInternalRequest(reply->request());
-
-    if (copyInternalRequest->message()->messageId() == 0) {
+    if (copyInternalRequest->message().messageId() == 0) {
         do {
             copyInternalRequest->generateMessageId();
-        } while (d->containsMessageId(copyInternalRequest->message()->messageId()));
+        } while (d->containsMessageId(copyInternalRequest->message().messageId()));
     }
-    if (copyInternalRequest->message()->token().isEmpty()) {
+    if (copyInternalRequest->message().token().isEmpty()) {
         do {
             copyInternalRequest->generateToken();
-        } while (d->containsToken(copyInternalRequest->message()->token()));
+        } while (d->containsToken(copyInternalRequest->message().token()));
     }
 
     copyInternalRequest->setConnection(connection);
 
     // If this request does not already exist we add it to the map
-    if (!d->findRequestByToken(copyInternalRequest->message()->token())) {
+    if (!d->findRequestByToken(copyInternalRequest->message().token())) {
             InternalMessagePair pair = { reply, QList<QCoapInternalReply*>() };
             d->internalReplies[copyInternalRequest] = pair;
     }
 
     // If the user specified a size for blockwise request/replies
-    qDebug() << "payload length : " << copyInternalRequest->message()->payload().length()
-             << " - blockSize : " << d->blockSize;
+    //qDebug() << "payload length : " << copyInternalRequest->message()->payload().length()
+    //         << " - blockSize : " << d->blockSize;
     if (d->blockSize > 0) {
         copyInternalRequest->setRequestToAskBlock(0, d->blockSize);
-        if (copyInternalRequest->message()->payload().length() > d->blockSize)
+        if (copyInternalRequest->message().payload().length() > d->blockSize)
             copyInternalRequest->setRequestToSendBlock(0, d->blockSize);
     }
 
@@ -105,6 +103,7 @@ void QCoapProtocol::sendRequest(QCoapReply* reply, QCoapConnection* connection)
 void QCoapProtocolPrivate::sendRequest(QCoapInternalRequest* request)
 {
     QByteArray requestFrame = encode(request);
+    qDebug() << "QCoapProtocol::sendRequest() - " << requestFrame;
     request->connection()->sendRequest(requestFrame);
 }
 
@@ -175,16 +174,16 @@ void QCoapProtocolPrivate::handleFrame(const QByteArray& frame)
     qDebug() << "QCoapProtocol::handleFrame()";
     QCoapInternalReply* internalReply = decode(frame);
     QCoapInternalRequest* request = nullptr;
-    QCoapMessage* internalReplyMessage = internalReply->message();
+    QCoapMessage internalReplyMessage = internalReply->message();
 
     /*qDebug() << "MID : " << internalReply.messageId()
              << " - Token : " << internalReply.token();*/
 
-    if (!internalReplyMessage->token().isEmpty())
-        request = findRequestByToken(internalReplyMessage->token());
+    if (!internalReplyMessage.token().isEmpty())
+        request = findRequestByToken(internalReplyMessage.token());
 
     if (!request) {
-        request = findRequestByMessageId(internalReplyMessage->messageId());
+        request = findRequestByMessageId(internalReplyMessage.messageId());
         if (!request) {
             qDebug() << "No request found (handleFrame)";
             return;
@@ -196,10 +195,10 @@ void QCoapProtocolPrivate::handleFrame(const QByteArray& frame)
     // Reply when the server ask an ACK
     if (request->cancelObserve()) {
         // Remove option to ensure that it will stop
-        request->message()->removeOptionByName(QCoapOption::ObserveOption);
+        request->removeOptionByName(QCoapOption::ObserveOption);
         sendReset(request);
     }
-    else if (internalReplyMessage->type() == QCoapMessage::ConfirmableMessage)
+    else if (internalReplyMessage.type() == QCoapMessage::ConfirmableMessage)
         sendAcknowledgment(request);
 
     // Check if it is a blockwise request
@@ -240,7 +239,7 @@ QCoapInternalRequest* QCoapProtocolPrivate::findRequestByToken(const QByteArray&
 
     for (InternalMessageMap::iterator it = internalReplies.begin();
          it != internalReplies.end(); ++it) {
-        if (it.key()->message()->token() == token)
+        if (it.key()->message().token() == token)
             return const_cast<QCoapInternalRequest*>(it.key()); // key is the internal request
     }
 
@@ -265,7 +264,7 @@ QCoapInternalRequest* QCoapProtocolPrivate::findRequestByMessageId(quint16 messa
     }*/
     for (InternalMessageMap::iterator it = internalReplies.begin();
          it != internalReplies.end(); ++it) {
-        if (it.key()->message()->messageId() == messageId)
+        if (it.key()->message().messageId() == messageId)
             return const_cast<QCoapInternalRequest*>(it.key()); // key is the internal request
     }
 
@@ -329,27 +328,30 @@ void QCoapProtocolPrivate::onLastBlock(QCoapInternalRequest* request)
         return;
 
     QCoapInternalReply* finalReply(replies.last());
-    if (finalReply->message()->type() == QCoapMessage::AcknowledgmentMessage
+    if (finalReply->message().type() == QCoapMessage::AcknowledgmentMessage
             && finalReply->statusCode() == InvalidCode)
         return;
 
     // If multiple blocks : append data from all blocks to the final reply
     if (replies.size() > 1) {
-        qSort(std::begin(replies), std::end(replies),
-              [](const QCoapInternalReply& a, const QCoapInternalReply& b) -> bool {
-            return (a.currentBlockNumber() < b.currentBlockNumber());
+        qStableSort(std::begin(replies), std::end(replies),
+              [](QCoapInternalReply* a, QCoapInternalReply* b) -> bool {
+            return (a->currentBlockNumber() < b->currentBlockNumber());
         });
 
         QByteArray finalPayload;
+        int lastBlockNumber = -1;
         for (QCoapInternalReply* reply : replies) {
-            QByteArray replyPayload = reply->message()->payload();
-            if (replyPayload.isEmpty())
+            int currentBlock = static_cast<int>(reply->currentBlockNumber());
+            QByteArray replyPayload = reply->message().payload();
+            if (replyPayload.isEmpty() || currentBlock <= lastBlockNumber)
                 continue;
 
             finalPayload.append(replyPayload);
+            lastBlockNumber = static_cast<int>(reply->currentBlockNumber());
         }
 
-        finalReply->message()->setPayload(finalPayload);
+        finalReply->message().setPayload(finalPayload);
     }
 
     // Remove the request or the replies
@@ -359,7 +361,7 @@ void QCoapProtocolPrivate::onLastBlock(QCoapInternalRequest* request)
         internalReplies[request].replies.clear();
 
     if (userReply)
-        userReply->updateFromInternalReply(finalReply);
+        userReply->updateFromInternalReply(*finalReply);
 }
 
 /*void QCoapProtocolPrivate::onNextBlock(QCoapReply* reply, uint currentBlockNumber)
@@ -402,8 +404,8 @@ void QCoapProtocolPrivate::sendAcknowledgment(QCoapInternalRequest* request)
     QCoapInternalRequest ackRequest;
     QCoapInternalReply* internalReply = internalReplies[request].replies.last();
 
-    ackRequest.initForAcknowledgment(internalReply->message()->messageId(),
-                                     internalReply->message()->token());
+    ackRequest.initForAcknowledgment(internalReply->message().messageId(),
+                                     internalReply->message().token());
     ackRequest.setConnection(request->connection());
     sendRequest(&ackRequest);
 }
@@ -427,7 +429,7 @@ void QCoapProtocolPrivate::sendReset(QCoapInternalRequest* request)
     QCoapInternalRequest resetRequest;
     QCoapInternalReply* internalReply = internalReplies[request].replies.last();
 
-    resetRequest.initForReset(internalReply->message()->messageId());
+    resetRequest.initForReset(internalReply->message().messageId());
     resetRequest.setConnection(request->connection());
     sendRequest(&resetRequest);
 }
@@ -458,9 +460,9 @@ void QCoapProtocol::cancelObserve(QCoapReply* reply)
     copyRequest->setCancelObserve(true);
 }
 
-QByteArray QCoapProtocolPrivate::encode(const QCoapInternalRequest& request)
+QByteArray QCoapProtocolPrivate::encode(QCoapInternalRequest* request)
 {
-    return request.toQByteArray();
+    return request->toQByteArray();
 }
 
 QCoapInternalReply* QCoapProtocolPrivate::decode(const QByteArray& message)
@@ -529,8 +531,8 @@ QList<QCoapResource> QCoapProtocol::resourcesFromCoreLinkList(const QByteArray& 
 
 bool QCoapProtocolPrivate::containsToken(const QByteArray& token)
 {
-    for (QCoapInternalRequest request : internalReplies.keys()) {
-        if (request.message()->token() == token)
+    for (QCoapInternalRequest* request : internalReplies.keys()) {
+        if (request->message().token() == token)
             return true;
     }
 
@@ -549,8 +551,8 @@ bool QCoapProtocolPrivate::containsToken(const QByteArray& token)
 
 bool QCoapProtocolPrivate::containsMessageId(quint16 id)
 {
-    for (QCoapInternalRequest request : internalReplies.keys()) {
-        if (request.message()->messageId() == id)
+    for (QCoapInternalRequest* request : internalReplies.keys()) {
+        if (request->message().messageId() == id)
             return true;
     }
 

@@ -24,13 +24,13 @@ QCoapInternalRequest::QCoapInternalRequest(const QCoapRequest& request, QObject*
     QCoapInternalRequest(parent)
 {
     Q_D(QCoapInternalRequest);
-    d->message->setVersion(request.version());
-    d->message->setType(request.type());
-    d->message->setMessageId(request.messageId());
-    d->message->setToken(request.token());
+    d->message.setVersion(request.version());
+    d->message.setType(request.type());
+    d->message.setMessageId(request.messageId());
+    d->message.setToken(request.token());
     for (int i = 0; i < request.optionsLength(); ++i)
-        d->message->addOption(request.option(i));
-    d->message->setPayload(request.payload());
+        d->message.addOption(request.option(i));
+    d->message.setPayload(request.payload());
     d->operation = request.operation();
     d->fullPayload = request.payload();
 }
@@ -38,27 +38,25 @@ QCoapInternalRequest::QCoapInternalRequest(const QCoapRequest& request, QObject*
 void QCoapInternalRequest::initForAcknowledgment(quint16 messageId, const QByteArray& token)
 {
     Q_D(QCoapInternalRequest);
-    QCoapMessage* internalRequestMessage = d->message;
 
     setOperation(EmptyOperation);
-    internalRequestMessage->setType(QCoapMessage::AcknowledgmentMessage);
-    internalRequestMessage->setMessageId(messageId);
-    internalRequestMessage->setToken(token);
-    internalRequestMessage->setPayload(QByteArray());
-    internalRequestMessage->removeAllOptions();
+    d->message.setType(QCoapMessage::AcknowledgmentMessage);
+    d->message.setMessageId(messageId);
+    d->message.setToken(token);
+    d->message.setPayload(QByteArray());
+    d->message.removeAllOptions();
 }
 
 void QCoapInternalRequest::initForReset(quint16 messageId)
 {
     Q_D(QCoapInternalRequest);
-    QCoapMessage* internalRequestMessage = d->message;
 
     setOperation(EmptyOperation);
-    internalRequestMessage->setType(QCoapMessage::ResetMessage);
-    internalRequestMessage->setMessageId(messageId);
-    internalRequestMessage->setToken(QByteArray());
-    internalRequestMessage->setPayload(QByteArray());
-    internalRequestMessage->removeAllOptions();
+    d->message.setType(QCoapMessage::ResetMessage);
+    d->message.setMessageId(messageId);
+    d->message.setToken(QByteArray());
+    d->message.setPayload(QByteArray());
+    d->message.removeAllOptions();
 }
 
 QCoapInternalRequest QCoapInternalRequest::invalidRequest()
@@ -75,11 +73,11 @@ QByteArray QCoapInternalRequest::toQByteArray() const
     QByteArray pdu;
 
     // Insert header
-    quint32 coapHeader = (quint32(d->message->version()) << 30)    // Coap version
-            | (quint32(d->message->type()) << 28)                  // Message type
-            | (quint32(d->message->token().length()) << 24)        // Token Length
+    quint32 coapHeader = (quint32(d->message.version()) << 30)    // Coap version
+            | (quint32(d->message.type()) << 28)                  // Message type
+            | (quint32(d->message.token().length()) << 24)        // Token Length
             | (quint32(d->operation) << 16)                        // Operation type
-            | (quint32(d->message->messageId()));                  // Message ID
+            | (quint32(d->message.messageId()));                  // Message ID
 
     pdu.append(static_cast<char>(coapHeader >> 24));
     pdu.append(static_cast<char>((coapHeader >> 16) & 0xFF));
@@ -87,12 +85,12 @@ QByteArray QCoapInternalRequest::toQByteArray() const
     pdu.append(static_cast<char>(coapHeader & 0xFF));
 
     // Insert Token
-    pdu.append(d->message->token());
+    pdu.append(d->message.token());
 
     // Insert Options
-    if (!d->message->optionList().isEmpty()) {
+    if (!d->message.optionList().isEmpty()) {
         // Sort options by ascending order
-        QList<QCoapOption> optionList = d->message->optionList();
+        QList<QCoapOption> optionList = d->message.optionList();
         qSort(optionList.begin(), optionList.end(),
               [](const QCoapOption& a, const QCoapOption& b) -> bool {
             return (a.name() < b.name());
@@ -147,9 +145,9 @@ QByteArray QCoapInternalRequest::toQByteArray() const
     }
 
     // Insert Payload
-    if (!d->message->payload().isEmpty()) {
+    if (!d->message.payload().isEmpty()) {
         pdu.append(static_cast<char>(0xFF));
-        pdu.append(d->message->payload());
+        pdu.append(d->message.payload());
     }
 
     return pdu;
@@ -169,18 +167,18 @@ void QCoapInternalRequest::setRequestToAskBlock(uint blockNumber, uint blockSize
         block2Value.append(static_cast<char>(block2Data >> 8 & 0xFF));
     block2Value.append(static_cast<char>(block2Data & 0xFF));
 
-    d->message->removeOptionByName(QCoapOption::Block2Option);
-    d->message->removeOptionByName(QCoapOption::Block1Option);
+    d->message.removeOptionByName(QCoapOption::Block2Option);
+    d->message.removeOptionByName(QCoapOption::Block1Option);
     addOption(QCoapOption::Block2Option, block2Value);
 
-    d->message->setMessageId(d->message->messageId()+1);
+    d->message.setMessageId(d->message.messageId()+1);
 }
 
 void QCoapInternalRequest::setRequestToSendBlock(uint blockNumber, uint blockSize)
 {
     Q_D(QCoapInternalRequest);
 
-    d->message->setPayload(d->fullPayload.mid(blockNumber*blockSize, blockSize));
+    d->message.setPayload(d->fullPayload.mid(blockNumber*blockSize, blockSize));
 
     // Set the Block2Option option to get the new block
     // size = (2^(SZX + 4))
@@ -195,18 +193,18 @@ void QCoapInternalRequest::setRequestToSendBlock(uint blockNumber, uint blockSiz
         block2Value.append(static_cast<char>(block2Data >> 8 & 0xFF));
     block2Value.append(static_cast<char>(block2Data & 0xFF));
 
-    d->message->removeOptionByName(QCoapOption::Block1Option);
+    d->message.removeOptionByName(QCoapOption::Block1Option);
     //removeOptionByName(QCoapOption::Block2Option);
     addOption(QCoapOption::Block1Option, block2Value);
 
-    d->message->setMessageId(d->message->messageId()+1);
+    d->message.setMessageId(d->message.messageId()+1);
 }
 
 quint16 QCoapInternalRequest::generateMessageId()
 {
     Q_D(QCoapInternalRequest);
     quint16 id = static_cast<quint16>(qrand() % 65536);
-    d->message->setMessageId(id);
+    d->message.setMessageId(id);
     return id;
 }
 
@@ -222,7 +220,7 @@ QByteArray QCoapInternalRequest::generateToken()
     for (int i = 0; i < token.size(); ++i)
         tokenData[i] = static_cast<quint8>(qrand() % 256);
 
-    d->message->setToken(token);
+    d->message.setToken(token);
     return token;
 }
 
@@ -241,7 +239,7 @@ void QCoapInternalRequest::addOption(const QCoapOption& option)
         d->blockSize = qPow(2, (optionData[option.length()-1] & 0x7) + 4);
     }
 
-    d->message->addOption(option);
+    d->message.addOption(option);
 }
 
 void QCoapInternalRequest::retransmit()
@@ -263,6 +261,11 @@ bool QCoapInternalRequest::isValid() const
 QCoapConnection* QCoapInternalRequest::connection() const
 {
     return d_func()->connection;
+}
+
+QCoapOperation QCoapInternalRequest::operation() const
+{
+    return d_func()->operation;
 }
 
 bool QCoapInternalRequest::cancelObserve() const
@@ -318,7 +321,7 @@ bool QCoapInternalRequest::operator<(const QCoapInternalRequest& other) const
     Q_D(const QCoapInternalRequest);
     const QCoapInternalRequestPrivate* d_other = other.d_func();
 
-    return (d->message->token() < d_other->message->token());
+    return (d->message.token() < d_other->message.token());
 }
 
 /*void QCoapInternalRequestPrivate::_q_timeout()
