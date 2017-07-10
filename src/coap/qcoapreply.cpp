@@ -7,7 +7,8 @@ QCoapReplyPrivate::QCoapReplyPrivate() :
     status(InvalidCode),
     message(QCoapMessage()),
     isRunning(false),
-    isFinished(false)
+    isFinished(false),
+    isAborted(false)
 {
 }
 
@@ -74,6 +75,11 @@ bool QCoapReply::isRunning() const
     return d_func()->isRunning;
 }
 
+bool QCoapReply::isAborted() const
+{
+    return d_func()->isAborted;
+}
+
 QUrl QCoapReply::url() const
 {
     return d_func()->request.url();
@@ -98,26 +104,36 @@ void QCoapReply::setIsRunning(bool isRunning)
 
 void QCoapReply::updateFromInternalReply(const QCoapInternalReply& internalReply)
 {
-    qDebug() << "QCoapReply::updateFromInternalReply()";
-    QCoapMessage internalReplyMessage = internalReply.message();
-    d_func()->message.setPayload(internalReplyMessage.payload());
-    d_func()->message.setType(internalReplyMessage.type());
-    d_func()->message.setVersion(internalReplyMessage.version());
-    d_func()->status = internalReply.statusCode();
-    d_func()->isFinished = true;
-    d_func()->isRunning = false;
+    if (!d_func()->isAborted) {
+        qDebug() << "QCoapReply::updateFromInternalReply()";
+        QCoapMessage internalReplyMessage = internalReply.message();
+        d_func()->message.setPayload(internalReplyMessage.payload());
+        d_func()->message.setType(internalReplyMessage.type());
+        d_func()->message.setVersion(internalReplyMessage.version());
+        d_func()->status = internalReply.statusCode();
+        d_func()->isFinished = true;
+        d_func()->isRunning = false;
 
-    if (d_func()->status >= BadRequestCode)
-        replyError(d_func()->status);
-    if (d_func()->request.observe())
-        emit notified(internalReplyMessage.payload());
+        if (d_func()->status >= BadRequestCode)
+            replyError(d_func()->status);
+        if (d_func()->request.observe())
+            emit notified(internalReplyMessage.payload());
 
-    emit finished();
+        emit finished();
+    }
+}
+
+void QCoapReply::abortRequest()
+{
+    Q_D(QCoapReply);
+    d->isAborted = true;
+    emit aborted(); // TODO : send the reply too to abort at protocol level
 }
 
 void QCoapReply::replyError(QCoapStatusCode errorCode)
 {
     QCoapNetworkError networkError;
+    // TODO : add other errors
     switch (errorCode) {
     case BadRequestCode:
         networkError = BadRequestCoapError;

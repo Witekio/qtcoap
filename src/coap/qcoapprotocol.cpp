@@ -57,7 +57,7 @@ void QCoapProtocol::sendRequest(QCoapReply* reply, QCoapConnection* connection)
     Q_D(QCoapProtocol);
 
     // TODO : find a way to secure from deleting the reply
-    connect(reply, SIGNAL(abortRequest(QCoapReply*)), this, SLOT(abortRequest(QCoapReply*)), Qt::QueuedConnection);
+    //connect(reply, SIGNAL(abortRequest(QCoapReply*)), this, SLOT(abortRequest(QCoapReply*)), Qt::QueuedConnection);
     connect(connection, SIGNAL(error(QAbstractSocket::SocketError)), reply, SLOT(connectionError(QAbstractSocket::SocketError)));
 
     if(!reply)
@@ -363,7 +363,7 @@ void QCoapProtocolPrivate::onLastBlock(QCoapInternalRequest* request)
     }
 
     // Remove the request or the replies
-    if (!userReply->request().observe())
+    if (!userReply->request().observe() || request->cancelObserve())
         internalReplies.remove(request);
     else
         internalReplies[request].replies.clear();

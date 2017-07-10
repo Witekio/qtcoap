@@ -18,6 +18,7 @@ public:
     QCoapMessage message;
     bool isRunning;
     bool isFinished;
+    bool isAborted;
 
     Q_DECLARE_PUBLIC(QCoapReply)
 };

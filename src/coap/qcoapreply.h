@@ -11,7 +11,6 @@
 
 QT_BEGIN_NAMESPACE
 
-//class QCoapRequest;
 class QCoapReplyPrivate;
 class QCoapReply : public QIODevice
 {
@@ -34,17 +33,19 @@ public:
     QCoapOperation operation() const;
     bool isRunning() const;
     bool isFinished() const;
+    bool isAborted() const;
     void setRequest(const QCoapRequest& request);
 
 signals:
     void finished();
     void notified(const QByteArray& data);
     void error(QCoapNetworkError);
-    void abortRequest(QCoapReply*);
+    void aborted();
 
 private slots:
     void connectionError(QAbstractSocket::SocketError);
     void replyError(QCoapStatusCode);
+    void abortRequest();
 
 protected:
     friend class QCoapProtocol;

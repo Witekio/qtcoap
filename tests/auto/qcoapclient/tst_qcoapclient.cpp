@@ -28,6 +28,7 @@ private slots:
     void separateOperation();
     // TODO : void retransmission(); HOW ?
     // TODO : void timeout();
+    // TODO : void abort();
     void removeReply_data();
     void removeReply();
     void requestWithQIODevice_data();
