@@ -32,7 +32,7 @@ public:
     QCoapRequest request() const;
     QUrl url() const;
     QCoapOperation operation() const;
-    QCoapNetworkError error() const;
+    QCoapNetworkError errorReceived() const;
     bool isRunning() const;
     bool isFinished() const;
     bool isAborted() const;
@@ -40,8 +40,8 @@ public:
 
 signals:
     void finished();
-    void notified(const QByteArray& data);
-    void error(QCoapNetworkError);
+    void notified(const QByteArray&);
+    void error(QCoapReply::QCoapNetworkError);
     void aborted(QCoapReply*);
 
 private slots:
@@ -67,5 +67,7 @@ protected:
 };
 
 QT_END_NAMESPACE
+
+Q_DECLARE_METATYPE(QCoapReply::QCoapNetworkError)
 
 #endif // QCOAPREPLY_H

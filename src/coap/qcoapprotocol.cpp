@@ -15,6 +15,7 @@ QCoapProtocolPrivate::QCoapProtocolPrivate() :
 QCoapProtocol::QCoapProtocol(QObject *parent) :
     QObject(* new QCoapProtocolPrivate, parent)
 {
+    qRegisterMetaType<QCoapInternalRequest*>();
 }
 
 /*void QCoapProtocol::sendRequest(QCoapReply* reply, QCoapConnection* connection)
@@ -101,7 +102,6 @@ void QCoapProtocol::sendRequest(QCoapReply* reply, QCoapConnection* connection)
             this, SLOT(resendRequest(QCoapInternalRequest*)));
 
     // Invoke to change current thread
-    qRegisterMetaType<QCoapInternalRequest*>("QCoapInternalRequest*");
     QMetaObject::invokeMethod(this, "sendRequest", Q_ARG(QCoapInternalRequest*, copyInternalRequest));
 }
 
@@ -134,14 +134,14 @@ void QCoapProtocolPrivate::handleFrame()
 void QCoapProtocolPrivate::resendRequest(QCoapInternalRequest* request)
 {
     // In case of retransmission, check if it is not the last try
-    if (request->retransmissionCounter() < maxRetransmit) {
-        sendRequest(request);
-    } else {
-        internalReplies[request].userReply->abortRequest();
-        internalReplies[request].userReply->setError(QCoapReply::TimeOutCoapError);
+    if (internalReplies.contains(request)) {
+        if (request->retransmissionCounter() < maxRetransmit) {
+            sendRequest(request);
+        } else {
+            internalReplies[request].userReply->abortRequest();
+            internalReplies[request].userReply->setError(QCoapReply::TimeOutCoapError);
+        }
     }
-    // TODO : else abort and send timeout error
-    //connect request timeout to protocol slot resend
 }
 
 /*void QCoapProtocolPrivate::handleFrame(const QByteArray& frame)
@@ -499,10 +499,14 @@ QCoapInternalReply* QCoapProtocolPrivate::decode(const QByteArray& message)
 
 void QCoapProtocol::onAbortedRequest(QCoapReply* reply)
 {
-    // TODO : abortRequest or remove
+    qDebug() << "QCoapProtocol::onAbortedRequest()";
     Q_D(QCoapProtocol);
     QCoapInternalRequest* request = d->findInternalRequest(reply);
-    d->internalReplies.remove(request);
+    if (request) {
+        qDebug() << "REMOVE REQUEST";
+        request->stopTransmission();
+        d->internalReplies.remove(request);
+    }
 }
 
 QList<QCoapResource> QCoapProtocol::resourcesFromCoreLinkList(const QByteArray& data)

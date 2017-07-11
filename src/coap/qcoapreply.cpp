@@ -26,8 +26,8 @@ QCoapReply::QCoapReply(QCoapReplyPrivate &dd, QObject* parent) :
 QCoapReply::~QCoapReply()
 {
     qDebug() << "~QCoapReply()";
-    /*deleteLater();
-    emit abortRequest(this);*/
+    //deleteLater();
+    abortRequest();
 }
 
 qint64 QCoapReply::readData(char* data, qint64 maxSize)
@@ -90,7 +90,7 @@ QCoapOperation QCoapReply::operation() const
     return d_func()->request.operation();
 }
 
-QCoapReply::QCoapNetworkError QCoapReply::error() const
+QCoapReply::QCoapNetworkError QCoapReply::errorReceived() const
 {
     return d_func()->error;
 }

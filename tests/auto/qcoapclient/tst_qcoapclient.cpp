@@ -7,7 +7,7 @@
 #include "qcoapreply.h"
 #include <QBuffer>
 
-Q_DECLARE_METATYPE(QCoapStatusCode);
+Q_DECLARE_METATYPE(QCoapStatusCode)
 Q_DECLARE_METATYPE(QCoapOperation)
 Q_DECLARE_METATYPE(QCoapMessage::QCoapMessageType)
 
@@ -27,7 +27,7 @@ private slots:
     void separateOperation_data();
     void separateOperation();
     // TODO : void retransmission(); HOW ?
-    // TODO : void timeout();
+    void timeout();
     void abort();
     void removeReply_data();
     void removeReply();
@@ -94,7 +94,7 @@ void tst_QCoapClient::operations()
     QSignalSpy spyReplyFinished(reply, SIGNAL(finished()));
     QTRY_COMPARE_WITH_TIMEOUT(spyReplyFinished.count(), 1, 5000);
 
-    /*QVERIFY(reply != nullptr);
+    QVERIFY(reply != nullptr);
     QByteArray replyData = reply->readAll();
 
     if (qstrcmp(QTest::currentDataTag(), "get") == 0) {
@@ -111,7 +111,7 @@ void tst_QCoapClient::operations()
         QCOMPARE(reply->statusCode(), DeletedCode);
     }
 
-    delete reply;*/
+    delete reply;
 }
 
 void tst_QCoapClient::separateOperation_data()
@@ -144,13 +144,6 @@ void tst_QCoapClient::separateOperation()
     delete reply;
 }
 
-/*void tst_QCoapClient::timeout_data()
-{
-    QTest::addColumn<QUrl>("url");
-
-    QTest::newRow("get") << QUrl("coap://172.17.0.3:5683/timeout");
-}*/
-
 void tst_QCoapClient::removeReply_data()
 {
     QTest::addColumn<QUrl>("url");
@@ -162,7 +155,7 @@ void tst_QCoapClient::removeReply()
 {
     QFETCH(QUrl, url);
 
-    QFAIL("Comment the QFAIL to test it");
+    //QFAIL("Comment the QFAIL to test it");
 
     QCoapClient client;
     QCoapRequest request(url);
@@ -173,7 +166,7 @@ void tst_QCoapClient::removeReply()
     delete reply;
     reply = 0;
 
-    QThread::sleep(2);
+    QThread::sleep(5);
     QCOMPARE(spyReplyFinished.count(), 0);
 }
 
@@ -269,6 +262,21 @@ void tst_QCoapClient::multipleRequests()
     QCOMPARE(replyGet3->statusCode(), ContentCode);
     QVERIFY(!replyGet4Data.isEmpty());
     QCOMPARE(replyGet4->statusCode(), ContentCode);
+}
+
+void tst_QCoapClient::timeout()
+{
+    QWARN("Timeout test may take some times...");
+
+    QCoapClient client;
+    client.protocol()->setAckTimeout(300);
+    QUrl url = QUrl("coap://172.17.0.5:5683/"); // Need an url that return nothing
+
+    QCoapReply* reply = client.get(QCoapRequest(url));
+    QSignalSpy spyReplyError(reply, SIGNAL(error(QCoapReply::QCoapNetworkError)));
+
+    QTRY_COMPARE_WITH_TIMEOUT(spyReplyError.count(), 1, 60000);
+    QCOMPARE(spyReplyError.first().first(), QCoapReply::TimeOutCoapError);
 }
 
 void tst_QCoapClient::abort()
@@ -433,6 +441,7 @@ void tst_QCoapClient::discover()
 
 void tst_QCoapClient::observe_data()
 {
+    QWARN("Observe tests may take some times...");
     QTest::addColumn<QUrl>("url");
     QTest::addColumn<QCoapMessage::QCoapMessageType>("type");
 

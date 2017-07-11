@@ -185,7 +185,7 @@ void QCoapInternalRequest::setRequestToSendBlock(uint blockNumber, uint blockSiz
     // Set the Block2Option option to get the new block
     // size = (2^(SZX + 4))
     quint32 block2Data = (blockNumber << 4) | static_cast<quint32>(log2(blockSize)-4);
-    if ((blockNumber * blockSize) + blockSize < d->fullPayload.length())
+    if (static_cast<int>((blockNumber * blockSize) + blockSize) < d->fullPayload.length())
         block2Data = block2Data | 8; // Put the "more flag" to 1
 
     QByteArray block2Value = QByteArray();
@@ -252,8 +252,10 @@ void QCoapInternalRequest::beginTransmission()
         d->timeout *= 2;
 
     d->retransmissionCounter++;
-    if (d->timeout > 0) // Start timer
+    if (d->timeout > 0) {// Start timer
+        qDebug() << "Start timer";
         d->timer->start(d->timeout);
+    }
 }
 
 void QCoapInternalRequest::stopTransmission()
