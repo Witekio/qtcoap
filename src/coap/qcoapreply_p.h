@@ -15,6 +15,7 @@ public:
 
     QCoapRequest request;
     QCoapStatusCode status;
+    QCoapReply::QCoapNetworkError error;
     QCoapMessage message;
     bool isRunning;
     bool isFinished;

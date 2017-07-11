@@ -48,6 +48,7 @@ public:
     QCoapInternalRequest* findRequestByToken(const QByteArray& token);
     //QCoapReply* findReplyByMessageId(quint16 messageId);
     QCoapInternalRequest* findRequestByMessageId(quint16 messageId);
+    QCoapInternalRequest* findInternalRequest(QCoapReply* reply);
 
     InternalMessageMap internalReplies;
     QQueue<QByteArray> frameQueue;

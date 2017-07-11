@@ -57,7 +57,7 @@ void QCoapProtocol::sendRequest(QCoapReply* reply, QCoapConnection* connection)
     Q_D(QCoapProtocol);
 
     // TODO : find a way to secure from deleting the reply
-    //connect(reply, SIGNAL(abortRequest(QCoapReply*)), this, SLOT(abortRequest(QCoapReply*)), Qt::QueuedConnection);
+    connect(reply, SIGNAL(aborted(QCoapReply*)), this, SLOT(onAbortedRequest(QCoapReply*)), Qt::QueuedConnection);
     connect(connection, SIGNAL(error(QAbstractSocket::SocketError)), reply, SLOT(connectionError(QAbstractSocket::SocketError)));
 
     if(!reply)
@@ -136,6 +136,9 @@ void QCoapProtocolPrivate::resendRequest(QCoapInternalRequest* request)
     // In case of retransmission, check if it is not the last try
     if (request->retransmissionCounter() < maxRetransmit) {
         sendRequest(request);
+    } else {
+        internalReplies[request].userReply->abortRequest();
+        internalReplies[request].userReply->setError(QCoapReply::TimeOutCoapError);
     }
     // TODO : else abort and send timeout error
     //connect request timeout to protocol slot resend
@@ -252,6 +255,19 @@ QCoapInternalRequest* QCoapProtocolPrivate::findRequestByToken(const QByteArray&
     }
 
     return nullptr;
+}
+
+QCoapInternalRequest* QCoapProtocolPrivate::findInternalRequest(QCoapReply* reply)
+{
+    QCoapInternalRequest* copyRequest = nullptr;
+    for (InternalMessageMap::Iterator it = internalReplies.begin(); it != internalReplies.end(); ++it) {
+        if (it.value().userReply == reply) {
+            copyRequest = const_cast<QCoapInternalRequest*>(it.key());
+            break;
+        }
+    }
+
+    return copyRequest;
 }
 
 /*QCoapReply* QCoapProtocolPrivate::findReplyByMessageId(quint16 messageId)
@@ -458,6 +474,7 @@ void QCoapProtocol::cancelObserve(QCoapReply* reply)
         return;
 
     Q_D(QCoapProtocol);
+    // TODO : move this into another function
     QCoapInternalRequest* copyRequest = nullptr;
     for (InternalMessageMap::Iterator it = d->internalReplies.begin(); it != d->internalReplies.end(); ++it) {
         if (it.value().userReply == reply) {
@@ -480,16 +497,12 @@ QCoapInternalReply* QCoapProtocolPrivate::decode(const QByteArray& message)
     //return QCoapInternalReply::fromQByteArray(message);
 }
 
-void QCoapProtocol::abortRequest(QCoapReply* reply)
+void QCoapProtocol::onAbortedRequest(QCoapReply* reply)
 {
     // TODO : abortRequest or remove
-    Q_UNUSED(reply);
-    /*qDebug() << "abortRequest()";
-
-
-    qDebug() << reply;
-    qDebug() << "aborted";
-    reply->deleteLater();*/
+    Q_D(QCoapProtocol);
+    QCoapInternalRequest* request = d->findInternalRequest(reply);
+    d->internalReplies.remove(request);
 }
 
 QList<QCoapResource> QCoapProtocol::resourcesFromCoreLinkList(const QByteArray& data)

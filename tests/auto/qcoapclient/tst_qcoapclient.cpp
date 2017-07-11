@@ -28,7 +28,7 @@ private slots:
     void separateOperation();
     // TODO : void retransmission(); HOW ?
     // TODO : void timeout();
-    // TODO : void abort();
+    void abort();
     void removeReply_data();
     void removeReply();
     void requestWithQIODevice_data();
@@ -269,6 +269,19 @@ void tst_QCoapClient::multipleRequests()
     QCOMPARE(replyGet3->statusCode(), ContentCode);
     QVERIFY(!replyGet4Data.isEmpty());
     QCOMPARE(replyGet4->statusCode(), ContentCode);
+}
+
+void tst_QCoapClient::abort()
+{
+    QCoapClient client;
+    QUrl url = QUrl("coap://172.17.0.3:5683/large");
+
+    QCoapReply* replyGet1 = client.get(QCoapRequest(url));
+    QSignalSpy spyReplyGet1Finished(replyGet1, SIGNAL(finished()));
+    replyGet1->abortRequest();
+
+    QThread::sleep(1);
+    QCOMPARE(spyReplyGet1Finished.count(), 0);
 }
 
 void tst_QCoapClient::blockwiseReply_data()

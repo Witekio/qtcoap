@@ -20,6 +20,7 @@ public:
         NoCoapError,
         HostNotFoundCoapError,
         BadRequestCoapError,
+        TimeOutCoapError,
         UnknownCoapError
     };
 
@@ -31,6 +32,7 @@ public:
     QCoapRequest request() const;
     QUrl url() const;
     QCoapOperation operation() const;
+    QCoapNetworkError error() const;
     bool isRunning() const;
     bool isFinished() const;
     bool isAborted() const;
@@ -40,11 +42,13 @@ signals:
     void finished();
     void notified(const QByteArray& data);
     void error(QCoapNetworkError);
-    void aborted();
+    void aborted(QCoapReply*);
 
 private slots:
     void connectionError(QAbstractSocket::SocketError);
     void replyError(QCoapStatusCode);
+
+public slots:
     void abortRequest();
 
 protected:
@@ -54,6 +58,7 @@ protected:
     QCoapReply(QCoapReplyPrivate &dd, QObject* parent = Q_NULLPTR);
 
     void setIsRunning(bool isRunning);
+    void setError(QCoapNetworkError error);
     virtual void updateFromInternalReply(const QCoapInternalReply& internalReply); // remove public (friend ?)
     qint64 readData(char* data, qint64 maxSize) Q_DECL_OVERRIDE;
     qint64 writeData(const char* data, qint64 maxSize) Q_DECL_OVERRIDE;

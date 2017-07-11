@@ -90,6 +90,11 @@ QCoapOperation QCoapReply::operation() const
     return d_func()->request.operation();
 }
 
+QCoapReply::QCoapNetworkError QCoapReply::error() const
+{
+    return d_func()->error;
+}
+
 void QCoapReply::setRequest(const QCoapRequest& request)
 {
     Q_D(QCoapReply);
@@ -100,6 +105,16 @@ void QCoapReply::setIsRunning(bool isRunning)
 {
     Q_D(QCoapReply);
     d->isRunning = isRunning;
+}
+
+void QCoapReply::setError(QCoapNetworkError newError)
+{
+    Q_D(QCoapReply);
+    if (d->error == newError)
+        return;
+
+    d->error = newError;
+    emit error(d->error);
 }
 
 void QCoapReply::updateFromInternalReply(const QCoapInternalReply& internalReply)
@@ -116,6 +131,7 @@ void QCoapReply::updateFromInternalReply(const QCoapInternalReply& internalReply
 
         if (d_func()->status >= BadRequestCode)
             replyError(d_func()->status);
+
         if (d_func()->request.observe())
             emit notified(internalReplyMessage.payload());
 
@@ -127,7 +143,8 @@ void QCoapReply::abortRequest()
 {
     Q_D(QCoapReply);
     d->isAborted = true;
-    emit aborted(); // TODO : send the reply too to abort at protocol level
+    if (!this->isFinished())
+        emit aborted(this);
 }
 
 void QCoapReply::replyError(QCoapStatusCode errorCode)
@@ -142,7 +159,7 @@ void QCoapReply::replyError(QCoapStatusCode errorCode)
         networkError = UnknownCoapError;
     }
 
-    emit error(networkError);
+    setError(networkError);
 }
 
 void QCoapReply::connectionError(QAbstractSocket::SocketError socketError)
@@ -157,6 +174,6 @@ void QCoapReply::connectionError(QAbstractSocket::SocketError socketError)
         networkError = UnknownCoapError;
     }
 
-    emit error(networkError);
+    setError(networkError);
 }
 
