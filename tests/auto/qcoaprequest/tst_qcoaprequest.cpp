@@ -156,25 +156,34 @@ void tst_QCoapRequest::internalRequestToFrame()
 
 void tst_QCoapRequest::parseUri_data()
 {
-    QTest::addColumn<QUrl>("url");
+    QTest::addColumn<QUrl>("uri");
+    QTest::addColumn<QUrl>("proxyUri");
     QTest::addColumn<int>("optionsNumber");
 
     QTest::newRow("uri1") << QUrl("coap://vs0.inf.ethz.ch:5683/test/path1/?rd=25&nd=4")
-                             << 5;
+                          << QUrl()
+                          << 5;
     QTest::newRow("uri2") << QUrl("coap://172.17.0.3/test/path1/?rd=25&nd=4")
-                             << 4;
+                          << QUrl()
+                          << 4;
     QTest::newRow("uri3") << QUrl("coap://172.17.0.3:5684/test/path1")
-                             << 3;
+                          << QUrl()
+                          << 3;
+    QTest::newRow("uri4") << QUrl("coap://vs0.inf.ethz.ch:5683/test/path1/?rd=25&nd=4")
+                          << QUrl("coap://172.17.0.32/test")
+                          << 2;
 }
 
 void tst_QCoapRequest::parseUri()
 {
-    QFETCH(QUrl, url);
+    QFETCH(QUrl, uri);
+    QFETCH(QUrl, proxyUri);
     QFETCH(int, optionsNumber);
 
-    QCoapRequest request(url);
+    QCoapRequest request(uri, QCoapMessage::NonConfirmableMessage, proxyUri);
+    QCoapInternalRequest internalRequest(request);
 
-    QCOMPARE(request.optionsLength(), optionsNumber);
+    QCOMPARE(internalRequest.message().optionsLength(), optionsNumber);
 }
 
 

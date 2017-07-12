@@ -7,6 +7,7 @@ QT_BEGIN_NAMESPACE
 
 QCoapRequestPrivate::QCoapRequestPrivate() :
     url(QUrl()),
+    proxyUrl(QUrl()),
     //connection(new QCoapConnection),
     operation(EmptyOperation),
     observe(false)
@@ -16,20 +17,18 @@ QCoapRequestPrivate::QCoapRequestPrivate() :
 QCoapRequestPrivate::QCoapRequestPrivate(const QCoapRequestPrivate &other) :
     QCoapMessagePrivate(other),
     url(other.url),
+    proxyUrl(other.proxyUrl),
     //connection(other.connection),
     operation(other.operation),
     observe(other.observe)
-
 {
 }
 
-QCoapRequest::QCoapRequest(const QUrl& url, QCoapMessageType type) :
+QCoapRequest::QCoapRequest(const QUrl& url, QCoapMessageType type, const QUrl& proxyUrl) :
     QCoapMessage(*new QCoapRequestPrivate)
 {
-    QCoapRequestPrivate* d = static_cast<QCoapRequestPrivate*>(d_ptr);
-
-    d->url = url;
-    parseUri();
+    setUrl(url);
+    setProxyUrl(proxyUrl);
     setType(type);
     qsrand(static_cast<uint>(QTime::currentTime().msec())); // to generate message ids and tokens
 }
@@ -39,6 +38,8 @@ QCoapRequest::QCoapRequest(const QCoapRequest &other) :
 {
 }
 
+// TODO : move parseUri into internalRequest : addUriOptions
+// (and remove from constructor) + take care of proxy
 void QCoapRequest::parseUri()
 {
     QCoapRequestPrivate* d = static_cast<QCoapRequestPrivate*>(d_ptr);
@@ -83,6 +84,12 @@ QUrl QCoapRequest::url() const
     return d->url;
 }
 
+QUrl QCoapRequest::proxyUrl() const
+{
+    QCoapRequestPrivate* d = static_cast<QCoapRequestPrivate*>(d_ptr);
+    return d->proxyUrl;
+}
+
 /*QCoapConnection* QCoapRequest::connection() const
 {
     QCoapRequestPrivate* d = static_cast<QCoapRequestPrivate*>(d_ptr);
@@ -108,6 +115,15 @@ void QCoapRequest::setUrl(const QUrl& url)
         return;
 
     d->url = url;
+}
+
+void QCoapRequest::setProxyUrl(const QUrl& proxyUrl)
+{
+    QCoapRequestPrivate* d = static_cast<QCoapRequestPrivate*>(d_ptr);
+    if (d->proxyUrl == proxyUrl)
+        return;
+
+    d->proxyUrl = proxyUrl;
 }
 
 /*void QCoapRequest::setConnection(QCoapConnection* connection)

@@ -428,15 +428,13 @@ void tst_QCoapClient::discover()
     QFETCH(int, resourceNumber);
 
     //QFAIL("Broken when protocol added");
-    //for (int i = 0; i < 20; ++i) {
-        QCoapClient client;
+    QCoapClient client;
 
-        QCoapDiscoveryReply* resourcesReply = client.discover(url); // /.well-known/core
-        QSignalSpy spyReplyFinished(resourcesReply, SIGNAL(finished()));
+    QCoapDiscoveryReply* resourcesReply = client.discover(url); // /.well-known/core
+    QSignalSpy spyReplyFinished(resourcesReply, SIGNAL(finished()));
 
-        QTRY_COMPARE_WITH_TIMEOUT(spyReplyFinished.count(), 1, 30000);
-        QCOMPARE(resourcesReply->resourceList().length(), resourceNumber);
-    //}
+    QTRY_COMPARE_WITH_TIMEOUT(spyReplyFinished.count(), 1, 30000);
+    QCOMPARE(resourcesReply->resourceList().length(), resourceNumber);
 }
 
 void tst_QCoapClient::observe_data()
@@ -450,17 +448,17 @@ void tst_QCoapClient::observe_data()
     QTest::newRow("observe_confirmable") << QUrl("coap://172.17.0.3:5683/obs")
                                          << QCoapMessage::ConfirmableMessage;
     QTest::newRow("observe_receive_non") << QUrl("coap://172.17.0.3:5683/obs-non")
-                             << QCoapMessage::NonConfirmableMessage;
+                                         << QCoapMessage::NonConfirmableMessage;
     QTest::newRow("observe_receive_non_confirmable") << QUrl("coap://172.17.0.3:5683/obs-non")
-                                         << QCoapMessage::ConfirmableMessage;
+                                                     << QCoapMessage::ConfirmableMessage;
     QTest::newRow("observe_large") << QUrl("coap://172.17.0.3:5683/obs-large")
-                                         << QCoapMessage::NonConfirmableMessage;
+                                   << QCoapMessage::NonConfirmableMessage;
     QTest::newRow("observe_large_confirmable") << QUrl("coap://172.17.0.3:5683/obs-large")
-                                         << QCoapMessage::ConfirmableMessage;
+                                               << QCoapMessage::ConfirmableMessage;
     QTest::newRow("observe_pumping") << QUrl("coap://172.17.0.3:5683/obs-pumping")
-                                         << QCoapMessage::NonConfirmableMessage;
+                                     << QCoapMessage::NonConfirmableMessage;
     QTest::newRow("observe_pumping_confirmable") << QUrl("coap://172.17.0.3:5683/obs-pumping")
-                                         << QCoapMessage::ConfirmableMessage;
+                                                 << QCoapMessage::ConfirmableMessage;
 }
 
 void tst_QCoapClient::observe()

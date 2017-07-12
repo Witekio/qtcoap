@@ -35,6 +35,8 @@ QCoapInternalRequest::QCoapInternalRequest(const QCoapRequest& request, QObject*
     d->message.setPayload(request.payload());
     d->operation = request.operation();
     d->fullPayload = request.payload();
+
+    addUriOptions(request.url(), request.proxyUrl());
 }
 
 void QCoapInternalRequest::initForAcknowledgment(quint16 messageId, const QByteArray& token)
@@ -244,6 +246,46 @@ void QCoapInternalRequest::addOption(const QCoapOption& option)
     d->message.addOption(option);
 }
 
+void QCoapInternalRequest::addUriOptions(const QUrl& uri, const QUrl& proxyUri)
+{
+    QUrl mainUri;
+    if (proxyUri.isEmpty()) {
+        mainUri = uri;
+    } else {
+        // Add proxy options
+        mainUri = proxyUri;
+        addOption(QCoapOption::ProxyUriOption, uri.toString().toUtf8());
+    }
+
+    QRegExp ipv4Regex("^([0-9]{1,3}.){3}([0-9]{1,3})$");
+    QString host = mainUri.host();
+    if (!ipv4Regex.exactMatch(host)) {
+        addOption(QCoapOption::UriHostOption, host.toUtf8());
+    }
+
+    // Convert port into QCoapOption if it is not the default port
+    int port = mainUri.port();
+    if (port > 0 && port != 5683){
+        addOption(QCoapOption::UriPortOption, QByteArray::number(port, 10));
+    }
+
+    // Convert path into QCoapOptions
+    QString path = mainUri.path();
+    QStringList listPath = path.split("/");
+    for (QString pathPart : listPath) {
+        if (!pathPart.isEmpty())
+            addOption(QCoapOption::UriPathOption, pathPart.toUtf8());
+    }
+
+    // Convert query into QCoapOptions
+    QString query = mainUri.query();
+    QStringList listQuery = query.split("&");
+    for (QString query : listQuery) {
+        if (!query.isEmpty())
+            addOption(QCoapOption::UriQueryOption, query.toUtf8());
+    }
+}
+
 void QCoapInternalRequest::beginTransmission()
 {
     Q_D(QCoapInternalRequest);
@@ -252,10 +294,8 @@ void QCoapInternalRequest::beginTransmission()
         d->timeout *= 2;
 
     d->retransmissionCounter++;
-    if (d->timeout > 0) {// Start timer
-        qDebug() << "Start timer";
+    if (d->timeout > 0)
         d->timer->start(d->timeout);
-    }
 }
 
 void QCoapInternalRequest::stopTransmission()

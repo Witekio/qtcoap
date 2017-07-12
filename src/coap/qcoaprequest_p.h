@@ -11,9 +11,10 @@ class QCoapRequestPrivate : public QCoapMessagePrivate
 public:
     QCoapRequestPrivate();
     QCoapRequestPrivate(const QCoapRequestPrivate &other);
-    ~QCoapRequestPrivate() {};
+    ~QCoapRequestPrivate() {}
 
     QUrl url;
+    QUrl proxyUrl;
     // TODO : remove connection ?
     //QCoapConnection* connection;
     QCoapOperation operation;

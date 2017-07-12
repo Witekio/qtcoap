@@ -8,6 +8,7 @@
 
 #include <QtCore/qglobal.h>
 #include <QTimer>
+#include <QUrl>
 
 QT_BEGIN_NAMESPACE
 
@@ -32,6 +33,7 @@ public:
 
     using QCoapInternalMessage::addOption;
     void addOption(const QCoapOption& option);
+    void addUriOptions(const QUrl& uri, const QUrl& proxyUri = QUrl());
 
     bool isValid() const;
     QCoapOperation operation() const;

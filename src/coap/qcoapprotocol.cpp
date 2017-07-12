@@ -57,7 +57,7 @@ void QCoapProtocol::sendRequest(QCoapReply* reply, QCoapConnection* connection)
 {
     Q_D(QCoapProtocol);
 
-    // TODO : find a way to secure from deleting the reply
+    // connect with QueuedConnection to secure from deleting the reply (destructor emit signal)
     connect(reply, SIGNAL(aborted(QCoapReply*)), this, SLOT(onAbortedRequest(QCoapReply*)), Qt::QueuedConnection);
     connect(connection, SIGNAL(error(QAbstractSocket::SocketError)), reply, SLOT(connectionError(QAbstractSocket::SocketError)));
 

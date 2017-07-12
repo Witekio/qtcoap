@@ -25,8 +25,6 @@ QCoapReply::QCoapReply(QCoapReplyPrivate &dd, QObject* parent) :
 
 QCoapReply::~QCoapReply()
 {
-    qDebug() << "~QCoapReply()";
-    //deleteLater();
     abortRequest();
 }
 
@@ -169,7 +167,6 @@ void QCoapReply::connectionError(QAbstractSocket::SocketError socketError)
     case QAbstractSocket::HostNotFoundError :
         networkError = HostNotFoundCoapError;
         break;
-
     default:
         networkError = UnknownCoapError;
     }

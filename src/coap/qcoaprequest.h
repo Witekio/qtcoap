@@ -22,7 +22,8 @@ class QCoapRequest : public QCoapMessage
 {
 public:
     QCoapRequest(const QUrl& url = QUrl(),
-                 QCoapMessageType type = NonConfirmableMessage);
+                 QCoapMessageType type = NonConfirmableMessage,
+                 const QUrl& proxyUrl = QUrl());
     QCoapRequest(const QCoapRequest &other);
     ~QCoapRequest() {}
 
@@ -30,10 +31,12 @@ public:
     bool operator<(const QCoapRequest& other) const;
 
     QUrl url() const;
+    QUrl proxyUrl() const;
     QCoapOperation operation() const;
     //QCoapConnection* connection() const;
     bool observe() const;
     void setUrl(const QUrl& url);
+    void setProxyUrl(const QUrl& proxyUrl);
     void setOperation(QCoapOperation operation);
     void setObserve(bool observe);
 
