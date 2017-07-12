@@ -198,6 +198,7 @@ void tst_QCoapConnection::writeToSocket()
 {
     QFETCH(QString, data);
 
+    QFAIL("Broken when bind instead of connectToHost");
     QCoapConnectionForTest connection;
     QBuffer* socket = new QBuffer();
 

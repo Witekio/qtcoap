@@ -90,7 +90,6 @@ void tst_QCoapClient::operations()
     else if (qstrcmp(QTest::currentDataTag(), "delete") == 0)
         reply = client.deleteResource(request);
 
-    // TODO IMPORTANT : find the bug
     QSignalSpy spyReplyFinished(reply, SIGNAL(finished()));
     QTRY_COMPARE_WITH_TIMEOUT(spyReplyFinished.count(), 1, 5000);
 

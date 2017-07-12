@@ -67,12 +67,12 @@ void QCoapConnection::bindToHost()
     if (socket->state() == QUdpSocket::ConnectedState)
         socket->disconnectFromHost();
 
-    connect(socket, SIGNAL(error(QAbstractSocket::SocketError)), this, SLOT(onSocketError(QAbstractSocket::SocketError)));
+    connect(socket, SIGNAL(error(QAbstractSocket::SocketError)), this, SLOT(_q_socketError(QAbstractSocket::SocketError)));
     connect(socket, SIGNAL(readyRead()), this, SLOT(_q_socketReadyRead()));
     if (socket->bind(QHostAddress::Any, 0, QAbstractSocket::ShareAddress)) {
         qDebug() << "QCoapConnection::bindToHost() - OK";
+        qDebug() << "socket port : " << socket->localPort();
         d->boundToHost();
-        qDebug() << socket->localPort();
     }
 }
 
@@ -85,23 +85,24 @@ void QCoapConnection::sendRequest(const QByteArray& request)
 
     d->currentPdu = request;
 
-    if (d->state == Unconnected) {
-        //qDebug() << "QCoapConnection : sendRequest() - Unconnected";
-        connect(this, SIGNAL(connected()), this, SLOT(_q_startToSendRequest()));
-        connectToHost();
-    } else if (d->state == Connected) {
-        //qDebug() << "QCoapConnection : sendRequest() - Connected";
-        d->_q_startToSendRequest();
-    }
-
-//    if (d->state == Bound || d->state == Connected) {
-//        qDebug() << "QCoapConnection : sendRequest() - Bound or Connected";
-//        // QMetaObject::invokeMethod() ???
+//    if (d->state == Unconnected) {
+//        //qDebug() << "QCoapConnection : sendRequest() - Unconnected";
+//        connect(this, SIGNAL(connected()), this, SLOT(_q_startToSendRequest()));
+//        connectToHost();
+//    } else if (d->state == Connected) {
+//        //qDebug() << "QCoapConnection : sendRequest() - Connected";
 //        d->_q_startToSendRequest();
-//    } else if (d->state == Unconnected) {
-//        qDebug() << "QCoapConnection : sendRequest() - Unconnected";
-//        bindToHost();
 //    }
+
+    if (d->state == Bound || d->state == Connected) {
+        qDebug() << "QCoapConnection : sendRequest() - Bound or Connected";
+        // QMetaObject::invokeMethod() ???
+        d->_q_startToSendRequest();
+    } else if (d->state == Unconnected) {
+        qDebug() << "QCoapConnection : sendRequest() - Unconnected";
+        connect(this, SIGNAL(bound()), this, SLOT(_q_startToSendRequest()));
+        bindToHost();
+    }
 }
 
 QByteArray QCoapConnection::readAll()
@@ -115,7 +116,15 @@ QByteArray QCoapConnection::readAll()
     if (!d->udpSocket->isSequential())
         d->udpSocket->seek(0);
 
-    QByteArray reply = d->udpSocket->readAll();
+    QByteArray reply;
+    QUdpSocket* socket = static_cast<QUdpSocket*>(d->udpSocket);
+    while (socket->hasPendingDatagrams())
+    {
+        QByteArray data = socket->receiveDatagram().data();
+        qDebug() << "data : " << data;
+        reply.append(data);
+    }
+    //QByteArray reply = d->udpSocket->readAll();
     if (!reply.isEmpty())
         d->lastReply = reply;
 
@@ -130,8 +139,9 @@ void QCoapConnection::writeToSocket(const QByteArray& data)
         d->udpSocket->open(d->udpSocket->openMode() | QIODevice::WriteOnly);
 
     qDebug() << "QCoapConnection::writeToSocket()";
-    d->udpSocket->write(data);
-    //static_cast<QUdpSocket>(d->udpSocket).writeDatagram(data, QHostAddress(d->host), d->port);
+    //d->udpSocket->write(data);
+    QUdpSocket* socket = static_cast<QUdpSocket*>(d->udpSocket);
+    socket->writeDatagram(data, QHostAddress(d->host), d->port);
 }
 
 // NOTE : Might be removed
@@ -149,7 +159,7 @@ void QCoapConnectionPrivate::boundToHost()
 
 void QCoapConnectionPrivate::_q_startToSendRequest()
 {
-    //qDebug() << "QCoapConnectionPrivate::_q_startToSendRequest()";
+    qDebug() << "QCoapConnectionPrivate::_q_startToSendRequest()";
     Q_Q(QCoapConnection);
     q->writeToSocket(currentPdu);
 }
@@ -180,7 +190,7 @@ void QCoapConnectionPrivate::_q_socketReadyRead()
 {
     Q_Q(QCoapConnection);
 
-    //qDebug() << "QCoapConnectionPrivate::_q_socketReadyRead() - " << q->readAll();
+    qDebug() << "QCoapConnectionPrivate::_q_socketReadyRead() - " << q->readAll();
     emit q->readyRead(q->readAll());
 }
 
