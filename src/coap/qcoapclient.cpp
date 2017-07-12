@@ -6,9 +6,11 @@ QT_BEGIN_NAMESPACE
 
 QCoapClientPrivate::QCoapClientPrivate() :
     protocol(new QCoapProtocol),
+    connection(new QCoapConnection),
     workerThread(new QThread)
 {
     protocol->moveToThread(workerThread);
+    connection->moveToThread(workerThread);
     workerThread->start();
 }
 
@@ -21,6 +23,8 @@ QCoapClient::QCoapClient(QObject* parent) :
 {
     Q_D(QCoapClient);
     connect(d->workerThread, SIGNAL(finished()), d->workerThread, SLOT(deleteLater()));
+    connect(d->connection, SIGNAL(readyRead(const QByteArray&)),
+            d->protocol, SLOT(messageReceived(const QByteArray&)));
     qRegisterMetaType<QCoapReply::QCoapNetworkError>();
 }
 
@@ -31,7 +35,7 @@ QCoapClient::~QCoapClient()
     d->workerThread->wait();
     delete d->workerThread;
     delete d->protocol;
-    qDeleteAll(d->connections);
+    delete d->connection;
 }
 
 QCoapReply* QCoapClient::get(const QCoapRequest& request)
@@ -156,26 +160,10 @@ void QCoapClient::cancelObserve(QCoapReply* notifiedReply)
     d_func()->protocol->cancelObserve(notifiedReply);
 }
 
-QCoapConnection* QCoapClient::findConnection(QString host, quint16 port)
-{
-    for (QCoapConnection* connection : d_func()->connections) {
-        if (connection->host() == host && connection->port() == port)
-            return connection;
-    }
-
-    return nullptr;
-}
-
 QCoapReply* QCoapClient::sendRequest(const QCoapRequest& request)
 {
     qDebug() << "QCoapClient::sendRequest()";
     Q_D(QCoapClient);
-
-    // Find the connection or create a new connection
-    //QCoapConnection* connection = findConnection(request.url().host(), request.url().port());
-    //if (!connection)
-        QCoapConnection* connection = addConnection(request.url().host(),
-                                                    static_cast<quint16>(request.url().port()));
 
     // Prepare the reply and send it
     QCoapReply* reply = new QCoapReply(this);
@@ -183,7 +171,7 @@ QCoapReply* QCoapClient::sendRequest(const QCoapRequest& request)
 
     qDebug() << "client : " << this->thread() << " protocol :" << d->protocol->thread();
 
-    d->protocol->sendRequest(reply, connection);
+    d->protocol->sendRequest(reply, d->connection);
 
     //connect(reply, SIGNAL(finished()), workerThread, SLOT(quit()));
 
@@ -194,34 +182,13 @@ QCoapDiscoveryReply* QCoapClient::sendDiscovery(const QCoapRequest& request)
 {
     Q_D(QCoapClient);
 
-    // Find the connection or create a new connection
-    //QCoapConnection* connection = findConnection(request.url().host(), request.url().port());
-    //if (!connection)
-        QCoapConnection* connection = addConnection(request.url().host(),
-                                                    static_cast<quint16>(request.url().port()));
-
     // Prepare the reply and send it
     QCoapDiscoveryReply* reply = new QCoapDiscoveryReply(this);
     reply->setRequest(request);
 
-    d->protocol->sendRequest(reply, connection);
+    d->protocol->sendRequest(reply, d->connection);
 
     return reply;
-}
-
-QCoapConnection* QCoapClient::addConnection(const QString& host, quint16 port)
-{
-    Q_D(QCoapClient);
-
-    QCoapConnection *connection;
-    connection = new QCoapConnection(host, port);
-    connection->connectToHost();
-    d->connections.push_back(connection);
-    connect(connection, SIGNAL(readyRead(const QByteArray&)),
-            d->protocol, SLOT(messageReceived(const QByteArray&)));
-    connection->moveToThread(d->workerThread);
-
-    return connection;
 }
 
 QCoapProtocol* QCoapClient::protocol() const
@@ -229,9 +196,9 @@ QCoapProtocol* QCoapClient::protocol() const
     return d_func()->protocol;
 }
 
-QList<QCoapConnection*> QCoapClient::connectionList() const
+QCoapConnection* QCoapClient::connection() const
 {
-    return d_func()->connections;
+    return d_func()->connection;
 }
 
 void QCoapClient::setBlockSize(quint16 blockSize)

@@ -176,7 +176,7 @@ void tst_QCoapConnection::sendRequest()
     request.setOperation(operation);
     QVERIFY(connection.socket() != nullptr);
     QCoapInternalRequest internalRequest(request);
-    connection.sendRequest(internalRequest.toQByteArray());
+    connection.sendRequest(internalRequest.toQByteArray(), host, port);
 
     QTRY_COMPARE_WITH_TIMEOUT(spySocketReadyRead.count(), 1, 5000);
     QTRY_COMPARE_WITH_TIMEOUT(spyConnectionReadyRead.count(), 1, 5000);
@@ -198,7 +198,7 @@ void tst_QCoapConnection::writeToSocket()
 {
     QFETCH(QString, data);
 
-    QFAIL("Broken when bind instead of connectToHost");
+    QSKIP("Broken when bind instead of connectToHost (cannot use write/read anymore)");
     QCoapConnectionForTest connection;
     QBuffer* socket = new QBuffer();
 

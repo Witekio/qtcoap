@@ -17,7 +17,7 @@ public:
 
     CoapMessageMap requestMap;
     QCoapProtocol* protocol;
-    QList<QCoapConnection*> connections;
+    QCoapConnection* connection;
     QThread* workerThread;
 
     Q_DECLARE_PUBLIC(QCoapClient)

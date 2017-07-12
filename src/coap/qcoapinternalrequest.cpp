@@ -5,6 +5,7 @@
 QT_BEGIN_NAMESPACE
 
 QCoapInternalRequestPrivate::QCoapInternalRequestPrivate() :
+    targetUri(QUrl()),
     operation(EmptyOperation),
     isValid(true),
     cancelObserve(false),
@@ -248,6 +249,8 @@ void QCoapInternalRequest::addOption(const QCoapOption& option)
 
 void QCoapInternalRequest::addUriOptions(const QUrl& uri, const QUrl& proxyUri)
 {
+    Q_D(QCoapInternalRequest);
+
     QUrl mainUri;
     if (proxyUri.isEmpty()) {
         mainUri = uri;
@@ -284,6 +287,8 @@ void QCoapInternalRequest::addUriOptions(const QUrl& uri, const QUrl& proxyUri)
         if (!query.isEmpty())
             addOption(QCoapOption::UriQueryOption, query.toUtf8());
     }
+
+    d->targetUri = mainUri;
 }
 
 void QCoapInternalRequest::beginTransmission()
@@ -310,6 +315,11 @@ void QCoapInternalRequestPrivate::_q_timeout()
     Q_Q(QCoapInternalRequest);
     qDebug() << "TIMEOUT !!!";
     emit q->timeout(q);
+}
+
+QUrl QCoapInternalRequest::targetUri() const
+{
+    return d_func()->targetUri;
 }
 
 bool QCoapInternalRequest::isValid() const
@@ -367,6 +377,12 @@ void QCoapInternalRequest::setCancelObserve(bool cancelObserve)
         return;
 
     d->cancelObserve = cancelObserve;
+}
+
+void QCoapInternalRequest::setTargetUri(QUrl targetUri)
+{
+    Q_D(QCoapInternalRequest);
+    d->targetUri = targetUri;
 }
 
 void QCoapInternalRequest::setTimeout(int timeout)

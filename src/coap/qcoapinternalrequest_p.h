@@ -35,6 +35,7 @@ public:
     void addOption(const QCoapOption& option);
     void addUriOptions(const QUrl& uri, const QUrl& proxyUri = QUrl());
 
+    QUrl targetUri() const;
     bool isValid() const;
     QCoapOperation operation() const;
     bool cancelObserve() const;
@@ -45,6 +46,7 @@ public:
     void setConnection(QCoapConnection* connection);
     void setCancelObserve(bool cancelObserve);
 
+    void setTargetUri(QUrl targetUri);
     void setTimeout(int timeout);
     void beginTransmission();
     void stopTransmission();
@@ -64,6 +66,7 @@ class QCoapInternalRequestPrivate : public QCoapInternalMessagePrivate
 public:
     QCoapInternalRequestPrivate();
 
+    QUrl targetUri;
     QCoapOperation operation;
     QCoapConnection* connection;
     bool isValid;

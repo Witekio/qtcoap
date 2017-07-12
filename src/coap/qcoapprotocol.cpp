@@ -59,7 +59,8 @@ void QCoapProtocol::sendRequest(QCoapReply* reply, QCoapConnection* connection)
 
     // connect with QueuedConnection to secure from deleting the reply (destructor emit signal)
     connect(reply, SIGNAL(aborted(QCoapReply*)), this, SLOT(onAbortedRequest(QCoapReply*)), Qt::QueuedConnection);
-    connect(connection, SIGNAL(error(QAbstractSocket::SocketError)), reply, SLOT(connectionError(QAbstractSocket::SocketError)));
+    // TODO : uncomment
+    // connect(connection, SIGNAL(error(QAbstractSocket::SocketError)), reply, SLOT(connectionError(QAbstractSocket::SocketError)));
 
     if(!reply)
         return;
@@ -113,7 +114,8 @@ void QCoapProtocolPrivate::sendRequest(QCoapInternalRequest* request)
              << q_ptr->thread();*/
     request->beginTransmission();
     QByteArray requestFrame = encode(request);
-    request->connection()->sendRequest(requestFrame);
+    QUrl uri = request->targetUri();
+    request->connection()->sendRequest(requestFrame, uri.host(), uri.port());
 }
 
 void QCoapProtocol::messageReceived(const QByteArray& frameReply)
@@ -209,8 +211,9 @@ void QCoapProtocolPrivate::handleFrame(const QByteArray& frame)
         // Remove option to ensure that it will stop
         request->removeOptionByName(QCoapOption::ObserveOption);
         sendReset(request);
-    } else if (internalReplyMessage.type() == QCoapMessage::ConfirmableMessage)
+    } else if (internalReplyMessage.type() == QCoapMessage::ConfirmableMessage) {
         sendAcknowledgment(request);
+    }
 
     // Check if it is a blockwise request
     int nextBlockWanted = internalReply->wantNextBlock();
@@ -428,6 +431,7 @@ void QCoapProtocolPrivate::sendAcknowledgment(QCoapInternalRequest* request)
     QCoapInternalRequest ackRequest;
     QCoapInternalReply* internalReply = internalReplies[request].replies.last();
 
+    ackRequest.setTargetUri(request->targetUri());
     ackRequest.initForAcknowledgment(internalReply->message().messageId(),
                                      internalReply->message().token());
     ackRequest.setConnection(request->connection());
@@ -453,6 +457,7 @@ void QCoapProtocolPrivate::sendReset(QCoapInternalRequest* request)
     QCoapInternalRequest resetRequest;
     QCoapInternalReply* internalReply = internalReplies[request].replies.last();
 
+    resetRequest.setTargetUri(request->targetUri());
     resetRequest.initForReset(internalReply->message().messageId());
     resetRequest.setConnection(request->connection());
     sendRequest(&resetRequest);

@@ -34,13 +34,11 @@ public:
     QCoapDiscoveryReply* discover(const QUrl& url, const QString& discoveryPath = "/.well-known/core");
 
     QCoapProtocol* protocol() const;
-    QList<QCoapConnection*> connectionList() const;
+    QCoapConnection* connection() const;
     void setBlockSize(quint16 blockSize);
     void setProtocol(QCoapProtocol* protocol);
 
 protected:
-    QCoapConnection* findConnection(QString host, quint16 port);
-    QCoapConnection* addConnection(const QString& host, quint16 port);
     QCoapReply* sendRequest(const QCoapRequest& request);
     QCoapDiscoveryReply* sendDiscovery(const QCoapRequest& request);
 

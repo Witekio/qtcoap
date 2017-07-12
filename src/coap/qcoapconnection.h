@@ -23,7 +23,7 @@ public:
     ~QCoapConnection();
 
     void connectToHost();
-    void sendRequest(const QByteArray& pduRequest);
+    void sendRequest(const QByteArray& request, const QString& host, quint16 port);
     QByteArray readAll();
 
     QString host() const;

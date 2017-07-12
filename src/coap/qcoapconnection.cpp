@@ -76,7 +76,7 @@ void QCoapConnection::bindToHost()
     }
 }
 
-void QCoapConnection::sendRequest(const QByteArray& request)
+void QCoapConnection::sendRequest(const QByteArray& request, const QString& host, quint16 port)
 {
     //qDebug() << "QCoapConnection::sendRequest()";
     Q_D(QCoapConnection);
@@ -84,6 +84,8 @@ void QCoapConnection::sendRequest(const QByteArray& request)
     //setSendingState(QCoapConnection::WAITING);
 
     d->currentPdu = request;
+    d->host = host;
+    d->port = port;
 
 //    if (d->state == Unconnected) {
 //        //qDebug() << "QCoapConnection : sendRequest() - Unconnected";
