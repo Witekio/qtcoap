@@ -6,7 +6,7 @@ QT_BEGIN_NAMESPACE
 
 QCoapInternalRequestPrivate::QCoapInternalRequestPrivate() :
     targetUri(QUrl()),
-    operation(EmptyOperation),
+    operation(EmptyCoapOperation),
     isValid(true),
     cancelObserve(false),
     retransmissionCounter(0),
@@ -44,7 +44,7 @@ void QCoapInternalRequest::initForAcknowledgment(quint16 messageId, const QByteA
 {
     Q_D(QCoapInternalRequest);
 
-    setOperation(EmptyOperation);
+    setOperation(EmptyCoapOperation);
     d->message.setType(QCoapMessage::AcknowledgmentMessage);
     d->message.setMessageId(messageId);
     d->message.setToken(token);
@@ -56,7 +56,7 @@ void QCoapInternalRequest::initForReset(quint16 messageId)
 {
     Q_D(QCoapInternalRequest);
 
-    setOperation(EmptyOperation);
+    setOperation(EmptyCoapOperation);
     d->message.setType(QCoapMessage::ResetMessage);
     d->message.setMessageId(messageId);
     d->message.setToken(QByteArray());

@@ -5,7 +5,7 @@
 QT_BEGIN_NAMESPACE
 
 QCoapInternalReplyPrivate::QCoapInternalReplyPrivate():
-    statusCode(InvalidCode)
+    statusCode(InvalidCoapCode)
 {
 }
 

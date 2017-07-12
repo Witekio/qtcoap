@@ -20,6 +20,11 @@ public:
     QCoapConnection::QCoapConnectionState state;
     QByteArray lastReply; // Temporary store the last reply
 
+    void bindToHost();
+    void writeToSocket(const QByteArray& data);
+    void setSocket(QIODevice* device);
+    void setState(QCoapConnection::QCoapConnectionState newState);
+
     void boundToHost();
 
     void _q_connectedToHost();

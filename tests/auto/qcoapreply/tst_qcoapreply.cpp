@@ -68,7 +68,7 @@ void tst_QCoapReply::parseReplyPdu_data()
     QList<quint8> bigOptionsLengthsReply({26});
     QList<QByteArray> bigOptionsValuesReply({QByteArray("abcdefghijklmnopqrstuvwxyz")});
 
-    QTest::newRow("reply_with_option_and_payload") << ContentCode
+    QTest::newRow("reply_with_option_and_payload") << ContentCoapCode
                                                    << QCoapMessage::NonConfirmableMessage
                                                    << quint16(64463)
                                                    << QByteArray("4647f09b")
@@ -80,7 +80,7 @@ void tst_QCoapReply::parseReplyPdu_data()
                                                    << "Type: 1 (NON)\nCode: 1 (GET)\nMID: 56400\nToken: 4647f09b"
                                                    << "5445fbcf4647f09bc0211eff547970653a203120284e4f4e290a436f64653a20312028474554290a4d49443a2035363430300a546f6b656e3a203436343766303962";
 
-    QTest::newRow("reply_without_options") << ContentCode
+    QTest::newRow("reply_without_options") << ContentCoapCode
                                            << QCoapMessage::NonConfirmableMessage
                                            << quint16(64463)
                                            << QByteArray("4647f09b")
@@ -92,7 +92,7 @@ void tst_QCoapReply::parseReplyPdu_data()
                                            << "Type: 1 (NON)\nCode: 1 (GET)\nMID: 56400\nToken: 4647f09b"
                                            << "5445fbcf4647f09bff547970653a203120284e4f4e290a436f64653a20312028474554290a4d49443a2035363430300a546f6b656e3a203436343766303962";
 
-    QTest::newRow("reply_without_payload") << ContentCode
+    QTest::newRow("reply_without_payload") << ContentCoapCode
                                            << QCoapMessage::NonConfirmableMessage
                                            << quint16(64463)
                                            << QByteArray("4647f09b")
@@ -104,7 +104,7 @@ void tst_QCoapReply::parseReplyPdu_data()
                                            << ""
                                            << "5445fbcf4647f09bc0211e";
 
-    QTest::newRow("reply_only") << ContentCode
+    QTest::newRow("reply_only") << ContentCoapCode
                                 << QCoapMessage::NonConfirmableMessage
                                 << quint16(64463)
                                 << QByteArray("4647f09b")
@@ -116,7 +116,7 @@ void tst_QCoapReply::parseReplyPdu_data()
                                 << ""
                                 << "5445fbcf4647f09b";
 
-    QTest::newRow("reply_with_big_option") << ContentCode
+    QTest::newRow("reply_with_big_option") << ContentCoapCode
                                            << QCoapMessage::NonConfirmableMessage
                                            << quint16(64463)
                                            << QByteArray("4647f09b")

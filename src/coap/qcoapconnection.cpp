@@ -57,22 +57,22 @@ void QCoapConnection::connectToHost()
     socket->connectToHost(d->host, d->port);
 }
 
-void QCoapConnection::bindToHost()
+void QCoapConnectionPrivate::bindToHost()
 {
     qDebug() << "QCoapConnection::bindToHost()";
 
-    Q_D(QCoapConnection);
+    Q_Q(QCoapConnection);
 
-    QUdpSocket* socket = static_cast<QUdpSocket*>(d->udpSocket);
+    QUdpSocket* socket = static_cast<QUdpSocket*>(udpSocket);
     if (socket->state() == QUdpSocket::ConnectedState)
         socket->disconnectFromHost();
 
-    connect(socket, SIGNAL(error(QAbstractSocket::SocketError)), this, SLOT(_q_socketError(QAbstractSocket::SocketError)));
-    connect(socket, SIGNAL(readyRead()), this, SLOT(_q_socketReadyRead()));
+    q->connect(socket, SIGNAL(error(QAbstractSocket::SocketError)), q, SLOT(_q_socketError(QAbstractSocket::SocketError)));
+    q->connect(socket, SIGNAL(readyRead()), q, SLOT(_q_socketReadyRead()));
     if (socket->bind(QHostAddress::Any, 0, QAbstractSocket::ShareAddress)) {
         qDebug() << "QCoapConnection::bindToHost() - OK";
         qDebug() << "socket port : " << socket->localPort();
-        d->boundToHost();
+        boundToHost();
     }
 }
 
@@ -98,12 +98,12 @@ void QCoapConnection::sendRequest(const QByteArray& request, const QString& host
 
     if (d->state == Bound || d->state == Connected) {
         qDebug() << "QCoapConnection : sendRequest() - Bound or Connected";
-        // QMetaObject::invokeMethod() ???
+        // NOTE : QMetaObject::invokeMethod() ???
         d->_q_startToSendRequest();
     } else if (d->state == Unconnected) {
         qDebug() << "QCoapConnection : sendRequest() - Unconnected";
         connect(this, SIGNAL(bound()), this, SLOT(_q_startToSendRequest()));
-        bindToHost();
+        d->bindToHost();
     }
 }
 
@@ -133,20 +133,17 @@ QByteArray QCoapConnection::readAll()
     return d->lastReply;
 }
 
-void QCoapConnection::writeToSocket(const QByteArray& data)
+void QCoapConnectionPrivate::writeToSocket(const QByteArray& data)
 {
-    Q_D(QCoapConnection);
-
-    if (!d->udpSocket->isWritable())
-        d->udpSocket->open(d->udpSocket->openMode() | QIODevice::WriteOnly);
+    if (!udpSocket->isWritable())
+        udpSocket->open(udpSocket->openMode() | QIODevice::WriteOnly);
 
     qDebug() << "QCoapConnection::writeToSocket()";
     //d->udpSocket->write(data);
-    QUdpSocket* socket = static_cast<QUdpSocket*>(d->udpSocket);
-    socket->writeDatagram(data, QHostAddress(d->host), d->port);
+    QUdpSocket* socket = static_cast<QUdpSocket*>(udpSocket);
+    socket->writeDatagram(data, QHostAddress(host), port);
 }
 
-// NOTE : Might be removed
 void QCoapConnectionPrivate::boundToHost()
 {
     qDebug() << "QCoapConnectionPrivate::boundToHost()";
@@ -155,15 +152,14 @@ void QCoapConnectionPrivate::boundToHost()
     if (state == QCoapConnection::Bound)
         return;
 
-     q->setState(QCoapConnection::Bound);
+     setState(QCoapConnection::Bound);
      emit q->bound();
 }
 
 void QCoapConnectionPrivate::_q_startToSendRequest()
 {
     qDebug() << "QCoapConnectionPrivate::_q_startToSendRequest()";
-    Q_Q(QCoapConnection);
-    q->writeToSocket(currentPdu);
+    writeToSocket(currentPdu);
 }
 
 void QCoapConnectionPrivate::_q_connectedToHost()
@@ -173,7 +169,7 @@ void QCoapConnectionPrivate::_q_connectedToHost()
     if (state == QCoapConnection::Connected)
         return;
 
-     q->setState(QCoapConnection::Connected);
+     setState(QCoapConnection::Connected);
      emit q->connected();
 }
 
@@ -184,7 +180,7 @@ void QCoapConnectionPrivate::_q_disconnectedFromHost()
     if (state == QCoapConnection::Unconnected)
         return;
 
-     q->setState(QCoapConnection::Unconnected);
+     setState(QCoapConnection::Unconnected);
      emit q->disconnected();
 }
 
@@ -242,23 +238,20 @@ void QCoapConnection::setPort(quint16 port)
     d->port = port;
 }
 
-void QCoapConnection::setSocket(QIODevice* device)
+void QCoapConnectionPrivate::setSocket(QIODevice* device)
 {
-    Q_D(QCoapConnection);
-    if (d->udpSocket == device)
+    if (udpSocket == device)
         return;
 
-    d->udpSocket = device;
+    udpSocket = device;
 }
 
-void QCoapConnection::setState(QCoapConnectionState state)
+void QCoapConnectionPrivate::setState(QCoapConnection::QCoapConnectionState newState)
 {
-    Q_D(QCoapConnection);
-
-    if (d->state == state)
+    if (state == newState)
         return;
 
-    d->state = state;
+    state = newState;
 }
 
 QT_END_NAMESPACE

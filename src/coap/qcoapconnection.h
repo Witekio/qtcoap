@@ -43,11 +43,6 @@ signals:
 protected:
     QCoapConnection(QCoapConnectionPrivate& dd, const QString& host = "localhost", quint16 port = 5683, QObject* parent = nullptr);
 
-    void bindToHost();
-    void writeToSocket(const QByteArray& data);
-    void setSocket(QIODevice* device);
-    void setState(QCoapConnectionState state);
-
     Q_DECLARE_PRIVATE(QCoapConnection)
     Q_PRIVATE_SLOT(d_func(), void _q_connectedToHost())
     Q_PRIVATE_SLOT(d_func(), void _q_disconnectedFromHost())

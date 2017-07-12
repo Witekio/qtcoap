@@ -2,39 +2,39 @@
 #define QCOAPGLOBAL_H
 
 enum QCoapOperation {
-    EmptyOperation,
-    GetOperation,
-    PostOperation,
-    PutOperation,
-    DeleteOperation,
-    OtherOperation
+    EmptyCoapOperation,
+    GetCoapOperation,
+    PostCoapOperation,
+    PutCoapOperation,
+    DeleteCoapOperation,
+    OtherCoapOperation
 };
 
 enum QCoapStatusCode {
-    InvalidCode = 0x00,
-    CreatedCode = 0x41, // 2.01
-    DeletedCode = 0x42, // 2.02
-    ValidCode   = 0x43, // 2.03
-    ChangedCode = 0x44, // 2.04
-    ContentCode = 0x45, // 2.05
-    ContinueCode = 0x5F, // 2.31
-    BadRequestCode = 0x80, // 4.00
-    UnauthorizedCode = 0x81, // 4.01
-    BadOptionCode = 0x82, // 4.02
-    ForbiddenCode = 0x83, // 4.03
-    NotFoundCode = 0x84, // 4.04
-    MethodNotAllowedCode = 0x85, // 4.05
-    NotAcceptableCode = 0x86, // 4.06
-    RequestEntityIncompleteCode = 0x88, // 4.08
-    PreconditionFailedCode = 0x8C,  // 4.12
-    RequestEntityTooLargeCode = 0x8D,   // 4.13
-    UnsupportedContentFormatCode = 0x8E, // 4.14
-    InternalServerErrorCode = 0xA0, // 5.00
-    NotImplementedCode = 0xA1,  // 5.01
-    BadGatewayCode = 0xA2,  // 5.02
-    ServiceUnavailableCode = 0xA3,  // 5.03
-    GatewayTimeoutCode = 0xA4,  // 5.04
-    ProxyingNotSupportedCode = 0xA5 // 5.05
+    InvalidCoapCode = 0x00,
+    CreatedCoapCode = 0x41, // 2.01
+    DeletedCoapCode = 0x42, // 2.02
+    ValidCoapCode   = 0x43, // 2.03T
+    ChangedCoapCode = 0x44, // 2.04
+    ContentCoapCode = 0x45, // 2.05
+    ContinueCoapCode = 0x5F, // 2.31
+    BadRequestCoapCode = 0x80, // 4.00
+    UnauthorizedCoapCode = 0x81, // 4.01
+    BadOptionCoapCode = 0x82, // 4.02
+    ForbiddenCoapCode = 0x83, // 4.03
+    NotFoundCoapCode = 0x84, // 4.04
+    MethodNotAllowedCoapCode = 0x85, // 4.05
+    NotAcceptableCoapCode = 0x86, // 4.06
+    RequestEntityIncompleteCoapCode = 0x88, // 4.08
+    PreconditionFailedCoapCode = 0x8C,  // 4.12
+    RequestEntityTooLargeCoapCode = 0x8D,   // 4.13
+    UnsupportedContentFormatCoapCode = 0x8E, // 4.14
+    InternalServerErrorCoapCode = 0xA0, // 5.00
+    NotImplementedCoapCode = 0xA1,  // 5.01
+    BadGatewayCoapCode = 0xA2,  // 5.02
+    ServiceUnavailableCoapCode = 0xA3,  // 5.03
+    GatewayTimeoutCoapCode = 0xA4,  // 5.04
+    ProxyingNotSupportedCoapCode = 0xA5 // 5.05
 };
 
 #endif // QCOAPGLOBAL_H

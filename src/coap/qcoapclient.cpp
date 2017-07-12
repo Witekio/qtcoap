@@ -22,9 +22,10 @@ QCoapClient::QCoapClient(QObject* parent) :
     QObject(* new QCoapClientPrivate, parent)
 {
     Q_D(QCoapClient);
-    connect(d->workerThread, SIGNAL(finished()), d->workerThread, SLOT(deleteLater()));
-    connect(d->connection, SIGNAL(readyRead(const QByteArray&)),
-            d->protocol, SLOT(messageReceived(const QByteArray&)));
+    connect(d->workerThread, &QThread::finished,
+            d->workerThread, &QThread::deleteLater);
+    connect(d->connection, &QCoapConnection::readyRead,
+            d->protocol, &QCoapProtocol::messageReceived);
     qRegisterMetaType<QCoapReply::QCoapNetworkError>();
 }
 
@@ -44,9 +45,9 @@ QCoapReply* QCoapClient::get(const QCoapRequest& request)
     qDebug() << "QCoapClient : get()";
 
     QCoapRequest copyRequest(request);
-    copyRequest.setOperation(GetOperation);
+    copyRequest.setOperation(GetCoapOperation);
 
-    QCoapReply* reply = sendRequest(copyRequest);
+    QCoapReply* reply = d->sendRequest(copyRequest);
     d->requestMap[request] = reply;
 
     return reply;
@@ -58,10 +59,10 @@ QCoapReply* QCoapClient::put(const QCoapRequest& request, const QByteArray& data
     qDebug() << "QCoapClient : put()";
 
     QCoapRequest copyRequest(request);
-    copyRequest.setOperation(PutOperation);
+    copyRequest.setOperation(PutCoapOperation);
     copyRequest.setPayload(data);
 
-    QCoapReply* reply = sendRequest(copyRequest);
+    QCoapReply* reply = d->sendRequest(copyRequest);
     d->requestMap[request] = reply;
 
     return reply;
@@ -84,10 +85,10 @@ QCoapReply* QCoapClient::post(const QCoapRequest& request, const QByteArray& dat
     qDebug() << "QCoapClient : post()";
 
     QCoapRequest copyRequest(request);
-    copyRequest.setOperation(PostOperation);
+    copyRequest.setOperation(PostCoapOperation);
     copyRequest.setPayload(data);
 
-    QCoapReply* reply = sendRequest(copyRequest);
+    QCoapReply* reply = d->sendRequest(copyRequest);
     d->requestMap[request] = reply;
 
     return reply;
@@ -111,9 +112,9 @@ QCoapReply* QCoapClient::deleteResource(const QCoapRequest& request)
     qDebug() << "QCoapClient : delete()";
 
     QCoapRequest copyRequest(request);
-    copyRequest.setOperation(DeleteOperation);
+    copyRequest.setOperation(DeleteCoapOperation);
 
-    QCoapReply* reply = sendRequest(copyRequest);
+    QCoapReply* reply = d->sendRequest(copyRequest);
     d->requestMap[request] = reply;
 
     return reply;
@@ -125,9 +126,9 @@ QCoapDiscoveryReply* QCoapClient::discover(const QUrl& url, const QString& disco
     QUrl discoveryUrl(url.toString().append(discoveryPath));
 
     QCoapRequest request(discoveryUrl);
-    request.setOperation(GetOperation);
+    request.setOperation(GetCoapOperation);
 
-    QCoapDiscoveryReply* reply = sendDiscovery(request);
+    QCoapDiscoveryReply* reply = d->sendDiscovery(request);
     d->requestMap[request] = reply;
 
     return reply;
@@ -140,7 +141,6 @@ QCoapReply* QCoapClient::observe(const QCoapRequest& request)
     QCoapRequest copyRequest(request);
     copyRequest.addOption(QCoapOption::ObserveOption);
     copyRequest.setObserve(true);
-    //copyRequest.setType(QCoapMessage::ConfirmableMessage);
 
     QCoapReply* reply = nullptr;
     reply = get(copyRequest);
@@ -160,33 +160,31 @@ void QCoapClient::cancelObserve(QCoapReply* notifiedReply)
     d_func()->protocol->cancelObserve(notifiedReply);
 }
 
-QCoapReply* QCoapClient::sendRequest(const QCoapRequest& request)
+QCoapReply* QCoapClientPrivate::sendRequest(const QCoapRequest& request)
 {
     qDebug() << "QCoapClient::sendRequest()";
-    Q_D(QCoapClient);
+    Q_Q(QCoapClient);
 
     // Prepare the reply and send it
-    QCoapReply* reply = new QCoapReply(this);
+    QCoapReply* reply = new QCoapReply(q);
     reply->setRequest(request);
 
-    qDebug() << "client : " << this->thread() << " protocol :" << d->protocol->thread();
+    qDebug() << "client : " << q->thread() << " protocol :" << protocol->thread();
 
-    d->protocol->sendRequest(reply, d->connection);
-
-    //connect(reply, SIGNAL(finished()), workerThread, SLOT(quit()));
+    protocol->sendRequest(reply, connection);
 
     return reply;
 }
 
-QCoapDiscoveryReply* QCoapClient::sendDiscovery(const QCoapRequest& request)
+QCoapDiscoveryReply* QCoapClientPrivate::sendDiscovery(const QCoapRequest& request)
 {
-    Q_D(QCoapClient);
+    Q_Q(QCoapClient);
 
     // Prepare the reply and send it
-    QCoapDiscoveryReply* reply = new QCoapDiscoveryReply(this);
+    QCoapDiscoveryReply* reply = new QCoapDiscoveryReply(q);
     reply->setRequest(request);
 
-    d->protocol->sendRequest(reply, d->connection);
+    protocol->sendRequest(reply, connection);
 
     return reply;
 }
@@ -205,9 +203,8 @@ void QCoapClient::setBlockSize(quint16 blockSize)
 {
     Q_D(QCoapClient);
     // If it is not a power of two
-    if ((blockSize & (blockSize-1)) != 0) {
+    if ((blockSize & (blockSize-1)) != 0)
         return;
-    }
 
     d->protocol->setBlockSize(blockSize);
 }

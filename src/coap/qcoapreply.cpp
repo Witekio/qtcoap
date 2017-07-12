@@ -4,7 +4,7 @@
 #include <QtMath>
 
 QCoapReplyPrivate::QCoapReplyPrivate() :
-    status(InvalidCode),
+    status(InvalidCoapCode),
     message(QCoapMessage()),
     isRunning(false),
     isFinished(false),
@@ -127,7 +127,7 @@ void QCoapReply::updateFromInternalReply(const QCoapInternalReply& internalReply
         d_func()->isFinished = true;
         d_func()->isRunning = false;
 
-        if (d_func()->status >= BadRequestCode)
+        if (d_func()->status >= BadRequestCoapCode)
             replyError(d_func()->status);
 
         if (d_func()->request.observe())
@@ -150,7 +150,7 @@ void QCoapReply::replyError(QCoapStatusCode errorCode)
     QCoapNetworkError networkError;
     // TODO : add other errors
     switch (errorCode) {
-    case BadRequestCode:
+    case BadRequestCoapCode:
         networkError = BadRequestCoapError;
         break;
     default:

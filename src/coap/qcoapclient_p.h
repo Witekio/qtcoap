@@ -20,6 +20,9 @@ public:
     QCoapConnection* connection;
     QThread* workerThread;
 
+    QCoapReply* sendRequest(const QCoapRequest& request);
+    QCoapDiscoveryReply* sendDiscovery(const QCoapRequest& request);
+
     Q_DECLARE_PUBLIC(QCoapClient)
 };
 

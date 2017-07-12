@@ -98,16 +98,16 @@ void tst_QCoapClient::operations()
 
     if (qstrcmp(QTest::currentDataTag(), "get") == 0) {
         QVERIFY(!replyData.isEmpty());
-        QCOMPARE(reply->statusCode(), ContentCode);
+        QCOMPARE(reply->statusCode(), ContentCoapCode);
     } else if (qstrcmp(QTest::currentDataTag(), "post") == 0) {
         QVERIFY(replyData.isEmpty());
-        QCOMPARE(reply->statusCode(), CreatedCode);
+        QCOMPARE(reply->statusCode(), CreatedCoapCode);
     } else if (qstrcmp(QTest::currentDataTag(), "put") == 0) {
         QVERIFY(replyData.isEmpty());
-        QCOMPARE(reply->statusCode(), ChangedCode);
+        QCOMPARE(reply->statusCode(), ChangedCoapCode);
     } else if (qstrcmp(QTest::currentDataTag(), "delete") == 0) {
         QVERIFY(replyData.isEmpty());
-        QCOMPARE(reply->statusCode(), DeletedCode);
+        QCOMPARE(reply->statusCode(), DeletedCoapCode);
     }
 
     delete reply;
@@ -138,7 +138,7 @@ void tst_QCoapClient::separateOperation()
     QByteArray replyData = reply->readAll();
 
     QVERIFY(!replyData.isEmpty());
-    QCOMPARE(reply->statusCode(), ContentCode);
+    QCOMPARE(reply->statusCode(), ContentCoapCode);
 
     delete reply;
 }
@@ -202,10 +202,10 @@ void tst_QCoapClient::requestWithQIODevice()
 
     if (qstrcmp(QTest::currentDataTag(), "post") == 0) {
         QVERIFY(replyData.isEmpty());
-        QCOMPARE(reply->statusCode(), CreatedCode);
+        QCOMPARE(reply->statusCode(), CreatedCoapCode);
     } else if (qstrcmp(QTest::currentDataTag(), "put") == 0) {
         QVERIFY(replyData.isEmpty());
-        QCOMPARE(reply->statusCode(), ChangedCode);
+        QCOMPARE(reply->statusCode(), ChangedCoapCode);
     }
 
     delete reply;
@@ -254,13 +254,13 @@ void tst_QCoapClient::multipleRequests()
     qDebug() << "replyGet4Data : " << replyGet4Data;
 
     QVERIFY(!replyGet1Data.isEmpty());
-    QCOMPARE(replyGet1->statusCode(), ContentCode);
+    QCOMPARE(replyGet1->statusCode(), ContentCoapCode);
     QVERIFY(!replyGet2Data.isEmpty());
-    QCOMPARE(replyGet2->statusCode(), ContentCode);
+    QCOMPARE(replyGet2->statusCode(), ContentCoapCode);
     QVERIFY(!replyGet3Data.isEmpty());
-    QCOMPARE(replyGet3->statusCode(), ContentCode);
+    QCOMPARE(replyGet3->statusCode(), ContentCoapCode);
     QVERIFY(!replyGet4Data.isEmpty());
-    QCOMPARE(replyGet4->statusCode(), ContentCode);
+    QCOMPARE(replyGet4->statusCode(), ContentCoapCode);
 }
 
 void tst_QCoapClient::timeout()
@@ -378,12 +378,12 @@ void tst_QCoapClient::blockwiseRequest_data()
     QTest::newRow("large_post_empty_reply") << QUrl("coap://172.17.0.3:5683/query")
                                << QCoapMessage::NonConfirmableMessage
                                << data
-                               << MethodNotAllowedCode
+                               << MethodNotAllowedCoapCode
                                << QByteArray();
     QTest::newRow("large_post_large_reply") << QUrl("coap://172.17.0.3:5683/large-post")
                                << QCoapMessage::NonConfirmableMessage
                                << data
-                               << ChangedCode
+                               << ChangedCoapCode
                                << data.toUpper();
 }
 

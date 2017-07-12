@@ -9,7 +9,7 @@ QCoapRequestPrivate::QCoapRequestPrivate() :
     url(QUrl()),
     proxyUrl(QUrl()),
     //connection(new QCoapConnection),
-    operation(EmptyOperation),
+    operation(EmptyCoapOperation),
     observe(false)
 {
 }

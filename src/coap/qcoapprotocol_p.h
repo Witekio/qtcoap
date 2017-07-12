@@ -28,13 +28,9 @@ public:
 
     void handleFrame();
     void handleFrame(const QByteArray& frame);
-    //void onLastBlock(QCoapReply* request);
     void onLastBlock(QCoapInternalRequest* request);
-    //void onNextBlock(QCoapReply* reply, uint currentBlockNumber);
     void onNextBlock(QCoapInternalRequest* request, uint currentBlockNumber, uint blockSize);
-    //void sendAcknowledgment(QCoapReply* reply);
     void sendAcknowledgment(QCoapInternalRequest* request);
-    //void sendReset(QCoapReply* reply);
     void sendReset(QCoapInternalRequest* request);
     QByteArray encode(QCoapInternalRequest* request);
     QCoapInternalReply* decode(const QByteArray& message);
@@ -44,9 +40,7 @@ public:
     void resendRequest(QCoapInternalRequest* request);
     bool containsMessageId(quint16 id);
     bool containsToken(const QByteArray& token);
-    //QCoapReply* findReplyByToken(const QByteArray& token);
     QCoapInternalRequest* findRequestByToken(const QByteArray& token);
-    //QCoapReply* findReplyByMessageId(quint16 messageId);
     QCoapInternalRequest* findRequestByMessageId(quint16 messageId);
     QCoapInternalRequest* findInternalRequest(QCoapReply* reply);
 
@@ -58,7 +52,6 @@ public:
     uint ackTimeout;
     double ackRandomFactor;
     uint maxRetransmit;
-    //uint maxTransmitSpan;
 
     Q_DECLARE_PUBLIC(QCoapProtocol)
 };
