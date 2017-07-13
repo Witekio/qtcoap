@@ -13,10 +13,10 @@ class QCoapMessage
 {
 public:
     enum QCoapMessageType {
-        ConfirmableMessage,
-        NonConfirmableMessage,
+        ConfirmableCoapMessage,
+        NonConfirmableCoapMessage,
         AcknowledgmentMessage,
-        ResetMessage
+        ResetCoapMessage
     };
 
     QCoapMessage();
@@ -33,6 +33,7 @@ public:
     QList<QCoapOption> optionList() const;
     int optionsLength() const;
     void setVersion(quint8 version);
+    // TODO : move some setter into provate part ? (and use friend if needed)
     void setType(const QCoapMessageType& type);
     void setToken(const QByteArray& token);
     void setMessageId(quint16);

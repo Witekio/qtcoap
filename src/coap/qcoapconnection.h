@@ -15,14 +15,13 @@ class QCoapConnection : public QObject
 public:
     enum QCoapConnectionState {
         Unconnected,
-        Connected,
         Bound
     };
 
+    // TODO : Remove host and port parameters into the constructor
     explicit QCoapConnection(const QString& host = "localhost", quint16 port = 5683, QObject* parent = nullptr);
     ~QCoapConnection();
 
-    void connectToHost();
     void sendRequest(const QByteArray& request, const QString& host, quint16 port);
     QByteArray readAll();
 
@@ -30,12 +29,8 @@ public:
     quint16 port() const;
     QIODevice* socket() const;
     QCoapConnectionState state() const;
-    void setHost(const QString& host);
-    void setPort(quint16 port);
 
 signals:
-    void connected();
-    void disconnected();
     void bound();
     void error(QAbstractSocket::SocketError);
     void readyRead(const QByteArray& frame);
@@ -44,9 +39,8 @@ protected:
     QCoapConnection(QCoapConnectionPrivate& dd, const QString& host = "localhost", quint16 port = 5683, QObject* parent = nullptr);
 
     Q_DECLARE_PRIVATE(QCoapConnection)
-    Q_PRIVATE_SLOT(d_func(), void _q_connectedToHost())
-    Q_PRIVATE_SLOT(d_func(), void _q_disconnectedFromHost())
     Q_PRIVATE_SLOT(d_func(), void _q_socketReadyRead())
+    Q_PRIVATE_SLOT(d_func(), void _q_socketBound())
     Q_PRIVATE_SLOT(d_func(), void _q_startToSendRequest())
     Q_PRIVATE_SLOT(d_func(), void _q_socketError(QAbstractSocket::SocketError))
 };

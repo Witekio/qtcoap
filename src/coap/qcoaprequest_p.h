@@ -13,10 +13,8 @@ public:
     QCoapRequestPrivate(const QCoapRequestPrivate &other);
     ~QCoapRequestPrivate() {}
 
-    QUrl url;
-    QUrl proxyUrl;
-    // TODO : remove connection ?
-    //QCoapConnection* connection;
+    QUrl uri;
+    QUrl proxyUri;
     QCoapOperation operation;
     bool observe;
 };

@@ -5,7 +5,7 @@
 QCoapMessagePrivate::QCoapMessagePrivate() :
     QSharedData(),
     version(1),
-    type(QCoapMessage::NonConfirmableMessage),
+    type(QCoapMessage::NonConfirmableCoapMessage),
     messageId(0),
     token(QByteArray()),
     payload(QByteArray())
@@ -79,7 +79,7 @@ QCoapOption QCoapMessage::findOptionByName(QCoapOption::QCoapOptionName name)
             return option;
     }
 
-    return QCoapOption(QCoapOption::InvalidOption, QByteArray());
+    return QCoapOption(QCoapOption::InvalidCoapOption, QByteArray());
 }
 
 void QCoapMessage::removeAllOptions()

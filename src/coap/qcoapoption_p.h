@@ -12,6 +12,7 @@ public:
     QCoapOptionPrivate();
 
     QCoapOption::QCoapOptionName name;
+    // TODO : remove length ?
     quint8 length;
     QByteArray value;
 };

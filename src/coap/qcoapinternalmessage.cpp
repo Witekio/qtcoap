@@ -4,7 +4,6 @@
 
 QT_BEGIN_NAMESPACE
 
-// TODO : remove pointer for message ?
 QCoapInternalMessagePrivate::QCoapInternalMessagePrivate() :
     currentBlockNumber(0),
     hasNextBlock(false),

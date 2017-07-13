@@ -31,14 +31,12 @@ public:
 
     static QList<QCoapResource> resourcesFromCoreLinkList(const QByteArray& data);
 
-public slots:
-    void messageReceived(const QByteArray& frameReply);
-    void onAbortedRequest(QCoapReply* reply);
-
 private:
     Q_DECLARE_PRIVATE(QCoapProtocol)
     Q_PRIVATE_SLOT(d_func(), void resendRequest(QCoapInternalRequest*))
     Q_PRIVATE_SLOT(d_func(), void sendRequest(QCoapInternalRequest*))
+    Q_PRIVATE_SLOT(d_func(), void messageReceived(const QByteArray&))
+    Q_PRIVATE_SLOT(d_func(), void onAbortedRequest(QCoapReply* reply))
 };
 
 QT_END_NAMESPACE

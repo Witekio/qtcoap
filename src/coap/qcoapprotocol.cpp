@@ -4,7 +4,6 @@
 QT_BEGIN_NAMESPACE
 
 QCoapProtocolPrivate::QCoapProtocolPrivate() :
-    state(WAITING),
     blockSize(0),
     ackTimeout(2000),
     ackRandomFactor(1.5),
@@ -22,10 +21,9 @@ void QCoapProtocol::sendRequest(QCoapReply* reply, QCoapConnection* connection)
 {
     Q_D(QCoapProtocol);
 
-    // connect with QueuedConnection to secure from deleting the reply (destructor emit signal)
-    connect(reply, &QCoapReply::aborted, this, &QCoapProtocol::onAbortedRequest, Qt::QueuedConnection);
-    // TODO : uncomment
-    // connect(connection, SIGNAL(error(QAbstractSocket::SocketError)), reply, SLOT(connectionError(QAbstractSocket::SocketError)));
+    // connect with QueuedConnection type to secure from deleting the reply (reply destructor emit the signal)
+    connect(reply, SIGNAL(aborted(QCoapReply*)), this, SLOT(onAbortedRequest(QCoapReply*)), Qt::QueuedConnection);
+    connect(connection, SIGNAL(error(QAbstractSocket::SocketError)), reply, SLOT(connectionError(QAbstractSocket::SocketError)));
 
     if(!reply)
         return;
@@ -47,7 +45,7 @@ void QCoapProtocol::sendRequest(QCoapReply* reply, QCoapConnection* connection)
     copyInternalRequest->setConnection(connection);
 
     // If this request does not already exist we add it to the map
-    if (!d->findRequestByToken(copyInternalRequest->message().token())) {
+    if (!d->findInternalRequestByToken(copyInternalRequest->message().token())) {
             InternalMessagePair pair = { reply, QList<QCoapInternalReply*>() };
             d->internalReplies[copyInternalRequest] = pair;
     }
@@ -63,7 +61,6 @@ void QCoapProtocol::sendRequest(QCoapReply* reply, QCoapConnection* connection)
 
     reply->setIsRunning(true);
     copyInternalRequest->setTimeout(d->ackTimeout);
-    // TODO : something like this but we need the request to resend
     connect(copyInternalRequest, SIGNAL(timeout(QCoapInternalRequest*)),
             this, SLOT(resendRequest(QCoapInternalRequest*)));
 
@@ -83,14 +80,12 @@ void QCoapProtocolPrivate::sendRequest(QCoapInternalRequest* request)
     request->connection()->sendRequest(requestFrame, uri.host(), uri.port());
 }
 
-void QCoapProtocol::messageReceived(const QByteArray& frameReply)
+void QCoapProtocolPrivate::messageReceived(const QByteArray& frameReply)
 {
     //qDebug() << "QCoapProtocol::messageReceived() - " << frameReply;
-    Q_D(QCoapProtocol);
-
-    d->frameQueue.enqueue(frameReply);
-    if (d->frameQueue.size() == 1)
-        d->handleFrame();
+    frameQueue.enqueue(frameReply);
+    if (frameQueue.size() == 1)
+        handleFrame();
 }
 
 void QCoapProtocolPrivate::handleFrame()
@@ -122,10 +117,10 @@ void QCoapProtocolPrivate::handleFrame(const QByteArray& frame)
              << " - Token : " << internalReply.token();*/
 
     if (!internalReplyMessage.token().isEmpty())
-        request = findRequestByToken(internalReplyMessage.token());
+        request = findInternalRequestByToken(internalReplyMessage.token());
 
     if (!request) {
-        request = findRequestByMessageId(internalReplyMessage.messageId());
+        request = findInternalRequestByMessageId(internalReplyMessage.messageId());
         if (!request) {
             qDebug() << "No request found (handleFrame)";
             return;
@@ -138,9 +133,9 @@ void QCoapProtocolPrivate::handleFrame(const QByteArray& frame)
     // Reply when the server ask an ACK
     if (request->cancelObserve()) {
         // Remove option to ensure that it will stop
-        request->removeOptionByName(QCoapOption::ObserveOption);
+        request->removeOptionByName(QCoapOption::ObserveCoapOption);
         sendReset(request);
-    } else if (internalReplyMessage.type() == QCoapMessage::ConfirmableMessage) {
+    } else if (internalReplyMessage.type() == QCoapMessage::ConfirmableCoapMessage) {
         sendAcknowledgment(request);
     }
 
@@ -163,7 +158,7 @@ void QCoapProtocolPrivate::handleFrame(const QByteArray& frame)
         handleFrame();
 }
 
-QCoapInternalRequest* QCoapProtocolPrivate::findRequestByToken(const QByteArray& token)
+QCoapInternalRequest* QCoapProtocolPrivate::findInternalRequestByToken(const QByteArray& token)
 {
     /*for (QCoapInternalRequest request : internalReplies.keys()) {
         if (request.message()->token() == token)
@@ -179,7 +174,7 @@ QCoapInternalRequest* QCoapProtocolPrivate::findRequestByToken(const QByteArray&
     return nullptr;
 }
 
-QCoapInternalRequest* QCoapProtocolPrivate::findInternalRequest(QCoapReply* reply)
+QCoapInternalRequest* QCoapProtocolPrivate::findInternalRequestByReply(QCoapReply* reply)
 {
     QCoapInternalRequest* copyRequest = nullptr;
     for (InternalMessageMap::Iterator it = internalReplies.begin(); it != internalReplies.end(); ++it) {
@@ -192,7 +187,7 @@ QCoapInternalRequest* QCoapProtocolPrivate::findInternalRequest(QCoapReply* repl
     return copyRequest;
 }
 
-QCoapInternalRequest* QCoapProtocolPrivate::findRequestByMessageId(quint16 messageId)
+QCoapInternalRequest* QCoapProtocolPrivate::findInternalRequestByMessageId(quint16 messageId)
 {
     /*for (QCoapInternalRequest request : internalReplies.keys()) {
         if (request.message()->messageId() == messageId)
@@ -317,15 +312,14 @@ QCoapInternalReply* QCoapProtocolPrivate::decode(const QByteArray& message)
     //return QCoapInternalReply::fromQByteArray(message);
 }
 
-void QCoapProtocol::onAbortedRequest(QCoapReply* reply)
+void QCoapProtocolPrivate::onAbortedRequest(QCoapReply* reply)
 {
     qDebug() << "QCoapProtocol::onAbortedRequest()";
-    Q_D(QCoapProtocol);
-    QCoapInternalRequest* request = d->findInternalRequest(reply);
+    QCoapInternalRequest* request = findInternalRequestByReply(reply);
     if (request) {
         qDebug() << "REMOVE REQUEST";
         request->stopTransmission();
-        d->internalReplies.remove(request);
+        internalReplies.remove(request);
     }
 }
 
@@ -427,11 +421,6 @@ void QCoapProtocol::setBlockSize(quint16 blockSize)
     // A size of 0 mean that the server choose the blocks size
     Q_D(QCoapProtocol);
     d->blockSize = blockSize;
-}
-
-void QCoapProtocolPrivate::setState(ProtocolState newState)
-{
-    state = newState;
 }
 
 QT_END_NAMESPACE

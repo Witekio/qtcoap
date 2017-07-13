@@ -23,6 +23,8 @@ public:
     QCoapReply* sendRequest(const QCoapRequest& request);
     QCoapDiscoveryReply* sendDiscovery(const QCoapRequest& request);
 
+    void setConnection(QCoapConnection* newConnection);
+
     Q_DECLARE_PUBLIC(QCoapClient)
 };
 

@@ -43,9 +43,9 @@ void tst_QCoapMessage::setMessageType_data()
     QTest::addColumn<QCoapMessage::QCoapMessageType>("type");
 
     QTest::newRow("acknowledgment") << QCoapMessage::AcknowledgmentMessage;
-    QTest::newRow("confirmable") << QCoapMessage::ConfirmableMessage;
-    QTest::newRow("non-confirmable") << QCoapMessage::NonConfirmableMessage;
-    QTest::newRow("reset") << QCoapMessage::ResetMessage;
+    QTest::newRow("confirmable") << QCoapMessage::ConfirmableCoapMessage;
+    QTest::newRow("non-confirmable") << QCoapMessage::NonConfirmableCoapMessage;
+    QTest::newRow("reset") << QCoapMessage::ResetCoapMessage;
 }
 
 void tst_QCoapMessage::setMessageType()

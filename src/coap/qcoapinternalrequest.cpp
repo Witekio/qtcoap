@@ -7,7 +7,6 @@ QT_BEGIN_NAMESPACE
 QCoapInternalRequestPrivate::QCoapInternalRequestPrivate() :
     targetUri(QUrl()),
     operation(EmptyCoapOperation),
-    isValid(true),
     cancelObserve(false),
     retransmissionCounter(0),
     timeout(0),
@@ -57,19 +56,11 @@ void QCoapInternalRequest::initForReset(quint16 messageId)
     Q_D(QCoapInternalRequest);
 
     setOperation(EmptyCoapOperation);
-    d->message.setType(QCoapMessage::ResetMessage);
+    d->message.setType(QCoapMessage::ResetCoapMessage);
     d->message.setMessageId(messageId);
     d->message.setToken(QByteArray());
     d->message.setPayload(QByteArray());
     d->message.removeAllOptions();
-}
-
-QCoapInternalRequest QCoapInternalRequest::invalidRequest()
-{
-    QCoapInternalRequest internalRequest;
-    QCoapInternalRequestPrivate* d = internalRequest.d_func();
-    d->isValid = false;
-    return internalRequest;
 }
 
 QByteArray QCoapInternalRequest::toQByteArray() const
@@ -172,9 +163,9 @@ void QCoapInternalRequest::setRequestToAskBlock(uint blockNumber, uint blockSize
         block2Value.append(static_cast<char>(block2Data >> 8 & 0xFF));
     block2Value.append(static_cast<char>(block2Data & 0xFF));
 
-    d->message.removeOptionByName(QCoapOption::Block2Option);
-    d->message.removeOptionByName(QCoapOption::Block1Option);
-    addOption(QCoapOption::Block2Option, block2Value);
+    d->message.removeOptionByName(QCoapOption::Block2CoapOption);
+    d->message.removeOptionByName(QCoapOption::Block1CoapOption);
+    addOption(QCoapOption::Block2CoapOption, block2Value);
 
     d->message.setMessageId(d->message.messageId()+1);
 }
@@ -198,9 +189,9 @@ void QCoapInternalRequest::setRequestToSendBlock(uint blockNumber, uint blockSiz
         block2Value.append(static_cast<char>(block2Data >> 8 & 0xFF));
     block2Value.append(static_cast<char>(block2Data & 0xFF));
 
-    d->message.removeOptionByName(QCoapOption::Block1Option);
+    d->message.removeOptionByName(QCoapOption::Block1CoapOption);
     //removeOptionByName(QCoapOption::Block2Option);
-    addOption(QCoapOption::Block1Option, block2Value);
+    addOption(QCoapOption::Block1CoapOption, block2Value);
 
     d->message.setMessageId(d->message.messageId()+1);
 }
@@ -233,7 +224,7 @@ void QCoapInternalRequest::addOption(const QCoapOption& option)
 {
     Q_D(QCoapInternalRequest);
     // If it is a BLOCK option, we need to know the block number
-    if (option.name() == QCoapOption::Block1Option) {
+    if (option.name() == QCoapOption::Block1CoapOption) {
         quint32 blockNumber = 0;
         quint8 *optionData = reinterpret_cast<quint8 *>(option.value().data());
         for (int i = 0; i < option.length() - 1; ++i)
@@ -241,7 +232,7 @@ void QCoapInternalRequest::addOption(const QCoapOption& option)
         blockNumber = (blockNumber << 4) | ((optionData[option.length()-1]) >> 4);
         d->currentBlockNumber = blockNumber;
         d->hasNextBlock = ((optionData[option.length()-1] & 0x8) == 0x8);
-        d->blockSize = qPow(2, (optionData[option.length()-1] & 0x7) + 4);
+        d->blockSize = static_cast<uint>(qPow(2, (optionData[option.length()-1] & 0x7) + 4));
     }
 
     d->message.addOption(option);
@@ -257,19 +248,19 @@ void QCoapInternalRequest::addUriOptions(const QUrl& uri, const QUrl& proxyUri)
     } else {
         // Add proxy options
         mainUri = proxyUri;
-        addOption(QCoapOption::ProxyUriOption, uri.toString().toUtf8());
+        addOption(QCoapOption::ProxyUriCoapOption, uri.toString().toUtf8());
     }
 
     QRegExp ipv4Regex("^([0-9]{1,3}.){3}([0-9]{1,3})$");
     QString host = mainUri.host();
     if (!ipv4Regex.exactMatch(host)) {
-        addOption(QCoapOption::UriHostOption, host.toUtf8());
+        addOption(QCoapOption::UriHostCoapOption, host.toUtf8());
     }
 
     // Convert port into QCoapOption if it is not the default port
     int port = mainUri.port();
     if (port > 0 && port != 5683){
-        addOption(QCoapOption::UriPortOption, QByteArray::number(port, 10));
+        addOption(QCoapOption::UriPortCoapOption, QByteArray::number(port, 10));
     }
 
     // Convert path into QCoapOptions
@@ -277,7 +268,7 @@ void QCoapInternalRequest::addUriOptions(const QUrl& uri, const QUrl& proxyUri)
     QStringList listPath = path.split("/");
     for (QString pathPart : listPath) {
         if (!pathPart.isEmpty())
-            addOption(QCoapOption::UriPathOption, pathPart.toUtf8());
+            addOption(QCoapOption::UriPathCoapOption, pathPart.toUtf8());
     }
 
     // Convert query into QCoapOptions
@@ -285,7 +276,7 @@ void QCoapInternalRequest::addUriOptions(const QUrl& uri, const QUrl& proxyUri)
     QStringList listQuery = query.split("&");
     for (QString query : listQuery) {
         if (!query.isEmpty())
-            addOption(QCoapOption::UriQueryOption, query.toUtf8());
+            addOption(QCoapOption::UriQueryCoapOption, query.toUtf8());
     }
 
     d->targetUri = mainUri;
@@ -320,11 +311,6 @@ void QCoapInternalRequestPrivate::_q_timeout()
 QUrl QCoapInternalRequest::targetUri() const
 {
     return d_func()->targetUri;
-}
-
-bool QCoapInternalRequest::isValid() const
-{
-    return d_func()->isValid;
 }
 
 QCoapConnection* QCoapInternalRequest::connection() const
@@ -385,7 +371,7 @@ void QCoapInternalRequest::setTargetUri(QUrl targetUri)
     d->targetUri = targetUri;
 }
 
-void QCoapInternalRequest::setTimeout(int timeout)
+void QCoapInternalRequest::setTimeout(uint timeout)
 {
     Q_D(QCoapInternalRequest);
     d->timeout = timeout;
@@ -396,14 +382,8 @@ bool QCoapInternalRequest::operator<(const QCoapInternalRequest& other) const
     Q_D(const QCoapInternalRequest);
     const QCoapInternalRequestPrivate* d_other = other.d_func();
 
-    return (d->message.token() < d_other->message.token());
+    return (d->message.messageId() < d_other->message.messageId());
 }
-
-/*void QCoapInternalRequestPrivate::_q_timeout()
-{
-    Q_Q(QCoapInternalRequest);
-    emit q->timeout(this);
-}*/
 
 QT_END_NAMESPACE
 

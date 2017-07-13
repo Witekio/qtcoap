@@ -6,9 +6,8 @@
 QT_BEGIN_NAMESPACE
 
 QCoapRequestPrivate::QCoapRequestPrivate() :
-    url(QUrl()),
-    proxyUrl(QUrl()),
-    //connection(new QCoapConnection),
+    uri(QUrl()),
+    proxyUri(QUrl()),
     operation(EmptyCoapOperation),
     observe(false)
 {
@@ -16,9 +15,8 @@ QCoapRequestPrivate::QCoapRequestPrivate() :
 
 QCoapRequestPrivate::QCoapRequestPrivate(const QCoapRequestPrivate &other) :
     QCoapMessagePrivate(other),
-    url(other.url),
-    proxyUrl(other.proxyUrl),
-    //connection(other.connection),
+    uri(other.uri),
+    proxyUri(other.proxyUri),
     operation(other.operation),
     observe(other.observe)
 {
@@ -38,63 +36,17 @@ QCoapRequest::QCoapRequest(const QCoapRequest &other) :
 {
 }
 
-// TODO : move parseUri into internalRequest : addUriOptions
-// (and remove from constructor) + take care of proxy
-void QCoapRequest::parseUri()
-{
-    QCoapRequestPrivate* d = static_cast<QCoapRequestPrivate*>(d_ptr);
-
-    // Convert host to QCoapOption if it is not an ip address
-    // TODO : ipv6
-    QRegExp ipv4Regex("^([0-9]{1,3}.){3}([0-9]{1,3})$");
-    QString host = d->url.host();
-    if (!ipv4Regex.exactMatch(host)) {
-        addOption(QCoapOption::UriHostOption, host.toUtf8());
-    }
-
-    // Convert port into QCoapOption if it is not the default port
-    int port = d->url.port();
-    if (port > 0 && port != 5683){
-        addOption(QCoapOption::UriPortOption, QByteArray::number(port, 10));
-    }
-
-    // Convert path into QCoapOptions
-    QString path = d->url.path();
-    QStringList listPath = path.split("/");
-    for (QString pathPart : listPath) {
-        if (!pathPart.isEmpty())
-            addOption(QCoapOption::UriPathOption, pathPart.toUtf8());
-    }
-
-    // Convert query into QCoapOptions
-    QString query = d->url.query();
-    QStringList listQuery = query.split("&");
-    for (QString query : listQuery) {
-        if (!query.isEmpty())
-            addOption(QCoapOption::UriQueryOption, query.toUtf8());
-    }
-
-    //d->connection->setHost(d->url.host());
-    //d->connection->setPort(d->url.port(5683));
-}
-
 QUrl QCoapRequest::url() const
 {
     QCoapRequestPrivate* d = static_cast<QCoapRequestPrivate*>(d_ptr);
-    return d->url;
+    return d->uri;
 }
 
 QUrl QCoapRequest::proxyUrl() const
 {
     QCoapRequestPrivate* d = static_cast<QCoapRequestPrivate*>(d_ptr);
-    return d->proxyUrl;
+    return d->proxyUri;
 }
-
-/*QCoapConnection* QCoapRequest::connection() const
-{
-    QCoapRequestPrivate* d = static_cast<QCoapRequestPrivate*>(d_ptr);
-    return d->connection;
-}*/
 
 QCoapOperation QCoapRequest::operation() const
 {
@@ -111,29 +63,20 @@ bool QCoapRequest::observe() const
 void QCoapRequest::setUrl(const QUrl& url)
 {
     QCoapRequestPrivate* d = static_cast<QCoapRequestPrivate*>(d_ptr);
-    if (d->url == url)
+    if (d->uri == url)
         return;
 
-    d->url = url;
+    d->uri = url;
 }
 
 void QCoapRequest::setProxyUrl(const QUrl& proxyUrl)
 {
     QCoapRequestPrivate* d = static_cast<QCoapRequestPrivate*>(d_ptr);
-    if (d->proxyUrl == proxyUrl)
+    if (d->proxyUri == proxyUrl)
         return;
 
-    d->proxyUrl = proxyUrl;
+    d->proxyUri = proxyUrl;
 }
-
-/*void QCoapRequest::setConnection(QCoapConnection* connection)
-{
-    QCoapRequestPrivate* d = static_cast<QCoapRequestPrivate*>(d_ptr);
-    if (d->connection == connection)
-        return;
-
-    d->connection = connection;
-}*/
 
 void QCoapRequest::setOperation(QCoapOperation operation)
 {

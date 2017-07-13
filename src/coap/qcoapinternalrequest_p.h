@@ -21,7 +21,6 @@ public:
     QCoapInternalRequest(QObject* parent = Q_NULLPTR);
     QCoapInternalRequest(const QCoapRequest& request, QObject* parent = Q_NULLPTR);
 
-    static QCoapInternalRequest invalidRequest();
     void initForAcknowledgment(quint16 messageId, const QByteArray& token);
     void initForReset(quint16 messageId);
 
@@ -47,10 +46,11 @@ public:
     void setCancelObserve(bool cancelObserve);
 
     void setTargetUri(QUrl targetUri);
-    void setTimeout(int timeout);
+    void setTimeout(uint timeout);
     void beginTransmission();
     void stopTransmission();
 
+    // To use into QMap
     bool operator<(const QCoapInternalRequest& other) const;
 
 signals:
@@ -69,13 +69,12 @@ public:
     QUrl targetUri;
     QCoapOperation operation;
     QCoapConnection* connection;
-    bool isValid;
     bool cancelObserve;
     QByteArray fullPayload;
 
     uint retransmissionCounter;
     int timeout;
-    QTimer* timer;
+    QTimer* timer; // TODO : check if pointer is needed
 
     void _q_timeout();
 

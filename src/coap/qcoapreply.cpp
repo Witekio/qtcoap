@@ -167,6 +167,9 @@ void QCoapReply::connectionError(QAbstractSocket::SocketError socketError)
     case QAbstractSocket::HostNotFoundError :
         networkError = HostNotFoundCoapError;
         break;
+    case QAbstractSocket::AddressInUseError :
+        networkError = AddressInUseCoapError;
+        break;
     default:
         networkError = UnknownCoapError;
     }

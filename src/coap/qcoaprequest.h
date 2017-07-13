@@ -22,7 +22,7 @@ class QCoapRequest : public QCoapMessage
 {
 public:
     QCoapRequest(const QUrl& url = QUrl(),
-                 QCoapMessageType type = NonConfirmableMessage,
+                 QCoapMessageType type = NonConfirmableCoapMessage,
                  const QUrl& proxyUrl = QUrl());
     QCoapRequest(const QCoapRequest &other);
     ~QCoapRequest() {}
@@ -33,15 +33,11 @@ public:
     QUrl url() const;
     QUrl proxyUrl() const;
     QCoapOperation operation() const;
-    //QCoapConnection* connection() const;
     bool observe() const;
     void setUrl(const QUrl& url);
     void setProxyUrl(const QUrl& proxyUrl);
     void setOperation(QCoapOperation operation);
     void setObserve(bool observe);
-
-protected:
-    void parseUri();
 };
 
 QT_END_NAMESPACE

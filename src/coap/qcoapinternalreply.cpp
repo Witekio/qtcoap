@@ -108,7 +108,7 @@ void QCoapInternalReply::addOption(const QCoapOption& option)
 {
     Q_D(QCoapInternalReply);
     // If it is a BLOCK option, we need to know the block number
-    if (option.name() == QCoapOption::Block2Option) {
+    if (option.name() == QCoapOption::Block2CoapOption) {
         quint32 blockNumber = 0;
         quint8 *optionData = reinterpret_cast<quint8 *>(option.value().data());
         for (int i = 0; i < option.length() - 1; ++i)
@@ -124,8 +124,8 @@ void QCoapInternalReply::addOption(const QCoapOption& option)
 
 int QCoapInternalReply::wantNextBlock()
 {
-    QCoapOption option = d_func()->message.findOptionByName(QCoapOption::Block1Option);
-    if (option.name() != QCoapOption::InvalidOption) {
+    QCoapOption option = d_func()->message.findOptionByName(QCoapOption::Block1CoapOption);
+    if (option.name() != QCoapOption::InvalidCoapOption) {
         quint8 *optionData = reinterpret_cast<quint8 *>(option.value().data());
 
         bool hasNextBlock = ((optionData[option.length()-1] & 0x8) == 0x8);

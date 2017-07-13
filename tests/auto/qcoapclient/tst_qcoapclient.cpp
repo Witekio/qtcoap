@@ -3,6 +3,8 @@
 
 // add necessary includes here
 #include "qcoapclient.h"
+#include "qcoapclient_p.h"
+#include "qcoapconnection_p.h"
 #include "qcoaprequest.h"
 #include "qcoapreply.h"
 #include <QBuffer>
@@ -26,6 +28,7 @@ private slots:
     void operations();
     void separateOperation_data();
     void separateOperation();
+    void socketError();
     // TODO : void retransmission(); HOW ?
     void timeout();
     void abort();
@@ -43,6 +46,37 @@ private slots:
     void discover();
     void observe_data();
     void observe();
+};
+
+class QCoapConnectionForSocketErrorTestsPrivate : public QCoapConnectionPrivate
+{
+    bool bind() {
+        QUdpSocket anotherSocket;
+        anotherSocket.bind(QHostAddress::Any, 6080);
+       return static_cast<QUdpSocket*>(udpSocket)->bind(QHostAddress::Any, 6080);
+    }
+};
+
+class QCoapConnectionForSocketErrorTests : public QCoapConnection
+{
+public:
+    QCoapConnectionForSocketErrorTests() :
+        QCoapConnection (* new QCoapConnectionForSocketErrorTestsPrivate)
+    {}
+
+private:
+    Q_DECLARE_PRIVATE(QCoapConnectionForSocketErrorTests)
+};
+
+class QCoapClientForSocketErrorTests : public QCoapClient
+{
+public:
+    QCoapClientForSocketErrorTests() {
+        QCoapClientPrivate* privateClient = static_cast<QCoapClientPrivate*>(d_func());
+        privateClient->setConnection(new QCoapConnectionForSocketErrorTests);
+        privateClient->connection->moveToThread(privateClient->workerThread);
+    }
+
 };
 
 tst_QCoapClient::tst_QCoapClient()
@@ -263,6 +297,21 @@ void tst_QCoapClient::multipleRequests()
     QCOMPARE(replyGet4->statusCode(), ContentCoapCode);
 }
 
+void tst_QCoapClient::socketError()
+{
+    QCoapClientForSocketErrorTests client;
+    QUrl url = QUrl("coap://172.17.0.3:5683/test");
+
+    QUdpSocket* socket = static_cast<QUdpSocket*>(client.connection()->socket());
+    QSignalSpy spySocketError(socket, SIGNAL(error(QAbstractSocket::SocketError)));
+    QCoapReply* reply = client.get(QCoapRequest(url));
+    QSignalSpy spyReplyError(reply, SIGNAL(error(QCoapReply::QCoapNetworkError)));
+
+    QTRY_COMPARE_WITH_TIMEOUT(spySocketError.count(), 1, 10000);
+    QTRY_COMPARE_WITH_TIMEOUT(spyReplyError.count(), 1, 10000);
+    QCOMPARE(spyReplyError.first().first(), QCoapReply::AddressInUseCoapError);
+}
+
 void tst_QCoapClient::timeout()
 {
     QWARN("Timeout test may take some times...");
@@ -320,22 +369,22 @@ void tst_QCoapClient::blockwiseReply_data()
     data.append("\\-------------------------------------------------------------/\n");
 
     QTest::newRow("get_large") << QUrl("coap://172.17.0.3:5683/large")
-                               << QCoapMessage::NonConfirmableMessage
+                               << QCoapMessage::NonConfirmableCoapMessage
                                << data;
     QTest::newRow("get_large_separate") << QUrl("coap://172.17.0.3:5683/large-separate")
-                               << QCoapMessage::NonConfirmableMessage
+                               << QCoapMessage::NonConfirmableCoapMessage
                                << data;
     QTest::newRow("get_large_confirmable") << QUrl("coap://172.17.0.3:5683/large")
-                               << QCoapMessage::ConfirmableMessage
+                               << QCoapMessage::ConfirmableCoapMessage
                                << data;
     QTest::newRow("get_large_separate_confirmable") << QUrl("coap://172.17.0.3:5683/large-separate")
-                               << QCoapMessage::ConfirmableMessage
+                               << QCoapMessage::ConfirmableCoapMessage
                                << data;
     QTest::newRow("get_large_16bits") << QUrl("coap://172.17.0.3:5683/large")
-                               << QCoapMessage::NonConfirmableMessage
+                               << QCoapMessage::NonConfirmableCoapMessage
                                << data;
     QTest::newRow("get_large_16bits_confirmable") << QUrl("coap://172.17.0.3:5683/large")
-                               << QCoapMessage::ConfirmableMessage
+                               << QCoapMessage::ConfirmableCoapMessage
                                << data;
 }
 
@@ -376,12 +425,12 @@ void tst_QCoapClient::blockwiseRequest_data()
     data.append("abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyz");
 
     QTest::newRow("large_post_empty_reply") << QUrl("coap://172.17.0.3:5683/query")
-                               << QCoapMessage::NonConfirmableMessage
+                               << QCoapMessage::NonConfirmableCoapMessage
                                << data
                                << MethodNotAllowedCoapCode
                                << QByteArray();
     QTest::newRow("large_post_large_reply") << QUrl("coap://172.17.0.3:5683/large-post")
-                               << QCoapMessage::NonConfirmableMessage
+                               << QCoapMessage::NonConfirmableCoapMessage
                                << data
                                << ChangedCoapCode
                                << data.toUpper();
@@ -400,7 +449,7 @@ void tst_QCoapClient::blockwiseRequest()
 
     QCoapRequest request(url);
     request.setType(type);
-    request.addOption(QCoapOption::ContentFormatOption);
+    request.addOption(QCoapOption::ContentFormatCoapOption);
 
     QCoapReply* reply = client.post(request, requestData);
     QSignalSpy spyReplyFinished(reply, SIGNAL(finished()));
@@ -443,21 +492,21 @@ void tst_QCoapClient::observe_data()
     QTest::addColumn<QCoapMessage::QCoapMessageType>("type");
 
     QTest::newRow("observe") << QUrl("coap://172.17.0.3:5683/obs")
-                             << QCoapMessage::NonConfirmableMessage;
+                             << QCoapMessage::NonConfirmableCoapMessage;
     QTest::newRow("observe_confirmable") << QUrl("coap://172.17.0.3:5683/obs")
-                                         << QCoapMessage::ConfirmableMessage;
+                                         << QCoapMessage::ConfirmableCoapMessage;
     QTest::newRow("observe_receive_non") << QUrl("coap://172.17.0.3:5683/obs-non")
-                                         << QCoapMessage::NonConfirmableMessage;
+                                         << QCoapMessage::NonConfirmableCoapMessage;
     QTest::newRow("observe_receive_non_confirmable") << QUrl("coap://172.17.0.3:5683/obs-non")
-                                                     << QCoapMessage::ConfirmableMessage;
+                                                     << QCoapMessage::ConfirmableCoapMessage;
     QTest::newRow("observe_large") << QUrl("coap://172.17.0.3:5683/obs-large")
-                                   << QCoapMessage::NonConfirmableMessage;
+                                   << QCoapMessage::NonConfirmableCoapMessage;
     QTest::newRow("observe_large_confirmable") << QUrl("coap://172.17.0.3:5683/obs-large")
-                                               << QCoapMessage::ConfirmableMessage;
+                                               << QCoapMessage::ConfirmableCoapMessage;
     QTest::newRow("observe_pumping") << QUrl("coap://172.17.0.3:5683/obs-pumping")
-                                     << QCoapMessage::NonConfirmableMessage;
+                                     << QCoapMessage::NonConfirmableCoapMessage;
     QTest::newRow("observe_pumping_confirmable") << QUrl("coap://172.17.0.3:5683/obs-pumping")
-                                                 << QCoapMessage::ConfirmableMessage;
+                                                 << QCoapMessage::ConfirmableCoapMessage;
 }
 
 void tst_QCoapClient::observe()

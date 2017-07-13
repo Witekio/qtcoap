@@ -19,11 +19,6 @@ typedef QMap<QCoapInternalRequest*, InternalMessagePair> InternalMessageMap;
 class QCoapProtocolPrivate : public QObjectPrivate
 {
 public:
-    enum ProtocolState {
-        WAITING,
-        SENDING
-    };
-
     QCoapProtocolPrivate();
 
     void handleFrame();
@@ -35,18 +30,19 @@ public:
     QByteArray encode(QCoapInternalRequest* request);
     QCoapInternalReply* decode(const QByteArray& message);
 
-    void setState(ProtocolState newState);
     void sendRequest(QCoapInternalRequest* request);
     void resendRequest(QCoapInternalRequest* request);
     bool containsMessageId(quint16 id);
     bool containsToken(const QByteArray& token);
-    QCoapInternalRequest* findRequestByToken(const QByteArray& token);
-    QCoapInternalRequest* findRequestByMessageId(quint16 messageId);
-    QCoapInternalRequest* findInternalRequest(QCoapReply* reply);
+    QCoapInternalRequest* findInternalRequestByToken(const QByteArray& token);
+    QCoapInternalRequest* findInternalRequestByMessageId(quint16 messageId);
+    QCoapInternalRequest* findInternalRequestByReply(QCoapReply* reply);
+
+    void messageReceived(const QByteArray& frameReply);
+    void onAbortedRequest(QCoapReply* reply);
 
     InternalMessageMap internalReplies;
     QQueue<QByteArray> frameQueue;
-    ProtocolState state;
     quint16 blockSize;
 
     uint ackTimeout;

@@ -59,17 +59,17 @@ void tst_QCoapReply::parseReplyPdu_data()
     QTest::addColumn<QString>("payload");
     QTest::addColumn<QString>("pduHexa");
 
-    QList<QCoapOption::QCoapOptionName> optionsNamesReply({QCoapOption::ContentFormatOption,
-                                                          QCoapOption::MaxAgeOption});
+    QList<QCoapOption::QCoapOptionName> optionsNamesReply({QCoapOption::ContentFormatCoapOption,
+                                                          QCoapOption::MaxAgeCoapOption});
     QList<quint8> optionsLengthsReply({0,1});
     QList<QByteArray> optionsValuesReply({"", QByteArray::fromHex("1e")});
 
-    QList<QCoapOption::QCoapOptionName> bigOptionsNamesReply({QCoapOption::Size1Option});
+    QList<QCoapOption::QCoapOptionName> bigOptionsNamesReply({QCoapOption::Size1CoapOption});
     QList<quint8> bigOptionsLengthsReply({26});
     QList<QByteArray> bigOptionsValuesReply({QByteArray("abcdefghijklmnopqrstuvwxyz")});
 
     QTest::newRow("reply_with_option_and_payload") << ContentCoapCode
-                                                   << QCoapMessage::NonConfirmableMessage
+                                                   << QCoapMessage::NonConfirmableCoapMessage
                                                    << quint16(64463)
                                                    << QByteArray("4647f09b")
                                                    << quint8(4)
@@ -81,7 +81,7 @@ void tst_QCoapReply::parseReplyPdu_data()
                                                    << "5445fbcf4647f09bc0211eff547970653a203120284e4f4e290a436f64653a20312028474554290a4d49443a2035363430300a546f6b656e3a203436343766303962";
 
     QTest::newRow("reply_without_options") << ContentCoapCode
-                                           << QCoapMessage::NonConfirmableMessage
+                                           << QCoapMessage::NonConfirmableCoapMessage
                                            << quint16(64463)
                                            << QByteArray("4647f09b")
                                            << quint8(4)
@@ -93,7 +93,7 @@ void tst_QCoapReply::parseReplyPdu_data()
                                            << "5445fbcf4647f09bff547970653a203120284e4f4e290a436f64653a20312028474554290a4d49443a2035363430300a546f6b656e3a203436343766303962";
 
     QTest::newRow("reply_without_payload") << ContentCoapCode
-                                           << QCoapMessage::NonConfirmableMessage
+                                           << QCoapMessage::NonConfirmableCoapMessage
                                            << quint16(64463)
                                            << QByteArray("4647f09b")
                                            << quint8(4)
@@ -105,7 +105,7 @@ void tst_QCoapReply::parseReplyPdu_data()
                                            << "5445fbcf4647f09bc0211e";
 
     QTest::newRow("reply_only") << ContentCoapCode
-                                << QCoapMessage::NonConfirmableMessage
+                                << QCoapMessage::NonConfirmableCoapMessage
                                 << quint16(64463)
                                 << QByteArray("4647f09b")
                                 << quint8(4)
@@ -117,7 +117,7 @@ void tst_QCoapReply::parseReplyPdu_data()
                                 << "5445fbcf4647f09b";
 
     QTest::newRow("reply_with_big_option") << ContentCoapCode
-                                           << QCoapMessage::NonConfirmableMessage
+                                           << QCoapMessage::NonConfirmableCoapMessage
                                            << quint16(64463)
                                            << QByteArray("4647f09b")
                                            << quint8(4)

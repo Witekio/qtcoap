@@ -24,8 +24,8 @@ QCoapClient::QCoapClient(QObject* parent) :
     Q_D(QCoapClient);
     connect(d->workerThread, &QThread::finished,
             d->workerThread, &QThread::deleteLater);
-    connect(d->connection, &QCoapConnection::readyRead,
-            d->protocol, &QCoapProtocol::messageReceived);
+    connect(d->connection, SIGNAL(readyRead(const QByteArray&)),
+            d->protocol, SLOT(messageReceived(const QByteArray&)));
     qRegisterMetaType<QCoapReply::QCoapNetworkError>();
 }
 
@@ -123,7 +123,7 @@ QCoapReply* QCoapClient::deleteResource(const QCoapRequest& request)
 QCoapDiscoveryReply* QCoapClient::discover(const QUrl& url, const QString& discoveryPath)
 {
     Q_D(QCoapClient);
-    QUrl discoveryUrl(url.toString().append(discoveryPath));
+    QUrl discoveryUrl(url.toString().append(discoveryPath).toUtf8());
 
     QCoapRequest request(discoveryUrl);
     request.setOperation(GetCoapOperation);
@@ -139,7 +139,7 @@ QCoapReply* QCoapClient::observe(const QCoapRequest& request)
     Q_D(QCoapClient);
 
     QCoapRequest copyRequest(request);
-    copyRequest.addOption(QCoapOption::ObserveOption);
+    copyRequest.addOption(QCoapOption::ObserveCoapOption);
     copyRequest.setObserve(true);
 
     QCoapReply* reply = nullptr;
@@ -227,6 +227,11 @@ void QCoapClient::setProtocol(QCoapProtocol* protocol)
 {
     Q_D(QCoapClient);
     d->protocol = protocol;
+}
+
+void QCoapClientPrivate::setConnection(QCoapConnection* newConnection)
+{
+    connection = newConnection;
 }
 
 QT_END_NAMESPACE
