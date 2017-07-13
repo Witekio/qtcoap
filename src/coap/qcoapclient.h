@@ -36,6 +36,8 @@ public:
     QCoapProtocol* protocol() const;
     QCoapConnection* connection() const;
     void setBlockSize(quint16 blockSize);
+    void enableMulticastLoopbackOption();
+    void setMulticastTtlOption(int ttlValue);
     void setProtocol(QCoapProtocol* protocol);
 
 protected:

@@ -209,6 +209,20 @@ void QCoapClient::setBlockSize(quint16 blockSize)
     d->protocol->setBlockSize(blockSize);
 }
 
+void QCoapClient::setMulticastTtlOption(int ttlValue)
+{
+    Q_D(QCoapClient);
+    QUdpSocket* udpSocket = static_cast<QUdpSocket*>(d->connection->socket());
+    udpSocket->setSocketOption(QAbstractSocket::MulticastTtlOption, ttlValue);
+}
+
+void QCoapClient::enableMulticastLoopbackOption()
+{
+    Q_D(QCoapClient);
+    QUdpSocket* udpSocket = static_cast<QUdpSocket*>(d->connection->socket());
+    udpSocket->setSocketOption(QAbstractSocket::MulticastLoopbackOption, 1);
+}
+
 void QCoapClient::setProtocol(QCoapProtocol* protocol)
 {
     Q_D(QCoapClient);
