@@ -113,6 +113,7 @@ void tst_QCoapClient::operations()
 
     QCoapClient client;
     QCoapRequest request(url);
+    QSignalSpy spyClientFinished(&client, SIGNAL(finished(QCoapReply*)));
 
     QCoapReply* reply = nullptr;
     if (qstrcmp(QTest::currentDataTag(), "get") == 0)
@@ -126,6 +127,7 @@ void tst_QCoapClient::operations()
 
     QSignalSpy spyReplyFinished(reply, SIGNAL(finished()));
     QTRY_COMPARE_WITH_TIMEOUT(spyReplyFinished.count(), 1, 5000);
+    QTRY_COMPARE_WITH_TIMEOUT(spyClientFinished.count(), 1, 5000);
 
     QVERIFY(reply != nullptr);
     QByteArray replyData = reply->readAll();
@@ -257,6 +259,7 @@ void tst_QCoapClient::multipleRequests()
     QFETCH(QUrl, url);
 
     QCoapClient client;
+    QSignalSpy spyClientFinished(&client, SIGNAL(finished(QCoapReply*)));
     //QCoapRequest request(url);
 
     QCoapReply* replyGet1 = client.get(QCoapRequest(url));
@@ -277,6 +280,7 @@ void tst_QCoapClient::multipleRequests()
     QTRY_COMPARE_WITH_TIMEOUT(spyReplyGet2Finished.count(), 1, 5000);
     QTRY_COMPARE_WITH_TIMEOUT(spyReplyGet3Finished.count(), 1, 5000);
     QTRY_COMPARE_WITH_TIMEOUT(spyReplyGet4Finished.count(), 1, 5000);
+    QTRY_COMPARE_WITH_TIMEOUT(spyClientFinished.count(), 4, 5000);
 
     QByteArray replyGet1Data = replyGet1->readAll();
     QByteArray replyGet2Data = replyGet2->readAll();

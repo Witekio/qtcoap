@@ -26,6 +26,7 @@ QCoapClient::QCoapClient(QObject* parent) :
             d->workerThread, &QThread::deleteLater);
     connect(d->connection, SIGNAL(readyRead(const QByteArray&)),
             d->protocol, SLOT(messageReceived(const QByteArray&)));
+    connect(d->protocol, &QCoapProtocol::finished, this, &QCoapClient::finished);
     qRegisterMetaType<QCoapReply::QCoapNetworkError>();
 }
 

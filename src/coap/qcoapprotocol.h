@@ -31,6 +31,9 @@ public:
 
     static QList<QCoapResource> resourcesFromCoreLinkList(const QByteArray& data);
 
+signals:
+    void finished(QCoapReply*);
+
 private:
     Q_DECLARE_PRIVATE(QCoapProtocol)
     Q_PRIVATE_SLOT(d_func(), void resendRequest(QCoapInternalRequest*))

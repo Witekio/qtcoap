@@ -205,6 +205,7 @@ QCoapInternalRequest* QCoapProtocolPrivate::findInternalRequestByMessageId(quint
 void QCoapProtocolPrivate::onLastBlock(QCoapInternalRequest* request)
 {
     qDebug() << "QCoapProtocol::onLastBlock()";
+    Q_Q(QCoapProtocol);
 
     QList<QCoapInternalReply*> replies = internalReplies[request].replies;
     QCoapReply* userReply = internalReplies[request].userReply;
@@ -245,8 +246,10 @@ void QCoapProtocolPrivate::onLastBlock(QCoapInternalRequest* request)
     else
         internalReplies[request].replies.clear();
 
-    if (userReply)
+    if (userReply && !userReply->isAborted()) {
         userReply->updateFromInternalReply(*finalReply);
+        emit q->finished(userReply);
+    }
 }
 
 void QCoapProtocolPrivate::onNextBlock(QCoapInternalRequest* request,

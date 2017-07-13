@@ -40,6 +40,9 @@ public:
     void setMulticastTtlOption(int ttlValue);
     void setProtocol(QCoapProtocol* protocol);
 
+signals:
+    void finished(QCoapReply*);
+
 protected:
     Q_DECLARE_PRIVATE(QCoapClient)
 };
