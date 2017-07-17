@@ -1,6 +1,8 @@
 #include "qcoapoption.h"
 #include "qcoapoption_p.h"
 
+QT_BEGIN_NAMESPACE
+
 QCoapOptionPrivate::QCoapOptionPrivate() :
     length(0),
     value(QByteArray())
@@ -37,3 +39,5 @@ bool QCoapOption::operator==(const QCoapOption& other) const
             && d_ptr->value == other.d_ptr->value
             && d_ptr->length == other.d_ptr->length);
 }
+
+QT_END_NAMESPACE

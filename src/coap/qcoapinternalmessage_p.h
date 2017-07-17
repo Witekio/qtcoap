@@ -5,6 +5,8 @@
 #include "qcoapmessage_p.h"
 #include <private/qobject_p.h>
 
+QT_BEGIN_NAMESPACE
+
 class QCoapInternalMessagePrivate : public QObjectPrivate //: public QCoapMessagePrivate
 {
 public:
@@ -18,5 +20,7 @@ public:
     bool hasNextBlock;
     uint blockSize;
 };
+
+QT_END_NAMESPACE
 
 #endif // QCOAPINTERNALMESSAGE_P_H

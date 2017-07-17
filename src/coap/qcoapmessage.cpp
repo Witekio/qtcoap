@@ -2,6 +2,8 @@
 #include "qcoapmessage_p.h"
 #include <QDebug>
 
+QT_BEGIN_NAMESPACE
+
 QCoapMessagePrivate::QCoapMessagePrivate() :
     QSharedData(),
     version(1),
@@ -172,3 +174,5 @@ void QCoapMessage::setPayload(const QByteArray& payload)
 
     d_ptr->payload = payload;
 }
+
+QT_END_NAMESPACE

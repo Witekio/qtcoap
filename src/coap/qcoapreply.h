@@ -60,7 +60,7 @@ protected:
 
     void setIsRunning(bool isRunning);
     void setError(QCoapNetworkError error);
-    virtual void updateFromInternalReply(const QCoapInternalReply& internalReply); // TODO remove public (friend ?)
+    virtual void updateFromInternalReply(const QCoapInternalReply& internalReply);
     qint64 readData(char* data, qint64 maxSize) Q_DECL_OVERRIDE;
     qint64 writeData(const char* data, qint64 maxSize) Q_DECL_OVERRIDE;
 

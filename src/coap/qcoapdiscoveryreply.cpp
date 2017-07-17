@@ -3,17 +3,40 @@
 
 QT_BEGIN_NAMESPACE
 
+/*!
+    \class QCoapDiscoveryReply
+    \brief The QCoapDiscoveryReply is a QCoapReply that stores also a
+    list of QCoapResources.
+
+    This class is used for discovery requests.
+
+    \sa QCoapClient, QCoapRequest, QCoapReply
+*/
+
+/*!
+    Constructs a new QCoapDiscoveryReply and sets \a parent as parent object.
+*/
 QCoapDiscoveryReply::QCoapDiscoveryReply(QObject *parent) :
     QCoapReply (* new QCoapDiscoveryReplyPrivate, parent)
 {
 
 }
 
+/*!
+    Returns the list of resources.
+*/
 QList<QCoapResource> QCoapDiscoveryReply::resourceList() const
 {
     return d_func()->resources;
 }
 
+/*!
+    \internal
+
+    Update the QCoapDiscoveryReply object, its message and list of resources
+    with data of the internal reply
+    \a internalReply.
+*/
 void QCoapDiscoveryReply::updateFromInternalReply(const QCoapInternalReply& internalReply)
 {
     Q_D(QCoapDiscoveryReply);
