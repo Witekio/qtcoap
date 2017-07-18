@@ -4,7 +4,6 @@
 QT_BEGIN_NAMESPACE
 
 QCoapOptionPrivate::QCoapOptionPrivate() :
-    length(0),
     value(QByteArray())
 {
 }
@@ -57,7 +56,6 @@ QCoapOption::QCoapOption(QCoapOptionName name,
 {
     d_ptr->name = name;
     d_ptr->value = value;
-    d_ptr->length = quint8(value.length());
 }
 
 /*!
@@ -73,7 +71,7 @@ QByteArray QCoapOption::value() const
  */
 quint8 QCoapOption::length() const
 {
-    return d_ptr->length;
+    return quint8(d_ptr->value.length());
 }
 
 /*!
@@ -90,8 +88,7 @@ QCoapOption::QCoapOptionName QCoapOption::name() const
 bool QCoapOption::operator==(const QCoapOption& other) const
 {
     return (d_ptr->name == other.d_ptr->name
-            && d_ptr->value == other.d_ptr->value
-            && d_ptr->length == other.d_ptr->length);
+            && d_ptr->value == other.d_ptr->value);
 }
 
 QT_END_NAMESPACE

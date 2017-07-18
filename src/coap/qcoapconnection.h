@@ -18,8 +18,7 @@ public:
         Bound
     };
 
-    // TODO : Remove host and port parameters into the constructor
-    explicit QCoapConnection(const QString& host = "localhost", quint16 port = 5683, QObject* parent = nullptr);
+    explicit QCoapConnection(QObject* parent = nullptr);
     ~QCoapConnection();
 
     void sendRequest(const QByteArray& request, const QString& host, quint16 port);
@@ -36,7 +35,7 @@ signals:
     void readyRead(const QByteArray& frame);
 
 protected:
-    QCoapConnection(QCoapConnectionPrivate& dd, const QString& host = "localhost", quint16 port = 5683, QObject* parent = nullptr);
+    QCoapConnection(QCoapConnectionPrivate& dd, QObject* parent = nullptr);
 
     Q_DECLARE_PRIVATE(QCoapConnection)
     Q_PRIVATE_SLOT(d_func(), void _q_socketReadyRead())

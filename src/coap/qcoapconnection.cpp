@@ -34,23 +34,18 @@ QCoapConnectionPrivate::~QCoapConnectionPrivate()
 /*!
     Constructs a new QCoapConnection and sets \a parent as the parent object.
 */
-// NOTE : host and port will be removed from the constructor
-QCoapConnection::QCoapConnection(const QString& host, quint16 port, QObject* parent) :
-    QCoapConnection(*new QCoapConnectionPrivate, host, port, parent)
+QCoapConnection::QCoapConnection(QObject* parent) :
+    QCoapConnection(*new QCoapConnectionPrivate, parent)
 {
 }
 
 /*!
     \internal
 */
-// NOTE : host and port will be removed from the constructor
-QCoapConnection::QCoapConnection(QCoapConnectionPrivate& dd, const QString& host, quint16 port, QObject* parent) :
+QCoapConnection::QCoapConnection(QCoapConnectionPrivate& dd, QObject* parent) :
     QObject(dd, parent)
 {
     Q_D(QCoapConnection);
-
-    d->host = host;
-    d->port = port;
 
     // Make the socket a child of the connection to move it in the same thread
     d->udpSocket = new QUdpSocket(this);
@@ -116,6 +111,7 @@ void QCoapConnection::sendRequest(const QByteArray& request, const QString& host
     if (d->state == Bound) {
         qDebug() << "QCoapConnection : sendRequest() - Bound or Connected";
         // NOTE : QMetaObject::invokeMethod() ???
+        //QMetaObject::invokeMethod(this, "_q_startToSendRequest");
         d->_q_startToSendRequest();
     } else if (d->state == Unconnected) {
         qDebug() << "QCoapConnection : sendRequest() - Unconnected";
@@ -127,6 +123,8 @@ void QCoapConnection::sendRequest(const QByteArray& request, const QString& host
 /*!
     Reads all data stored in the socket.
 */
+// TODO : remove the return and the tmp variable lastReply
+// + change the name of the signal readyRead()
 QByteArray QCoapConnection::readAll()
 {
     Q_D(QCoapConnection);
@@ -140,10 +138,10 @@ QByteArray QCoapConnection::readAll()
 
     QByteArray reply;
     QUdpSocket* socket = static_cast<QUdpSocket*>(d->udpSocket);
-    while (socket->hasPendingDatagrams())
-    {
+    while (socket->hasPendingDatagrams()) {
         QByteArray data = socket->receiveDatagram().data();
         qDebug() << "data : " << data;
+        emit readyRead(data);
         reply.append(data);
     }
     //QByteArray reply = d->udpSocket->readAll();
@@ -208,7 +206,7 @@ void QCoapConnectionPrivate::_q_socketReadyRead()
     Q_Q(QCoapConnection);
 
     qDebug() << "QCoapConnectionPrivate::_q_socketReadyRead() - " << q->readAll();
-    emit q->readyRead(q->readAll());
+    //emit q->readyRead(q->readAll());
 }
 
 /*!

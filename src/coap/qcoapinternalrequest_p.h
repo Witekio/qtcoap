@@ -39,7 +39,6 @@ public:
     QCoapOperation operation() const;
     bool cancelObserve() const;
     QCoapConnection* connection() const;
-    QTimer* timer() const;
     uint retransmissionCounter() const;
     void setOperation(QCoapOperation operation);
     void setConnection(QCoapConnection* connection);
@@ -74,7 +73,7 @@ public:
 
     uint retransmissionCounter;
     int timeout;
-    QTimer* timer; // TODO : check if pointer is needed
+    QTimer* timer;
 
     void _q_timeout();
 

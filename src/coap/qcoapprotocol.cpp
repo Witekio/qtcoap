@@ -83,9 +83,11 @@ void QCoapProtocol::sendRequest(QCoapReply* reply, QCoapConnection* connection)
     }
 
     reply->setIsRunning(true);
-    copyInternalRequest->setTimeout(d->ackTimeout);
-    connect(copyInternalRequest, SIGNAL(timeout(QCoapInternalRequest*)),
-            this, SLOT(resendRequest(QCoapInternalRequest*)));
+    if (copyInternalRequest->message().type() == QCoapMessage::ConfirmableCoapMessage) {
+        copyInternalRequest->setTimeout(d->ackTimeout);
+        connect(copyInternalRequest, SIGNAL(timeout(QCoapInternalRequest*)),
+                this, SLOT(resendRequest(QCoapInternalRequest*)));
+    }
 
     // Invoke to change current thread
     QMetaObject::invokeMethod(this, "sendRequest", Q_ARG(QCoapInternalRequest*, copyInternalRequest));
@@ -135,8 +137,10 @@ void QCoapProtocolPrivate::handleFrame()
 */
 void QCoapProtocolPrivate::resendRequest(QCoapInternalRequest* request)
 {
+    qDebug() << "QCoapProtocolPrivate::resendRequest()";
     // In case of retransmission, check if it is not the last try
     if (request->message().type() == QCoapMessage::ConfirmableCoapMessage && internalReplies.contains(request)) {
+        qDebug() << "CONFIRMABLE and REQUEST EXIST";
         if (request->retransmissionCounter() < maxRetransmit) {
             sendRequest(request);
         } else {
@@ -366,15 +370,9 @@ void QCoapProtocol::cancelObserve(QCoapReply* reply)
         return;
 
     Q_D(QCoapProtocol);
-    // TODO : move this into another function
-    QCoapInternalRequest* copyRequest = nullptr;
-    for (InternalMessageMap::Iterator it = d->internalReplies.begin(); it != d->internalReplies.end(); ++it) {
-        if (it.value().userReply == reply) {
-            copyRequest = const_cast<QCoapInternalRequest*>(it.key());
-            break;
-        }
-    }
-    copyRequest->setCancelObserve(true);
+    QCoapInternalRequest* copyRequest = d->findInternalRequestByReply(reply);
+    if (copyRequest)
+        copyRequest->setCancelObserve(true);
 }
 
 /*!

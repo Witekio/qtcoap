@@ -360,6 +360,7 @@ void QCoapInternalRequest::beginTransmission()
         d->timeout *= 2;
 
     d->retransmissionCounter++;
+    qDebug() << "timeout value: " << d->timeout;
     if (d->timeout > 0)
         d->timer->start(d->timeout);
 }
@@ -420,15 +421,6 @@ QCoapOperation QCoapInternalRequest::operation() const
 bool QCoapInternalRequest::cancelObserve() const
 {
     return d_func()->cancelObserve;
-}
-
-/*!
-    \internal
-    Returns the timer used to handle the timeout.
-*/
-QTimer* QCoapInternalRequest::timer() const
-{
-    return d_func()->timer;
 }
 
 /*!

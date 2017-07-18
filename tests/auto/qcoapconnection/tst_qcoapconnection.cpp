@@ -24,9 +24,7 @@ public:
 private slots:
     void initTestCase();
     void cleanupTestCase();
-    void ctor_data();
     void ctor();
-    void connectToHost_data();
     void connectToHost();
     void sendRequest_data();
     void sendRequest();
@@ -36,13 +34,11 @@ class QCoapConnectionForTest : public QCoapConnection
 {
     Q_OBJECT
 public:
-    QCoapConnectionForTest(const QString& host = "localhost",
-                           quint16 port = 5683,
-                           QObject* parent = nullptr) :
-        QCoapConnection(host, port, parent)
+    QCoapConnectionForTest(QObject* parent = nullptr) :
+        QCoapConnection(parent)
     {}
 
-    //TODO test bound instead void connectToHostForTest() { connectToHost(); }
+    void bindSocketForTest() { d_func()->bindSocket(); }
 };
 
 tst_QCoapConnection::tst_QCoapConnection()
@@ -61,79 +57,29 @@ void tst_QCoapConnection::cleanupTestCase()
 {
 }
 
-void tst_QCoapConnection::ctor_data()
-{
-    QTest::addColumn<QString>("host");
-    QTest::addColumn<quint16>("port");
-
-    QTest::newRow("hostAndPort") << "test-server" << quint16(5684);
-    QTest::newRow("hostOnly") << "test-server" << quint16(5683);
-    QTest::newRow("nothing") << "localhost" << quint16(5683);
-}
-
 void tst_QCoapConnection::ctor()
 {
-    QFETCH(QString, host);
-    QFETCH(quint16, port);
-
-    QCoapConnection* connection = nullptr;
-
-    if (qstrcmp(QTest::currentDataTag(), "nothing") == 0)
-        connection = new QCoapConnection();
-    else if (qstrcmp(QTest::currentDataTag(), "hostOnly") == 0)
-        connection = new QCoapConnection(host);
-    else
-        connection = new QCoapConnection(host, port);
-
-    QCOMPARE(connection->host(), host);
-    QCOMPARE(connection->port(), port);
+    QCoapConnection* connection = new QCoapConnection();
     QVERIFY(connection->socket() != nullptr);
 
     delete connection;
 }
 
-void tst_QCoapConnection::connectToHost_data()
-{
-    QTest::addColumn<QString>("protocol");
-    QTest::addColumn<QString>("host");
-    QTest::addColumn<QString>("path");
-    QTest::addColumn<quint16>("port");
-
-    QTest::newRow("success") << "coap://" << "vs0.inf.ethz.ch" << "/test" << quint16(5683);
-    QTest::newRow("failure") << "coap://" << "not-a-test-server" << "/will-fail" << quint16(5683);
-}
-
 void tst_QCoapConnection::connectToHost()
 {
-    QFETCH(QString, protocol);
-    QFETCH(QString, host);
-    QFETCH(QString, path);
-    QFETCH(quint16, port);
-
-    QCoapConnectionForTest connection(host, port);
+    QCoapConnectionForTest connection;
 
     QUdpSocket* socket = qobject_cast<QUdpSocket*>(connection.socket());
-    QSignalSpy spySocketHostFound(socket, SIGNAL(hostFound()));
-    QSignalSpy spySocketConnected(socket, SIGNAL(connected()));
-    QSignalSpy spySocketError(socket, SIGNAL(error(QAbstractSocket::SocketError)));
-    //QSignalSpy spySocketStateChanged(socket , SIGNAL(stateChanged(QAbstractSocket::SocketState)));
+    QSignalSpy spyConnectionBound(&connection, SIGNAL(bound()));
+    QSignalSpy spySocketStateChanged(socket , SIGNAL(stateChanged(QAbstractSocket::SocketState)));
 
     QCOMPARE(connection.state(), QCoapConnection::Unconnected);
 
-    // TODO : test bind
-    /*connection.connectToHostForTest();
+    connection.bindSocketForTest();
 
-    if (qstrcmp(QTest::currentDataTag(), "success") == 0) {
-        QTRY_COMPARE_WITH_TIMEOUT(spySocketHostFound.count(), 1, 5000);
-        QTRY_COMPARE_WITH_TIMEOUT(spySocketConnected.count(), 1, 5000);
-        //QTRY_COMPARE_WITH_TIMEOUT(spySocketStateChanged.count(), 1, 5000);
-        QCOMPARE(connection.state(), QCoapConnection::Connected);
-    }
-    else {
-        QTRY_COMPARE_WITH_TIMEOUT(spySocketError.count(), 1, 5000);
-        //QTRY_COMPARE_WITH_TIMEOUT(spySocketStateChanged.count(), 0, 5000);
-        QCOMPARE(connection.state(), QCoapConnection::Unconnected);
-    }*/
+    QTRY_COMPARE_WITH_TIMEOUT(spySocketStateChanged.count(), 1, 5000);
+    QTRY_COMPARE_WITH_TIMEOUT(spyConnectionBound.count(), 1, 5000);
+    QCOMPARE(connection.state(), QCoapConnection::Bound);
 }
 
 void tst_QCoapConnection::sendRequest_data()
@@ -162,7 +108,7 @@ void tst_QCoapConnection::sendRequest()
     QFETCH(QString, dataHexaHeader);
     QFETCH(QString, dataHexaPayload);
 
-    QCoapConnectionForTest connection(host, port);
+    QCoapConnectionForTest connection;
 
     QSignalSpy spySocketReadyRead(connection.socket(), SIGNAL(readyRead()));
     QSignalSpy spyConnectionReadyRead(&connection, SIGNAL(readyRead(const QByteArray&)));
@@ -178,7 +124,7 @@ void tst_QCoapConnection::sendRequest()
     QTRY_COMPARE_WITH_TIMEOUT(spySocketReadyRead.count(), 1, 5000);
     QTRY_COMPARE_WITH_TIMEOUT(spyConnectionReadyRead.count(), 1, 5000);
 
-    QByteArray reply = connection.readAll();
+    QByteArray reply = spyConnectionReadyRead.first().first().toByteArray();
 
     QVERIFY(QString(reply.toHex()).startsWith(dataHexaHeader));
     QVERIFY(QString(reply.toHex()).endsWith(dataHexaPayload));
