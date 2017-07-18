@@ -22,6 +22,22 @@ public:
         BadRequestCoapError,
         AddressInUseCoapError,
         TimeOutCoapError,
+        UnauthorizedCoapError,
+        BadOptionCoapError,
+        ForbiddenCoapError,
+        NotFoundCoapError,
+        MethodNotAllowedCoapError,
+        NotAcceptableCoapError,
+        RequestEntityIncompleteCoapError,
+        PreconditionFailedCoapError,
+        RequestEntityTooLargeCoapError,
+        UnsupportedContentFormatCoapError,
+        InternalServerErrorCoapError,
+        NotImplementedCoapError,
+        BadGatewayCoapError,
+        ServiceUnavailableCoapError,
+        GatewayTimeoutCoapError,
+        ProxyingNotSupportedCoapError,
         UnknownCoapError
     };
 

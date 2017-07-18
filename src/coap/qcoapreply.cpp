@@ -304,10 +304,57 @@ void QCoapReply::abortRequest()
 void QCoapReply::replyError(QCoapStatusCode errorCode)
 {
     QCoapNetworkError networkError;
-    // TODO : add other errors
     switch (errorCode) {
     case BadRequestCoapCode:
         networkError = BadRequestCoapError;
+        break;
+    case UnauthorizedCoapCode:
+        networkError = UnauthorizedCoapError;
+        break;
+    case BadOptionCoapCode:
+        networkError = BadOptionCoapError;
+        break;
+    case ForbiddenCoapCode:
+        networkError = ForbiddenCoapError;
+        break;
+    case NotFoundCoapCode:
+        networkError = NotFoundCoapError;
+        break;
+    case MethodNotAllowedCoapCode:
+        networkError = MethodNotAllowedCoapError;
+        break;
+    case NotAcceptableCoapCode:
+        networkError = NotAcceptableCoapError;
+        break;
+    case RequestEntityIncompleteCoapCode:
+        networkError = RequestEntityIncompleteCoapError;
+        break;
+    case PreconditionFailedCoapCode:
+        networkError = PreconditionFailedCoapError;
+        break;
+    case RequestEntityTooLargeCoapCode:
+        networkError = RequestEntityTooLargeCoapError;
+        break;
+    case UnsupportedContentFormatCoapCode:
+        networkError = UnsupportedContentFormatCoapError;
+        break;
+    case InternalServerErrorCoapCode:
+        networkError = InternalServerErrorCoapError;
+        break;
+    case NotImplementedCoapCode:
+        networkError = NotImplementedCoapError;
+        break;
+    case BadGatewayCoapCode:
+        networkError = BadGatewayCoapError;
+        break;
+    case ServiceUnavailableCoapCode:
+        networkError = ServiceUnavailableCoapError;
+        break;
+    case GatewayTimeoutCoapCode:
+        networkError = GatewayTimeoutCoapError;
+        break;
+    case ProxyingNotSupportedCoapCode:
+        networkError = ProxyingNotSupportedCoapError;
         break;
     default:
         networkError = UnknownCoapError;

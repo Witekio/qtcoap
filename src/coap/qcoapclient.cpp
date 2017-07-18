@@ -33,9 +33,29 @@ QCoapClientPrivate::~QCoapClientPrivate()
     returns a QCoapReply object that stores the response data to a request
     and can be used to read these data.
 
-    // TODO change this code link
     A simple request can be sent with :
-    \snippet code/src_network_access_qnetworkaccessmanager.cpp 0
+    \code
+        QCoapClient* client = new QCoapClient(this);
+        connect(client, &QCoapClient::finished, this, &TestClass::slotFinished);
+        client->get(QCoapRequest(Qurl("coap://coap.me/test")));
+    \endcode
+
+    For an "observe" request, you can use it the same way than previously but using
+    the notified signal of the reply can be more useful.
+    \code
+        QCoapRequest request = QCoapRequest(Qurl("coap://coap.me/obs"));
+        CoapReply* reply = client->observe(request);
+        connect(reply, &QCoapReply::notified, this, &TestClass::slotNotified);
+    \endcode
+
+    And the observation can be cancelled with :
+    \code
+        client->cancelObserve(request);
+    \endcode
+    or
+    \code
+        client->cancelObserve(reply);
+    \endcode
 
     When a reply arrive, the QCoapClient emit a signal with a parameter
     which is the QCoapReply.

@@ -110,45 +110,13 @@ void QCoapConnection::sendRequest(const QByteArray& request, const QString& host
 
     if (d->state == Bound) {
         qDebug() << "QCoapConnection : sendRequest() - Bound or Connected";
-        // NOTE : QMetaObject::invokeMethod() ???
-        //QMetaObject::invokeMethod(this, "_q_startToSendRequest");
-        d->_q_startToSendRequest();
+        QMetaObject::invokeMethod(this, "_q_startToSendRequest");
+        //d->_q_startToSendRequest();
     } else if (d->state == Unconnected) {
         qDebug() << "QCoapConnection : sendRequest() - Unconnected";
         connect(this, SIGNAL(bound()), this, SLOT(_q_startToSendRequest()));
         d->bindSocket();
     }
-}
-
-/*!
-    Reads all data stored in the socket.
-*/
-// TODO : remove the return and the tmp variable lastReply
-// + change the name of the signal readyRead()
-QByteArray QCoapConnection::readAll()
-{
-    Q_D(QCoapConnection);
-
-    if (!d->udpSocket->isReadable())
-        d->udpSocket->open(d->udpSocket->openMode() | QIODevice::ReadOnly);
-
-    // Because for the tests we use a QBuffer that is not sequential
-    if (!d->udpSocket->isSequential())
-        d->udpSocket->seek(0);
-
-    QByteArray reply;
-    QUdpSocket* socket = static_cast<QUdpSocket*>(d->udpSocket);
-    while (socket->hasPendingDatagrams()) {
-        QByteArray data = socket->receiveDatagram().data();
-        qDebug() << "data : " << data;
-        emit readyRead(data);
-        reply.append(data);
-    }
-    //QByteArray reply = d->udpSocket->readAll();
-    if (!reply.isEmpty())
-        d->lastReply = reply;
-
-    return d->lastReply;
 }
 
 /*!
@@ -199,14 +167,26 @@ void QCoapConnectionPrivate::_q_startToSendRequest()
 /*!
     \internal
 
-    This slot emits the readyRead signal.
+    This slot reads all data stored in the socket and emit readyRead signal
+    for all received datagram.
 */
 void QCoapConnectionPrivate::_q_socketReadyRead()
 {
     Q_Q(QCoapConnection);
 
-    qDebug() << "QCoapConnectionPrivate::_q_socketReadyRead() - " << q->readAll();
-    //emit q->readyRead(q->readAll());
+    if (!udpSocket->isReadable())
+        udpSocket->open(udpSocket->openMode() | QIODevice::ReadOnly);
+
+    // Because for the tests we use a QBuffer that is not sequential
+    if (!udpSocket->isSequential())
+        udpSocket->seek(0);
+
+    QUdpSocket* socket = static_cast<QUdpSocket*>(udpSocket);
+    while (socket->hasPendingDatagrams()) {
+        QByteArray data = socket->receiveDatagram().data();
+        qDebug() << "data : " << data;
+        emit q->readyRead(data);
+    }
 }
 
 /*!
