@@ -20,7 +20,9 @@ QCoapConnectionPrivate::~QCoapConnectionPrivate()
 
 /*!
     \class QCoapConnection
-    \brief The QCoapConnection handle the transfer of a frame to a server.
+    \brief The QCoapConnection class handle the transfer of a frame to a server.
+
+    \reentrant
 
     The QCoapConnection is used by the QCoapClient class to send the requests to
     a server. It has a socket listening for udp messages and that is used to send

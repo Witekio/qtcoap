@@ -164,7 +164,7 @@ QCoapRequest& QCoapRequest::operator=(const QCoapRequest& other)
 }
 
 /*!
-    Returns true if the message id of the current request is lower than
+    Returns true if this QCoapRequest message id is lower than
     the message id of \a other.
 */
 bool QCoapRequest::operator<(const QCoapRequest& other) const

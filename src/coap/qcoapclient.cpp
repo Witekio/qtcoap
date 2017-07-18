@@ -25,12 +25,12 @@ QCoapClientPrivate::~QCoapClientPrivate()
 
     \reentrant
 
-    The QCoapClient contains signals that can be used to know if a reply
+    The QCoapClient class contains signals that can be used to know if a reply
     of a sent request arrived.
 
     The application can use a QCoapClient to send requests over a coap
     network. It contains functions for standard request and each function
-    returns a QCoapReply object that store the response data to a request
+    returns a QCoapReply object that stores the response data to a request
     and can be used to read these data.
 
     // TODO change this code link

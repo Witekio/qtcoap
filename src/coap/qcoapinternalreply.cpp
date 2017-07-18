@@ -16,11 +16,31 @@ QCoapInternalReplyPrivate::QCoapInternalReplyPrivate
 {
 }
 
+/*!
+    \internal
+
+    \class QCoapInternalReply
+    \brief The QCoapInternalReply class contains data related to
+    a received message.
+
+    \reentrant
+
+    \sa QCoapInternalMessage, QCoapInternalRequest
+*/
+
+/*!
+    \internal
+    Constructs a new QCoapInternalReply with \a parent as the parent obect.
+*/
 QCoapInternalReply::QCoapInternalReply(QObject* parent) :
     QCoapInternalMessage (*new QCoapInternalReplyPrivate, parent)
 {
 }
 
+/*!
+    \internal
+    Constructs a copy of \a other with \a parent as the parent obect.
+*/
 QCoapInternalReply::QCoapInternalReply(const QCoapInternalReply& other, QObject* parent) :
     QCoapInternalMessage(other, parent)
 {
@@ -28,6 +48,11 @@ QCoapInternalReply::QCoapInternalReply(const QCoapInternalReply& other, QObject*
     d->statusCode = other.statusCode();
 }
 
+/*!
+    \internal
+    Create a QCoapInternalReply from the \a reply byte array which need
+    to be a coap reply frame.
+*/
 QCoapInternalReply QCoapInternalReply::fromQByteArray(const QByteArray& reply)
 {
     QCoapInternalReply internalReply;
@@ -99,11 +124,19 @@ QCoapInternalReply QCoapInternalReply::fromQByteArray(const QByteArray& reply)
     return internalReply;
 }
 
+/*!
+    \internal
+    Append the given \a data byte array to the current payload.
+*/
 void QCoapInternalReply::appendData(const QByteArray& data)
 {
     d_func()->message.setPayload(d_func()->message.payload().append(data));
 }
 
+/*!
+    \internal
+    Adds the given coap \a option and sets block parameters if needed.
+*/
 void QCoapInternalReply::addOption(const QCoapOption& option)
 {
     Q_D(QCoapInternalReply);
@@ -122,6 +155,10 @@ void QCoapInternalReply::addOption(const QCoapOption& option)
     d->message.addOption(option);
 }
 
+/*!
+    \internal
+    Returns true if it is not the last block.
+*/
 int QCoapInternalReply::wantNextBlock()
 {
     QCoapOption option = d_func()->message.findOptionByName(QCoapOption::Block1CoapOption);
@@ -144,6 +181,10 @@ int QCoapInternalReply::wantNextBlock()
     return -1;
 }
 
+/*!
+    \internal
+    Returns the status code of the reply.
+*/
 QCoapStatusCode QCoapInternalReply::statusCode() const
 {
     return d_func()->statusCode;

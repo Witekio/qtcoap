@@ -14,6 +14,23 @@ QCoapInternalRequestPrivate::QCoapInternalRequestPrivate() :
 {
 }
 
+/*!
+    \internal
+
+    \class QCoapInternalRequest
+    \brief The QCoapInternalRequest class contains data related to
+    a message that needs to be sent.
+
+    \reentrant
+
+    \sa QCoapInternalMessage, QCoapInternalReply
+*/
+
+/*!
+    \internal
+    Constructs a new QCoapInternalRequest object and sets \a parent as
+    the parent object.
+*/
 QCoapInternalRequest::QCoapInternalRequest(QObject* parent) :
     QCoapInternalMessage(*new QCoapInternalRequestPrivate, parent)
 {
@@ -22,6 +39,11 @@ QCoapInternalRequest::QCoapInternalRequest(QObject* parent) :
     connect(d->timer, SIGNAL(timeout()), this, SLOT(_q_timeout()));
 }
 
+/*!
+    \internal
+    Constructs a new QCoapInternalRequest object with the informations of
+    \a request and sets \a parent as the parent object.
+*/
 QCoapInternalRequest::QCoapInternalRequest(const QCoapRequest& request, QObject* parent) :
     QCoapInternalRequest(parent)
 {
@@ -39,18 +61,29 @@ QCoapInternalRequest::QCoapInternalRequest(const QCoapRequest& request, QObject*
     addUriOptions(request.url(), request.proxyUrl());
 }
 
+/*!
+    \internal
+    Initilize parameters to transform the QCoapInternalRequest into an
+    acknowledgment message with the message id \a messageId and the given
+    \a token.
+*/
 void QCoapInternalRequest::initForAcknowledgment(quint16 messageId, const QByteArray& token)
 {
     Q_D(QCoapInternalRequest);
 
     setOperation(EmptyCoapOperation);
-    d->message.setType(QCoapMessage::AcknowledgmentMessage);
+    d->message.setType(QCoapMessage::AcknowledgmentCoapMessage);
     d->message.setMessageId(messageId);
     d->message.setToken(token);
     d->message.setPayload(QByteArray());
     d->message.removeAllOptions();
 }
 
+/*!
+    \internal
+    Initilize parameters to transform the QCoapInternalRequest into a
+    reset message with the message id \a messageId.
+*/
 void QCoapInternalRequest::initForReset(quint16 messageId)
 {
     Q_D(QCoapInternalRequest);
@@ -63,6 +96,11 @@ void QCoapInternalRequest::initForReset(quint16 messageId)
     d->message.removeAllOptions();
 }
 
+/*!
+    \internal
+    Returns the coap frame corresponding to the QCoapInternalRequest into
+    a QByteArray object.
+*/
 QByteArray QCoapInternalRequest::toQByteArray() const
 {
     Q_D(const QCoapInternalRequest);
@@ -149,6 +187,11 @@ QByteArray QCoapInternalRequest::toQByteArray() const
     return pdu;
 }
 
+/*!
+    \internal
+    Initilize blocks parameters and create the options needed to ask the block with
+    the number \a blockNumber and with a size of \a blockSize.
+*/
 void QCoapInternalRequest::setRequestToAskBlock(uint blockNumber, uint blockSize)
 {
     Q_D(QCoapInternalRequest);
@@ -170,6 +213,11 @@ void QCoapInternalRequest::setRequestToAskBlock(uint blockNumber, uint blockSize
     d->message.setMessageId(d->message.messageId()+1);
 }
 
+/*!
+    \internal
+    Initilize blocks parameters and create the options needed to send the block with
+    the number \a blockNumber and with a size of \a blockSize.
+*/
 void QCoapInternalRequest::setRequestToSendBlock(uint blockNumber, uint blockSize)
 {
     Q_D(QCoapInternalRequest);
@@ -196,6 +244,10 @@ void QCoapInternalRequest::setRequestToSendBlock(uint blockNumber, uint blockSiz
     d->message.setMessageId(d->message.messageId()+1);
 }
 
+/*!
+    \internal
+    Generates a new message id.
+*/
 quint16 QCoapInternalRequest::generateMessageId()
 {
     Q_D(QCoapInternalRequest);
@@ -204,6 +256,10 @@ quint16 QCoapInternalRequest::generateMessageId()
     return id;
 }
 
+/*!
+    \internal
+    Generates a new token.
+*/
 QByteArray QCoapInternalRequest::generateToken()
 {
     Q_D(QCoapInternalRequest);
@@ -220,6 +276,10 @@ QByteArray QCoapInternalRequest::generateToken()
     return token;
 }
 
+/*!
+    \internal
+    Adds the given coap \a option and sets block parameters if needed.
+*/
 void QCoapInternalRequest::addOption(const QCoapOption& option)
 {
     Q_D(QCoapInternalRequest);
@@ -238,6 +298,11 @@ void QCoapInternalRequest::addOption(const QCoapOption& option)
     d->message.addOption(option);
 }
 
+/*!
+    \internal
+    Adds the coap options related to the target and proxy with the given \a uri
+    and \a proxyUri.
+*/
 void QCoapInternalRequest::addUriOptions(const QUrl& uri, const QUrl& proxyUri)
 {
     Q_D(QCoapInternalRequest);
@@ -282,6 +347,11 @@ void QCoapInternalRequest::addUriOptions(const QUrl& uri, const QUrl& proxyUri)
     d->targetUri = mainUri;
 }
 
+/*!
+    \internal
+    Increments the retransmission counter, updates the timeout and
+    starts a timer.
+*/
 void QCoapInternalRequest::beginTransmission()
 {
     Q_D(QCoapInternalRequest);
@@ -294,6 +364,10 @@ void QCoapInternalRequest::beginTransmission()
         d->timer->start(d->timeout);
 }
 
+/*!
+    \internal
+    Reset the retransmission counter to zero and stops the timer.
+*/
 void QCoapInternalRequest::stopTransmission()
 {
     Q_D(QCoapInternalRequest);
@@ -301,6 +375,10 @@ void QCoapInternalRequest::stopTransmission()
     d->timer->stop();
 }
 
+/*!
+    \internal
+    This slot emit a timeout signal.
+*/
 void QCoapInternalRequestPrivate::_q_timeout()
 {
     Q_Q(QCoapInternalRequest);
@@ -308,36 +386,64 @@ void QCoapInternalRequestPrivate::_q_timeout()
     emit q->timeout(q);
 }
 
+/*!
+    \internal
+    Returns the target uri.
+*/
 QUrl QCoapInternalRequest::targetUri() const
 {
     return d_func()->targetUri;
 }
 
+/*!
+    \internal
+    Returns the connection used to send this request.
+*/
 QCoapConnection* QCoapInternalRequest::connection() const
 {
     return d_func()->connection;
 }
 
+/*!
+    \internal
+    Returns the operation type of the request.
+*/
 QCoapOperation QCoapInternalRequest::operation() const
 {
     return d_func()->operation;
 }
 
+/*!
+    \internal
+    Returns true if the observe request needs to be canceled.
+*/
 bool QCoapInternalRequest::cancelObserve() const
 {
     return d_func()->cancelObserve;
 }
 
+/*!
+    \internal
+    Returns the timer used to handle the timeout.
+*/
 QTimer* QCoapInternalRequest::timer() const
 {
     return d_func()->timer;
 }
 
+/*!
+    \internal
+    Returns the value of the retransmission counter.
+*/
 uint QCoapInternalRequest::retransmissionCounter() const
 {
     return d_func()->retransmissionCounter;
 }
 
+/*!
+    \internal
+    Sets the operation type of the request to the given \a operation.
+*/
 void QCoapInternalRequest::setOperation(QCoapOperation operation)
 {
     Q_D(QCoapInternalRequest);
@@ -347,6 +453,10 @@ void QCoapInternalRequest::setOperation(QCoapOperation operation)
     d->operation = operation;
 }
 
+/*!
+    \internal
+    Sets the connection to use to send this request to the given \a connection.
+*/
 void QCoapInternalRequest::setConnection(QCoapConnection* connection)
 {
     Q_D(QCoapInternalRequest);
@@ -356,6 +466,10 @@ void QCoapInternalRequest::setConnection(QCoapConnection* connection)
     d->connection = connection;
 }
 
+/*!
+    \internal
+    Sets the cancel observe parameter to the given \a cancelObserve value.
+*/
 void QCoapInternalRequest::setCancelObserve(bool cancelObserve)
 {
     Q_D(QCoapInternalRequest);
@@ -365,18 +479,31 @@ void QCoapInternalRequest::setCancelObserve(bool cancelObserve)
     d->cancelObserve = cancelObserve;
 }
 
+/*!
+    \internal
+    Sets the target uri to the given \a targetUri.
+*/
 void QCoapInternalRequest::setTargetUri(QUrl targetUri)
 {
     Q_D(QCoapInternalRequest);
     d->targetUri = targetUri;
 }
 
+/*!
+    \internal
+    Sets the timeout to the given \a timeout value in milliseconds.
+*/
 void QCoapInternalRequest::setTimeout(uint timeout)
 {
     Q_D(QCoapInternalRequest);
     d->timeout = timeout;
 }
 
+/*!
+    \internal
+    Returns true if this QCoapInternalRequest message id is lower than \a other
+    message id.
+*/
 bool QCoapInternalRequest::operator<(const QCoapInternalRequest& other) const
 {
     Q_D(const QCoapInternalRequest);

@@ -14,7 +14,7 @@ enum QCoapStatusCode {
     InvalidCoapCode = 0x00,
     CreatedCoapCode = 0x41, // 2.01
     DeletedCoapCode = 0x42, // 2.02
-    ValidCoapCode   = 0x43, // 2.03T
+    ValidCoapCode   = 0x43, // 2.03
     ChangedCoapCode = 0x44, // 2.04
     ContentCoapCode = 0x45, // 2.05
     ContinueCoapCode = 0x5F, // 2.31

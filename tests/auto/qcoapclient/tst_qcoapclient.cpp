@@ -29,7 +29,6 @@ private slots:
     void separateOperation_data();
     void separateOperation();
     void socketError();
-    // TODO : void retransmission(); HOW ?
     void timeout();
     void abort();
     void removeReply_data();
@@ -324,7 +323,7 @@ void tst_QCoapClient::timeout()
     client.protocol()->setAckTimeout(300);
     QUrl url = QUrl("coap://172.17.0.5:5683/"); // Need an url that return nothing
 
-    QCoapReply* reply = client.get(QCoapRequest(url));
+    QCoapReply* reply = client.get(QCoapRequest(url, QCoapMessage::ConfirmableCoapMessage));
     QSignalSpy spyReplyError(reply, SIGNAL(error(QCoapReply::QCoapNetworkError)));
 
     QTRY_COMPARE_WITH_TIMEOUT(spyReplyError.count(), 1, 60000);

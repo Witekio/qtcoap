@@ -5,12 +5,14 @@ QT_BEGIN_NAMESPACE
 
 /*!
     \class QCoapDiscoveryReply
-    \brief The QCoapDiscoveryReply is a QCoapReply that stores also a
+    \brief A QCoapDiscoveryReply object is a QCoapReply that stores also a
     list of QCoapResources.
+
+    \reentrant
 
     This class is used for discovery requests.
 
-    \sa QCoapClient, QCoapRequest, QCoapReply
+    \sa QCoapClient, QCoapRequest, QCoapReply, QCoapResource
 */
 
 /*!

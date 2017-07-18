@@ -13,7 +13,9 @@ QCoapProtocolPrivate::QCoapProtocolPrivate() :
 
 /*!
     \class QCoapProtocol
-    \brief The QCoapProtocol handle the logical part of the CoAP protocol.
+    \brief The QCoapProtocol class handle the logical part of the CoAP protocol.
+
+    \reentrant
 
     The QCoapProtocol is used by the QCoapClient class to handle the logical
     part of the protocol. It can encode requests and decode replies. It also
@@ -265,7 +267,7 @@ void QCoapProtocolPrivate::onLastBlock(QCoapInternalRequest* request)
         return;
 
     QCoapInternalReply* finalReply(replies.last());
-    if (finalReply->message().type() == QCoapMessage::AcknowledgmentMessage
+    if (finalReply->message().type() == QCoapMessage::AcknowledgmentCoapMessage
             && finalReply->statusCode() == InvalidCoapCode)
         return;
 
