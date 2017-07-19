@@ -1,15 +1,14 @@
 #ifndef QCOAPCLIENT_H
 #define QCOAPCLIENT_H
 
-#include <QObject>
-#include <QtCore/qglobal.h>
-
 #include "qcoapglobal.h"
 #include "qcoapresource.h"
 #include "qcoapreply.h"
 #include "qcoaprequest.h"
 #include "qcoapprotocol.h"
 #include "qcoapdiscoveryreply.h"
+#include <QObject>
+#include <QtCore/qglobal.h>
 
 QT_BEGIN_NAMESPACE
 

@@ -2,7 +2,7 @@
 #define QCOAPPROTOCOL_P_H
 
 #include "qcoapprotocol.h"
-#include "private/qobject_p.h"
+#include <private/qobject_p.h>
 #include <QList>
 #include <QPair>
 #include <QQueue>

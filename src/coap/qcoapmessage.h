@@ -1,10 +1,10 @@
 #ifndef QCOAPMESSAGE_H
 #define QCOAPMESSAGE_H
 
+#include "qcoapoption.h"
 #include <QtCore/qglobal.h>
 #include <QObject>
 #include <QList>
-#include <qcoapoption.h>
 
 QT_BEGIN_NAMESPACE
 

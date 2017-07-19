@@ -3,8 +3,7 @@
 
 #include "qcoapreply.h"
 #include "qcoapmessage_p.h"
-#include "private/qiodevice_p.h"
-//#include "qcoaprequest.h"
+#include <private/qiodevice_p.h>
 
 QT_BEGIN_NAMESPACE
 

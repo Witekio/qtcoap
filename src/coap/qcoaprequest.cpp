@@ -1,7 +1,7 @@
 #include "qcoaprequest.h"
 #include "qcoaprequest_p.h"
-
 #include <QtMath>
+#include <QTime>
 
 QT_BEGIN_NAMESPACE
 

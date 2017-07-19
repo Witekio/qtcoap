@@ -5,7 +5,6 @@
 #include "qcoapinternalmessage.h"
 #include "qcoapinternalmessage_p.h"
 #include "qcoapconnection.h"
-
 #include <QtCore/qglobal.h>
 #include <QTimer>
 #include <QUrl>

@@ -1,6 +1,5 @@
 #include "qcoapconnection.h"
 #include "qcoapconnection_p.h"
-
 #include <QNetworkDatagram>
 
 QT_BEGIN_NAMESPACE

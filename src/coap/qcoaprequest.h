@@ -1,19 +1,13 @@
 #ifndef QCOAPREQUEST_H
 #define QCOAPREQUEST_H
 
-#include <QObject>
-#include <QUrl>
-#include <QtCore/qglobal.h>
-#include <QTime>
-#include <QThread>
-#include <QSharedDataPointer>
-
 #include "qcoapglobal.h"
 #include "qcoapmessage.h"
 #include "qcoapconnection.h"
-//#include "qcoapprotocol.h"
 #include "qcoapinternalrequest_p.h"
-//#include "qcoapreply.h"
+#include <QObject>
+#include <QUrl>
+#include <QtCore/qglobal.h>
 
 QT_BEGIN_NAMESPACE
 

@@ -1,7 +1,7 @@
 #ifndef QCOAPRESOURCE_P_H
 #define QCOAPRESOURCE_P_H
 
-#include <qcoapresource.h>
+#include "qcoapresource.h"
 
 QT_BEGIN_NAMESPACE
 

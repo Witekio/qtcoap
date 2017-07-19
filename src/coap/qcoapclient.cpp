@@ -1,4 +1,3 @@
-#include <QEventLoop>
 #include "qcoapclient.h"
 #include "qcoapclient_p.h"
 
