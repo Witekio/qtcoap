@@ -4,8 +4,15 @@
 #include "qcoapconnection.h"
 #include <private/qobject_p.h>
 #include <QUdpSocket>
+#include <QQueue>
 
 QT_BEGIN_NAMESPACE
+
+struct CoapFrame {
+    QByteArray currentPdu;
+    QString host;
+    quint16 port;
+};
 
 class QCoapConnectionPrivate : public QObjectPrivate
 {
@@ -13,18 +20,14 @@ public:
     QCoapConnectionPrivate();
     ~QCoapConnectionPrivate();
 
-    // TODO : replace currentPdu, host and port by a struct or
-    // something like this and put this in a queue.
-    QString host;
-    quint16 port;
     QUdpSocket* udpSocket;
-    QByteArray currentPdu;
     QCoapConnection::QCoapConnectionState state;
+    QQueue<CoapFrame> framesToSend;
 
     virtual bool bind();
 
     void bindSocket();
-    void writeToSocket(const QByteArray& data);
+    void writeToSocket(const QByteArray& data, const QString& host, quint16 port);
     void setSocket(QUdpSocket* socket);
     void setState(QCoapConnection::QCoapConnectionState newState);
 

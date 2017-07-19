@@ -5,10 +5,7 @@
 QT_BEGIN_NAMESPACE
 
 QCoapConnectionPrivate::QCoapConnectionPrivate() :
-    host(""),
-    port(0),
     udpSocket(nullptr),
-    currentPdu(QByteArray()),
     state(QCoapConnection::Unconnected)
 {
 }
@@ -105,9 +102,8 @@ void QCoapConnection::sendRequest(const QByteArray& request, const QString& host
 {
     Q_D(QCoapConnection);
 
-    d->currentPdu = request;
-    d->host = host;
-    d->port = port;
+    CoapFrame frame = {request, host, port};
+    d->framesToSend.enqueue(frame);
 
     if (d->state == Bound) {
         QMetaObject::invokeMethod(this, "_q_startToSendRequest");
@@ -122,7 +118,7 @@ void QCoapConnection::sendRequest(const QByteArray& request, const QString& host
 
     Writes the given \a data frame to the socket to the stored host and port.
 */
-void QCoapConnectionPrivate::writeToSocket(const QByteArray& data)
+void QCoapConnectionPrivate::writeToSocket(const QByteArray& data, const QString& host, quint16 port)
 {
     if (!udpSocket->isWritable())
         udpSocket->open(udpSocket->openMode() | QIODevice::WriteOnly);
@@ -154,7 +150,8 @@ void QCoapConnectionPrivate::_q_socketBound()
 */
 void QCoapConnectionPrivate::_q_startToSendRequest()
 {
-    writeToSocket(currentPdu);
+    CoapFrame frame = framesToSend.dequeue();
+    writeToSocket(frame.currentPdu, frame.host, frame.port);
 }
 
 /*!
@@ -190,22 +187,6 @@ void QCoapConnectionPrivate::_q_socketError(QAbstractSocket::SocketError error)
 
     qDebug() << "CoAP UDP socket error " << error << udpSocket->errorString();
     emit q->error(error);
-}
-
-/*!
-    Returns the host stored.
-*/
-QString QCoapConnection::host() const
-{
-    return d_func()->host;
-}
-
-/*!
-    Returns the host stored.
-*/
-quint16 QCoapConnection::port() const
-{
-    return d_func()->port;
 }
 
 /*!

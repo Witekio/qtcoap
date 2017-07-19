@@ -11,6 +11,9 @@ public:
     QCoapResourcePrivate();
     ~QCoapResourcePrivate();
 
+    // The comments obs, rt, etc..., are the names of the fields in
+    // the protocol.
+
     QString path;
     QString title;
     bool observable;        // obs

@@ -129,23 +129,25 @@ void tst_QCoapClient::operations()
     QTRY_COMPARE_WITH_TIMEOUT(spyClientFinished.count(), 1, 5000);
 
     QVERIFY(reply != nullptr);
-    QByteArray replyData = reply->readAll();
+    QByteArray replyData;
+    if (reply) {
+        replyData = reply->readAll();
+        if (qstrcmp(QTest::currentDataTag(), "get") == 0) {
+            QVERIFY(!replyData.isEmpty());
+            QCOMPARE(reply->statusCode(), ContentCoapCode);
+        } else if (qstrcmp(QTest::currentDataTag(), "post") == 0) {
+            QVERIFY(replyData.isEmpty());
+            QCOMPARE(reply->statusCode(), CreatedCoapCode);
+        } else if (qstrcmp(QTest::currentDataTag(), "put") == 0) {
+            QVERIFY(replyData.isEmpty());
+            QCOMPARE(reply->statusCode(), ChangedCoapCode);
+        } else if (qstrcmp(QTest::currentDataTag(), "delete") == 0) {
+            QVERIFY(replyData.isEmpty());
+            QCOMPARE(reply->statusCode(), DeletedCoapCode);
+        }
 
-    if (qstrcmp(QTest::currentDataTag(), "get") == 0) {
-        QVERIFY(!replyData.isEmpty());
-        QCOMPARE(reply->statusCode(), ContentCoapCode);
-    } else if (qstrcmp(QTest::currentDataTag(), "post") == 0) {
-        QVERIFY(replyData.isEmpty());
-        QCOMPARE(reply->statusCode(), CreatedCoapCode);
-    } else if (qstrcmp(QTest::currentDataTag(), "put") == 0) {
-        QVERIFY(replyData.isEmpty());
-        QCOMPARE(reply->statusCode(), ChangedCoapCode);
-    } else if (qstrcmp(QTest::currentDataTag(), "delete") == 0) {
-        QVERIFY(replyData.isEmpty());
-        QCOMPARE(reply->statusCode(), DeletedCoapCode);
+        delete reply;
     }
-
-    delete reply;
 }
 
 void tst_QCoapClient::separateOperation_data()
@@ -221,7 +223,7 @@ void tst_QCoapClient::requestWithQIODevice()
 
     QCoapReply* reply = nullptr;
     QBuffer buffer;
-    buffer.open(QIODevice::WriteOnly);
+    buffer.open(QIODevice::ReadWrite);
     buffer.write("Some data");
 
     if (qstrcmp(QTest::currentDataTag(), "post") == 0)

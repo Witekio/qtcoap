@@ -23,8 +23,6 @@ public:
 
     void sendRequest(const QByteArray& request, const QString& host, quint16 port);
 
-    QString host() const;
-    quint16 port() const;
     QUdpSocket* socket() const;
     QCoapConnectionState state() const;
 

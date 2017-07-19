@@ -250,9 +250,12 @@ void QCoapProtocolPrivate::onLastBlock(QCoapInternalRequest* request)
 {
     Q_Q(QCoapProtocol);
 
+    QList<InternalMessagePair> internalRepliesValue = internalReplies.values(request);
+    if (internalRepliesValue.isEmpty())
+        return;
+
     QList<QCoapInternalReply*> replies = internalReplies[request].replies;
     QCoapReply* userReply = internalReplies[request].userReply;
-
     if (replies.isEmpty() || !userReply)
         return;
 
@@ -373,7 +376,6 @@ QCoapInternalReply* QCoapProtocolPrivate::decode(const QByteArray& message)
 {
     Q_Q(QCoapProtocol);
     return new QCoapInternalReply(QCoapInternalReply::fromQByteArray(message), q);
-    //return QCoapInternalReply::fromQByteArray(message);
 }
 
 /*!
