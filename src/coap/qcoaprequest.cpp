@@ -27,6 +27,8 @@ QCoapRequestPrivate::QCoapRequestPrivate(const QCoapRequestPrivate &other) :
     \brief The QCoapRequest class holds a coap request. This request
     can be sent with QCoapClient.
 
+    \reentrant
+
     The QCoapRequest contains data needed to make coap frames that can be
     sent to the url it holds.
 

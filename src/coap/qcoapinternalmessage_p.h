@@ -7,7 +7,7 @@
 
 QT_BEGIN_NAMESPACE
 
-class QCoapInternalMessagePrivate : public QObjectPrivate //: public QCoapMessagePrivate
+class QCoapInternalMessagePrivate : public QObjectPrivate
 {
 public:
     QCoapInternalMessagePrivate();

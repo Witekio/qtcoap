@@ -16,7 +16,6 @@ public:
     QCoapInternalReply(const QCoapInternalReply& other, QObject* parent = Q_NULLPTR);
 
     static QCoapInternalReply fromQByteArray(const QByteArray& reply);
-    //void initFromQByteArray(const QByteArray& reply);
     void appendData(const QByteArray& data);
     int wantNextBlock();
 

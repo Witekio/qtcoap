@@ -24,6 +24,8 @@ QCoapResourcePrivate::~QCoapResourcePrivate()
     \brief The QCoapResource class holds informations about a discovered
     resource.
 
+    \reentrant
+
     The QCoapRequest contains data as the path and title of the resource
     and other ancillary informations.
 

@@ -13,7 +13,8 @@ QCoapProtocolPrivate::QCoapProtocolPrivate() :
 
 /*!
     \class QCoapProtocol
-    \brief The QCoapProtocol class handle the logical part of the CoAP protocol.
+    \brief The QCoapProtocol class handle the logical part of the CoAP
+    protocol.
 
     \reentrant
 
@@ -43,9 +44,12 @@ void QCoapProtocol::sendRequest(QCoapReply* reply, QCoapConnection* connection)
 {
     Q_D(QCoapProtocol);
 
-    // connect with QueuedConnection type to secure from deleting the reply (reply destructor emit the signal)
-    connect(reply, SIGNAL(aborted(QCoapReply*)), this, SLOT(onAbortedRequest(QCoapReply*)), Qt::QueuedConnection);
-    connect(connection, SIGNAL(error(QAbstractSocket::SocketError)), reply, SLOT(connectionError(QAbstractSocket::SocketError)));
+    // connect with QueuedConnection type to secure from deleting the reply
+    // (reply destructor emits the signal)
+    connect(reply, SIGNAL(aborted(QCoapReply*)),
+            this, SLOT(onAbortedRequest(QCoapReply*)), Qt::QueuedConnection);
+    connect(connection, SIGNAL(error(QAbstractSocket::SocketError)),
+            reply, SLOT(connectionError(QAbstractSocket::SocketError)));
 
     if(!reply)
         return;
@@ -53,7 +57,6 @@ void QCoapProtocol::sendRequest(QCoapReply* reply, QCoapConnection* connection)
     // Generate unique token and message id
     QCoapInternalRequest* copyInternalRequest = new QCoapInternalRequest(reply->request());
     copyInternalRequest->moveToThread(this->thread()); // put "this" as parent does not work
-    qDebug() << copyInternalRequest->thread() << " " << this->thread();
     if (copyInternalRequest->message().messageId() == 0) {
         do {
             copyInternalRequest->generateMessageId();
@@ -74,8 +77,6 @@ void QCoapProtocol::sendRequest(QCoapReply* reply, QCoapConnection* connection)
     }
 
     // If the user specified a size for blockwise request/replies
-    //qDebug() << "payload length : " << copyInternalRequest->message()->payload().length()
-    //         << " - blockSize : " << d->blockSize;
     if (d->blockSize > 0) {
         copyInternalRequest->setRequestToAskBlock(0, d->blockSize);
         if (copyInternalRequest->message().payload().length() > d->blockSize)
@@ -90,7 +91,8 @@ void QCoapProtocol::sendRequest(QCoapReply* reply, QCoapConnection* connection)
     }
 
     // Invoke to change current thread
-    QMetaObject::invokeMethod(this, "sendRequest", Q_ARG(QCoapInternalRequest*, copyInternalRequest));
+    QMetaObject::invokeMethod(this, "sendRequest",
+                              Q_ARG(QCoapInternalRequest*, copyInternalRequest));
 }
 
 /*!
@@ -98,10 +100,6 @@ void QCoapProtocol::sendRequest(QCoapReply* reply, QCoapConnection* connection)
 */
 void QCoapProtocolPrivate::sendRequest(QCoapInternalRequest* request)
 {
-    /*qDebug() << request->thread()
-             << request->timer()->thread()
-             << QThread::currentThread()
-             << q_ptr->thread();*/
     request->beginTransmission();
     QByteArray requestFrame = encode(request);
     QUrl uri = request->targetUri();
@@ -139,8 +137,8 @@ void QCoapProtocolPrivate::resendRequest(QCoapInternalRequest* request)
 {
     qDebug() << "QCoapProtocolPrivate::resendRequest()";
     // In case of retransmission, check if it is not the last try
-    if (request->message().type() == QCoapMessage::ConfirmableCoapMessage && internalReplies.contains(request)) {
-        qDebug() << "CONFIRMABLE and REQUEST EXIST";
+    if (request->message().type() == QCoapMessage::ConfirmableCoapMessage
+            && internalReplies.contains(request)) {
         if (request->retransmissionCounter() < maxRetransmit) {
             sendRequest(request);
         } else {
@@ -160,18 +158,13 @@ void QCoapProtocolPrivate::handleFrame(const QByteArray& frame)
     QCoapInternalRequest* request = nullptr;
     QCoapMessage internalReplyMessage = internalReply->message();
 
-    /*qDebug() << "MID : " << internalReply.messageId()
-             << " - Token : " << internalReply.token();*/
-
     if (!internalReplyMessage.token().isEmpty())
         request = findInternalRequestByToken(internalReplyMessage.token());
 
     if (!request) {
         request = findInternalRequestByMessageId(internalReplyMessage.messageId());
-        if (!request) {
-            qDebug() << "No request found (handleFrame)";
+        if (!request)
             return;
-        }
     }
 
     request->stopTransmission();
@@ -200,7 +193,6 @@ void QCoapProtocolPrivate::handleFrame(const QByteArray& frame)
 
     // Take the next frame if needed
     frameQueue.dequeue();
-    //qDebug() << frameQueue.length();
     if (!frameQueue.isEmpty())
         handleFrame();
 }
@@ -225,7 +217,8 @@ QCoapInternalRequest* QCoapProtocolPrivate::findInternalRequestByToken(const QBy
 QCoapInternalRequest* QCoapProtocolPrivate::findInternalRequestByReply(QCoapReply* reply)
 {
     QCoapInternalRequest* copyRequest = nullptr;
-    for (InternalMessageMap::Iterator it = internalReplies.begin(); it != internalReplies.end(); ++it) {
+    InternalMessageMap::Iterator it;
+    for (it = internalReplies.begin(); it != internalReplies.end(); ++it) {
         if (it.value().userReply == reply) {
             copyRequest = const_cast<QCoapInternalRequest*>(it.key());
             break;
@@ -240,10 +233,6 @@ QCoapInternalRequest* QCoapProtocolPrivate::findInternalRequestByReply(QCoapRepl
 */
 QCoapInternalRequest* QCoapProtocolPrivate::findInternalRequestByMessageId(quint16 messageId)
 {
-    /*for (QCoapInternalRequest request : internalReplies.keys()) {
-        if (request.message()->messageId() == messageId)
-             return &request;
-    }*/
     for (InternalMessageMap::iterator it = internalReplies.begin();
          it != internalReplies.end(); ++it) {
         if (it.key()->message().messageId() == messageId)
@@ -257,7 +246,8 @@ QCoapInternalRequest* QCoapProtocolPrivate::findInternalRequestByMessageId(quint
     Handle what to do when we received the last block of a reply.
 
     Here it merge all blocks, remove the request from the map,
-    update the associated QCoapReply and emit a finished signal.
+    update the associated QCoapReply and emits a
+    \l{QCoapProtocol::finished(QCoapReply*)}{finished(QCoapReply*)} signal.
 */
 void QCoapProtocolPrivate::onLastBlock(QCoapInternalRequest* request)
 {
@@ -404,7 +394,6 @@ void QCoapProtocolPrivate::onAbortedRequest(QCoapReply* reply)
     qDebug() << "QCoapProtocol::onAbortedRequest()";
     QCoapInternalRequest* request = findInternalRequestByReply(reply);
     if (request) {
-        qDebug() << "REMOVE REQUEST";
         request->stopTransmission();
         internalReplies.remove(request);
     }
@@ -425,19 +414,20 @@ QList<QCoapResource> QCoapProtocol::resourcesFromCoreLinkList(const QByteArray& 
         QList<QByteArray> parameterList = link.split(';');
         for (QByteArray parameter : parameterList)
         {
+            QString parameterString = QString(parameter);
             int length = parameter.length();
             if (parameter.startsWith('<'))
-                resource.setPath(QString(parameter).mid(1, length-2));
+                resource.setPath(parameterString.mid(1, length-2));
             else if (parameter.startsWith("title="))
-                resource.setTitle(QString(parameter).right(length-6).remove("\""));
+                resource.setTitle(parameterString.right(length-6).remove("\""));
             else if (parameter.startsWith("rt="))
-                resource.setResourceType(QString(parameter).right(length-3).remove("\""));
+                resource.setResourceType(parameterString.right(length-3).remove("\""));
             else if (parameter.startsWith("if="))
-                resource.setInterface(QString(parameter).right(length-3).remove("\""));
+                resource.setInterface(parameterString.right(length-3).remove("\""));
             else if (parameter.startsWith("sz="))
-                resource.setMaximumSize(QString(parameter).right(length-3).remove("\"").toInt());
+                resource.setMaximumSize(parameterString.right(length-3).remove("\"").toInt());
             else if (parameter.startsWith("ct="))
-                resource.setContentFormat(QString(parameter).right(length-3).remove("\"").toUInt());
+                resource.setContentFormat(parameterString.right(length-3).remove("\"").toUInt());
             else if (parameter == "obs")
                 resource.setObservable(true);
         }

@@ -52,7 +52,7 @@ class QCoapConnectionForSocketErrorTestsPrivate : public QCoapConnectionPrivate
     bool bind() {
         QUdpSocket anotherSocket;
         anotherSocket.bind(QHostAddress::Any, 6080);
-       return static_cast<QUdpSocket*>(udpSocket)->bind(QHostAddress::Any, 6080);
+       return udpSocket->bind(QHostAddress::Any, 6080);
     }
 };
 
@@ -281,22 +281,20 @@ void tst_QCoapClient::multipleRequests()
     QTRY_COMPARE_WITH_TIMEOUT(spyReplyGet4Finished.count(), 1, 5000);
     QTRY_COMPARE_WITH_TIMEOUT(spyClientFinished.count(), 4, 5000);
 
-    /*QByteArray replyGet1Data = replyGet1->readAll();
-    QByteArray replyGet2Data = replyGet2->readAll();
-    QByteArray replyGet3Data = replyGet3->readAll();
-    QByteArray replyGet4Data = replyGet4->readAll();
-    qDebug() << "replyGet1Data : " << replyGet1Data;
-    qDebug() << "replyGet2Data : " << replyGet2Data;
-    qDebug() << "replyGet3Data : " << replyGet3Data;
-    qDebug() << "replyGet4Data : " << replyGet4Data;*/
+    QByteArray replyData1 = replyGet1->readAll();
+    QByteArray replyData2 = replyGet2->readAll();
+    QByteArray replyData3 = replyGet3->readAll();
+    QByteArray replyData4 = replyGet4->readAll();
 
-    //QVERIFY(!replyGet1Data.isEmpty());
+    QVERIFY(replyData1 != replyData2);
+    QVERIFY(replyData1 != replyData3);
+    QVERIFY(replyData1 != replyData4);
+    QVERIFY(replyData2 != replyData3);
+    QVERIFY(replyData2 != replyData4);
+    QVERIFY(replyData3 != replyData4);
     QCOMPARE(replyGet1->statusCode(), ContentCoapCode);
-    //QVERIFY(!replyGet2Data.isEmpty());
     QCOMPARE(replyGet2->statusCode(), ContentCoapCode);
-    //QVERIFY(!replyGet3Data.isEmpty());
     QCOMPARE(replyGet3->statusCode(), ContentCoapCode);
-    //QVERIFY(!replyGet4Data.isEmpty());
     QCOMPARE(replyGet4->statusCode(), ContentCoapCode);
 }
 
@@ -305,7 +303,7 @@ void tst_QCoapClient::socketError()
     QCoapClientForSocketErrorTests client;
     QUrl url = QUrl("coap://172.17.0.3:5683/test");
 
-    QUdpSocket* socket = static_cast<QUdpSocket*>(client.connection()->socket());
+    QUdpSocket* socket = client.connection()->socket();
     QSignalSpy spySocketError(socket, SIGNAL(error(QAbstractSocket::SocketError)));
     QCoapReply* reply = client.get(QCoapRequest(url));
     QSignalSpy spyReplyError(reply, SIGNAL(error(QCoapReply::QCoapNetworkError)));

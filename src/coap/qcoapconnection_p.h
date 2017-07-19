@@ -3,7 +3,7 @@
 
 #include "qcoapconnection.h"
 #include <private/qobject_p.h>
-#include <QIODevice>
+#include <QUdpSocket>
 
 QT_BEGIN_NAMESPACE
 
@@ -13,18 +13,19 @@ public:
     QCoapConnectionPrivate();
     ~QCoapConnectionPrivate();
 
+    // TODO : replace currentPdu, host and port by a struct or
+    // something like this and put this in a queue.
     QString host;
     quint16 port;
-    QIODevice* udpSocket;
+    QUdpSocket* udpSocket;
     QByteArray currentPdu;
     QCoapConnection::QCoapConnectionState state;
-    QByteArray lastReply; // Temporary store the last reply
 
     virtual bool bind();
 
     void bindSocket();
     void writeToSocket(const QByteArray& data);
-    void setSocket(QIODevice* device);
+    void setSocket(QUdpSocket* socket);
     void setState(QCoapConnection::QCoapConnectionState newState);
 
     void _q_socketBound();

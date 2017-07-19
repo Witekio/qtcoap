@@ -26,14 +26,14 @@ enum QCoapStatusCode {
     MethodNotAllowedCoapCode = 0x85, // 4.05
     NotAcceptableCoapCode = 0x86, // 4.06
     RequestEntityIncompleteCoapCode = 0x88, // 4.08
-    PreconditionFailedCoapCode = 0x8C,  // 4.12
-    RequestEntityTooLargeCoapCode = 0x8D,   // 4.13
+    PreconditionFailedCoapCode = 0x8C, // 4.12
+    RequestEntityTooLargeCoapCode = 0x8D, // 4.13
     UnsupportedContentFormatCoapCode = 0x8E, // 4.14
     InternalServerErrorCoapCode = 0xA0, // 5.00
-    NotImplementedCoapCode = 0xA1,  // 5.01
-    BadGatewayCoapCode = 0xA2,  // 5.02
-    ServiceUnavailableCoapCode = 0xA3,  // 5.03
-    GatewayTimeoutCoapCode = 0xA4,  // 5.04
+    NotImplementedCoapCode = 0xA1, // 5.01
+    BadGatewayCoapCode = 0xA2, // 5.02
+    ServiceUnavailableCoapCode = 0xA3, // 5.03
+    GatewayTimeoutCoapCode = 0xA4, // 5.04
     ProxyingNotSupportedCoapCode = 0xA5 // 5.05
 };
 

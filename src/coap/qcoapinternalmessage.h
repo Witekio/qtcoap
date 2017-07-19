@@ -28,8 +28,6 @@ public:
 protected:
     QCoapInternalMessage(QCoapInternalMessagePrivate &dd, QObject* parent = Q_NULLPTR);
     Q_DECLARE_PRIVATE(QCoapInternalMessage)
-    //QCoapInternalMessagePrivate* d_func() const;
-    //QCoapInternalMessagePrivate* d_ptr;
 };
 
 QT_END_NAMESPACE

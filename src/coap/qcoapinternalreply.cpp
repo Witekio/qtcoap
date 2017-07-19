@@ -23,6 +23,8 @@ QCoapInternalReplyPrivate::QCoapInternalReplyPrivate
     \brief The QCoapInternalReply class contains data related to
     a received message.
 
+    It subclass QCoapInternalMessage.
+
     \reentrant
 
     \sa QCoapInternalMessage, QCoapInternalRequest
@@ -30,7 +32,7 @@ QCoapInternalReplyPrivate::QCoapInternalReplyPrivate
 
 /*!
     \internal
-    Constructs a new QCoapInternalReply with \a parent as the parent obect.
+    Constructs a new QCoapInternalReply with \a parent as the parent object.
 */
 QCoapInternalReply::QCoapInternalReply(QObject* parent) :
     QCoapInternalMessage (*new QCoapInternalReplyPrivate, parent)
@@ -66,7 +68,7 @@ QCoapInternalReply QCoapInternalReply::fromQByteArray(const QByteArray& reply)
     quint8 tokenLength = (pduData[0]) & 0x0F;
     d->statusCode = static_cast<QCoapStatusCode>(pduData[1]);
     d->message.setMessageId(static_cast<quint16>((static_cast<quint16>(pduData[2]) << 8)
-                                         | static_cast<quint16>(pduData[3])));
+                                                  | static_cast<quint16>(pduData[3])));
     d->message.setToken(QByteArray(reinterpret_cast<char *>(pduData + 4), tokenLength));
 
     // Parse Options
@@ -113,11 +115,10 @@ QCoapInternalReply QCoapInternalReply::fromQByteArray(const QByteArray& reply)
         i += (1 + optionLength);
     }
 
-    qDebug() << "options length : " << internalReply.message().optionsLength();
-
     // Parse Payload
     if (static_cast<quint8>(pduData[i]) == 0xFF) {
-        QByteArray currentPayload = reply.right(reply.length() - i - 1); // -1 because of 0xFF at the beginning
+        // -1 because of 0xFF at the beginning
+        QByteArray currentPayload = reply.right(reply.length() - i - 1);
         d->message.setPayload(d->message.payload().append(currentPayload));
     }
 
@@ -157,7 +158,8 @@ void QCoapInternalReply::addOption(const QCoapOption& option)
 
 /*!
     \internal
-    Returns true if it is not the last block.
+    Returns the number of the next block if it is not the last block.
+    If it is the last block, it returns -1.
 */
 int QCoapInternalReply::wantNextBlock()
 {

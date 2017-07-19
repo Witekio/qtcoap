@@ -21,27 +21,29 @@ QCoapClientPrivate::~QCoapClientPrivate()
 /*!
     \class QCoapClient
     \brief The QCoapClient class allows the application to
-    send coap requests and receive replies
+    send coap requests and receive replies.
 
     \reentrant
 
-    The QCoapClient class contains signals that can be used to know if a reply
-    of a sent request arrived.
+    The QCoapClient class contains signals that can be used to know if the
+    reply of a sent request arrived.
 
-    The application can use a QCoapClient to send requests over a coap
+    The application can use a QCoapClient to send requests over a CoAP
     network. It contains functions for standard request and each function
     returns a QCoapReply object that stores the response data to a request
     and can be used to read these data.
 
     A simple request can be sent with :
+    // TODO : replace by snippet
     \code
         QCoapClient* client = new QCoapClient(this);
         connect(client, &QCoapClient::finished, this, &TestClass::slotFinished);
         client->get(QCoapRequest(Qurl("coap://coap.me/test")));
     \endcode
 
-    For an "observe" request, you can use it the same way than previously but using
-    the notified signal of the reply can be more useful.
+    For an "observe" request, you can use it the same way than previously
+    but using the \l{QCoapReply::notified(const QByteArray&)}
+    {notified(const QByteArray&)} signal of the reply can be more useful.
     \code
         QCoapRequest request = QCoapRequest(Qurl("coap://coap.me/obs"));
         CoapReply* reply = client->observe(request);
@@ -57,8 +59,8 @@ QCoapClientPrivate::~QCoapClientPrivate()
         client->cancelObserve(reply);
     \endcode
 
-    When a reply arrive, the QCoapClient emit a signal with a parameter
-    which is the QCoapReply.
+    When a reply arrive, the QCoapClient emits a
+    \l{QCoapClient::finished(QCoapReply*)}{finished(QCoapReply*)} signal.
 
     \note For discovery request, the returned object is a QCoapDiscoveryReply.
     It can be used the same way as a QCoapReply but contains also a list of
@@ -73,7 +75,7 @@ QCoapClientPrivate::~QCoapClientPrivate()
     This signal is emitted whenever a coap reply is
     finished. The \a reply parameter will contain a pointer to the
     reply that has just finished. This signal is emitted along with
-    the QCoapReply::finished() signal.
+    the \l{QCoapReply::finished()} signal.
 
     \sa QCoapReply::finished(), QCoapReply::error(QCoapReply::QCoapNetworkError)
 */
@@ -89,7 +91,8 @@ QCoapClient::QCoapClient(QObject* parent) :
             d->workerThread, &QThread::deleteLater);
     connect(d->connection, SIGNAL(readyRead(const QByteArray&)),
             d->protocol, SLOT(messageReceived(const QByteArray&)));
-    connect(d->protocol, &QCoapProtocol::finished, this, &QCoapClient::finished);
+    connect(d->protocol, &QCoapProtocol::finished,
+            this, &QCoapClient::finished);
     qRegisterMetaType<QCoapReply::QCoapNetworkError>();
 }
 
@@ -107,6 +110,7 @@ QCoapClient::~QCoapClient()
     delete d->workerThread;
     delete d->protocol;
     delete d->connection;
+    qDeleteAll(findChildren<QCoapReply*>(QString(), Qt::FindDirectChildrenOnly));
 }
 
 /*!
@@ -158,13 +162,12 @@ QCoapReply* QCoapClient::put(const QCoapRequest& request, const QByteArray& data
     Posts a PUT request sending the contents of the \a data device to the
     target \a request.
 
+    \note The device has to be open and readable before calling this function.
+
     \sa get(), post(), deleteResource(), observe(), discover(), cancelObserve()
 */
 QCoapReply* QCoapClient::put(const QCoapRequest& request, QIODevice* device)
 {
-    if (!device->isReadable())
-        device->open(device->openMode() | QIODevice::ReadOnly);
-
     if (!device->isSequential())
         device->seek(0);
 
@@ -199,13 +202,12 @@ QCoapReply* QCoapClient::post(const QCoapRequest& request, const QByteArray& dat
     Posts a POST request sending the contents of the \a data device to the
     target \a request.
 
+    \note The device has to be open and readable before calling this function.
+
     \sa get(), put(), deleteResource(), observe(), discover(), cancelObserve()
 */
 QCoapReply* QCoapClient::post(const QCoapRequest& request, QIODevice* device)
 {
-    if (!device->isReadable())
-        device->open(device->openMode() | QIODevice::ReadOnly);
-
     if (!device->isSequential())
         device->seek(0);
 
@@ -233,7 +235,7 @@ QCoapReply* QCoapClient::deleteResource(const QCoapRequest& request)
 }
 
 /*!
-    Discover the resources available at the given \a url and returns
+    Discovers the resources available at the given \a url and returns
     a new QCoapDiscoveryReply object which emits the
     \l{QCoapReply::finished()}{finished()} signal whenever the response
     arrives.
@@ -259,8 +261,8 @@ QCoapDiscoveryReply* QCoapClient::discover(const QUrl& url, const QString& disco
 /*!
     Sends a request to observe the target \a request and returns
     a new QCoapReply object which emits the
-    \l{QCoapReply::notified(const QByteArray&)}{finished(const QByteArray&)}
-    signal whenever the response arrives.
+    \l{QCoapReply::notified(const QByteArray&)}{notified(const QByteArray&)}
+    signal whenever a new notification arrives.
 
     \sa get(), post(), put(), deleteResource(), discover(), cancelObserve()
 */
@@ -319,8 +321,6 @@ QCoapReply* QCoapClientPrivate::sendRequest(const QCoapRequest& request)
     QCoapReply* reply = new QCoapReply(q);
     reply->setRequest(request);
 
-    qDebug() << "client : " << q->thread() << " protocol :" << protocol->thread();
-
     protocol->sendRequest(reply, connection);
 
     return reply;
@@ -366,7 +366,7 @@ QCoapConnection* QCoapClient::connection() const
 }
 
 /*!
-    Set the maximum block size used by the protocol when sending requests
+    Sets the maximum block size used by the protocol when sending requests
     and receiving replies.
 */
 void QCoapClient::setBlockSize(quint16 blockSize)
@@ -380,27 +380,27 @@ void QCoapClient::setBlockSize(quint16 blockSize)
 }
 
 /*!
-    Set the ttl option for multicast requests.
+    Sets the ttl option for multicast requests.
 */
 void QCoapClient::setMulticastTtlOption(int ttlValue)
 {
     Q_D(QCoapClient);
-    QUdpSocket* udpSocket = static_cast<QUdpSocket*>(d->connection->socket());
+    QUdpSocket* udpSocket = d->connection->socket();
     udpSocket->setSocketOption(QAbstractSocket::MulticastTtlOption, ttlValue);
 }
 
 /*!
-    Enable the loopback option for multicast requests.
+    Enables the loopback option for multicast requests.
 */
 void QCoapClient::enableMulticastLoopbackOption()
 {
     Q_D(QCoapClient);
-    QUdpSocket* udpSocket = static_cast<QUdpSocket*>(d->connection->socket());
+    QUdpSocket* udpSocket = d->connection->socket();
     udpSocket->setSocketOption(QAbstractSocket::MulticastLoopbackOption, 1);
 }
 
 /*!
-    Set the protocol used by the client. Allow the user to make its
+    Sets the protocol used by the client. Allow the user to make its
     own protocol class.
 
     \sa protocol()
@@ -414,7 +414,7 @@ void QCoapClient::setProtocol(QCoapProtocol* protocol)
 /*!
     \internal
 
-    Set the connection used by the client.
+    Sets the connection used by the client.
 
     \sa connection()
 */

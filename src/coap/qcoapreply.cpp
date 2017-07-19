@@ -18,13 +18,17 @@ QCoapReplyPrivate::QCoapReplyPrivate() :
     \class QCoapReply
     \brief The QCoapReply class holds the data of a coap reply.
 
+    \reentrant
+
     The QCoapReply contains data related to a request sent with the
     QCoapClient.
 
-    The finished signal is emitted when the response is fully received.
+    The \l{QCoapReply::finished()}{finished()}  signal is emitted when
+    the response is fully received.
 
-    The notified signal is emitted when a resource send a notification in
-    response of an observe request.
+    The \l{QCoapReply::notified(const QByteArray&)}
+    {notified(const QByteArray&)} signal is emitted when a resource send
+    a notification in response of an observe request.
 
     \sa QCoapClient, QCoapRequest, QCoapDiscoveryReply
 */
@@ -259,8 +263,8 @@ void QCoapReply::setError(QCoapNetworkError newError)
 /*!
     \internal
 
-    Update the QCoapReply object and its message with data of the internal reply
-    \a internalReply.
+    Update the QCoapReply object and its message with data of the internal
+    reply \a internalReply.
 */
 void QCoapReply::updateFromInternalReply(const QCoapInternalReply& internalReply)
 {
@@ -285,7 +289,8 @@ void QCoapReply::updateFromInternalReply(const QCoapInternalReply& internalReply
 }
 
 /*!
-    Aborts the operation immediately and emit the aborted signal
+    Aborts the operation immediately and emits the
+    \l{QCoapReply::aborted(QCoapReply*)}{aborted(QCoapReply*)} signal
     if the request was not finished before.
 */
 void QCoapReply::abortRequest()

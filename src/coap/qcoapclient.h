@@ -31,7 +31,8 @@ public:
     void cancelObserve(const QCoapRequest& request);
     void cancelObserve(QCoapReply* notifiedReply);
 
-    QCoapDiscoveryReply* discover(const QUrl& url, const QString& discoveryPath = "/.well-known/core");
+    QCoapDiscoveryReply* discover(const QUrl& url,
+                                  const QString& discoveryPath = "/.well-known/core");
 
     QCoapProtocol* protocol() const;
     QCoapConnection* connection() const;

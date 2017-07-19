@@ -20,13 +20,19 @@ QCoapConnectionPrivate::~QCoapConnectionPrivate()
 
 /*!
     \class QCoapConnection
-    \brief The QCoapConnection class handle the transfer of a frame to a server.
+    \brief The QCoapConnection class handle the transfer of a frame to a
+    server.
 
     \reentrant
 
-    The QCoapConnection is used by the QCoapClient class to send the requests to
-    a server. It has a socket listening for udp messages and that is used to send
-    the coap frames.
+    The QCoapConnection class is used by the QCoapClient class to send the
+    requests to a server. It has a socket listening for udp messages and
+    that is used to send the coap frames.
+
+    When a reply is available, the QCoapConnection object emits a
+    \l{QCoapConnection::readyRead(const QByteArray&)}
+    {readyRead(const QByteArray&)} signal
+
 
     \sa QCoapClient
 */
@@ -41,18 +47,19 @@ QCoapConnection::QCoapConnection(QObject* parent) :
 
 /*!
     \internal
+    Constructs a new QCoapConnection with \a dd as the d_ptr.
+    This constructor must be used when subclassing internally
+    the QCoapConnection class.
 */
 QCoapConnection::QCoapConnection(QCoapConnectionPrivate& dd, QObject* parent) :
     QObject(dd, parent)
 {
     Q_D(QCoapConnection);
-
-    // Make the socket a child of the connection to move it in the same thread
     d->udpSocket = new QUdpSocket(this);
 }
 
 /*!
-    Destroy the QCoapConnection and frees the socket.
+    Destroys the QCoapConnection and frees the socket.
 */
 QCoapConnection::~QCoapConnection()
 {
@@ -63,12 +70,12 @@ QCoapConnection::~QCoapConnection()
 /*!
     \internal
 
-    Binds the socket to a random port and return true if it bounds with success.
+    Binds the socket to a random port and return true if it bounds with
+    Ssuccess.
 */
 bool QCoapConnectionPrivate::bind()
 {
-    QUdpSocket* socket = static_cast<QUdpSocket*>(udpSocket);
-    return socket->bind(QHostAddress::Any, 0, QAbstractSocket::ShareAddress);
+    return udpSocket->bind(QHostAddress::Any, 0, QAbstractSocket::ShareAddress);
 }
 
 /*!
@@ -82,21 +89,20 @@ void QCoapConnectionPrivate::bindSocket()
 
     Q_Q(QCoapConnection);
 
-    QUdpSocket* socket = static_cast<QUdpSocket*>(udpSocket);
-    if (socket->state() == QUdpSocket::ConnectedState)
-        socket->disconnectFromHost();
+    if (udpSocket->state() == QUdpSocket::ConnectedState)
+        udpSocket->disconnectFromHost();
 
-    q->connect(socket, SIGNAL(error(QAbstractSocket::SocketError)), q, SLOT(_q_socketError(QAbstractSocket::SocketError)));
-    q->connect(socket, SIGNAL(readyRead()), q, SLOT(_q_socketReadyRead()));
+    q->connect(udpSocket, SIGNAL(error(QAbstractSocket::SocketError)),
+               q, SLOT(_q_socketError(QAbstractSocket::SocketError)));
+    q->connect(udpSocket, SIGNAL(readyRead()), q, SLOT(_q_socketReadyRead()));
     if (bind()) {
         qDebug() << "QCoapConnection::bindToHost() - OK";
-        qDebug() << "socket port : " << socket->localPort();
         _q_socketBound();
     }
 }
 
 /*!
-    It binds the socket if it is not already done and sends the given
+    Binds the socket if it is not already done and sends the given
     \a request frame to the given \a host and \a port.
 */
 void QCoapConnection::sendRequest(const QByteArray& request, const QString& host, quint16 port)
@@ -109,11 +115,8 @@ void QCoapConnection::sendRequest(const QByteArray& request, const QString& host
     d->port = port;
 
     if (d->state == Bound) {
-        qDebug() << "QCoapConnection : sendRequest() - Bound or Connected";
         QMetaObject::invokeMethod(this, "_q_startToSendRequest");
-        //d->_q_startToSendRequest();
     } else if (d->state == Unconnected) {
-        qDebug() << "QCoapConnection : sendRequest() - Unconnected";
         connect(this, SIGNAL(bound()), this, SLOT(_q_startToSendRequest()));
         d->bindSocket();
     }
@@ -122,7 +125,7 @@ void QCoapConnection::sendRequest(const QByteArray& request, const QString& host
 /*!
     \internal
 
-    Writes the given \a data to the socket to the stored host and port.
+    Writes the given \a data frame to the socket to the stored host and port.
 */
 void QCoapConnectionPrivate::writeToSocket(const QByteArray& data)
 {
@@ -130,16 +133,14 @@ void QCoapConnectionPrivate::writeToSocket(const QByteArray& data)
         udpSocket->open(udpSocket->openMode() | QIODevice::WriteOnly);
 
     qDebug() << "QCoapConnection::writeToSocket()";
-    //d->udpSocket->write(data);
-    QUdpSocket* socket = static_cast<QUdpSocket*>(udpSocket);
-    socket->writeDatagram(data, QHostAddress(host), port);
+    udpSocket->writeDatagram(data, QHostAddress(host), port);
 }
 
 /*!
     \internal
 
-    This slot changes the connection state to "Bound" and emit the
-    bound signal.
+    This slot changes the connection state to "Bound" and emits the
+    \l{QCoapConnection::bound()}{bound()} signal.
 */
 void QCoapConnectionPrivate::_q_socketBound()
 {
@@ -167,8 +168,10 @@ void QCoapConnectionPrivate::_q_startToSendRequest()
 /*!
     \internal
 
-    This slot reads all data stored in the socket and emit readyRead signal
-    for all received datagram.
+    This slot reads all data stored in the socket and emits
+    \l{QCoapConnection::readyRead(const QByteArray&)}
+    {readyRead(const QByteArray&)} signal for all received
+    datagram.
 */
 void QCoapConnectionPrivate::_q_socketReadyRead()
 {
@@ -177,14 +180,8 @@ void QCoapConnectionPrivate::_q_socketReadyRead()
     if (!udpSocket->isReadable())
         udpSocket->open(udpSocket->openMode() | QIODevice::ReadOnly);
 
-    // Because for the tests we use a QBuffer that is not sequential
-    if (!udpSocket->isSequential())
-        udpSocket->seek(0);
-
-    QUdpSocket* socket = static_cast<QUdpSocket*>(udpSocket);
-    while (socket->hasPendingDatagrams()) {
-        QByteArray data = socket->receiveDatagram().data();
-        qDebug() << "data : " << data;
+    while (udpSocket->hasPendingDatagrams()) {
+        QByteArray data = udpSocket->receiveDatagram().data();
         emit q->readyRead(data);
     }
 }
@@ -192,13 +189,14 @@ void QCoapConnectionPrivate::_q_socketReadyRead()
 /*!
     \internal
 
-    This slot emits the error signal.
+    This slot emits the \l{QCoapConnection::error(QAbstractSocket::SocketError)}
+    {error(QAbstractSocket::SocketError)} signal.
 */
 void QCoapConnectionPrivate::_q_socketError(QAbstractSocket::SocketError error)
 {
     Q_Q(QCoapConnection);
 
-    qDebug() << "Socket error" << error << udpSocket->errorString();
+    qDebug() << "Socket error " << error << udpSocket->errorString();
     emit q->error(error);
 }
 
@@ -223,7 +221,7 @@ quint16 QCoapConnection::port() const
 
     \sa setSocket()
 */
-QIODevice* QCoapConnection::socket() const
+QUdpSocket* QCoapConnection::socket() const
 {
     return d_func()->udpSocket;
 }
@@ -245,9 +243,9 @@ QCoapConnection::QCoapConnectionState QCoapConnection::state() const
 
     \sa socket()
 */
-void QCoapConnectionPrivate::setSocket(QIODevice* device)
+void QCoapConnectionPrivate::setSocket(QUdpSocket* socket)
 {
-    udpSocket = device;
+    udpSocket = socket;
 }
 
 /*!

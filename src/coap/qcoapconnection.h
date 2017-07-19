@@ -25,7 +25,7 @@ public:
 
     QString host() const;
     quint16 port() const;
-    QIODevice* socket() const;
+    QUdpSocket* socket() const;
     QCoapConnectionState state() const;
 
 signals:

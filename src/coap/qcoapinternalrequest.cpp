@@ -132,7 +132,6 @@ QByteArray QCoapInternalRequest::toQByteArray() const
 
         quint8 lastOptionNumber = 0;
         for (QCoapOption option : optionList) {
-            qDebug() << "option : " << option.name();
             quint8 optionPdu;
 
             quint16 optionDelta = static_cast<quint16>(option.name()) - lastOptionNumber;
@@ -360,7 +359,6 @@ void QCoapInternalRequest::beginTransmission()
         d->timeout *= 2;
 
     d->retransmissionCounter++;
-    qDebug() << "timeout value: " << d->timeout;
     if (d->timeout > 0)
         d->timer->start(d->timeout);
 }
@@ -378,12 +376,13 @@ void QCoapInternalRequest::stopTransmission()
 
 /*!
     \internal
-    This slot emit a timeout signal.
+    This slot emits a \l{QCoapInternalRequest::timeout(QCoapInternalRequest*)}
+    {timeout(QCoapInternalRequest*)} signal.
 */
 void QCoapInternalRequestPrivate::_q_timeout()
 {
     Q_Q(QCoapInternalRequest);
-    qDebug() << "TIMEOUT !!!";
+    qDebug() << "TIMEOUT !";
     emit q->timeout(q);
 }
 
