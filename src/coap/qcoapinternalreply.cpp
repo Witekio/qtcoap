@@ -1,6 +1,5 @@
 #include "qcoapinternalreply_p.h"
 #include <QtMath>
-#include <QDebug>
 
 QT_BEGIN_NAMESPACE
 
@@ -80,7 +79,6 @@ QCoapInternalReply QCoapInternalReply::fromQByteArray(const QByteArray& reply)
         quint16 optionLength = static_cast<quint16>(pduData[i] & 0x0F);
         quint8 optionLengthExtended = 0;
 
-        //qDebug() << QString::number(static_cast<quint8>(pduData[i]), 16);
         // Delta value > 12 : special values
         if (optionDelta == 13) {
             ++i;

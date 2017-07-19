@@ -1,6 +1,5 @@
 #include "qcoapreply.h"
 #include "qcoapreply_p.h"
-#include <QDebug>
 #include <QtMath>
 
 QT_BEGIN_NAMESPACE
@@ -269,7 +268,6 @@ void QCoapReply::setError(QCoapNetworkError newError)
 void QCoapReply::updateFromInternalReply(const QCoapInternalReply& internalReply)
 {
     if (!d_func()->isAborted) {
-        qDebug() << "QCoapReply::updateFromInternalReply()";
         QCoapMessage internalReplyMessage = internalReply.message();
         d_func()->message.setPayload(internalReplyMessage.payload());
         d_func()->message.setType(internalReplyMessage.type());

@@ -382,7 +382,6 @@ void QCoapInternalRequest::stopTransmission()
 void QCoapInternalRequestPrivate::_q_timeout()
 {
     Q_Q(QCoapInternalRequest);
-    qDebug() << "TIMEOUT !";
     emit q->timeout(q);
 }
 

@@ -123,7 +123,6 @@ QCoapClient::~QCoapClient()
 QCoapReply* QCoapClient::get(const QCoapRequest& request)
 {
     Q_D(QCoapClient);
-    qDebug() << "QCoapClient : get()";
 
     QCoapRequest copyRequest(request);
     copyRequest.setOperation(GetCoapOperation);
@@ -144,7 +143,6 @@ QCoapReply* QCoapClient::get(const QCoapRequest& request)
 QCoapReply* QCoapClient::put(const QCoapRequest& request, const QByteArray& data)
 {
     Q_D(QCoapClient);
-    qDebug() << "QCoapClient : put()";
 
     QCoapRequest copyRequest(request);
     copyRequest.setOperation(PutCoapOperation);
@@ -184,7 +182,6 @@ QCoapReply* QCoapClient::put(const QCoapRequest& request, QIODevice* device)
 QCoapReply* QCoapClient::post(const QCoapRequest& request, const QByteArray& data)
 {
     Q_D(QCoapClient);
-    qDebug() << "QCoapClient : post()";
 
     QCoapRequest copyRequest(request);
     copyRequest.setOperation(PostCoapOperation);
@@ -222,8 +219,6 @@ QCoapReply* QCoapClient::post(const QCoapRequest& request, QIODevice* device)
 QCoapReply* QCoapClient::deleteResource(const QCoapRequest& request)
 {
     Q_D(QCoapClient);
-
-    qDebug() << "QCoapClient : delete()";
 
     QCoapRequest copyRequest(request);
     copyRequest.setOperation(DeleteCoapOperation);
@@ -314,7 +309,6 @@ void QCoapClient::cancelObserve(QCoapReply* notifiedReply)
 */
 QCoapReply* QCoapClientPrivate::sendRequest(const QCoapRequest& request)
 {
-    qDebug() << "QCoapClient::sendRequest()";
     Q_Q(QCoapClient);
 
     // Prepare the reply and send it

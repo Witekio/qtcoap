@@ -114,7 +114,6 @@ void QCoapProtocolPrivate::sendRequest(QCoapInternalRequest* request)
 */
 void QCoapProtocolPrivate::messageReceived(const QByteArray& frameReply)
 {
-    //qDebug() << "QCoapProtocol::messageReceived() - " << frameReply;
     frameQueue.enqueue(frameReply);
     if (frameQueue.size() == 1)
         handleFrame();
@@ -135,7 +134,6 @@ void QCoapProtocolPrivate::handleFrame()
 */
 void QCoapProtocolPrivate::resendRequest(QCoapInternalRequest* request)
 {
-    qDebug() << "QCoapProtocolPrivate::resendRequest()";
     // In case of retransmission, check if it is not the last try
     if (request->message().type() == QCoapMessage::ConfirmableCoapMessage
             && internalReplies.contains(request)) {
@@ -153,7 +151,6 @@ void QCoapProtocolPrivate::resendRequest(QCoapInternalRequest* request)
 */
 void QCoapProtocolPrivate::handleFrame(const QByteArray& frame)
 {
-    qDebug() << "QCoapProtocol::handleFrame()";
     QCoapInternalReply* internalReply = decode(frame);
     QCoapInternalRequest* request = nullptr;
     QCoapMessage internalReplyMessage = internalReply->message();
@@ -251,7 +248,6 @@ QCoapInternalRequest* QCoapProtocolPrivate::findInternalRequestByMessageId(quint
 */
 void QCoapProtocolPrivate::onLastBlock(QCoapInternalRequest* request)
 {
-    qDebug() << "QCoapProtocol::onLastBlock()";
     Q_Q(QCoapProtocol);
 
     QList<QCoapInternalReply*> replies = internalReplies[request].replies;
@@ -310,7 +306,6 @@ void QCoapProtocolPrivate::onNextBlock(QCoapInternalRequest* request,
                                        uint currentBlockNumber,
                                        uint blockSize)
 {
-    qDebug() << "QCoapProtocol::onNextBlock()";
     request->setRequestToAskBlock(currentBlockNumber+1, blockSize);
     sendRequest(request);
 }
@@ -321,7 +316,6 @@ void QCoapProtocolPrivate::onNextBlock(QCoapInternalRequest* request,
 */
 void QCoapProtocolPrivate::sendAcknowledgment(QCoapInternalRequest* request)
 {
-    qDebug() << "QCoapProtocol::sendAcknowledgment()";
     QCoapInternalRequest ackRequest;
     QCoapInternalReply* internalReply = internalReplies[request].replies.last();
 
@@ -338,7 +332,6 @@ void QCoapProtocolPrivate::sendAcknowledgment(QCoapInternalRequest* request)
 */
 void QCoapProtocolPrivate::sendReset(QCoapInternalRequest* request)
 {
-    qDebug() << "QCoapProtocol::sendReset()";
     QCoapInternalRequest resetRequest;
     QCoapInternalReply* internalReply = internalReplies[request].replies.last();
 
@@ -391,7 +384,6 @@ QCoapInternalReply* QCoapProtocolPrivate::decode(const QByteArray& message)
 */
 void QCoapProtocolPrivate::onAbortedRequest(QCoapReply* reply)
 {
-    qDebug() << "QCoapProtocol::onAbortedRequest()";
     QCoapInternalRequest* request = findInternalRequestByReply(reply);
     if (request) {
         request->stopTransmission();

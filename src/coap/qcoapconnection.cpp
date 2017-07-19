@@ -85,8 +85,6 @@ bool QCoapConnectionPrivate::bind()
 */
 void QCoapConnectionPrivate::bindSocket()
 {
-    qDebug() << "QCoapConnection::bindToHost()";
-
     Q_Q(QCoapConnection);
 
     if (udpSocket->state() == QUdpSocket::ConnectedState)
@@ -95,10 +93,9 @@ void QCoapConnectionPrivate::bindSocket()
     q->connect(udpSocket, SIGNAL(error(QAbstractSocket::SocketError)),
                q, SLOT(_q_socketError(QAbstractSocket::SocketError)));
     q->connect(udpSocket, SIGNAL(readyRead()), q, SLOT(_q_socketReadyRead()));
-    if (bind()) {
-        qDebug() << "QCoapConnection::bindToHost() - OK";
+
+    if (bind())
         _q_socketBound();
-    }
 }
 
 /*!
@@ -107,7 +104,6 @@ void QCoapConnectionPrivate::bindSocket()
 */
 void QCoapConnection::sendRequest(const QByteArray& request, const QString& host, quint16 port)
 {
-    //qDebug() << "QCoapConnection::sendRequest()";
     Q_D(QCoapConnection);
 
     d->currentPdu = request;
@@ -132,7 +128,6 @@ void QCoapConnectionPrivate::writeToSocket(const QByteArray& data)
     if (!udpSocket->isWritable())
         udpSocket->open(udpSocket->openMode() | QIODevice::WriteOnly);
 
-    qDebug() << "QCoapConnection::writeToSocket()";
     udpSocket->writeDatagram(data, QHostAddress(host), port);
 }
 
@@ -144,7 +139,6 @@ void QCoapConnectionPrivate::writeToSocket(const QByteArray& data)
 */
 void QCoapConnectionPrivate::_q_socketBound()
 {
-    qDebug() << "QCoapConnectionPrivate::_q_socketBound()";
     Q_Q(QCoapConnection);
 
     if (state == QCoapConnection::Bound)
@@ -161,7 +155,6 @@ void QCoapConnectionPrivate::_q_socketBound()
 */
 void QCoapConnectionPrivate::_q_startToSendRequest()
 {
-    qDebug() << "QCoapConnectionPrivate::_q_startToSendRequest()";
     writeToSocket(currentPdu);
 }
 
@@ -196,7 +189,7 @@ void QCoapConnectionPrivate::_q_socketError(QAbstractSocket::SocketError error)
 {
     Q_Q(QCoapConnection);
 
-    qDebug() << "Socket error " << error << udpSocket->errorString();
+    qDebug() << "CoAP UDP socket error " << error << udpSocket->errorString();
     emit q->error(error);
 }
 

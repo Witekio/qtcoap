@@ -1,6 +1,5 @@
 #include "qcoapresource.h"
 #include "qcoapresource_p.h"
-#include <QDebug>
 
 QT_BEGIN_NAMESPACE
 

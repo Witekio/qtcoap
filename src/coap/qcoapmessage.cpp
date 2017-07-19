@@ -1,6 +1,5 @@
 #include "qcoapmessage.h"
 #include "qcoapmessage_p.h"
-#include <QDebug>
 
 QT_BEGIN_NAMESPACE
 
