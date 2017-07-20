@@ -191,8 +191,6 @@ void QCoapConnectionPrivate::_q_socketError(QAbstractSocket::SocketError error)
 
 /*!
     Returns the socket.
-
-    \sa setSocket()
 */
 QUdpSocket* QCoapConnection::socket() const
 {
@@ -201,8 +199,6 @@ QUdpSocket* QCoapConnection::socket() const
 
 /*!
     Returns the connection state.
-
-    \sa setState()
 */
 QCoapConnection::QCoapConnectionState QCoapConnection::state() const
 {

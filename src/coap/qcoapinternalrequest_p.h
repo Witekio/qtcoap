@@ -34,7 +34,6 @@ public:
     void addUriOptions(const QUrl& uri, const QUrl& proxyUri = QUrl());
 
     QUrl targetUri() const;
-    bool isValid() const;
     QCoapOperation operation() const;
     bool cancelObserve() const;
     QCoapConnection* connection() const;

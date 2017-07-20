@@ -108,9 +108,6 @@ bool QCoapRequest::observe() const
 void QCoapRequest::setUrl(const QUrl& url)
 {
     QCoapRequestPrivate* d = static_cast<QCoapRequestPrivate*>(d_ptr);
-    if (d->uri == url)
-        return;
-
     d->uri = url;
 }
 
@@ -122,9 +119,6 @@ void QCoapRequest::setUrl(const QUrl& url)
 void QCoapRequest::setProxyUrl(const QUrl& proxyUrl)
 {
     QCoapRequestPrivate* d = static_cast<QCoapRequestPrivate*>(d_ptr);
-    if (d->proxyUri == proxyUrl)
-        return;
-
     d->proxyUri = proxyUrl;
 }
 
@@ -136,9 +130,6 @@ void QCoapRequest::setProxyUrl(const QUrl& proxyUrl)
 void QCoapRequest::setOperation(QCoapOperation operation)
 {
     QCoapRequestPrivate* d = static_cast<QCoapRequestPrivate*>(d_ptr);
-    if (d->operation == operation)
-        return;
-
     d->operation = operation;
 }
 
@@ -150,9 +141,6 @@ void QCoapRequest::setOperation(QCoapOperation operation)
 void QCoapRequest::setObserve(bool observe)
 {
     QCoapRequestPrivate* d = static_cast<QCoapRequestPrivate*>(d_ptr);
-    if (d->observe == observe)
-        return;
-
     d->observe = observe;
 }
 

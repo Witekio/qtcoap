@@ -387,6 +387,8 @@ void QCoapInternalRequestPrivate::_q_timeout()
 /*!
     \internal
     Returns the target uri.
+
+    \sa setTargetUri()
 */
 QUrl QCoapInternalRequest::targetUri() const
 {
@@ -396,6 +398,8 @@ QUrl QCoapInternalRequest::targetUri() const
 /*!
     \internal
     Returns the connection used to send this request.
+
+    \sa setConnection()
 */
 QCoapConnection* QCoapInternalRequest::connection() const
 {
@@ -405,6 +409,8 @@ QCoapConnection* QCoapInternalRequest::connection() const
 /*!
     \internal
     Returns the operation type of the request.
+
+    \sa setOperation()
 */
 QCoapOperation QCoapInternalRequest::operation() const
 {
@@ -414,6 +420,8 @@ QCoapOperation QCoapInternalRequest::operation() const
 /*!
     \internal
     Returns true if the observe request needs to be canceled.
+
+    \sa setCancelObserve()
 */
 bool QCoapInternalRequest::cancelObserve() const
 {
@@ -432,45 +440,44 @@ uint QCoapInternalRequest::retransmissionCounter() const
 /*!
     \internal
     Sets the operation type of the request to the given \a operation.
+
+    \sa operation()
 */
 void QCoapInternalRequest::setOperation(QCoapOperation operation)
 {
     Q_D(QCoapInternalRequest);
-    if (d->operation == operation)
-        return;
-
     d->operation = operation;
 }
 
 /*!
     \internal
     Sets the connection to use to send this request to the given \a connection.
+
+    \sa connection()
 */
 void QCoapInternalRequest::setConnection(QCoapConnection* connection)
 {
     Q_D(QCoapInternalRequest);
-    if (d->connection == connection)
-        return;
-
     d->connection = connection;
 }
 
 /*!
     \internal
     Sets the cancel observe parameter to the given \a cancelObserve value.
+
+    \sa cancelObserve()
 */
 void QCoapInternalRequest::setCancelObserve(bool cancelObserve)
 {
     Q_D(QCoapInternalRequest);
-    if (d->cancelObserve == cancelObserve)
-        return;
-
     d->cancelObserve = cancelObserve;
 }
 
 /*!
     \internal
     Sets the target uri to the given \a targetUri.
+
+    \sa targetUri()
 */
 void QCoapInternalRequest::setTargetUri(QUrl targetUri)
 {
