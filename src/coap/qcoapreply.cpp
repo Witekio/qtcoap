@@ -293,11 +293,9 @@ void QCoapReply::updateFromInternalReply(const QCoapInternalReply& internalReply
 */
 void QCoapReply::abortRequest()
 {
-    qDebug() << "abort";
     Q_D(QCoapReply);
     d->isAborted = true;
     if (!this->isFinished()) {
-        qDebug() << "emit aborted";
         emit aborted(this);
     }
 }

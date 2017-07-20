@@ -44,7 +44,6 @@ void QCoapProtocol::sendRequest(QPointer<QCoapReply> reply, QCoapConnection* con
 {
     Q_D(QCoapProtocol);
 
-    qDebug() << "We are here";
     if(reply.isNull())
         return;
 
@@ -63,12 +62,10 @@ void QCoapProtocol::sendRequest(QPointer<QCoapReply> reply, QCoapConnection* con
 
     copyInternalRequest->setConnection(connection);
 
-    qDebug() << "We are here - the next episode";
     // If this request does not already exist we add it to the map
     if (!reply.isNull() && !d->findInternalRequestByToken(copyInternalRequest->message().token())) {
             InternalMessagePair pair = { reply, QList<QCoapInternalReply*>() };
             d->internalReplies[copyInternalRequest] = pair;
-            qDebug() << "Reply added : " << (reply.isNull() ? 0 : 1);
             reply->setIsRunning(true);
     }
 
@@ -79,7 +76,6 @@ void QCoapProtocol::sendRequest(QPointer<QCoapReply> reply, QCoapConnection* con
             copyInternalRequest->setRequestToSendBlock(0, d->blockSize);
     }
 
-    qDebug() << "Here we are - la suite";
     if (copyInternalRequest->message().type() == QCoapMessage::ConfirmableCoapMessage) {
         copyInternalRequest->setTimeout(d->ackTimeout);
         connect(copyInternalRequest, SIGNAL(timeout(QCoapInternalRequest*)),
@@ -289,9 +285,7 @@ void QCoapProtocolPrivate::onLastBlock(QCoapInternalRequest* request)
     else
         internalReplies[request].replies.clear();
 
-    qDebug() << "Ok !";
     if (!userReply.isNull() && !userReply->isAborted()) {
-        qDebug() << "Use the reply";
         userReply->updateFromInternalReply(*finalReply);
         emit q->finished(userReply);
     }
@@ -385,11 +379,8 @@ QCoapInternalReply* QCoapProtocolPrivate::decode(const QByteArray& message)
 */
 void QCoapProtocolPrivate::onAbortedRequest(QCoapReply* reply)
 {
-    qDebug() << "SLOT onAbortedRequest(QCoapReply* reply)";
-    qDebug() << reply;
     QCoapInternalRequest* request = findInternalRequestByReply(reply);
     if (request) {
-        qDebug() << "remove request";
         request->stopTransmission();
         internalReplies.remove(request);
     }
