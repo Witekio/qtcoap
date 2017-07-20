@@ -17,7 +17,6 @@ class QCoapProtocol : public QObject
 public:
     explicit QCoapProtocol(QObject *parent = 0);
 
-    void sendRequest(QCoapReply* reply, QCoapConnection* connection);
     void cancelObserve(QCoapReply* reply);
 
     uint ackTimeout() const;
@@ -33,6 +32,9 @@ public:
 
 signals:
     void finished(QCoapReply*);
+
+public slots:
+    void sendRequest(QPointer<QCoapReply> reply, QCoapConnection* connection);
 
 private:
     Q_DECLARE_PRIVATE(QCoapProtocol)

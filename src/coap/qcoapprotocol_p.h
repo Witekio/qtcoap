@@ -2,15 +2,16 @@
 #define QCOAPPROTOCOL_P_H
 
 #include "qcoapprotocol.h"
-#include <private/qobject_p.h>
+#include "private/qobject_p.h"
 #include <QList>
 #include <QPair>
 #include <QQueue>
+#include <QPointer>
 
 QT_BEGIN_NAMESPACE
 
 struct InternalMessagePair {
-    QCoapReply* userReply;
+    QPointer<QCoapReply> userReply;
     QList<QCoapInternalReply*> replies;
 };
 

@@ -92,6 +92,8 @@ QCoapClient::QCoapClient(QObject* parent) :
             d->protocol, SLOT(messageReceived(const QByteArray&)));
     connect(d->protocol, &QCoapProtocol::finished,
             this, &QCoapClient::finished);
+    qRegisterMetaType<QPointer<QCoapReply>>();
+    qRegisterMetaType<QCoapConnection*>();
     qRegisterMetaType<QCoapReply::QCoapNetworkError>();
 }
 
@@ -311,10 +313,18 @@ QCoapReply* QCoapClientPrivate::sendRequest(const QCoapRequest& request)
     Q_Q(QCoapClient);
 
     // Prepare the reply and send it
-    QCoapReply* reply = new QCoapReply(q);
+    QPointer<QCoapReply> reply = new QCoapReply(q);
     reply->setRequest(request);
 
-    protocol->sendRequest(reply, connection);
+    // connect with DirectConnection type to secure from deleting the reply
+    // (reply destructor emits the signal)
+    q->connect(reply, SIGNAL(aborted(QCoapReply*)),
+               protocol, SLOT(onAbortedRequest(QCoapReply*)), Qt::DirectConnection);
+    q->connect(connection, SIGNAL(error(QAbstractSocket::SocketError)),
+               reply, SLOT(connectionError(QAbstractSocket::SocketError)));
+
+    QMetaObject::invokeMethod(protocol, "sendRequest",
+                              Q_ARG(QPointer<QCoapReply>, reply), Q_ARG(QCoapConnection*, connection));
 
     return reply;
 }
@@ -335,7 +345,15 @@ QCoapDiscoveryReply* QCoapClientPrivate::sendDiscovery(const QCoapRequest& reque
     QCoapDiscoveryReply* reply = new QCoapDiscoveryReply(q);
     reply->setRequest(request);
 
-    protocol->sendRequest(reply, connection);
+    // connect with DirectConnection type to secure from deleting the reply
+    // (reply destructor emits the signal)
+    q->connect(reply, SIGNAL(aborted(QCoapReply*)),
+               protocol, SLOT(onAbortedRequest(QCoapReply*)), Qt::DirectConnection);
+    q->connect(connection, SIGNAL(error(QAbstractSocket::SocketError)),
+               reply, SLOT(connectionError(QAbstractSocket::SocketError)));
+
+    QMetaObject::invokeMethod(protocol, "sendRequest",
+                              Q_ARG(QPointer<QCoapReply>, reply), Q_ARG(QCoapConnection*, connection));
 
     return reply;
 }

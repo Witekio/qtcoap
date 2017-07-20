@@ -200,9 +200,9 @@ void tst_QCoapClient::removeReply()
     reply = client.get(request);
     QSignalSpy spyReplyFinished(reply, SIGNAL(finished()));
     delete reply;
-    reply = 0;
+    reply = nullptr;
 
-    QThread::sleep(5);
+    QThread::sleep(2);
     QCOMPARE(spyReplyFinished.count(), 0);
 }
 

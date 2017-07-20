@@ -4,10 +4,11 @@
 #include "qcoapclient.h"
 #include <private/qobject_p.h>
 #include <QThread>
+#include <QPointer>
 
 QT_BEGIN_NAMESPACE
 
-typedef QMap<QCoapRequest, QCoapReply*> CoapMessageMap;
+typedef QMap<QCoapRequest, QPointer<QCoapReply>> CoapMessageMap;
 
 class QCoapClientPrivate : public QObjectPrivate
 {

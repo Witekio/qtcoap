@@ -40,23 +40,16 @@ QCoapProtocol::QCoapProtocol(QObject *parent) :
     associated to the \a reply. The request will then be sent to the server
     using the given \a connection.
 */
-void QCoapProtocol::sendRequest(QCoapReply* reply, QCoapConnection* connection)
+void QCoapProtocol::sendRequest(QPointer<QCoapReply> reply, QCoapConnection* connection)
 {
     Q_D(QCoapProtocol);
 
-    // connect with QueuedConnection type to secure from deleting the reply
-    // (reply destructor emits the signal)
-    connect(reply, SIGNAL(aborted(QCoapReply*)),
-            this, SLOT(onAbortedRequest(QCoapReply*)), Qt::QueuedConnection);
-    connect(connection, SIGNAL(error(QAbstractSocket::SocketError)),
-            reply, SLOT(connectionError(QAbstractSocket::SocketError)));
-
-    if(!reply)
+    qDebug() << "We are here";
+    if(reply.isNull())
         return;
 
     // Generate unique token and message id
-    QCoapInternalRequest* copyInternalRequest = new QCoapInternalRequest(reply->request());
-    copyInternalRequest->moveToThread(this->thread()); // put "this" as parent does not work
+    QCoapInternalRequest* copyInternalRequest = new QCoapInternalRequest(reply->request(), this);
     if (copyInternalRequest->message().messageId() == 0) {
         do {
             copyInternalRequest->generateMessageId();
@@ -70,10 +63,13 @@ void QCoapProtocol::sendRequest(QCoapReply* reply, QCoapConnection* connection)
 
     copyInternalRequest->setConnection(connection);
 
+    qDebug() << "We are here - the next episode";
     // If this request does not already exist we add it to the map
-    if (!d->findInternalRequestByToken(copyInternalRequest->message().token())) {
+    if (!reply.isNull() && !d->findInternalRequestByToken(copyInternalRequest->message().token())) {
             InternalMessagePair pair = { reply, QList<QCoapInternalReply*>() };
             d->internalReplies[copyInternalRequest] = pair;
+            qDebug() << "Reply added : " << (reply.isNull() ? 0 : 1);
+            reply->setIsRunning(true);
     }
 
     // If the user specified a size for blockwise request/replies
@@ -83,7 +79,7 @@ void QCoapProtocol::sendRequest(QCoapReply* reply, QCoapConnection* connection)
             copyInternalRequest->setRequestToSendBlock(0, d->blockSize);
     }
 
-    reply->setIsRunning(true);
+    qDebug() << "Here we are - la suite";
     if (copyInternalRequest->message().type() == QCoapMessage::ConfirmableCoapMessage) {
         copyInternalRequest->setTimeout(d->ackTimeout);
         connect(copyInternalRequest, SIGNAL(timeout(QCoapInternalRequest*)),
@@ -93,6 +89,7 @@ void QCoapProtocol::sendRequest(QCoapReply* reply, QCoapConnection* connection)
     // Invoke to change current thread
     QMetaObject::invokeMethod(this, "sendRequest",
                               Q_ARG(QCoapInternalRequest*, copyInternalRequest));
+    //d->sendRequest(copyInternalRequest);
 }
 
 /*!
@@ -140,8 +137,8 @@ void QCoapProtocolPrivate::resendRequest(QCoapInternalRequest* request)
         if (request->retransmissionCounter() < maxRetransmit) {
             sendRequest(request);
         } else {
-            internalReplies[request].userReply->abortRequest();
             internalReplies[request].userReply->setError(QCoapReply::TimeOutCoapError);
+            internalReplies[request].userReply->abortRequest();
         }
     }
 }
@@ -255,8 +252,8 @@ void QCoapProtocolPrivate::onLastBlock(QCoapInternalRequest* request)
         return;
 
     QList<QCoapInternalReply*> replies = internalReplies[request].replies;
-    QCoapReply* userReply = internalReplies[request].userReply;
-    if (replies.isEmpty() || !userReply)
+    QPointer<QCoapReply> userReply = internalReplies[request].userReply;
+    if (replies.isEmpty() || userReply.isNull())
         return;
 
     QCoapInternalReply* finalReply(replies.last());
@@ -287,12 +284,14 @@ void QCoapProtocolPrivate::onLastBlock(QCoapInternalRequest* request)
     }
 
     // Remove the request or the replies
-    if (!userReply->request().observe() || request->cancelObserve())
+    if ((!userReply.isNull() && !userReply->request().observe()) || request->cancelObserve())
         internalReplies.remove(request);
     else
         internalReplies[request].replies.clear();
 
-    if (userReply && !userReply->isAborted()) {
+    qDebug() << "Ok !";
+    if (!userReply.isNull() && !userReply->isAborted()) {
+        qDebug() << "Use the reply";
         userReply->updateFromInternalReply(*finalReply);
         emit q->finished(userReply);
     }
@@ -386,8 +385,11 @@ QCoapInternalReply* QCoapProtocolPrivate::decode(const QByteArray& message)
 */
 void QCoapProtocolPrivate::onAbortedRequest(QCoapReply* reply)
 {
+    qDebug() << "SLOT onAbortedRequest(QCoapReply* reply)";
+    qDebug() << reply;
     QCoapInternalRequest* request = findInternalRequestByReply(reply);
     if (request) {
+        qDebug() << "remove request";
         request->stopTransmission();
         internalReplies.remove(request);
     }
