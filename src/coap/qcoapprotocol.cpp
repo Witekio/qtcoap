@@ -82,10 +82,8 @@ void QCoapProtocol::sendRequest(QPointer<QCoapReply> reply, QCoapConnection* con
                 this, SLOT(resendRequest(QCoapInternalRequest*)));
     }
 
-    // Invoke to change current thread
     QMetaObject::invokeMethod(this, "sendRequest",
                               Q_ARG(QCoapInternalRequest*, copyInternalRequest));
-    //d->sendRequest(copyInternalRequest);
 }
 
 /*!

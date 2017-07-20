@@ -1,7 +1,6 @@
 #include <QtTest>
 #include <QCoreApplication>
 
-// add necessary includes here
 #include "qcoapclient.h"
 #include "qcoapclient_p.h"
 #include "qcoapconnection_p.h"
@@ -108,8 +107,6 @@ void tst_QCoapClient::operations()
 {
     QFETCH(QUrl, url);
 
-    //QFAIL("Uncomment the QFAIL");
-
     QCoapClient client;
     QCoapRequest request(url);
     QSignalSpy spyClientFinished(&client, SIGNAL(finished(QCoapReply*)));
@@ -161,8 +158,6 @@ void tst_QCoapClient::separateOperation()
 {
     QFETCH(QUrl, url);
 
-    //QFAIL("Comment the QFAIL");
-
     QCoapClient client;
     QCoapRequest request(url);
 
@@ -190,8 +185,6 @@ void tst_QCoapClient::removeReply_data()
 void tst_QCoapClient::removeReply()
 {
     QFETCH(QUrl, url);
-
-    //QFAIL("Comment the QFAIL to test it");
 
     QCoapClient client;
     QCoapRequest request(url);
@@ -261,7 +254,6 @@ void tst_QCoapClient::multipleRequests()
 
     QCoapClient client;
     QSignalSpy spyClientFinished(&client, SIGNAL(finished(QCoapReply*)));
-    //QCoapRequest request(url);
 
     QCoapReply* replyGet1 = client.get(QCoapRequest(url));
     QSignalSpy spyReplyGet1Finished(replyGet1, SIGNAL(finished()));
@@ -478,7 +470,6 @@ void tst_QCoapClient::discover()
     QFETCH(QUrl, url);
     QFETCH(int, resourceNumber);
 
-    //QFAIL("Broken when protocol added");
     QCoapClient client;
 
     QCoapDiscoveryReply* resourcesReply = client.discover(url); // /.well-known/core
@@ -517,7 +508,6 @@ void tst_QCoapClient::observe()
     QFETCH(QUrl, url);
     QFETCH(QCoapMessage::QCoapMessageType, type);
 
-    //QFAIL("Does not work for instance");
     QCoapClient client;
     QCoapRequest request(url);
     QCoapReply* reply = nullptr;

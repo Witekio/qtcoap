@@ -1,7 +1,6 @@
 #include <QtTest>
 #include <QCoreApplication>
 
-// add necessary includes here
 #include "qcoapresource.h"
 #include "qcoapprotocol.h"
 

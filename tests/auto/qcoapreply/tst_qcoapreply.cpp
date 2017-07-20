@@ -1,7 +1,6 @@
 #include <QtTest>
 #include <QCoreApplication>
 
-// add necessary includes here
 #include "qcoapreply.h"
 #include "qcoapinternalreply_p.h"
 

@@ -166,7 +166,6 @@ int QCoapInternalReply::wantNextBlock()
         quint8 *optionData = reinterpret_cast<quint8 *>(option.value().data());
 
         bool hasNextBlock = ((optionData[option.length()-1] & 0x8) == 0x8);
-        //int blockSize = qPow(2, (optionData[option.length()-1] & 0x7) + 4);
 
         if (hasNextBlock) {
             quint32 blockNumber = 0;

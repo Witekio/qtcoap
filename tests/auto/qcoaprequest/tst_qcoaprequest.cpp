@@ -1,7 +1,6 @@
 #include <QtTest>
 #include <QCoreApplication>
 
-// add necessary includes here
 #include "qcoapglobal.h"
 #include <qcoaprequest.h>
 #include <qcoaprequest_p.h>
@@ -65,8 +64,6 @@ void tst_QCoapRequest::ctor()
 
     QCoapRequest request(url);
     QCOMPARE(request.url(), url);
-    //QVERIFY(request.reply() != nullptr);
-    //QVERIFY(request.connection() != nullptr);
 }
 
 void tst_QCoapRequest::setUrl_data()

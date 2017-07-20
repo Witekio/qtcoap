@@ -1,7 +1,6 @@
 #include <QtTest>
 #include <QCoreApplication>
 
-// add necessary includes here
 #include "qcoapmessage.h"
 
 Q_DECLARE_METATYPE(QCoapMessage::QCoapMessageType)
