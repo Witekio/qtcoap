@@ -83,7 +83,7 @@ QCoapOption::QCoapOptionName QCoapOption::name() const
 }
 
 /*!
-    Returns true if the QCoapOption and \a other are equals.
+    Returns true if this QCoapOption and \a other are equals.
  */
 bool QCoapOption::operator==(const QCoapOption& other) const
 {

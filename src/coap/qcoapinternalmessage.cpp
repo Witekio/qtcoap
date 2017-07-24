@@ -37,7 +37,7 @@ QCoapInternalMessagePrivate::~QCoapInternalMessagePrivate()
 
     The QCoapInternalMessage class is inherited by QCoapInternalRequest and
     QCoapInternalReply that are used internally to manage request to send
-    and received replies.
+    and receive replies.
 
     \sa QCoapInternalReply, QCoapInternalRequest, QCoapMessage
 */

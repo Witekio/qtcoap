@@ -35,9 +35,8 @@ QList<QCoapResource> QCoapDiscoveryReply::resourceList() const
 /*!
     \internal
 
-    Update the QCoapDiscoveryReply object, its message and list of resources
-    with data of the internal reply
-    \a internalReply.
+    Updates the QCoapDiscoveryReply object, its message and list of resources
+    with data of the internal reply \a internalReply.
 */
 void QCoapDiscoveryReply::updateFromInternalReply(const QCoapInternalReply& internalReply)
 {

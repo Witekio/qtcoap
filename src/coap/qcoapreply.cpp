@@ -100,6 +100,9 @@ QCoapReply::QCoapReply(QObject* parent) :
 
 /*!
     \internal
+    Constructs a new QCoapReply with \a dd as the d_ptr.
+    This constructor must be used when subclassing internally
+    the QCoapReply class.
 */
 QCoapReply::QCoapReply(QCoapReplyPrivate &dd, QObject* parent) :
     QIODevice(dd, parent)
@@ -223,7 +226,7 @@ QCoapReply::QCoapNetworkError QCoapReply::errorReceived() const
 }
 
 /*!
-    Sets the request associated to the QCoapReply.
+    Sets the request associated to the this QCoapReply to the given \a request.
 
     \sa request()
 */
@@ -234,7 +237,7 @@ void QCoapReply::setRequest(const QCoapRequest& request)
 }
 
 /*!
-    Sets the isRunning parameter.
+    Sets the isRunning parameter to the given \a isRunning value.
 
     \sa isRunning()
 */
@@ -245,7 +248,7 @@ void QCoapReply::setIsRunning(bool isRunning)
 }
 
 /*!
-    Sets the error parameter.
+    Sets the error parameter to \a newError.
 
     \sa errorReceived()
 */
@@ -262,7 +265,7 @@ void QCoapReply::setError(QCoapNetworkError newError)
 /*!
     \internal
 
-    Update the QCoapReply object and its message with data of the internal
+    Updates the QCoapReply object and its message with data of the internal
     reply \a internalReply.
 */
 void QCoapReply::updateFromInternalReply(const QCoapInternalReply& internalReply)
@@ -303,7 +306,7 @@ void QCoapReply::abortRequest()
 /*!
     \internal
 
-    Map the reply status code \a errorCode to the related coap network error.
+    Maps the reply status code \a errorCode to the related coap network error.
 */
 void QCoapReply::replyError(QCoapStatusCode errorCode)
 {
@@ -370,7 +373,7 @@ void QCoapReply::replyError(QCoapStatusCode errorCode)
 /*!
     \internal
 
-    Map the socket error \a socketError to the related coap network error.
+    Maps the socket error \a socketError to the related coap network error.
 */
 void QCoapReply::connectionError(QAbstractSocket::SocketError socketError)
 {

@@ -63,7 +63,7 @@ QCoapInternalRequest::QCoapInternalRequest(const QCoapRequest& request, QObject*
 
 /*!
     \internal
-    Initilize parameters to transform the QCoapInternalRequest into an
+    Initialize parameters to transform the QCoapInternalRequest into an
     acknowledgment message with the message id \a messageId and the given
     \a token.
 */
@@ -188,7 +188,7 @@ QByteArray QCoapInternalRequest::toQByteArray() const
 
 /*!
     \internal
-    Initilize blocks parameters and create the options needed to ask the block with
+    Initialize blocks parameters and creates the options needed to ask the block with
     the number \a blockNumber and with a size of \a blockSize.
 */
 void QCoapInternalRequest::setRequestToAskBlock(uint blockNumber, uint blockSize)
@@ -214,7 +214,7 @@ void QCoapInternalRequest::setRequestToAskBlock(uint blockNumber, uint blockSize
 
 /*!
     \internal
-    Initilize blocks parameters and create the options needed to send the block with
+    Initialize blocks parameters and creates the options needed to send the block with
     the number \a blockNumber and with a size of \a blockSize.
 */
 void QCoapInternalRequest::setRequestToSendBlock(uint blockNumber, uint blockSize)
@@ -364,7 +364,7 @@ void QCoapInternalRequest::beginTransmission()
 
 /*!
     \internal
-    Reset the retransmission counter to zero and stops the timer.
+    Resets the retransmission counter to zero and stops the timer.
 */
 void QCoapInternalRequest::stopTransmission()
 {

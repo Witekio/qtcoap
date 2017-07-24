@@ -51,7 +51,7 @@ QCoapInternalReply::QCoapInternalReply(const QCoapInternalReply& other, QObject*
 
 /*!
     \internal
-    Create a QCoapInternalReply from the \a reply byte array which need
+    Creates a QCoapInternalReply from the \a reply byte array which needs
     to be a coap reply frame.
 */
 QCoapInternalReply QCoapInternalReply::fromQByteArray(const QByteArray& reply)
@@ -125,7 +125,7 @@ QCoapInternalReply QCoapInternalReply::fromQByteArray(const QByteArray& reply)
 
 /*!
     \internal
-    Append the given \a data byte array to the current payload.
+    Appends the given \a data byte array to the current payload.
 */
 void QCoapInternalReply::appendData(const QByteArray& data)
 {

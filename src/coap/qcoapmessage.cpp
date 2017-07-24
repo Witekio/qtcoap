@@ -80,6 +80,9 @@ QCoapMessage::QCoapMessage(const QCoapMessage& other) :
 
 /*!
     \internal
+    Constructs a new QCoapMessage with \a dd as the d_ptr.
+    This constructor must be used when subclassing internally
+    the QCoapMessage class.
 */
 QCoapMessage::QCoapMessage(QCoapMessagePrivate &dd) :
     d_ptr(&dd)

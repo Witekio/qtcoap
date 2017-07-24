@@ -101,7 +101,7 @@ bool QCoapRequest::observe() const
 }
 
 /*!
-    Sets the target uri of the request.
+    Sets the target uri of the request to the given \a url.
 
     \sa url()
 */
@@ -112,7 +112,7 @@ void QCoapRequest::setUrl(const QUrl& url)
 }
 
 /*!
-    Sets the proxy uri of the request.
+    Sets the proxy uri of the request to the given \a proxyUrl.
 
     \sa proxyUrl()
 */
@@ -123,7 +123,7 @@ void QCoapRequest::setProxyUrl(const QUrl& proxyUrl)
 }
 
 /*!
-    Sets the operation of the request.
+    Sets the operation of the request to the given \a operation.
 
     \sa operation()
 */
@@ -134,6 +134,7 @@ void QCoapRequest::setOperation(QCoapOperation operation)
 }
 
 /*!
+    Sets the observe parameter of the request to the given \a observe value.
     Sets the observe to true to make an observe request.
 
     \sa observe()

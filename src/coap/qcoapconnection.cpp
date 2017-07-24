@@ -16,7 +16,7 @@ QCoapConnectionPrivate::~QCoapConnectionPrivate()
 
 /*!
     \class QCoapConnection
-    \brief The QCoapConnection class handle the transfer of a frame to a
+    \brief The QCoapConnection class handles the transfer of a frame to a
     server.
 
     \reentrant
@@ -67,7 +67,7 @@ QCoapConnection::~QCoapConnection()
     \internal
 
     Binds the socket to a random port and return true if it bounds with
-    Ssuccess.
+    success.
 */
 bool QCoapConnectionPrivate::bind()
 {
