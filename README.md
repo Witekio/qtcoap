@@ -21,9 +21,49 @@ But you can find some files used for the project in the Download section :
 
 #### Links to access the new repository :
 
-Repository access : https://codereview.qt-project.org/#/admin/projects/qt/qtcoap
-Review : https://codereview.qt-project.org/#/c/201311/
+- Repository access : https://codereview.qt-project.org/#/admin/projects/qt/qtcoap
+- Review : https://codereview.qt-project.org/#/c/201311/
 
 #### Other links :
-Setting up Gerrit : https://wiki.qt.io/Setting_up_Gerrit
-Access and update the patch : https://wiki.qt.io/Gerrit_Introduction#Updating_a_Contribution_With_New_Code
+
+- Setting up Gerrit : https://wiki.qt.io/Setting_up_Gerrit
+- Access and update the patch : https://wiki.qt.io/Gerrit_Introduction#Updating_a_Contribution_With_New_Code
+
+### How to use the library :
+
+- GET/POST/PUT/DELETE requests:
+
+QCoapClient* client = new QCoapClient(this);
+connect(client, &QCoapClient::finished, this, &TestClass::slotFinished);
+client->get(QCoapRequest(Qurl("coap://coap.me/test")));
+client->put(QCoapRequest(Qurl("coap://coap.me/test")), QByteArray("Some payload"));
+
+or
+
+QCoapReply* reply = client->get(QCoapRequest(Qurl("coap://coap.me/test")));
+connect(reply, &QCoapReply::finished, this, &TestClass::slotFinished);
+
+The signal finished of the QCoapClient send a pointer to the QCoapReply to the slot.
+QCoapReply objects can be used like QIODevice objects.
+
+- OBSERVE requests :
+The previous way also works for observe request but using the notified signal of the reply can be more useful.
+For example :
+
+QCoapRequest request = QCoapRequest(Qurl("coap://coap.me/obs"));
+QCoapReply* reply = client->observe(request);
+connect(reply, &QCoapReply::notified, this, &TestClass::slotNotified);
+
+and stop the observation with
+client->cancelObserve(request);
+or
+client->cancelObserve(reply);
+
+The notified signal send a QByteArray which contains the data of the notification to the slot.
+
+- Discovery :
+
+QCoapDiscoveryReply* reply = client->discover(QUrl("coap://coap.me/"));
+QCoapDiscoveryReply works like a QCoapReply but when the signal finished is emitted you can access the list of resources with :
+reply->resourceList(); // returns a QList<QCoapResource>
+
