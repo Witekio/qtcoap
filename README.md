@@ -1,9 +1,11 @@
-**This repository is not used anymore.**
+## **This repository is not used anymore.**
 
 But you can find some files used for the project in the Download section :
 
 - Dockerfile used to create a VNC including the build of the last Qt version (development branch)
 - Dockerfile used to run the unit tests with the califormium library
+- Class diagram about the library
+- Sequence diagram about a request with the library
 
 #### Ubuntu VNC Docker utilisation :
 
