@@ -1,4 +1,4 @@
-This repository is not used anymore.
+**This repository is not used anymore.**
 
 But you can find some files used for the project in the Download section :
 - Dockerfile used to create a VNC including the build of the last Qt version (development branch)
@@ -16,3 +16,10 @@ Califormium CoAP Server utilisation :
 - Build the first time with : sudo docker build -t coap-server .
 - Run with : sudo docker run coap-server
 
+Links to access the new repository :
+Repository access : https://codereview.qt-project.org/#/admin/projects/qt/qtcoap
+Review : https://codereview.qt-project.org/#/c/201311/
+
+Other links :
+Setting up Gerrit : https://wiki.qt.io/Setting_up_Gerrit
+Access and update the patch : https://wiki.qt.io/Gerrit_Introduction#Updating_a_Contribution_With_New_Code
