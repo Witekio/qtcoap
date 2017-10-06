@@ -42,17 +42,17 @@ client->put(QCoapRequest(Qurl("coap://coap.me/test")), QByteArray("Some payload"
 ```
 or
 ```c++
-QCoapReply* reply = client->get(QCoapRequest(Qurl("coap://coap.me/test")));
+QCoapReply* reply = client->get(QCoapRequest(QUrl("coap://coap.me/test")));
 connect(reply, &QCoapReply::finished, this, &TestClass::slotFinished);
 ```
 The signal finished of the QCoapClient send a pointer to the QCoapReply to the slot.
 QCoapReply objects can be used like QIODevice objects.
 
-- OBSERVE requests :
+#### OBSERVE requests :
 The previous way also works for observe request but using the notified signal of the reply can be more useful.
 For example :
 ```c++
-QCoapRequest request = QCoapRequest(Qurl("coap://coap.me/obs"));
+QCoapRequest request = QCoapRequest(QUrl("coap://coap.me/obs"));
 QCoapReply* reply = client->observe(request);
 connect(reply, &QCoapReply::notified, this, &TestClass::slotNotified);
 ```
@@ -67,9 +67,9 @@ client->cancelObserve(reply);
 
 The notified signal send a QByteArray which contains the data of the notification to the slot.
 
-- Discovery :
+#### DISCOVERY requests :
 ```c++
 QCoapDiscoveryReply* reply = client->discover(QUrl("coap://coap.me/"));
-QCoapDiscoveryReply works like a QCoapReply but when the signal finished is emitted you can access the list of resources with :
+//QCoapDiscoveryReply works like a QCoapReply but when the signal finished is emitted you can access the list of resources with :
 reply->resourceList(); // returns a QList<QCoapResource>
 ```
