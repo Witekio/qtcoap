@@ -55,8 +55,8 @@ QCoapConnectionPrivate::~QCoapConnectionPrivate()
 
     \reentrant
 
-    The QCoapConnection class is used by the QCoapClient class to send the
-    requests to a server. It has a socket listening for udp messages and
+    The QCoapConnection class is used by the QCoapClient class to send
+    requests to a server. It has a socket listening for UDP messages,
     that is used to send the coap frames.
 
     When a reply is available, the QCoapConnection object emits a
@@ -100,8 +100,7 @@ QCoapConnection::~QCoapConnection()
 /*!
     \internal
 
-    Binds the socket to a random port and return true if it bounds with
-    success.
+    Binds the socket to a random port and return true if it succeeds.
 */
 bool QCoapConnectionPrivate::bind()
 {
@@ -197,7 +196,7 @@ void QCoapConnectionPrivate::_q_startToSendRequest()
 
     This slot reads all data stored in the socket and emits
     \l{QCoapConnection::readyRead(const QByteArray&)}
-    {readyRead(const QByteArray&)} signal for all received
+    {readyRead(const QByteArray&)} signal for each received
     datagram.
 */
 void QCoapConnectionPrivate::_q_socketReadyRead()

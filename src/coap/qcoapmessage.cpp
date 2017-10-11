@@ -47,7 +47,8 @@ QCoapMessagePrivate::QCoapMessagePrivate() :
 {
 }
 
-/*QCoapMessagePrivate::QCoapMessagePrivate(const QCoapMessagePrivate &other) :
+#if 0
+QCoapMessagePrivate::QCoapMessagePrivate(const QCoapMessagePrivate &other) :
     QSharedData(other),
     version(other.version),
     type(other.type),
@@ -56,7 +57,8 @@ QCoapMessagePrivate::QCoapMessagePrivate() :
     options(other.options),
     payload(other.payload)
 {
-}*/
+}
+#endif
 
 QCoapMessagePrivate::~QCoapMessagePrivate()
 {
@@ -70,7 +72,7 @@ QCoapMessagePrivate::~QCoapMessagePrivate()
 
     \reentrant
 
-    It holds information as the message type, message id, token and other
+    It holds information such as the message type, message id, token and other
     ancillary data.
 
     \sa QCoapOption, QCoapReply, QCoapRequest
@@ -112,7 +114,7 @@ QCoapMessage::~QCoapMessage()
 }
 
 /*!
-    Constructs a copy of \a other.
+    Constructs a shallow copy of \a other.
 */
 QCoapMessage::QCoapMessage(const QCoapMessage &other) :
     d_ptr(other.d_ptr)
@@ -122,7 +124,7 @@ QCoapMessage::QCoapMessage(const QCoapMessage &other) :
 /*!
     \internal
     Constructs a new QCoapMessage with \a dd as the d_ptr.
-    This constructor must be used when subclassing internally
+    This constructor must be used internally when subclassing
     the QCoapMessage class.
 */
 QCoapMessage::QCoapMessage(QCoapMessagePrivate &dd) :
@@ -158,7 +160,7 @@ void QCoapMessage::removeOption(const QCoapOption &option)
 }
 
 /*!
-    Removes the option with the given \a name.
+    Removes the first option with the given \a name.
 */
 void QCoapMessage::removeOptionByName(QCoapOption::OptionName name)
 {
@@ -172,7 +174,7 @@ void QCoapMessage::removeOptionByName(QCoapOption::OptionName name)
 
 /*!
     Finds and returns the option with the given \a name.
-    If no option found, returns an InvalidCoapOption with en empty value.
+    If there is no such option, returns an invalid CoapOption with en empty value.
 */
 QCoapOption QCoapMessage::findOptionByName(QCoapOption::OptionName name)
 {
@@ -319,7 +321,6 @@ void QCoapMessage::setMessageId(quint16 id)
 
     \sa payload()
 */
-#include <QDebug>
 void QCoapMessage::setPayload(const QByteArray &payload)
 {
     qDebug() << "1 " << payload;

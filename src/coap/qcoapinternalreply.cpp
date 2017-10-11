@@ -51,7 +51,7 @@ QCoapInternalReplyPrivate::QCoapInternalReplyPrivate():
     \brief The QCoapInternalReply class contains data related to
     a received message.
 
-    It subclass QCoapInternalMessage.
+    It is a subclass of QCoapInternalMessage.
 
     \reentrant
 

@@ -35,7 +35,6 @@
 ****************************************************************************/
 
 #include "qcoapinternalmessage_p.h"
-#include <QtCore/qmath.h>
 
 QT_BEGIN_NAMESPACE
 
@@ -71,7 +70,7 @@ QCoapInternalMessagePrivate::~QCoapInternalMessagePrivate()
     \reentrant
 
     The QCoapInternalMessage class is inherited by QCoapInternalRequest and
-    QCoapInternalReply that are used internally to manage request to send
+    QCoapInternalReply that are used internally to manage requests to send
     and receive replies.
 
     \sa QCoapInternalReply, QCoapInternalRequest, QCoapMessage
@@ -181,8 +180,7 @@ uint QCoapInternalMessage::currentBlockNumber() const
 /*!
     \internal
 
-    Returns true if it has next block.
-    And false if it is the last block.
+    Returns true if it has next block or false if it is the last block.
 */
 bool QCoapInternalMessage::hasNextBlock() const
 {

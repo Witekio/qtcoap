@@ -63,15 +63,15 @@ QCoapClientPrivate::~QCoapClientPrivate()
 
     \reentrant
 
-    The QCoapClient class contains signals that can be used to know if the
-    reply of a sent request arrived.
+    The QCoapClient class contains signals that gets triggered when the
+    reply of a sent request is arrived.
 
     The application can use a QCoapClient to send requests over a CoAP
     network. It contains functions for standard request and each function
     returns a QCoapReply object that stores the response data to a request
     and can be used to read these data.
 
-    A simple request can be sent with :
+    A simple request can be sent with:
     // TODO : replace by snippet
     \code
         QCoapClient *client = new QCoapClient(this);
@@ -79,9 +79,8 @@ QCoapClientPrivate::~QCoapClientPrivate()
         client->get(QCoapRequest(Qurl("coap://coap.me/test")));
     \endcode
 
-    For an "observe" request, you can use it the same way than previously
-    but using the \l{QCoapReply::notified(const QByteArray&)}
-    {notified(const QByteArray&)} signal of the reply can be more useful.
+    You can also use an "observe" request.  This can be used above, but it can be
+    more useful to use the notified(const QByteArray &) signal:
     \code
         QCoapRequest request = QCoapRequest(Qurl("coap://coap.me/obs"));
         CoapReply *reply = client->observe(request);
@@ -97,10 +96,10 @@ QCoapClientPrivate::~QCoapClientPrivate()
         client->cancelObserve(reply);
     \endcode
 
-    When a reply arrive, the QCoapClient emits a
+    When a reply arrives, the QCoapClient emits a
     \l{QCoapClient::finished(QCoapReply*)}{finished(QCoapReply*)} signal.
 
-    \note For discovery request, the returned object is a QCoapDiscoveryReply.
+    \note For a discovery request, the returned object is a QCoapDiscoveryReply.
     It can be used the same way as a QCoapReply but contains also a list of
     resources.
 
@@ -110,10 +109,9 @@ QCoapClientPrivate::~QCoapClientPrivate()
 /*!
     \fn void QCoapClient::finished(QCoapReply *reply)
 
-    This signal is emitted whenever a coap reply is
-    finished. The \a reply parameter will contain a pointer to the
-    reply that has just finished. This signal is emitted along with
-    the \l{QCoapReply::finished()} signal.
+    This signal is emitted along with the \l{QCoapReply::finished()} signal
+    whenever a coap reply is finished. The \a reply parameter will contain a
+    pointer to the reply that has just finished.
 
     \sa QCoapReply::finished(), QCoapReply::error(QCoapReply::QCoapNetworkError)
 */
@@ -156,7 +154,7 @@ QCoapClient::~QCoapClient()
 }
 
 /*!
-    Posts a GET request to the target \a request and returns a new
+    Posts a GET request to \a target request and returns a new
     QCoapReply object which emits the \l{QCoapReply::finished()}{finished()}
     signal whenever the response arrives.
 
@@ -360,7 +358,7 @@ QCoapReply *QCoapClientPrivate::sendRequest(const QCoapRequest &request)
     if (scheme != QLatin1String("coap"))
         return nullptr;
 
-    // Prepare the reply and send it
+    // Prepare the reply
     QPointer<QCoapReply> reply = new QCoapReply(q);
     reply->setRequest(request);
 
@@ -412,7 +410,7 @@ QCoapDiscoveryReply *QCoapClientPrivate::sendDiscovery(const QCoapRequest &reque
 
 /*!
     Sets the maximum block size used by the protocol when sending requests
-    and receiving replies.
+    and receiving replies. The block size must be a power of two.
 */
 void QCoapClient::setBlockSize(quint16 blockSize)
 {
@@ -445,7 +443,7 @@ void QCoapClient::enableMulticastLoopbackOption()
 }
 
 /*!
-    Sets the protocol used by the client. Allow the user to make its
+    Sets the protocol used by the client. Allows the user to make its
     own protocol class.
 */
 void QCoapClient::setProtocol(QCoapProtocol *protocol)

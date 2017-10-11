@@ -224,7 +224,7 @@ QByteArray QCoapInternalRequest::toQByteArray() const
 
 /*!
     \internal
-    Initialize blocks parameters and creates the options needed to ask the block with
+    Initialize blocks parameters and create the options needed to ask the block with
     the number \a blockNumber and with a size of \a blockSize.
 */
 void QCoapInternalRequest::setRequestToAskBlock(uint blockNumber, uint blockSize)
@@ -457,7 +457,7 @@ QCoapInternalRequest::OperationInternal QCoapInternalRequest::operation() const
 
 /*!
     \internal
-    Returns true if the observe request needs to be canceled.
+    Returns true if the observe request needs to be cancelled.
 
     \sa setCancelObserve()
 */

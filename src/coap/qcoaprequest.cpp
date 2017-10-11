@@ -88,7 +88,7 @@ QCoapRequest::QCoapRequest(const QUrl &url, MessageType type, const QUrl &proxyU
     Constructs a copy of the \a other QCoapRequest
 */
 QCoapRequest::QCoapRequest(const QCoapRequest &other) :
-    QCoapMessage (other)
+    QCoapMessage(other)
 {
 }
 

@@ -38,8 +38,6 @@
 #define QCOAPRESOURCE_H
 
 #include <QtCoap/qcoapglobal.h>
-#include <QtCore/qglobal.h>
-#include <QtCore/qobject.h>
 
 QT_BEGIN_NAMESPACE
 

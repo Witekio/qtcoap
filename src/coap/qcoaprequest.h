@@ -40,7 +40,6 @@
 #include <QtCoap/qcoapglobal.h>
 #include <QtCoap/qcoapmessage.h>
 #include <QtCoap/qcoapconnection.h>
-#include <QtCore/qglobal.h>
 #include <QtCore/qobject.h>
 #include <QtCore/qurl.h>
 

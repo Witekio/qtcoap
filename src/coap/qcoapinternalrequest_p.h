@@ -104,7 +104,7 @@ public:
     void beginTransmission();
     void stopTransmission();
 
-    // To use into QMap
+    // To support use as keys in QMap
     bool operator<(const QCoapInternalRequest &other) const;
 
 Q_SIGNALS:
