@@ -59,6 +59,9 @@ struct CoapFrame {
     QByteArray currentPdu;
     QString host;
     quint16 port = 0;
+
+    CoapFrame(const QByteArray &pdu, const QString &hostName, quint16 portNumber)
+    : currentPdu(pdu), host(hostName), port(portNumber) {}
 };
 
 class Q_AUTOTEST_EXPORT QCoapConnectionPrivate : public QObjectPrivate

@@ -63,7 +63,6 @@ QCoapConnectionPrivate::~QCoapConnectionPrivate()
     \l{QCoapConnection::readyRead(const QByteArray&)}
     {readyRead(const QByteArray&)} signal
 
-
     \sa QCoapClient
 */
 
@@ -78,7 +77,7 @@ QCoapConnection::QCoapConnection(QObject *parent) :
 /*!
     \internal
     Constructs a new QCoapConnection with \a dd as the d_ptr.
-    This constructor must be used when subclassing internally
+    This constructor must be used when internally subclassing
     the QCoapConnection class.
 */
 QCoapConnection::QCoapConnection(QCoapConnectionPrivate &dd, QObject *parent) :
@@ -135,11 +134,7 @@ void QCoapConnection::sendRequest(const QByteArray &request, const QString &host
 {
     Q_D(QCoapConnection);
 
-    CoapFrame frame;
-    frame.currentPdu = request;
-    frame.host = host;
-    frame.port = port;
-
+    CoapFrame frame(request, host, port);
     d->framesToSend.enqueue(frame);
 
     if (d->state == Bound) {
@@ -251,10 +246,12 @@ QCoapConnection::ConnectionState QCoapConnection::state() const
 
     \sa socket()
 */
+#if 0
 void QCoapConnectionPrivate::setSocket(QUdpSocket *socket)
 {
     udpSocket = socket;
 }
+#endif
 
 /*!
     \internal
