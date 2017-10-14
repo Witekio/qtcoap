@@ -47,9 +47,9 @@ QCoapClientPrivate::QCoapClientPrivate() :
     connection(new QCoapConnection),
     workerThread(new QThread)
 {
+    workerThread->start();
     protocol->moveToThread(workerThread);
     connection->moveToThread(workerThread);
-    workerThread->start();
 }
 
 QCoapClientPrivate::~QCoapClientPrivate()
@@ -67,9 +67,9 @@ QCoapClientPrivate::~QCoapClientPrivate()
     reply of a sent request is arrived.
 
     The application can use a QCoapClient to send requests over a CoAP
-    network. It contains functions for standard request and each function
-    returns a QCoapReply object that stores the response data to a request
-    and can be used to read these data.
+    network.It provides functions for standard requests: each returns a QCoapReply object,
+    to which the response data shall be delivered; this can be read when the finished()
+    signal arrives.
 
     A simple request can be sent with:
     // TODO : replace by snippet
@@ -206,10 +206,8 @@ QCoapReply *QCoapClient::put(const QCoapRequest &request, const QByteArray &data
 */
 QCoapReply *QCoapClient::put(const QCoapRequest &request, QIODevice *device)
 {
-    if (!device)
-        return nullptr;
-
-    return put(request, device->readAll());
+     qDebug()<<"put2"<<endl;
+     return put(request, device ? device->readAll() : QByteArray());
 }
 
 /*!
@@ -282,7 +280,9 @@ QCoapReply *QCoapClient::deleteResource(const QCoapRequest &request)
 QCoapDiscoveryReply *QCoapClient::discover(const QUrl &url, const QString &discoveryPath)
 {
     Q_D(QCoapClient);
-    QUrl discoveryUrl(url.toString().append(discoveryPath).toUtf8());
+
+    QUrl discoveryUrl(url);
+    discoveryUrl.setPath(url.path() + discoveryPath);
 
     QCoapRequest request(discoveryUrl);
     request.setOperation(QCoapRequest::Get);
