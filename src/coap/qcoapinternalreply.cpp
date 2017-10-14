@@ -82,6 +82,7 @@ QCoapInternalReply::QCoapInternalReply(const QCoapInternalReply &other, QObject 
     \internal
     Creates a QCoapInternalReply from the \a reply byte array which needs
     to be a coap reply frame.
+    Reference : RFC 7252
 */
 QCoapInternalReply QCoapInternalReply::fromQByteArray(const QByteArray &reply)
 {
@@ -97,15 +98,15 @@ QCoapInternalReply QCoapInternalReply::fromQByteArray(const QByteArray &reply)
     d->statusCode = static_cast<QCoapInternalReply::StatusCodeInternal>(pduData[1]);
     d->message.setMessageId(static_cast<quint16>((static_cast<quint16>(pduData[2]) << 8)
                                                   | static_cast<quint16>(pduData[3])));
-    d->message.setToken(QByteArray(reinterpret_cast<char *>(pduData + 4), tokenLength));
+    d->message.setToken(QByteArray::fromRawData(reply.data() + 4, tokenLength));
 
     // Parse Options
     int i = 4 + tokenLength;
     quint16 lastOptionNumber = 0;
-    while (i != reply.length() && static_cast<quint8>(pduData[i]) != 0xFF) {
-        quint16 optionDelta = static_cast<quint16>((pduData[i] >> 4) & 0x0F);
+    while (i != reply.length() && (pduData[i]) != 0xFF) {
+        quint16 optionDelta = ((pduData[i] >> 4) & 0x0F);
         quint8 optionDeltaExtended = 0;
-        quint16 optionLength = static_cast<quint16>(pduData[i] & 0x0F);
+        quint16 optionLength = (pduData[i] & 0x0F);
         quint8 optionLengthExtended = 0;
 
         // Delta value > 12 : special values
@@ -139,11 +140,11 @@ QCoapInternalReply QCoapInternalReply::fromQByteArray(const QByteArray &reply)
         quint16 optionNumber = lastOptionNumber + optionDelta;
         internalReply.addOption(QCoapOption::OptionName(optionNumber), optionValue);
         lastOptionNumber = optionNumber;
-        i += (1 + optionLength);
+        i += 1 + optionLength;
     }
 
     // Parse Payload
-    if (static_cast<quint8>(pduData[i]) == 0xFF) {
+    if (pduData[i] == 0xFF) {
         // -1 because of 0xFF at the beginning
         QByteArray currentPayload = reply.right(reply.length() - i - 1);
         d->message.setPayload(d->message.payload().append(currentPayload));
@@ -205,8 +206,6 @@ int QCoapInternalReply::wantNextBlock()
                 blockNumber = (blockNumber << 8) | optionData[i];
             blockNumber = (blockNumber << 4) | ((optionData[option.length()-1]) >> 4);
             return static_cast<int>(blockNumber) + 1;
-        } else {
-            return -1;
         }
     }
 
