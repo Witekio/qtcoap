@@ -12,6 +12,7 @@ Resources available in the Download section:
 #### The build and test host
 
 This environment is based on Ubuntu VNC Docker utilisation.
+
 - Build the first time with : sudo docker build -t ubuntu-desktop-lxde-vnc .
 - Run with : sudo docker run -it --rm -p 6080:80 -p 5900:5900 -v /var/run/docker.sock:/run/docker.sock -v $(which docker):/bin/docker ubuntu-desktop-lxde-vnc
 - Save the state (to avoid to loose modifications when docker close) : 
@@ -22,6 +23,7 @@ This environment is based on Ubuntu VNC Docker utilisation.
 #### CoAP test server
 
 Test server is based on [Califormium](https://www.eclipse.org/californium/).
+
 - Build the first time with: `sudo docker build -t coap-server .`
 - Run with : sudo docker run coap-server
 
