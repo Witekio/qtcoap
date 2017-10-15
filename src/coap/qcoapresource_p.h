@@ -56,18 +56,14 @@ class Q_AUTOTEST_EXPORT QCoapResourcePrivate
 {
 public:
     QCoapResourcePrivate();
-    ~QCoapResourcePrivate();
 
-    // The comments obs, rt, etc..., are the names of the fields in
-    // the protocol.
-
+    bool observable = false; // obs field
+    int maximumSize = -1;    // sz field
+    uint contentFormat = 0;  // ct field
+    QString resourceType;    // rt field
+    QString interface;       // if field
     QString path;
     QString title;
-    bool observable;        // obs
-    QString resourceType;   // rt
-    QString interface;      // if
-    int maximumSize;        // sz
-    uint contentFormat;     // ct
 };
 
 QT_END_NAMESPACE

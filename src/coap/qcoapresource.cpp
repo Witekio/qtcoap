@@ -38,18 +38,7 @@
 
 QT_BEGIN_NAMESPACE
 
-QCoapResourcePrivate::QCoapResourcePrivate() :
-    path(""),
-    title(""),
-    observable(false),
-    resourceType(""),
-    interface(""),
-    maximumSize(-1),
-    contentFormat(0)
-{
-}
-
-QCoapResourcePrivate::~QCoapResourcePrivate()
+QCoapResourcePrivate::QCoapResourcePrivate()
 {
 }
 
@@ -70,8 +59,17 @@ QCoapResourcePrivate::~QCoapResourcePrivate()
     Constructs a new QCoapResource.
  */
 QCoapResource::QCoapResource() :
-    d_ptr(new QCoapResourcePrivate)
+    d(new QCoapResourcePrivate)
 {
+}
+
+/*!
+    Destroys the instance.
+ */
+QCoapResource::~QCoapResource()
+{
+    if (d)
+        delete d;
 }
 
 /*!
@@ -81,7 +79,7 @@ QCoapResource::QCoapResource() :
  */
 QString QCoapResource::path() const
 {
-    return d_ptr->path;
+    return d->path;
 }
 
 /*!
@@ -91,7 +89,7 @@ QString QCoapResource::path() const
  */
 QString QCoapResource::title() const
 {
-    return d_ptr->title;
+    return d->title;
 }
 
 /*!
@@ -101,7 +99,7 @@ QString QCoapResource::title() const
  */
 bool QCoapResource::observable() const
 {
-    return d_ptr->observable;
+    return d->observable;
 }
 
 /*!
@@ -111,7 +109,7 @@ bool QCoapResource::observable() const
  */
 QString QCoapResource::resourceType() const
 {
-    return d_ptr->resourceType;
+    return d->resourceType;
 }
 
 /*!
@@ -121,7 +119,7 @@ QString QCoapResource::resourceType() const
  */
 QString QCoapResource::interface() const
 {
-    return d_ptr->interface;
+    return d->interface;
 }
 
 /*!
@@ -131,7 +129,7 @@ QString QCoapResource::interface() const
  */
 int QCoapResource::maximumSize() const
 {
-    return d_ptr->maximumSize;
+    return d->maximumSize;
 }
 
 /*!
@@ -141,7 +139,7 @@ int QCoapResource::maximumSize() const
  */
 uint QCoapResource::contentFormat() const
 {
-    return d_ptr->contentFormat;
+    return d->contentFormat;
 }
 
 /*!
@@ -151,7 +149,7 @@ uint QCoapResource::contentFormat() const
  */
 void QCoapResource::setPath(const QString &path)
 {
-    d_ptr->path = path;
+    d->path = path;
 }
 
 /*!
@@ -161,7 +159,7 @@ void QCoapResource::setPath(const QString &path)
  */
 void QCoapResource::setTitle(const QString &title)
 {
-    d_ptr->title = title;
+    d->title = title;
 }
 
 /*!
@@ -172,7 +170,7 @@ void QCoapResource::setTitle(const QString &title)
  */
 void QCoapResource::setObservable(bool observable)
 {
-    d_ptr->observable = observable;
+    d->observable = observable;
 }
 
 /*!
@@ -182,7 +180,7 @@ void QCoapResource::setObservable(bool observable)
  */
 void QCoapResource::setResourceType(const QString &resourceType)
 {
-    d_ptr->resourceType = resourceType;
+    d->resourceType = resourceType;
 }
 
 /*!
@@ -192,7 +190,7 @@ void QCoapResource::setResourceType(const QString &resourceType)
  */
 void QCoapResource::setInterface(const QString &interface)
 {
-    d_ptr->interface = interface;
+    d->interface = interface;
 }
 
 /*!
@@ -202,7 +200,7 @@ void QCoapResource::setInterface(const QString &interface)
  */
 void QCoapResource::setMaximumSize(int maximumSize)
 {
-    d_ptr->maximumSize = maximumSize;
+    d->maximumSize = maximumSize;
 }
 
 /*!
@@ -212,7 +210,7 @@ void QCoapResource::setMaximumSize(int maximumSize)
  */
 void QCoapResource::setContentFormat(uint contentFormat)
 {
-    d_ptr->contentFormat = contentFormat;
+    d->contentFormat = contentFormat;
 }
 
 QT_END_NAMESPACE

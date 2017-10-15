@@ -46,6 +46,7 @@ class Q_COAP_EXPORT QCoapResource
 {
 public:
     QCoapResource();
+    ~QCoapResource();
 
     QString path() const;
     QString title() const;
@@ -64,7 +65,7 @@ public:
     void setContentFormat(uint contentFormat);
 
 private:
-    QCoapResourcePrivate *d_ptr;
+    QCoapResourcePrivate *d;
 };
 
 QT_END_NAMESPACE
