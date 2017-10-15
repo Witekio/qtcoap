@@ -77,7 +77,7 @@ public:
     explicit QCoapInternalRequest(QObject *parent = nullptr);
     explicit QCoapInternalRequest(const QCoapRequest &request, QObject *parent = nullptr);
 
-    void initForAcknowledgment(quint16 messageId, const QByteArray &token);
+    void initForAcknowledgement(quint16 messageId, const QByteArray &token);
     void initForReset(quint16 messageId);
 
     QByteArray toQByteArray() const;

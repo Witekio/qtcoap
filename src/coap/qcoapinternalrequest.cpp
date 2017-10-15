@@ -100,15 +100,15 @@ QCoapInternalRequest::QCoapInternalRequest(const QCoapRequest &request, QObject 
 /*!
     \internal
     Initialize parameters to transform the QCoapInternalRequest into an
-    acknowledgment message with the message id \a messageId and the given
+    acknowledgement message with the message id \a messageId and the given
     \a token.
 */
-void QCoapInternalRequest::initForAcknowledgment(quint16 messageId, const QByteArray &token)
+void QCoapInternalRequest::initForAcknowledgement(quint16 messageId, const QByteArray &token)
 {
     Q_D(QCoapInternalRequest);
 
     setOperation(Empty);
-    d->message.setType(QCoapMessage::Acknowledgment);
+    d->message.setType(QCoapMessage::Acknowledgement);
     d->message.setMessageId(messageId);
     d->message.setToken(token);
     d->message.setPayload(QByteArray());

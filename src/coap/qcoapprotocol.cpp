@@ -201,7 +201,7 @@ void QCoapProtocolPrivate::handleFrame(const QByteArray &frame)
         request->removeOptionByName(QCoapOption::Observe);
         sendReset(request);
     } else if (internalReplyMessage.type() == QCoapMessage::Confirmable) {
-        sendAcknowledgment(request);
+        sendAcknowledgement(request);
     }
 
     // Check if it is a blockwise request
@@ -289,7 +289,7 @@ void QCoapProtocolPrivate::onLastBlock(QCoapInternalRequest *request)
         return;
 
     QCoapInternalReply *finalReply(replies.last());
-    if (finalReply->message().type() == QCoapMessage::Acknowledgment
+    if (finalReply->message().type() == QCoapMessage::Acknowledgement
             && finalReply->statusCode() == QCoapInternalReply::Invalid)
         return;
 
@@ -344,15 +344,15 @@ void QCoapProtocolPrivate::onNextBlock(QCoapInternalRequest *request,
 
 /*!
     Creates a new internal request with the same uri and connection than
-    \a request, sets it up to make it an acknowledgment message and sends it.
+    \a request, sets it up to make it an acknowledgement message and sends it.
 */
-void QCoapProtocolPrivate::sendAcknowledgment(QCoapInternalRequest *request)
+void QCoapProtocolPrivate::sendAcknowledgement(QCoapInternalRequest *request)
 {
     QCoapInternalRequest ackRequest;
     QCoapInternalReply *internalReply = internalReplies[request].replies.last();
 
     ackRequest.setTargetUri(request->targetUri());
-    ackRequest.initForAcknowledgment(internalReply->message().messageId(),
+    ackRequest.initForAcknowledgement(internalReply->message().messageId(),
                                      internalReply->message().token());
     ackRequest.setConnection(request->connection());
     sendRequest(&ackRequest);

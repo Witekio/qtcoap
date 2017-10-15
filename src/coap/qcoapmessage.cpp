@@ -89,7 +89,7 @@ QCoapMessagePrivate::~QCoapMessagePrivate()
     \value NonConfirmableCoapMessage    A Non-Confirmable message. The
                                         destination endpoint does not need to
                                         acknowledge the message.
-    \value AcknowledgmentCoapMessage    An Acknowledgment message. A message
+    \value AcknowledgementCoapMessage   An Acknowledgement message. A message
                                         sent or received in reply to a
                                         Confirmable message.
     \value ResetCoapMessage             A Reset message. A message sent
