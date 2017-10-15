@@ -1,90 +1,153 @@
+/****************************************************************************
+**
+** Copyright (C) 2017 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing/
+**
+** This file is part of the QtCoap module.
+**
+** $QT_BEGIN_LICENSE:LGPL3$
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and The Qt Company. For licensing terms
+** and conditions see http://www.qt.io/terms-conditions. For further
+** information use the contact form at http://www.qt.io/contact-us.
+**
+** GNU Lesser General Public License Usage
+** Alternatively, this file may be used under the terms of the GNU Lesser
+** General Public License version 3 as published by the Free Software
+** Foundation and appearing in the file LICENSE.LGPLv3 included in the
+** packaging of this file. Please review the following information to
+** ensure the GNU Lesser General Public License version 3 requirements
+** will be met: https://www.gnu.org/licenses/lgpl.html.
+**
+** GNU General Public License Usage
+** Alternatively, this file may be used under the terms of the GNU
+** General Public License version 2.0 or later as published by the Free
+** Software Foundation and appearing in the file LICENSE.GPL included in
+** the packaging of this file. Please review the following information to
+** ensure the GNU General Public License version 2.0 requirements will be
+** met: http://www.gnu.org/licenses/gpl-2.0.html.
+**
+** $QT_END_LICENSE$
+**
+****************************************************************************/
+
 #ifndef QCOAPREPLY_H
 #define QCOAPREPLY_H
 
-#include "qcoapmessage.h"
-#include "qcoapinternalreply_p.h"
-#include "qcoaprequest.h"
-#include "qcoapglobal.h"
-#include <QByteArray>
-#include <QIODevice>
-#include <QSharedPointer>
+#include <QtCoap/qcoapmessage.h>
+#include <QtCoap/qcoaprequest.h>
+#include <QtCoap/qcoapglobal.h>
+#include <QtCore/qbytearray.h>
+#include <QtCore/qiodevice.h>
+#include <QtCore/qsharedpointer.h>
 
 QT_BEGIN_NAMESPACE
 
+class QCoapInternalReply;
 class QCoapReplyPrivate;
-class QCoapReply : public QIODevice
+class Q_COAP_EXPORT QCoapReply : public QIODevice
 {
     Q_OBJECT
 public:
-    enum QCoapNetworkError {
-        NoCoapError,
-        HostNotFoundCoapError,
-        BadRequestCoapError,
-        AddressInUseCoapError,
-        TimeOutCoapError,
-        UnauthorizedCoapError,
-        BadOptionCoapError,
-        ForbiddenCoapError,
-        NotFoundCoapError,
-        MethodNotAllowedCoapError,
-        NotAcceptableCoapError,
-        RequestEntityIncompleteCoapError,
-        PreconditionFailedCoapError,
-        RequestEntityTooLargeCoapError,
-        UnsupportedContentFormatCoapError,
-        InternalServerErrorCoapError,
-        NotImplementedCoapError,
-        BadGatewayCoapError,
-        ServiceUnavailableCoapError,
-        GatewayTimeoutCoapError,
-        ProxyingNotSupportedCoapError,
-        UnknownCoapError
+    enum NetworkError {
+        NoError,
+        HostNotFoundError,
+        BadRequestError,
+        AddressInUseError,
+        TimeOutError,
+        UnauthorizedError,
+        BadOptionError,
+        ForbiddenError,
+        NotFoundError,
+        MethodNotAllowedError,
+        NotAcceptableError,
+        RequestEntityIncompleteError,
+        PreconditionFailedError,
+        RequestEntityTooLargeError,
+        UnsupportedContentFormatError,
+        InternalServerErrorError,
+        NotImplementedError,
+        BadGatewayError,
+        ServiceUnavailableError,
+        GatewayTimeoutError,
+        ProxyingNotSupportedError,
+        UnknownError
     };
+    Q_ENUM(NetworkError)
 
-    QCoapReply(QObject* parent = Q_NULLPTR);
+    enum StatusCode {
+        Invalid = 0x00,
+        Created = 0x41, // 2.01
+        Deleted = 0x42, // 2.02
+        Valid   = 0x43, // 2.03
+        Changed = 0x44, // 2.04
+        Content = 0x45, // 2.05
+        Continue = 0x5F, // 2.31
+        BadRequest = 0x80, // 4.00
+        Unauthorized = 0x81, // 4.01
+        BadOption = 0x82, // 4.02
+        Forbidden = 0x83, // 4.03
+        NotFound = 0x84, // 4.04
+        MethodNotAllowed = 0x85, // 4.05
+        NotAcceptable = 0x86, // 4.06
+        RequestEntityIncomplete = 0x88, // 4.08
+        PreconditionFailed = 0x8C, // 4.12
+        RequestEntityTooLarge = 0x8D, // 4.13
+        UnsupportedContentFormat = 0x8E, // 4.14
+        InternalServerError = 0xA0, // 5.00
+        NotImplemented = 0xA1, // 5.01
+        BadGateway = 0xA2, // 5.02
+        ServiceUnavailable = 0xA3, // 5.03
+        GatewayTimeout = 0xA4, // 5.04
+        ProxyingNotSupported = 0xA5 // 5.05
+    };
+    Q_ENUM(StatusCode)
+
+    explicit QCoapReply(QObject *parent = nullptr);
     ~QCoapReply();
 
-    QCoapStatusCode statusCode() const;
+    StatusCode statusCode() const;
     QCoapMessage message() const;
     QCoapRequest request() const;
     QUrl url() const;
-    QCoapOperation operation() const;
-    QCoapNetworkError errorReceived() const;
+    QCoapRequest::Operation operation() const;
+    NetworkError errorReceived() const;
     bool isRunning() const;
     bool isFinished() const;
     bool isAborted() const;
-    void setRequest(const QCoapRequest& request);
+    void setRequest(const QCoapRequest &request);
 
-signals:
+Q_SIGNALS:
     void finished();
     void notified(const QByteArray&);
-    void error(QCoapReply::QCoapNetworkError);
+    void error(QCoapReply::NetworkError);
     void aborted(QCoapReply*);
 
-private slots:
+protected Q_SLOTS:
     void connectionError(QAbstractSocket::SocketError);
-    void replyError(QCoapStatusCode);
+    void replyError(StatusCode);
 
-public slots:
+public Q_SLOTS:
     void abortRequest();
 
 protected:
     friend class QCoapProtocol;
     friend class QCoapProtocolPrivate;
 
-    QCoapReply(QCoapReplyPrivate &dd, QObject* parent = Q_NULLPTR);
+    explicit QCoapReply(QCoapReplyPrivate &dd, QObject *parent = nullptr);
 
     void setIsRunning(bool isRunning);
-    void setError(QCoapNetworkError error);
-    virtual void updateFromInternalReply(const QCoapInternalReply& internalReply);
-    qint64 readData(char* data, qint64 maxSize) Q_DECL_OVERRIDE;
-    qint64 writeData(const char* data, qint64 maxSize) Q_DECL_OVERRIDE;
+    void setError(NetworkError error);
+    virtual void updateFromInternalReply(const QCoapInternalReply &internalReply);
+    qint64 readData(char *data, qint64 maxSize) Q_DECL_OVERRIDE;
+    qint64 writeData(const char *data, qint64 maxSize) Q_DECL_OVERRIDE;
 
     Q_DECLARE_PRIVATE(QCoapReply)
 };
 
 QT_END_NAMESPACE
-
-Q_DECLARE_METATYPE(QCoapReply::QCoapNetworkError)
 
 #endif // QCOAPREPLY_H

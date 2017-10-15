@@ -1,14 +1,50 @@
-#include "qcoaprequest.h"
+/****************************************************************************
+**
+** Copyright (C) 2017 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing/
+**
+** This file is part of the QtCoap module.
+**
+** $QT_BEGIN_LICENSE:LGPL3$
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and The Qt Company. For licensing terms
+** and conditions see http://www.qt.io/terms-conditions. For further
+** information use the contact form at http://www.qt.io/contact-us.
+**
+** GNU Lesser General Public License Usage
+** Alternatively, this file may be used under the terms of the GNU Lesser
+** General Public License version 3 as published by the Free Software
+** Foundation and appearing in the file LICENSE.LGPLv3 included in the
+** packaging of this file. Please review the following information to
+** ensure the GNU Lesser General Public License version 3 requirements
+** will be met: https://www.gnu.org/licenses/lgpl.html.
+**
+** GNU General Public License Usage
+** Alternatively, this file may be used under the terms of the GNU
+** General Public License version 2.0 or later as published by the Free
+** Software Foundation and appearing in the file LICENSE.GPL included in
+** the packaging of this file. Please review the following information to
+** ensure the GNU General Public License version 2.0 requirements will be
+** met: http://www.gnu.org/licenses/gpl-2.0.html.
+**
+** $QT_END_LICENSE$
+**
+****************************************************************************/
+
 #include "qcoaprequest_p.h"
-#include <QtMath>
-#include <QTime>
+#include "qcoapinternalrequest_p.h"
+#include <QtCore/qmath.h>
+#include <QtCore/qdatetime.h>
 
 QT_BEGIN_NAMESPACE
 
 QCoapRequestPrivate::QCoapRequestPrivate() :
     uri(QUrl()),
     proxyUri(QUrl()),
-    operation(EmptyCoapOperation),
+    operation(QCoapRequest::Empty),
     observe(false)
 {
 }
@@ -39,7 +75,7 @@ QCoapRequestPrivate::QCoapRequestPrivate(const QCoapRequestPrivate &other) :
     Constructs a QCoapRequest object with the target \a url,
     the proxy url \a proxyUrl and the \a type of the message.
 */
-QCoapRequest::QCoapRequest(const QUrl& url, QCoapMessageType type, const QUrl& proxyUrl) :
+QCoapRequest::QCoapRequest(const QUrl &url, MessageType type, const QUrl &proxyUrl) :
     QCoapMessage(*new QCoapRequestPrivate)
 {
     setUrl(url);
@@ -63,7 +99,7 @@ QCoapRequest::QCoapRequest(const QCoapRequest &other) :
 */
 QUrl QCoapRequest::url() const
 {
-    QCoapRequestPrivate* d = static_cast<QCoapRequestPrivate*>(d_ptr);
+    QCoapRequestPrivate *d = static_cast<QCoapRequestPrivate*>(d_ptr);
     return d->uri;
 }
 
@@ -74,7 +110,7 @@ QUrl QCoapRequest::url() const
 */
 QUrl QCoapRequest::proxyUrl() const
 {
-    QCoapRequestPrivate* d = static_cast<QCoapRequestPrivate*>(d_ptr);
+    QCoapRequestPrivate *d = static_cast<QCoapRequestPrivate*>(d_ptr);
     return d->proxyUri;
 }
 
@@ -83,9 +119,9 @@ QUrl QCoapRequest::proxyUrl() const
 
     \sa setOperation()
 */
-QCoapOperation QCoapRequest::operation() const
+QCoapRequest::Operation QCoapRequest::operation() const
 {
-    QCoapRequestPrivate* d = static_cast<QCoapRequestPrivate*>(d_ptr);
+    QCoapRequestPrivate *d = static_cast<QCoapRequestPrivate*>(d_ptr);
     return d->operation;
 }
 
@@ -96,7 +132,7 @@ QCoapOperation QCoapRequest::operation() const
 */
 bool QCoapRequest::observe() const
 {
-    QCoapRequestPrivate* d = static_cast<QCoapRequestPrivate*>(d_ptr);
+    QCoapRequestPrivate *d = static_cast<QCoapRequestPrivate*>(d_ptr);
     return d->observe;
 }
 
@@ -105,9 +141,9 @@ bool QCoapRequest::observe() const
 
     \sa url()
 */
-void QCoapRequest::setUrl(const QUrl& url)
+void QCoapRequest::setUrl(const QUrl &url)
 {
-    QCoapRequestPrivate* d = static_cast<QCoapRequestPrivate*>(d_ptr);
+    QCoapRequestPrivate *d = static_cast<QCoapRequestPrivate*>(d_ptr);
     d->uri = url;
 }
 
@@ -116,9 +152,9 @@ void QCoapRequest::setUrl(const QUrl& url)
 
     \sa proxyUrl()
 */
-void QCoapRequest::setProxyUrl(const QUrl& proxyUrl)
+void QCoapRequest::setProxyUrl(const QUrl &proxyUrl)
 {
-    QCoapRequestPrivate* d = static_cast<QCoapRequestPrivate*>(d_ptr);
+    QCoapRequestPrivate *d = static_cast<QCoapRequestPrivate*>(d_ptr);
     d->proxyUri = proxyUrl;
 }
 
@@ -127,9 +163,9 @@ void QCoapRequest::setProxyUrl(const QUrl& proxyUrl)
 
     \sa operation()
 */
-void QCoapRequest::setOperation(QCoapOperation operation)
+void QCoapRequest::setOperation(Operation operation)
 {
-    QCoapRequestPrivate* d = static_cast<QCoapRequestPrivate*>(d_ptr);
+    QCoapRequestPrivate *d = static_cast<QCoapRequestPrivate*>(d_ptr);
     d->operation = operation;
 }
 
@@ -141,14 +177,14 @@ void QCoapRequest::setOperation(QCoapOperation operation)
 */
 void QCoapRequest::setObserve(bool observe)
 {
-    QCoapRequestPrivate* d = static_cast<QCoapRequestPrivate*>(d_ptr);
+    QCoapRequestPrivate *d = static_cast<QCoapRequestPrivate*>(d_ptr);
     d->observe = observe;
 }
 
 /*!
     Creates a copy of \a other.
 */
-QCoapRequest& QCoapRequest::operator=(const QCoapRequest& other)
+QCoapRequest &QCoapRequest::operator=(const QCoapRequest &other)
 {
     d_ptr = other.d_ptr;
     return *this;
@@ -158,7 +194,7 @@ QCoapRequest& QCoapRequest::operator=(const QCoapRequest& other)
     Returns true if this QCoapRequest message id is lower than
     the message id of \a other.
 */
-bool QCoapRequest::operator<(const QCoapRequest& other) const
+bool QCoapRequest::operator<(const QCoapRequest &other) const
 {
     return (d_ptr->messageId < other.messageId());
 }

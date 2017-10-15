@@ -1,17 +1,46 @@
+/****************************************************************************
+**
+** Copyright (C) 2017 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing/
+**
+** This file is part of the QtCoap module.
+**
+** $QT_BEGIN_LICENSE:LGPL3$
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and The Qt Company. For licensing terms
+** and conditions see http://www.qt.io/terms-conditions. For further
+** information use the contact form at http://www.qt.io/contact-us.
+**
+** GNU Lesser General Public License Usage
+** Alternatively, this file may be used under the terms of the GNU Lesser
+** General Public License version 3 as published by the Free Software
+** Foundation and appearing in the file LICENSE.LGPLv3 included in the
+** packaging of this file. Please review the following information to
+** ensure the GNU Lesser General Public License version 3 requirements
+** will be met: https://www.gnu.org/licenses/lgpl.html.
+**
+** GNU General Public License Usage
+** Alternatively, this file may be used under the terms of the GNU
+** General Public License version 2.0 or later as published by the Free
+** Software Foundation and appearing in the file LICENSE.GPL included in
+** the packaging of this file. Please review the following information to
+** ensure the GNU General Public License version 2.0 requirements will be
+** met: http://www.gnu.org/licenses/gpl-2.0.html.
+**
+** $QT_END_LICENSE$
+**
+****************************************************************************/
+
 #include "qcoapinternalreply_p.h"
-#include <QtMath>
+#include <QtCore/qmath.h>
 
 QT_BEGIN_NAMESPACE
 
 QCoapInternalReplyPrivate::QCoapInternalReplyPrivate():
-    statusCode(InvalidCoapCode)
-{
-}
-
-QCoapInternalReplyPrivate::QCoapInternalReplyPrivate
-    (const QCoapInternalReplyPrivate& other):
-    QCoapInternalMessagePrivate(other),
-    statusCode(other.statusCode)
+    statusCode(QCoapInternalReply::Invalid)
 {
 }
 
@@ -33,7 +62,7 @@ QCoapInternalReplyPrivate::QCoapInternalReplyPrivate
     \internal
     Constructs a new QCoapInternalReply with \a parent as the parent object.
 */
-QCoapInternalReply::QCoapInternalReply(QObject* parent) :
+QCoapInternalReply::QCoapInternalReply(QObject *parent) :
     QCoapInternalMessage (*new QCoapInternalReplyPrivate, parent)
 {
 }
@@ -42,7 +71,7 @@ QCoapInternalReply::QCoapInternalReply(QObject* parent) :
     \internal
     Constructs a copy of \a other with \a parent as the parent obect.
 */
-QCoapInternalReply::QCoapInternalReply(const QCoapInternalReply& other, QObject* parent) :
+QCoapInternalReply::QCoapInternalReply(const QCoapInternalReply &other, QObject *parent) :
     QCoapInternalMessage(other, parent)
 {
     Q_D(QCoapInternalReply);
@@ -54,18 +83,18 @@ QCoapInternalReply::QCoapInternalReply(const QCoapInternalReply& other, QObject*
     Creates a QCoapInternalReply from the \a reply byte array which needs
     to be a coap reply frame.
 */
-QCoapInternalReply QCoapInternalReply::fromQByteArray(const QByteArray& reply)
+QCoapInternalReply QCoapInternalReply::fromQByteArray(const QByteArray &reply)
 {
     QCoapInternalReply internalReply;
-    QCoapInternalReplyPrivate* d = internalReply.d_func();
+    QCoapInternalReplyPrivate *d = internalReply.d_func();
 
     quint8 *pduData = reinterpret_cast<quint8 *>(const_cast<char *>(reply.data()));
 
     // Parse Header and Token
     d->message.setVersion((pduData[0] >> 6) & 0x03);
-    d->message.setType(QCoapMessage::QCoapMessageType((pduData[0] >> 4) & 0x03));
+    d->message.setType(QCoapMessage::MessageType((pduData[0] >> 4) & 0x03));
     quint8 tokenLength = (pduData[0]) & 0x0F;
-    d->statusCode = static_cast<QCoapStatusCode>(pduData[1]);
+    d->statusCode = static_cast<QCoapInternalReply::StatusCodeInternal>(pduData[1]);
     d->message.setMessageId(static_cast<quint16>((static_cast<quint16>(pduData[2]) << 8)
                                                   | static_cast<quint16>(pduData[3])));
     d->message.setToken(QByteArray(reinterpret_cast<char *>(pduData + 4), tokenLength));
@@ -108,7 +137,7 @@ QCoapInternalReply QCoapInternalReply::fromQByteArray(const QByteArray& reply)
         }
 
         quint16 optionNumber = lastOptionNumber + optionDelta;
-        internalReply.addOption(QCoapOption::QCoapOptionName(optionNumber), optionValue);
+        internalReply.addOption(QCoapOption::OptionName(optionNumber), optionValue);
         lastOptionNumber = optionNumber;
         i += (1 + optionLength);
     }
@@ -127,20 +156,21 @@ QCoapInternalReply QCoapInternalReply::fromQByteArray(const QByteArray& reply)
     \internal
     Appends the given \a data byte array to the current payload.
 */
-void QCoapInternalReply::appendData(const QByteArray& data)
+void QCoapInternalReply::appendData(const QByteArray &data)
 {
-    d_func()->message.setPayload(d_func()->message.payload().append(data));
+    Q_D(QCoapInternalReply);
+    d->message.setPayload(d->message.payload().append(data));
 }
 
 /*!
     \internal
     Adds the given coap \a option and sets block parameters if needed.
 */
-void QCoapInternalReply::addOption(const QCoapOption& option)
+void QCoapInternalReply::addOption(const QCoapOption &option)
 {
     Q_D(QCoapInternalReply);
     // If it is a BLOCK option, we need to know the block number
-    if (option.name() == QCoapOption::Block2CoapOption) {
+    if (option.name() == QCoapOption::Block2) {
         quint32 blockNumber = 0;
         quint8 *optionData = reinterpret_cast<quint8 *>(option.value().data());
         for (int i = 0; i < option.length() - 1; ++i)
@@ -161,8 +191,10 @@ void QCoapInternalReply::addOption(const QCoapOption& option)
 */
 int QCoapInternalReply::wantNextBlock()
 {
-    QCoapOption option = d_func()->message.findOptionByName(QCoapOption::Block1CoapOption);
-    if (option.name() != QCoapOption::InvalidCoapOption) {
+    Q_D(QCoapInternalReply);
+
+    QCoapOption option = d->message.findOptionByName(QCoapOption::Block1);
+    if (option.name() != QCoapOption::Invalid) {
         quint8 *optionData = reinterpret_cast<quint8 *>(option.value().data());
 
         bool hasNextBlock = ((optionData[option.length()-1] & 0x8) == 0x8);
@@ -173,8 +205,9 @@ int QCoapInternalReply::wantNextBlock()
                 blockNumber = (blockNumber << 8) | optionData[i];
             blockNumber = (blockNumber << 4) | ((optionData[option.length()-1]) >> 4);
             return static_cast<int>(blockNumber) + 1;
-        } else
+        } else {
             return -1;
+        }
     }
 
     return -1;
@@ -184,9 +217,10 @@ int QCoapInternalReply::wantNextBlock()
     \internal
     Returns the status code of the reply.
 */
-QCoapStatusCode QCoapInternalReply::statusCode() const
+QCoapInternalReply::StatusCodeInternal QCoapInternalReply::statusCode() const
 {
-    return d_func()->statusCode;
+    Q_D(const QCoapInternalReply);
+    return d->statusCode;
 }
 
 QT_END_NAMESPACE

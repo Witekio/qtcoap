@@ -1,9 +1,7 @@
 #include <QtTest>
 #include <QCoreApplication>
 
-#include "qcoapmessage.h"
-
-Q_DECLARE_METATYPE(QCoapMessage::QCoapMessageType)
+#include <QtCoap/qcoapmessage.h>
 
 class tst_QCoapMessage : public QObject
 {
@@ -13,7 +11,7 @@ public:
     tst_QCoapMessage();
     ~tst_QCoapMessage();
 
-private slots:
+private Q_SLOTS:
     void initTestCase();
     void cleanupTestCase();
 
@@ -39,17 +37,17 @@ void tst_QCoapMessage::cleanupTestCase()
 
 void tst_QCoapMessage::setMessageType_data()
 {
-    QTest::addColumn<QCoapMessage::QCoapMessageType>("type");
+    QTest::addColumn<QCoapMessage::MessageType>("type");
 
-    QTest::newRow("acknowledgment") << QCoapMessage::AcknowledgmentCoapMessage;
-    QTest::newRow("confirmable") << QCoapMessage::ConfirmableCoapMessage;
-    QTest::newRow("non-confirmable") << QCoapMessage::NonConfirmableCoapMessage;
-    QTest::newRow("reset") << QCoapMessage::ResetCoapMessage;
+    QTest::newRow("acknowledgment") << QCoapMessage::Acknowledgment;
+    QTest::newRow("confirmable") << QCoapMessage::Confirmable;
+    QTest::newRow("non-confirmable") << QCoapMessage::NonConfirmable;
+    QTest::newRow("reset") << QCoapMessage::Reset;
 }
 
 void tst_QCoapMessage::setMessageType()
 {
-    QFETCH(QCoapMessage::QCoapMessageType, type);
+    QFETCH(QCoapMessage::MessageType, type);
     QCoapMessage message;
     message.setType(type);
     QCOMPARE(message.type(), type);

@@ -1,5 +1,44 @@
-#include "qcoapclient.h"
+/****************************************************************************
+**
+** Copyright (C) 2017 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing/
+**
+** This file is part of the QtCoap module.
+**
+** $QT_BEGIN_LICENSE:LGPL3$
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and The Qt Company. For licensing terms
+** and conditions see http://www.qt.io/terms-conditions. For further
+** information use the contact form at http://www.qt.io/contact-us.
+**
+** GNU Lesser General Public License Usage
+** Alternatively, this file may be used under the terms of the GNU Lesser
+** General Public License version 3 as published by the Free Software
+** Foundation and appearing in the file LICENSE.LGPLv3 included in the
+** packaging of this file. Please review the following information to
+** ensure the GNU Lesser General Public License version 3 requirements
+** will be met: https://www.gnu.org/licenses/lgpl.html.
+**
+** GNU General Public License Usage
+** Alternatively, this file may be used under the terms of the GNU
+** General Public License version 2.0 or later as published by the Free
+** Software Foundation and appearing in the file LICENSE.GPL included in
+** the packaging of this file. Please review the following information to
+** ensure the GNU General Public License version 2.0 requirements will be
+** met: http://www.gnu.org/licenses/gpl-2.0.html.
+**
+** $QT_END_LICENSE$
+**
+****************************************************************************/
+
 #include "qcoapclient_p.h"
+#include "qcoapreply.h"
+#include "qcoapdiscoveryreply.h"
+#include <QtCore/qurl.h>
+#include <QtNetwork/qudpsocket.h>
 
 QT_BEGIN_NAMESPACE
 
@@ -35,7 +74,7 @@ QCoapClientPrivate::~QCoapClientPrivate()
     A simple request can be sent with :
     // TODO : replace by snippet
     \code
-        QCoapClient* client = new QCoapClient(this);
+        QCoapClient *client = new QCoapClient(this);
         connect(client, &QCoapClient::finished, this, &TestClass::slotFinished);
         client->get(QCoapRequest(Qurl("coap://coap.me/test")));
     \endcode
@@ -45,7 +84,7 @@ QCoapClientPrivate::~QCoapClientPrivate()
     {notified(const QByteArray&)} signal of the reply can be more useful.
     \code
         QCoapRequest request = QCoapRequest(Qurl("coap://coap.me/obs"));
-        CoapReply* reply = client->observe(request);
+        CoapReply *reply = client->observe(request);
         connect(reply, &QCoapReply::notified, this, &TestClass::slotNotified);
     \endcode
 
@@ -82,7 +121,7 @@ QCoapClientPrivate::~QCoapClientPrivate()
 /*!
     Constructs a QCoapClient object and sets \a parent as the parent object.
 */
-QCoapClient::QCoapClient(QObject* parent) :
+QCoapClient::QCoapClient(QObject *parent) :
     QObject(* new QCoapClientPrivate, parent)
 {
     Q_D(QCoapClient);
@@ -93,8 +132,10 @@ QCoapClient::QCoapClient(QObject* parent) :
     connect(d->protocol, &QCoapProtocol::finished,
             this, &QCoapClient::finished);
     qRegisterMetaType<QPointer<QCoapReply>>();
+    qRegisterMetaType<QCoapReply*>();
+    qRegisterMetaType<QPointer<QCoapDiscoveryReply>>();
     qRegisterMetaType<QCoapConnection*>();
-    qRegisterMetaType<QCoapReply::QCoapNetworkError>();
+    qRegisterMetaType<QCoapReply::NetworkError>();
 }
 
 /*!
@@ -121,14 +162,14 @@ QCoapClient::~QCoapClient()
 
     \sa post(), put(), deleteResource(), observe(), discover(), cancelObserve()
 */
-QCoapReply* QCoapClient::get(const QCoapRequest& request)
+QCoapReply *QCoapClient::get(const QCoapRequest &request)
 {
     Q_D(QCoapClient);
 
     QCoapRequest copyRequest(request);
-    copyRequest.setOperation(GetCoapOperation);
+    copyRequest.setOperation(QCoapRequest::Get);
 
-    QCoapReply* reply = d->sendRequest(copyRequest);
+    QCoapReply *reply = d->sendRequest(copyRequest);
     d->requestMap[request] = reply;
 
     return reply;
@@ -141,15 +182,15 @@ QCoapReply* QCoapClient::get(const QCoapRequest& request)
 
     \sa get(), post(), deleteResource(), observe(), discover(), cancelObserve()
 */
-QCoapReply* QCoapClient::put(const QCoapRequest& request, const QByteArray& data)
+QCoapReply *QCoapClient::put(const QCoapRequest &request, const QByteArray &data)
 {
     Q_D(QCoapClient);
 
     QCoapRequest copyRequest(request);
-    copyRequest.setOperation(PutCoapOperation);
+    copyRequest.setOperation(QCoapRequest::Put);
     copyRequest.setPayload(data);
 
-    QCoapReply* reply = d->sendRequest(copyRequest);
+    QCoapReply *reply = d->sendRequest(copyRequest);
     d->requestMap[request] = reply;
 
     return reply;
@@ -159,16 +200,16 @@ QCoapReply* QCoapClient::put(const QCoapRequest& request, const QByteArray& data
     \overload
 
     Posts a PUT request sending the contents of the \a data device to the
-    target \a request.
+    target \a request. If the device is null, then it returns a nullptr.
 
     \note The device has to be open and readable before calling this function.
 
     \sa get(), post(), deleteResource(), observe(), discover(), cancelObserve()
 */
-QCoapReply* QCoapClient::put(const QCoapRequest& request, QIODevice* device)
+QCoapReply *QCoapClient::put(const QCoapRequest &request, QIODevice *device)
 {
-    if (!device->isSequential())
-        device->seek(0);
+    if (!device)
+        return nullptr;
 
     return put(request, device->readAll());
 }
@@ -180,15 +221,15 @@ QCoapReply* QCoapClient::put(const QCoapRequest& request, QIODevice* device)
 
     \sa get(), put(), deleteResource(), observe(), discover(), cancelObserve()
 */
-QCoapReply* QCoapClient::post(const QCoapRequest& request, const QByteArray& data)
+QCoapReply *QCoapClient::post(const QCoapRequest &request, const QByteArray &data)
 {
     Q_D(QCoapClient);
 
     QCoapRequest copyRequest(request);
-    copyRequest.setOperation(PostCoapOperation);
+    copyRequest.setOperation(QCoapRequest::Post);
     copyRequest.setPayload(data);
 
-    QCoapReply* reply = d->sendRequest(copyRequest);
+    QCoapReply *reply = d->sendRequest(copyRequest);
     d->requestMap[request] = reply;
 
     return reply;
@@ -198,16 +239,16 @@ QCoapReply* QCoapClient::post(const QCoapRequest& request, const QByteArray& dat
     \overload
 
     Posts a POST request sending the contents of the \a data device to the
-    target \a request.
+    target \a request. If the device is null, then it returns a nullptr.
 
     \note The device has to be open and readable before calling this function.
 
     \sa get(), put(), deleteResource(), observe(), discover(), cancelObserve()
 */
-QCoapReply* QCoapClient::post(const QCoapRequest& request, QIODevice* device)
+QCoapReply *QCoapClient::post(const QCoapRequest &request, QIODevice *device)
 {
-    if (!device->isSequential())
-        device->seek(0);
+    if (!device)
+        return nullptr;
 
     return post(request, device->readAll());
 }
@@ -217,14 +258,14 @@ QCoapReply* QCoapClient::post(const QCoapRequest& request, QIODevice* device)
 
     \sa get(), put(), post(), observe(), discover(), cancelObserve()
  */
-QCoapReply* QCoapClient::deleteResource(const QCoapRequest& request)
+QCoapReply *QCoapClient::deleteResource(const QCoapRequest &request)
 {
     Q_D(QCoapClient);
 
     QCoapRequest copyRequest(request);
-    copyRequest.setOperation(DeleteCoapOperation);
+    copyRequest.setOperation(QCoapRequest::Delete);
 
-    QCoapReply* reply = d->sendRequest(copyRequest);
+    QCoapReply *reply = d->sendRequest(copyRequest);
     d->requestMap[request] = reply;
 
     return reply;
@@ -240,15 +281,15 @@ QCoapReply* QCoapClient::deleteResource(const QCoapRequest& request)
 
     \sa get(), post(), put(), deleteResource(), observe(), cancelObserve()
 */
-QCoapDiscoveryReply* QCoapClient::discover(const QUrl& url, const QString& discoveryPath)
+QCoapDiscoveryReply *QCoapClient::discover(const QUrl &url, const QString &discoveryPath)
 {
     Q_D(QCoapClient);
     QUrl discoveryUrl(url.toString().append(discoveryPath).toUtf8());
 
     QCoapRequest request(discoveryUrl);
-    request.setOperation(GetCoapOperation);
+    request.setOperation(QCoapRequest::Get);
 
-    QCoapDiscoveryReply* reply = d->sendDiscovery(request);
+    QCoapDiscoveryReply *reply = d->sendDiscovery(request);
     d->requestMap[request] = reply;
 
     return reply;
@@ -262,15 +303,15 @@ QCoapDiscoveryReply* QCoapClient::discover(const QUrl& url, const QString& disco
 
     \sa get(), post(), put(), deleteResource(), discover(), cancelObserve()
 */
-QCoapReply* QCoapClient::observe(const QCoapRequest& request)
+QCoapReply *QCoapClient::observe(const QCoapRequest &request)
 {
     Q_D(QCoapClient);
 
     QCoapRequest copyRequest(request);
-    copyRequest.addOption(QCoapOption::ObserveCoapOption);
+    copyRequest.addOption(QCoapOption::Observe);
     copyRequest.setObserve(true);
 
-    QCoapReply* reply = nullptr;
+    QCoapReply *reply = nullptr;
     reply = get(copyRequest);
     d->requestMap[request] = reply;
 
@@ -282,10 +323,11 @@ QCoapReply* QCoapClient::observe(const QCoapRequest& request)
 
     \sa get(), post(), put(), deleteResource(), observe(), discover()
 */
-void QCoapClient::cancelObserve(const QCoapRequest& request)
+void QCoapClient::cancelObserve(const QCoapRequest &request)
 {
     Q_D(QCoapClient);
-    d->protocol->cancelObserve(d->requestMap[request]);
+    QMetaObject::invokeMethod(d->protocol, "cancelObserve",
+                              Q_ARG(QPointer<QCoapReply>, d->requestMap[request]));
 }
 
 /*!
@@ -296,9 +338,11 @@ void QCoapClient::cancelObserve(const QCoapRequest& request)
 
     \sa get(), post(), put(), deleteResource(), observe(), discover()
 */
-void QCoapClient::cancelObserve(QCoapReply* notifiedReply)
+void QCoapClient::cancelObserve(QCoapReply *notifiedReply)
 {
-    d_func()->protocol->cancelObserve(notifiedReply);
+    Q_D(QCoapClient);
+    QMetaObject::invokeMethod(d->protocol, "cancelObserve",
+                              Q_ARG(QPointer<QCoapReply>, notifiedReply));
 }
 
 /*!
@@ -308,9 +352,13 @@ void QCoapClient::cancelObserve(QCoapReply* notifiedReply)
     object which emits the \l{QCoapReply::finished()}{finished()} signal
     whenever the response arrives.
 */
-QCoapReply* QCoapClientPrivate::sendRequest(const QCoapRequest& request)
+QCoapReply *QCoapClientPrivate::sendRequest(const QCoapRequest &request)
 {
     Q_Q(QCoapClient);
+
+    QString scheme = request.url().scheme();
+    if (scheme != QLatin1String("coap"))
+        return nullptr;
 
     // Prepare the reply and send it
     QPointer<QCoapReply> reply = new QCoapReply(q);
@@ -337,12 +385,16 @@ QCoapReply* QCoapClientPrivate::sendRequest(const QCoapRequest& request)
     \l{QCoapReply::finished()}{finished()} signal whenever
     the response arrives.
 */
-QCoapDiscoveryReply* QCoapClientPrivate::sendDiscovery(const QCoapRequest& request)
+QCoapDiscoveryReply *QCoapClientPrivate::sendDiscovery(const QCoapRequest &request)
 {
     Q_Q(QCoapClient);
 
+    QString scheme = request.url().scheme();
+    if (scheme != QLatin1String("coap"))
+        return nullptr;
+
     // Prepare the reply and send it
-    QCoapDiscoveryReply* reply = new QCoapDiscoveryReply(q);
+    QPointer<QCoapReply> reply = new QCoapDiscoveryReply(q);
     reply->setRequest(request);
 
     // connect with DirectConnection type to secure from deleting the reply
@@ -355,25 +407,7 @@ QCoapDiscoveryReply* QCoapClientPrivate::sendDiscovery(const QCoapRequest& reque
     QMetaObject::invokeMethod(protocol, "sendRequest",
                               Q_ARG(QPointer<QCoapReply>, reply), Q_ARG(QCoapConnection*, connection));
 
-    return reply;
-}
-
-/*!
-    Returns a pointer to the protocol used by the client.
-
-    \sa setProtocol()
-*/
-QCoapProtocol* QCoapClient::protocol() const
-{
-    return d_func()->protocol;
-}
-
-/*!
-    Returns a pointer to the connection used by the client.
-*/
-QCoapConnection* QCoapClient::connection() const
-{
-    return d_func()->connection;
+    return static_cast<QCoapDiscoveryReply*>(reply.data());
 }
 
 /*!
@@ -396,7 +430,7 @@ void QCoapClient::setBlockSize(quint16 blockSize)
 void QCoapClient::setMulticastTtlOption(int ttlValue)
 {
     Q_D(QCoapClient);
-    QUdpSocket* udpSocket = d->connection->socket();
+    QUdpSocket *udpSocket = d->connection->socket();
     udpSocket->setSocketOption(QAbstractSocket::MulticastTtlOption, ttlValue);
 }
 
@@ -406,34 +440,18 @@ void QCoapClient::setMulticastTtlOption(int ttlValue)
 void QCoapClient::enableMulticastLoopbackOption()
 {
     Q_D(QCoapClient);
-    QUdpSocket* udpSocket = d->connection->socket();
+    QUdpSocket *udpSocket = d->connection->socket();
     udpSocket->setSocketOption(QAbstractSocket::MulticastLoopbackOption, 1);
 }
 
 /*!
     Sets the protocol used by the client. Allow the user to make its
     own protocol class.
-
-    \sa protocol()
 */
-void QCoapClient::setProtocol(QCoapProtocol* protocol)
+void QCoapClient::setProtocol(QCoapProtocol *protocol)
 {
     Q_D(QCoapClient);
     d->protocol = protocol;
 }
 
-/*!
-    \internal
-
-    Sets the connection used by the client.
-
-    \sa connection()
-*/
-void QCoapClientPrivate::setConnection(QCoapConnection* newConnection)
-{
-    connection = newConnection;
-}
-
 QT_END_NAMESPACE
-
-#include "moc_qcoapclient.cpp"

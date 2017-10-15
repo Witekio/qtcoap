@@ -1,11 +1,45 @@
-#include "qcoapconnection.h"
+/****************************************************************************
+**
+** Copyright (C) 2017 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing/
+**
+** This file is part of the QtCoap module.
+**
+** $QT_BEGIN_LICENSE:LGPL3$
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and The Qt Company. For licensing terms
+** and conditions see http://www.qt.io/terms-conditions. For further
+** information use the contact form at http://www.qt.io/contact-us.
+**
+** GNU Lesser General Public License Usage
+** Alternatively, this file may be used under the terms of the GNU Lesser
+** General Public License version 3 as published by the Free Software
+** Foundation and appearing in the file LICENSE.LGPLv3 included in the
+** packaging of this file. Please review the following information to
+** ensure the GNU Lesser General Public License version 3 requirements
+** will be met: https://www.gnu.org/licenses/lgpl.html.
+**
+** GNU General Public License Usage
+** Alternatively, this file may be used under the terms of the GNU
+** General Public License version 2.0 or later as published by the Free
+** Software Foundation and appearing in the file LICENSE.GPL included in
+** the packaging of this file. Please review the following information to
+** ensure the GNU General Public License version 2.0 requirements will be
+** met: http://www.gnu.org/licenses/gpl-2.0.html.
+**
+** $QT_END_LICENSE$
+**
+****************************************************************************/
+
 #include "qcoapconnection_p.h"
-#include <QNetworkDatagram>
+#include <QtNetwork/qnetworkdatagram.h>
 
 QT_BEGIN_NAMESPACE
 
 QCoapConnectionPrivate::QCoapConnectionPrivate() :
-    udpSocket(nullptr),
     state(QCoapConnection::Unconnected)
 {
 }
@@ -36,7 +70,7 @@ QCoapConnectionPrivate::~QCoapConnectionPrivate()
 /*!
     Constructs a new QCoapConnection and sets \a parent as the parent object.
 */
-QCoapConnection::QCoapConnection(QObject* parent) :
+QCoapConnection::QCoapConnection(QObject *parent) :
     QCoapConnection(*new QCoapConnectionPrivate, parent)
 {
 }
@@ -47,7 +81,7 @@ QCoapConnection::QCoapConnection(QObject* parent) :
     This constructor must be used when subclassing internally
     the QCoapConnection class.
 */
-QCoapConnection::QCoapConnection(QCoapConnectionPrivate& dd, QObject* parent) :
+QCoapConnection::QCoapConnection(QCoapConnectionPrivate &dd, QObject *parent) :
     QObject(dd, parent)
 {
     Q_D(QCoapConnection);
@@ -98,17 +132,21 @@ void QCoapConnectionPrivate::bindSocket()
     Binds the socket if it is not already done and sends the given
     \a request frame to the given \a host and \a port.
 */
-void QCoapConnection::sendRequest(const QByteArray& request, const QString& host, quint16 port)
+void QCoapConnection::sendRequest(const QByteArray &request, const QString &host, quint16 port)
 {
     Q_D(QCoapConnection);
 
-    CoapFrame frame = {request, host, port};
+    CoapFrame frame;
+    frame.currentPdu = request;
+    frame.host = host;
+    frame.port = port;
+
     d->framesToSend.enqueue(frame);
 
     if (d->state == Bound) {
-        QMetaObject::invokeMethod(this, "_q_startToSendRequest");
+        QMetaObject::invokeMethod(this, "_q_startToSendRequest", Qt::QueuedConnection);
     } else if (d->state == Unconnected) {
-        connect(this, SIGNAL(bound()), this, SLOT(_q_startToSendRequest()));
+        connect(this, SIGNAL(bound()), this, SLOT(_q_startToSendRequest()), Qt::QueuedConnection);
         d->bindSocket();
     }
 }
@@ -118,7 +156,7 @@ void QCoapConnection::sendRequest(const QByteArray& request, const QString& host
 
     Writes the given \a data frame to the socket to the stored host and port.
 */
-void QCoapConnectionPrivate::writeToSocket(const QByteArray& data, const QString& host, quint16 port)
+void QCoapConnectionPrivate::writeToSocket(const QByteArray &data, const QString &host, quint16 port)
 {
     if (!udpSocket->isWritable())
         udpSocket->open(udpSocket->openMode() | QIODevice::WriteOnly);
@@ -192,17 +230,19 @@ void QCoapConnectionPrivate::_q_socketError(QAbstractSocket::SocketError error)
 /*!
     Returns the socket.
 */
-QUdpSocket* QCoapConnection::socket() const
+QUdpSocket *QCoapConnection::socket() const
 {
-    return d_func()->udpSocket;
+    Q_D(const QCoapConnection);
+    return d->udpSocket;
 }
 
 /*!
     Returns the connection state.
 */
-QCoapConnection::QCoapConnectionState QCoapConnection::state() const
+QCoapConnection::ConnectionState QCoapConnection::state() const
 {
-    return d_func()->state;
+    Q_D(const QCoapConnection);
+    return d->state;
 }
 
 /*!
@@ -212,7 +252,7 @@ QCoapConnection::QCoapConnectionState QCoapConnection::state() const
 
     \sa socket()
 */
-void QCoapConnectionPrivate::setSocket(QUdpSocket* socket)
+void QCoapConnectionPrivate::setSocket(QUdpSocket *socket)
 {
     udpSocket = socket;
 }
@@ -224,7 +264,7 @@ void QCoapConnectionPrivate::setSocket(QUdpSocket* socket)
 
     \sa state()
 */
-void QCoapConnectionPrivate::setState(QCoapConnection::QCoapConnectionState newState)
+void QCoapConnectionPrivate::setState(QCoapConnection::ConnectionState newState)
 {
     state = newState;
 }

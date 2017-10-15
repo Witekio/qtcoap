@@ -1,16 +1,14 @@
 #include <QtTest>
 #include <QCoreApplication>
 
-#include <QUdpSocket>
-#include <QBuffer>
+#include <QtNetwork/qudpsocket.h>
+#include <QtCore/qbuffer.h>
 #include <QtCore/qglobal.h>
-#include "qcoapglobal.h"
-#include "qcoapconnection.h"
-#include "qcoapconnection_p.h"
-#include "qcoaprequest.h"
-#include "qcoaprequest_p.h"
-
-Q_DECLARE_METATYPE(QCoapOperation)
+#include <QtCoap/qcoapglobal.h>
+#include <QtCoap/qcoapconnection.h>
+#include <QtCoap/qcoaprequest.h>
+#include <private/qcoapconnection_p.h>
+#include <private/qcoapinternalrequest_p.h>
 
 class tst_QCoapConnection : public QObject
 {
@@ -20,7 +18,7 @@ public:
     tst_QCoapConnection();
     ~tst_QCoapConnection();
 
-private slots:
+private Q_SLOTS:
     void initTestCase();
     void cleanupTestCase();
     void ctor();
@@ -33,7 +31,7 @@ class QCoapConnectionForTest : public QCoapConnection
 {
     Q_OBJECT
 public:
-    QCoapConnectionForTest(QObject* parent = nullptr) :
+    QCoapConnectionForTest(QObject *parent = nullptr) :
         QCoapConnection(parent)
     {}
 
@@ -58,7 +56,7 @@ void tst_QCoapConnection::cleanupTestCase()
 
 void tst_QCoapConnection::ctor()
 {
-    QCoapConnection* connection = new QCoapConnection();
+    QCoapConnection *connection = new QCoapConnection();
     QVERIFY(connection->socket() != nullptr);
 
     delete connection;
@@ -68,7 +66,7 @@ void tst_QCoapConnection::connectToHost()
 {
     QCoapConnectionForTest connection;
 
-    QUdpSocket* socket = qobject_cast<QUdpSocket*>(connection.socket());
+    QUdpSocket *socket = qobject_cast<QUdpSocket*>(connection.socket());
     QSignalSpy spyConnectionBound(&connection, SIGNAL(bound()));
     QSignalSpy spySocketStateChanged(socket , SIGNAL(stateChanged(QAbstractSocket::SocketState)));
 
@@ -87,14 +85,20 @@ void tst_QCoapConnection::sendRequest_data()
     QTest::addColumn<QString>("host");
     QTest::addColumn<QString>("path");
     QTest::addColumn<quint16>("port");
-    QTest::addColumn<QCoapOperation>("operation");
+    QTest::addColumn<QCoapRequest::Operation>("operation");
     QTest::addColumn<QString>("dataHexaHeader");
     QTest::addColumn<QString>("dataHexaPayload");
 
-    QTest::newRow("simple_get_request") << "coap://" << "172.17.0.3" << "/test" << quint16(5683) << GetCoapOperation << "5445" << "61626364c0211eff547970653a203120284e4f4e290a436f64653a20312028474554290a4d49443a2032343830360a546f6b656e3a203631363236333634";
-    QTest::newRow("simple_put_request") << "coap://" << "172.17.0.3" << "/test" << quint16(5683) << PutCoapOperation << "5444" << "61626364";
-    QTest::newRow("simple_post_request") << "coap://" << "172.17.0.3" << "/test" << quint16(5683) << PostCoapOperation << "5441" << "61626364896c6f636174696f6e31096c6f636174696f6e32096c6f636174696f6e33";
-    QTest::newRow("simple_delete_request") << "coap://" << "172.17.0.3" << "/test" << quint16(5683) << DeleteCoapOperation << "5442" << "61626364";
+    QTest::newRow("simple_get_request") << "coap://" << "172.17.0.3" << "/test" << quint16(5683)
+                                        << QCoapRequest::Get << "5445"
+                                        << "61626364c0211eff547970653a203120284e4f4e290a436f64653a20312028474554290a4d49443a2032343830360a546f6b656e3a203631363236333634";
+    QTest::newRow("simple_put_request") << "coap://" << "172.17.0.3" << "/test" << quint16(5683)
+                                        << QCoapRequest::Put << "5444" << "61626364";
+    QTest::newRow("simple_post_request") << "coap://" << "172.17.0.3" << "/test" << quint16(5683)
+                                         << QCoapRequest::Post << "5441"
+                                         << "61626364896c6f636174696f6e31096c6f636174696f6e32096c6f636174696f6e33";
+    QTest::newRow("simple_delete_request") << "coap://" << "172.17.0.3" << "/test" << quint16(5683)
+                                           << QCoapRequest::Delete << "5442" << "61626364";
 }
 
 void tst_QCoapConnection::sendRequest()
@@ -103,7 +107,7 @@ void tst_QCoapConnection::sendRequest()
     QFETCH(QString, host);
     QFETCH(QString, path);
     QFETCH(quint16, port);
-    QFETCH(QCoapOperation, operation);
+    QFETCH(QCoapRequest::Operation, operation);
     QFETCH(QString, dataHexaHeader);
     QFETCH(QString, dataHexaPayload);
 

@@ -1,8 +1,10 @@
 TEMPLATE = subdirs
 
-SUBDIRS += qcoapclient \
+SUBDIRS += \
+    qcoapclient \
     qcoapmessage \
     qcoapconnection \
     qcoapreply \
     qcoaprequest \
-    qcoapresource
+    qcoapresource \
+    cmake

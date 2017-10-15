@@ -1,4 +1,39 @@
-#include "qcoapoption.h"
+/****************************************************************************
+**
+** Copyright (C) 2017 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing/
+**
+** This file is part of the QtCoap module.
+**
+** $QT_BEGIN_LICENSE:LGPL3$
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and The Qt Company. For licensing terms
+** and conditions see http://www.qt.io/terms-conditions. For further
+** information use the contact form at http://www.qt.io/contact-us.
+**
+** GNU Lesser General Public License Usage
+** Alternatively, this file may be used under the terms of the GNU Lesser
+** General Public License version 3 as published by the Free Software
+** Foundation and appearing in the file LICENSE.LGPLv3 included in the
+** packaging of this file. Please review the following information to
+** ensure the GNU Lesser General Public License version 3 requirements
+** will be met: https://www.gnu.org/licenses/lgpl.html.
+**
+** GNU General Public License Usage
+** Alternatively, this file may be used under the terms of the GNU
+** General Public License version 2.0 or later as published by the Free
+** Software Foundation and appearing in the file LICENSE.GPL included in
+** the packaging of this file. Please review the following information to
+** ensure the GNU General Public License version 2.0 requirements will be
+** met: http://www.gnu.org/licenses/gpl-2.0.html.
+**
+** $QT_END_LICENSE$
+**
+****************************************************************************/
+
 #include "qcoapoption_p.h"
 
 QT_BEGIN_NAMESPACE
@@ -50,8 +85,8 @@ QCoapOptionPrivate::QCoapOptionPrivate() :
     Constructs a QCoapOption object with the given \a name
     and \a value.
  */
-QCoapOption::QCoapOption(QCoapOptionName name,
-                         const QByteArray& value) :
+QCoapOption::QCoapOption(OptionName name,
+                         const QByteArray &value) :
     d_ptr(new QCoapOptionPrivate)
 {
     d_ptr->name = name;
@@ -77,7 +112,7 @@ quint8 QCoapOption::length() const
 /*!
     Returns the name of the option.
  */
-QCoapOption::QCoapOptionName QCoapOption::name() const
+QCoapOption::OptionName QCoapOption::name() const
 {
     return d_ptr->name;
 }
@@ -85,7 +120,7 @@ QCoapOption::QCoapOptionName QCoapOption::name() const
 /*!
     Returns true if this QCoapOption and \a other are equals.
  */
-bool QCoapOption::operator==(const QCoapOption& other) const
+bool QCoapOption::operator==(const QCoapOption &other) const
 {
     return (d_ptr->name == other.d_ptr->name
             && d_ptr->value == other.d_ptr->value);

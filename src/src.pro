@@ -1,6 +1,3 @@
-CONFIG += ordered
-
 TEMPLATE = subdirs
 
-SUBDIRS += \
-    coap
+SUBDIRS += coap

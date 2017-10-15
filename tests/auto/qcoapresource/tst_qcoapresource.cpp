@@ -1,8 +1,8 @@
 #include <QtTest>
 #include <QCoreApplication>
 
-#include "qcoapresource.h"
-#include "qcoapprotocol.h"
+#include <QtCoap/qcoapresource.h>
+#include <QtCoap/qcoapprotocol.h>
 
 class tst_QCoapResource : public QObject
 {
@@ -12,7 +12,7 @@ public:
     tst_QCoapResource();
     ~tst_QCoapResource();
 
-private slots:
+private Q_SLOTS:
     void initTestCase();
     void cleanupTestCase();
     void parseCoreLink_data();
@@ -92,6 +92,23 @@ void tst_QCoapResource::parseCoreLink_data()
                    << false << false << false << false << false << false << false
                    << true << false;
 
+    QByteArray coreLinks;
+    coreLinks.append("</obs>;obs;rt=\"observe\";title=\"Observable resource which changes every");
+    coreLinks.append(" 5 seconds\",</separate>;title=\"Resource which cannot be served immediately");
+    coreLinks.append(" and which cannot be acknowledged in a piggy-backed way\",</seg1>;title=\"");
+    coreLinks.append("Long path resource\",</seg1/seg2>;title=\"Long path resource\",");
+    coreLinks.append("</large-separate>;rt=\"block\";sz=1280;title=\"Large resource\",");
+    coreLinks.append("</.well-known/core>,</multi-format>;ct=\"0 41\";title=\"Resource that exists");
+    coreLinks.append(" in different content formats (text/plain utf8 and application/xml)\",");
+    coreLinks.append("</path>;ct=40;title=\"Hierarchical link description entry\",</path/sub1>;");
+    coreLinks.append("title=\"Hierarchical link description sub-resource\",</link1>;if=\"If1\";");
+    coreLinks.append("rt=\"Type1 Type2\";title=\"Link test resource\",</validate>;title=\"Resource");
+    coreLinks.append(" which varies\",</test>;title=\"Default test resource\",</query>;");
+    coreLinks.append("title=\"Resource accepting query parameters\",</large-post>;rt=\"block\";");
+    coreLinks.append("title=\"Handle PostOperation with two-way blockwise transfer\",</obs-non>;");
+    coreLinks.append("obs;rt=\"observe\";title=\"Observable resource which changes every 5 ");
+    coreLinks.append("seconds\",</shutdown>");
+
     QTest::newRow("parse") << 16
                            << pathList
                            << titleList
@@ -100,7 +117,7 @@ void tst_QCoapResource::parseCoreLink_data()
                            << interfaceList
                            << maximumSizeList
                            << observableList
-                           << QByteArray("</obs>;obs;rt=\"observe\";title=\"Observable resource which changes every 5 seconds\",</separate>;title=\"Resource which cannot be served immediately and which cannot be acknowledged in a piggy-backed way\",</seg1>;title=\"Long path resource\",</seg1/seg2>;title=\"Long path resource\",</large-separate>;rt=\"block\";sz=1280;title=\"Large resource\",</.well-known/core>,</multi-format>;ct=\"0 41\";title=\"Resource that exists in different content formats (text/plain utf8 and application/xml)\",</path>;ct=40;title=\"Hierarchical link description entry\",</path/sub1>;title=\"Hierarchical link description sub-resource\",</link1>;if=\"If1\";rt=\"Type1 Type2\";title=\"Link test resource\",</validate>;title=\"Resource which varies\",</test>;title=\"Default test resource\",</query>;title=\"Resource accepting query parameters\",</large-post>;rt=\"block\";title=\"Handle PostOperation with two-way blockwise transfer\",</obs-non>;obs;rt=\"observe\";title=\"Observable resource which changes every 5 seconds\",</shutdown>");
+                           << coreLinks;
 }
 
 void tst_QCoapResource::parseCoreLink()

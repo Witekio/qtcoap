@@ -1,40 +1,56 @@
+/****************************************************************************
+**
+** Copyright (C) 2017 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing/
+**
+** This file is part of the QtCoap module.
+**
+** $QT_BEGIN_LICENSE:LGPL3$
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and The Qt Company. For licensing terms
+** and conditions see http://www.qt.io/terms-conditions. For further
+** information use the contact form at http://www.qt.io/contact-us.
+**
+** GNU Lesser General Public License Usage
+** Alternatively, this file may be used under the terms of the GNU Lesser
+** General Public License version 3 as published by the Free Software
+** Foundation and appearing in the file LICENSE.LGPLv3 included in the
+** packaging of this file. Please review the following information to
+** ensure the GNU Lesser General Public License version 3 requirements
+** will be met: https://www.gnu.org/licenses/lgpl.html.
+**
+** GNU General Public License Usage
+** Alternatively, this file may be used under the terms of the GNU
+** General Public License version 2.0 or later as published by the Free
+** Software Foundation and appearing in the file LICENSE.GPL included in
+** the packaging of this file. Please review the following information to
+** ensure the GNU General Public License version 2.0 requirements will be
+** met: http://www.gnu.org/licenses/gpl-2.0.html.
+**
+** $QT_END_LICENSE$
+**
+****************************************************************************/
+
 #ifndef QCOAPGLOBAL_H
 #define QCOAPGLOBAL_H
 
-enum QCoapOperation {
-    EmptyCoapOperation,
-    GetCoapOperation,
-    PostCoapOperation,
-    PutCoapOperation,
-    DeleteCoapOperation,
-    OtherCoapOperation
-};
+#include <QtCore/qglobal.h>
 
-enum QCoapStatusCode {
-    InvalidCoapCode = 0x00,
-    CreatedCoapCode = 0x41, // 2.01
-    DeletedCoapCode = 0x42, // 2.02
-    ValidCoapCode   = 0x43, // 2.03
-    ChangedCoapCode = 0x44, // 2.04
-    ContentCoapCode = 0x45, // 2.05
-    ContinueCoapCode = 0x5F, // 2.31
-    BadRequestCoapCode = 0x80, // 4.00
-    UnauthorizedCoapCode = 0x81, // 4.01
-    BadOptionCoapCode = 0x82, // 4.02
-    ForbiddenCoapCode = 0x83, // 4.03
-    NotFoundCoapCode = 0x84, // 4.04
-    MethodNotAllowedCoapCode = 0x85, // 4.05
-    NotAcceptableCoapCode = 0x86, // 4.06
-    RequestEntityIncompleteCoapCode = 0x88, // 4.08
-    PreconditionFailedCoapCode = 0x8C, // 4.12
-    RequestEntityTooLargeCoapCode = 0x8D, // 4.13
-    UnsupportedContentFormatCoapCode = 0x8E, // 4.14
-    InternalServerErrorCoapCode = 0xA0, // 5.00
-    NotImplementedCoapCode = 0xA1, // 5.01
-    BadGatewayCoapCode = 0xA2, // 5.02
-    ServiceUnavailableCoapCode = 0xA3, // 5.03
-    GatewayTimeoutCoapCode = 0xA4, // 5.04
-    ProxyingNotSupportedCoapCode = 0xA5 // 5.05
-};
+QT_BEGIN_NAMESPACE
+
+#ifndef QT_STATIC
+#  if defined(QT_BUILD_COAP_LIB)
+#    define Q_COAP_EXPORT Q_AUTOTEST_EXPORT
+#  else
+#    define Q_COAP_EXPORT Q_DECL_IMPORT
+#  endif
+#else
+#  define Q_COAP_EXPORT
+#endif
+
+QT_END_NAMESPACE
 
 #endif // QCOAPGLOBAL_H

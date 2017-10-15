@@ -1,11 +1,47 @@
-#include "qcoapreply.h"
+/****************************************************************************
+**
+** Copyright (C) 2017 The Qt Company Ltd.
+** Contact: http://www.qt.io/licensing/
+**
+** This file is part of the QtCoap module.
+**
+** $QT_BEGIN_LICENSE:LGPL3$
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and The Qt Company. For licensing terms
+** and conditions see http://www.qt.io/terms-conditions. For further
+** information use the contact form at http://www.qt.io/contact-us.
+**
+** GNU Lesser General Public License Usage
+** Alternatively, this file may be used under the terms of the GNU Lesser
+** General Public License version 3 as published by the Free Software
+** Foundation and appearing in the file LICENSE.LGPLv3 included in the
+** packaging of this file. Please review the following information to
+** ensure the GNU Lesser General Public License version 3 requirements
+** will be met: https://www.gnu.org/licenses/lgpl.html.
+**
+** GNU General Public License Usage
+** Alternatively, this file may be used under the terms of the GNU
+** General Public License version 2.0 or later as published by the Free
+** Software Foundation and appearing in the file LICENSE.GPL included in
+** the packaging of this file. Please review the following information to
+** ensure the GNU General Public License version 2.0 requirements will be
+** met: http://www.gnu.org/licenses/gpl-2.0.html.
+**
+** $QT_END_LICENSE$
+**
+****************************************************************************/
+
 #include "qcoapreply_p.h"
-#include <QtMath>
+#include "qcoapinternalreply_p.h"
+#include <QtCore/qmath.h>
 
 QT_BEGIN_NAMESPACE
 
 QCoapReplyPrivate::QCoapReplyPrivate() :
-    status(InvalidCoapCode),
+    status(QCoapReply::Invalid),
     message(QCoapMessage()),
     isRunning(false),
     isFinished(false),
@@ -93,7 +129,7 @@ QCoapReplyPrivate::QCoapReplyPrivate() :
 /*!
     Constructs a QCoapReply object and sets \a parent as the parent object.
 */
-QCoapReply::QCoapReply(QObject* parent) :
+QCoapReply::QCoapReply(QObject *parent) :
     QCoapReply(* new QCoapReplyPrivate, parent)
 {
 }
@@ -104,7 +140,7 @@ QCoapReply::QCoapReply(QObject* parent) :
     This constructor must be used when subclassing internally
     the QCoapReply class.
 */
-QCoapReply::QCoapReply(QCoapReplyPrivate &dd, QObject* parent) :
+QCoapReply::QCoapReply(QCoapReplyPrivate &dd, QObject *parent) :
     QIODevice(dd, parent)
 {
     open(QIODevice::ReadOnly);
@@ -124,9 +160,11 @@ QCoapReply::~QCoapReply()
 
   \overload
 */
-qint64 QCoapReply::readData(char* data, qint64 maxSize)
+qint64 QCoapReply::readData(char *data, qint64 maxSize)
 {
-    QByteArray payload = d_func()->message.payload();
+    Q_D(QCoapReply);
+
+    QByteArray payload = d->message.payload();
 
     qint64 len = qMin(maxSize, qint64(payload.size()) - pos());
     if (len <= 0)
@@ -141,7 +179,7 @@ qint64 QCoapReply::readData(char* data, qint64 maxSize)
 
   \overload
 */
-qint64 QCoapReply::writeData(const char* data, qint64 maxSize)
+qint64 QCoapReply::writeData(const char *data, qint64 maxSize)
 {
     // The user cannot write to the reply
     Q_UNUSED(data);
@@ -152,9 +190,10 @@ qint64 QCoapReply::writeData(const char* data, qint64 maxSize)
 /*!
     Returns the status code of the request.
 */
-QCoapStatusCode QCoapReply::statusCode() const
+QCoapReply::StatusCode QCoapReply::statusCode() const
 {
-    return d_func()->status;
+    Q_D(const QCoapReply);
+    return d->status;
 }
 
 /*!
@@ -162,7 +201,8 @@ QCoapStatusCode QCoapReply::statusCode() const
 */
 QCoapMessage QCoapReply::message() const
 {
-    return d_func()->message;
+    Q_D(const QCoapReply);
+    return d->message;
 }
 
 /*!
@@ -172,7 +212,8 @@ QCoapMessage QCoapReply::message() const
 */
 QCoapRequest QCoapReply::request() const
 {
-    return d_func()->request;
+    Q_D(const QCoapReply);
+    return d->request;
 }
 
 /*!
@@ -182,7 +223,8 @@ QCoapRequest QCoapReply::request() const
 */
 bool QCoapReply::isFinished() const
 {
-    return d_func()->isFinished;
+    Q_D(const QCoapReply);
+    return d->isFinished;
 }
 
 /*!
@@ -190,7 +232,8 @@ bool QCoapReply::isFinished() const
 */
 bool QCoapReply::isRunning() const
 {
-    return d_func()->isRunning;
+    Q_D(const QCoapReply);
+    return d->isRunning;
 }
 
 /*!
@@ -198,7 +241,8 @@ bool QCoapReply::isRunning() const
 */
 bool QCoapReply::isAborted() const
 {
-    return d_func()->isAborted;
+    Q_D(const QCoapReply);
+    return d->isAborted;
 }
 
 /*!
@@ -206,23 +250,26 @@ bool QCoapReply::isAborted() const
 */
 QUrl QCoapReply::url() const
 {
-    return d_func()->request.url();
+    Q_D(const QCoapReply);
+    return d->request.url();
 }
 
 /*!
     Returns the operation of the associated request.
 */
-QCoapOperation QCoapReply::operation() const
+QCoapRequest::Operation QCoapReply::operation() const
 {
-    return d_func()->request.operation();
+    Q_D(const QCoapReply);
+    return d->request.operation();
 }
 
 /*!
     Returns the error of the reply or NoCoapError if there is no error.
 */
-QCoapReply::QCoapNetworkError QCoapReply::errorReceived() const
+QCoapReply::NetworkError QCoapReply::errorReceived() const
 {
-    return d_func()->error;
+    Q_D(const QCoapReply);
+    return d->error;
 }
 
 /*!
@@ -230,7 +277,7 @@ QCoapReply::QCoapNetworkError QCoapReply::errorReceived() const
 
     \sa request()
 */
-void QCoapReply::setRequest(const QCoapRequest& request)
+void QCoapReply::setRequest(const QCoapRequest &request)
 {
     Q_D(QCoapReply);
     d->request = request;
@@ -252,7 +299,7 @@ void QCoapReply::setIsRunning(bool isRunning)
 
     \sa errorReceived()
 */
-void QCoapReply::setError(QCoapNetworkError newError)
+void QCoapReply::setError(NetworkError newError)
 {
     Q_D(QCoapReply);
     if (d->error == newError)
@@ -268,21 +315,26 @@ void QCoapReply::setError(QCoapNetworkError newError)
     Updates the QCoapReply object and its message with data of the internal
     reply \a internalReply.
 */
-void QCoapReply::updateFromInternalReply(const QCoapInternalReply& internalReply)
+void QCoapReply::updateFromInternalReply(const QCoapInternalReply &internalReply)
 {
-    if (!d_func()->isAborted) {
+    Q_D(QCoapReply);
+
+    if (!d->isAborted) {
+
         QCoapMessage internalReplyMessage = internalReply.message();
-        d_func()->message.setPayload(internalReplyMessage.payload());
-        d_func()->message.setType(internalReplyMessage.type());
-        d_func()->message.setVersion(internalReplyMessage.version());
-        d_func()->status = internalReply.statusCode();
-        d_func()->isFinished = true;
-        d_func()->isRunning = false;
 
-        if (d_func()->status >= BadRequestCoapCode)
-            replyError(d_func()->status);
+        d->message.setPayload(internalReplyMessage.payload());
+        qDebug() << internalReplyMessage.payload();
+        d->message.setType(internalReplyMessage.type());
+        d->message.setVersion(internalReplyMessage.version());
+        d->status = QCoapReply::StatusCode(internalReply.statusCode());
+        d->isFinished = true;
+        d->isRunning = false;
 
-        if (d_func()->request.observe())
+        if (d->status >= BadRequest)
+            replyError(d->status);
+
+        if (d->request.observe())
             emit notified(internalReplyMessage.payload());
 
         emit finished();
@@ -298,9 +350,8 @@ void QCoapReply::abortRequest()
 {
     Q_D(QCoapReply);
     d->isAborted = true;
-    if (!this->isFinished()) {
+    if (!this->isFinished())
         emit aborted(this);
-    }
 }
 
 /*!
@@ -308,63 +359,63 @@ void QCoapReply::abortRequest()
 
     Maps the reply status code \a errorCode to the related coap network error.
 */
-void QCoapReply::replyError(QCoapStatusCode errorCode)
+void QCoapReply::replyError(StatusCode errorCode)
 {
-    QCoapNetworkError networkError;
+    NetworkError networkError;
     switch (errorCode) {
-    case BadRequestCoapCode:
-        networkError = BadRequestCoapError;
+    case BadRequest:
+        networkError = BadRequestError;
         break;
-    case UnauthorizedCoapCode:
-        networkError = UnauthorizedCoapError;
+    case Unauthorized:
+        networkError = UnauthorizedError;
         break;
-    case BadOptionCoapCode:
-        networkError = BadOptionCoapError;
+    case BadOption:
+        networkError = BadOptionError;
         break;
-    case ForbiddenCoapCode:
-        networkError = ForbiddenCoapError;
+    case Forbidden:
+        networkError = ForbiddenError;
         break;
-    case NotFoundCoapCode:
-        networkError = NotFoundCoapError;
+    case NotFound:
+        networkError = NotFoundError;
         break;
-    case MethodNotAllowedCoapCode:
-        networkError = MethodNotAllowedCoapError;
+    case MethodNotAllowed:
+        networkError = MethodNotAllowedError;
         break;
-    case NotAcceptableCoapCode:
-        networkError = NotAcceptableCoapError;
+    case NotAcceptable:
+        networkError = NotAcceptableError;
         break;
-    case RequestEntityIncompleteCoapCode:
-        networkError = RequestEntityIncompleteCoapError;
+    case RequestEntityIncomplete:
+        networkError = RequestEntityIncompleteError;
         break;
-    case PreconditionFailedCoapCode:
-        networkError = PreconditionFailedCoapError;
+    case PreconditionFailed:
+        networkError = PreconditionFailedError;
         break;
-    case RequestEntityTooLargeCoapCode:
-        networkError = RequestEntityTooLargeCoapError;
+    case RequestEntityTooLarge:
+        networkError = RequestEntityTooLargeError;
         break;
-    case UnsupportedContentFormatCoapCode:
-        networkError = UnsupportedContentFormatCoapError;
+    case UnsupportedContentFormat:
+        networkError = UnsupportedContentFormatError;
         break;
-    case InternalServerErrorCoapCode:
-        networkError = InternalServerErrorCoapError;
+    case InternalServerError:
+        networkError = InternalServerErrorError;
         break;
-    case NotImplementedCoapCode:
-        networkError = NotImplementedCoapError;
+    case NotImplemented:
+        networkError = NotImplementedError;
         break;
-    case BadGatewayCoapCode:
-        networkError = BadGatewayCoapError;
+    case BadGateway:
+        networkError = BadGatewayError;
         break;
-    case ServiceUnavailableCoapCode:
-        networkError = ServiceUnavailableCoapError;
+    case ServiceUnavailable:
+        networkError = ServiceUnavailableError;
         break;
-    case GatewayTimeoutCoapCode:
-        networkError = GatewayTimeoutCoapError;
+    case GatewayTimeout:
+        networkError = GatewayTimeoutError;
         break;
-    case ProxyingNotSupportedCoapCode:
-        networkError = ProxyingNotSupportedCoapError;
+    case ProxyingNotSupported:
+        networkError = ProxyingNotSupportedError;
         break;
     default:
-        networkError = UnknownCoapError;
+        networkError = UnknownError;
     }
 
     setError(networkError);
@@ -377,16 +428,16 @@ void QCoapReply::replyError(QCoapStatusCode errorCode)
 */
 void QCoapReply::connectionError(QAbstractSocket::SocketError socketError)
 {
-    QCoapNetworkError networkError;
+    NetworkError networkError;
     switch (socketError) {
     case QAbstractSocket::HostNotFoundError :
-        networkError = HostNotFoundCoapError;
+        networkError = HostNotFoundError;
         break;
     case QAbstractSocket::AddressInUseError :
-        networkError = AddressInUseCoapError;
+        networkError = AddressInUseError;
         break;
     default:
-        networkError = UnknownCoapError;
+        networkError = UnknownError;
     }
 
     setError(networkError);
