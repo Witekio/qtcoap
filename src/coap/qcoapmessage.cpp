@@ -229,7 +229,7 @@ QByteArray QCoapMessage::token() const
 */
 quint8 QCoapMessage::tokenLength() const
 {
-    return static_cast<quint8>(d_ptr->token.length()); //tokenLength;
+    return static_cast<quint8>(d_ptr->token.length());
 }
 
 /*!
@@ -323,9 +323,7 @@ void QCoapMessage::setMessageId(quint16 id)
 */
 void QCoapMessage::setPayload(const QByteArray &payload)
 {
-    qDebug() << "1 " << payload;
     d_ptr->payload = payload;
-    qDebug() << "2 " << this->payload() << this;
 }
 
 void QCoapMessage::swap(QCoapMessage &other) Q_DECL_NOTHROW
