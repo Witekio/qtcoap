@@ -14,9 +14,12 @@ Resources available in the Download section:
 This environment is based on Ubuntu VNC Docker utilisation.
 
 - Build the first time with : sudo docker build -t ubuntu-desktop-lxde-vnc .
-- Run with : sudo docker run -it --rm -p 6080:80 -p 5900:5900 -v /var/run/docker.sock:/run/docker.sock -v $(which docker):/bin/docker ubuntu-desktop-lxde-vnc
+- Run with
+```bash
+sudo docker run -it --rm -p 6080:80 -p 5900:5900 -v /var/run/docker.sock:/run/docker.sock -v $(which docker):/bin/docker ubuntu-desktop-lxde-vnc
+```
 - Save the state (to avoid to loose modifications when docker close) : 
-	1. Know the container id : sudo docker ps -l
+	1. Know the container id : `sudo docker ps -l`
 	2. Save the container state : `sudo docker commit <container_id> ubuntu-desktop-lxde-vnc`
 - You just need to install QtCreator and clone the qtcoap repository to begin to work
 
@@ -29,17 +32,17 @@ Test server is based on [Califormium](https://www.eclipse.org/californium/).
 
 ### Links to access the new repository
 
-- Repository access : https://codereview.qt-project.org/#/admin/projects/qt/qtcoap
-- Review : https://codereview.qt-project.org/#/c/201311/
+- Repository access : [https://codereview.qt-project.org/#/admin/projects/qt/qtcoap](https://codereview.qt-project.org/#/admin/projects/qt/qtcoap)
+- Review : [https://codereview.qt-project.org/#/c/201311/](https://codereview.qt-project.org/#/c/201311/)
 
 ### Other links
 
-- Setting up Gerrit : https://wiki.qt.io/Setting_up_Gerrit
-- Access and update the patch : https://wiki.qt.io/Gerrit_Introduction#Updating_a_Contribution_With_New_Code
+- Setting up Gerrit : [https://wiki.qt.io/Setting_up_Gerrit](https://wiki.qt.io/Setting_up_Gerrit)
+- Access and update the patch : [https://wiki.qt.io/Gerrit_Introduction#Updating_a_Contribution_With_New_Code](https://wiki.qt.io/Gerrit_Introduction#Updating_a_Contribution_With_New_Code)
 
 ## How to use the library
 
-- GET/POST/PUT/DELETE requests:
+### GET/POST/PUT/DELETE requests
 ```c++
 QCoapClient* client = new QCoapClient(this);
 connect(client, &QCoapClient::finished, this, &TestClass::slotFinished);
@@ -51,8 +54,8 @@ or
 QCoapReply* reply = client->get(QCoapRequest(QUrl("coap://coap.me/test")));
 connect(reply, &QCoapReply::finished, this, &TestClass::slotFinished);
 ```
-The signal finished of the QCoapClient send a pointer to the QCoapReply to the slot.
-QCoapReply objects can be used like QIODevice objects.
+The signal finished of the QCoapClient send a pointer to the `QCoapReply` to the slot.
+`QCoapReply` objects can be used like `QIODevice` objects.
 
 ### OBSERVE requests
 The previous way also works for observe request but using the notified signal of the reply can be more useful.
@@ -71,7 +74,7 @@ or
 client->cancelObserve(reply);
 ```
 
-The notified signal send a QByteArray which contains the data of the notification to the slot.
+The notified signal send a `QByteArray` which contains the data of the notification to the slot.
 
 ### DISCOVERY requests
 ```c++
