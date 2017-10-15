@@ -1,6 +1,7 @@
-## **This repository is not used anymore.**
+## Qt CoAP internal repository
+This is the internal repository used reviews and contributions, before pushing to (Qt public repository)[https://codereview.qt-project.org/#/admin/projects/qt/qtcoap]
 
-But you can find some files used for the project in the Download section :
+Resources available in the Download section :
 
 - Dockerfile used to create a VNC including the build of the last Qt version (development branch)
 - Dockerfile used to run the unit tests with the califormium library
@@ -13,20 +14,20 @@ But you can find some files used for the project in the Download section :
 - Run with : sudo docker run -it --rm -p 6080:80 -p 5900:5900 -v /var/run/docker.sock:/run/docker.sock -v $(which docker):/bin/docker ubuntu-desktop-lxde-vnc
 - Save the state (to avoid to loose modifications when docker close) : 
 	1. Know the container id : sudo docker ps -l
-	2. Save the container state : sudo docker commit <container_id> ubuntu-desktop-lxde-vnc
+	2. Save the container state : `sudo docker commit <container_id> ubuntu-desktop-lxde-vnc`
 - You just need to install QtCreator and clone the qtcoap repository to begin to work
 
-#### Califormium CoAP Server utilisation :
+#### Califormium CoAP Server usage:
 
-- Build the first time with : sudo docker build -t coap-server .
+- Build the first time with: `sudo docker build -t coap-server .`
 - Run with : sudo docker run coap-server
 
-#### Links to access the new repository :
+#### Links to access the new repository:
 
 - Repository access : https://codereview.qt-project.org/#/admin/projects/qt/qtcoap
 - Review : https://codereview.qt-project.org/#/c/201311/
 
-#### Other links :
+#### Other links:
 
 - Setting up Gerrit : https://wiki.qt.io/Setting_up_Gerrit
 - Access and update the patch : https://wiki.qt.io/Gerrit_Introduction#Updating_a_Contribution_With_New_Code
