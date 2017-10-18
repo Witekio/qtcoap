@@ -64,10 +64,10 @@ QCoapClientPrivate::~QCoapClientPrivate()
     \reentrant
 
     The QCoapClient class contains signals that gets triggered when the
-    reply of a sent request is arrived.
+    reply of a sent request has arrived.
 
     The application can use a QCoapClient to send requests over a CoAP
-    network.It provides functions for standard requests: each returns a QCoapReply object,
+    network. It provides functions for standard requests: each returns a QCoapReply object,
     to which the response data shall be delivered; this can be read when the finished()
     signal arrives.
 
@@ -79,8 +79,8 @@ QCoapClientPrivate::~QCoapClientPrivate()
         client->get(QCoapRequest(Qurl("coap://coap.me/test")));
     \endcode
 
-    You can also use an "observe" request.  This can be used above, but it can be
-    more useful to use the notified(const QByteArray &) signal:
+    You can also use an "observe" request. This can be used as above, but it can be
+    more useful to use the \l{QCoapReply::notified(const QByteArray&)}{notified(const QByteArray&)} signal:
     \code
         QCoapRequest request = QCoapRequest(Qurl("coap://coap.me/obs"));
         CoapReply *reply = client->observe(request);
@@ -154,11 +154,11 @@ QCoapClient::~QCoapClient()
 }
 
 /*!
-    Posts a GET request to \a target request and returns a new
+    Posts a GET request to \a target and returns a new
     QCoapReply object which emits the \l{QCoapReply::finished()}{finished()}
     signal whenever the response arrives.
 
-    \sa post(), put(), deleteResource(), observe(), discover(), cancelObserve()
+    \sa post(), put(), deleteResource(), observe(), discover()
 */
 QCoapReply *QCoapClient::get(const QCoapRequest &request)
 {
@@ -206,7 +206,6 @@ QCoapReply *QCoapClient::put(const QCoapRequest &request, const QByteArray &data
 */
 QCoapReply *QCoapClient::put(const QCoapRequest &request, QIODevice *device)
 {
-     qDebug()<<"put2"<<endl;
      return put(request, device ? device->readAll() : QByteArray());
 }
 
