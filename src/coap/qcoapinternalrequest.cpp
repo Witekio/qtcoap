@@ -167,7 +167,7 @@ QByteArray QCoapInternalRequest::toQByteArray() const
         });
 
         quint8 lastOptionNumber = 0;
-        for (QCoapOption option : optionList) {
+        for (QCoapOption option :qAsConst(optionList)) {
             quint8 optionPdu;
 
             quint16 optionDelta = static_cast<quint16>(option.name()) - lastOptionNumber;
@@ -233,19 +233,19 @@ void QCoapInternalRequest::setRequestToAskBlock(uint blockNumber, uint blockSize
 
     // Set the Block2Option option to get the new block
     // blockSize = (2^(SZX + 4))
-    quint32 block2Data = (blockNumber << 4) | static_cast<quint32>(log2(blockSize)-4);
+    quint32 block2Data = (blockNumber << 4) | static_cast<quint32>(log2(blockSize) - 4);
     QByteArray block2Value = QByteArray();
     if (block2Data > 0xFFFF)
         block2Value.append(static_cast<char>(block2Data >> 16));
     if (block2Data > 0xFF)
-        block2Value.append(static_cast<char>(block2Data >> 8 & 0xFF));
+        block2Value.append(static_cast<char>(block2Data >> 8) & 0xFF);
     block2Value.append(static_cast<char>(block2Data & 0xFF));
 
     d->message.removeOptionByName(QCoapOption::Block2);
     d->message.removeOptionByName(QCoapOption::Block1);
     addOption(QCoapOption::Block2, block2Value);
 
-    d->message.setMessageId(d->message.messageId()+1);
+    d->message.setMessageId(d->message.messageId() + 1);
 }
 
 /*!
@@ -263,7 +263,7 @@ void QCoapInternalRequest::setRequestToSendBlock(uint blockNumber, uint blockSiz
     // size = (2^(SZX + 4))
     quint32 block2Data = (blockNumber << 4) | static_cast<quint32>(log2(blockSize)-4);
     if (static_cast<int>((blockNumber * blockSize) + blockSize) < d->fullPayload.length())
-        block2Data = block2Data | 8; // Put the "more flag" to 1
+        block2Data |= 8; // Set the "more" flag to 1
 
     QByteArray block2Value = QByteArray();
     if (block2Data > 0xFFFF)
@@ -352,9 +352,8 @@ void QCoapInternalRequest::addUriOptions(const QUrl &uri, const QUrl &proxyUri)
 
     QRegExp ipv4Regex("^([0-9]{1,3}.){3}([0-9]{1,3})$");
     QString host = mainUri.host();
-    if (!ipv4Regex.exactMatch(host)) {
+    if (!ipv4Regex.exactMatch(host))
         addOption(QCoapOption::UriHost, host.toUtf8());
-    }
 
     // Convert port into QCoapOption if it is not the default port
     int port = mainUri.port();
