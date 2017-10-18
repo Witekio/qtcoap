@@ -58,7 +58,6 @@ class Q_AUTOTEST_EXPORT QCoapMessagePrivate : public QSharedData
 {
 public:
     QCoapMessagePrivate();
-    //QCoapMessagePrivate(const QCoapMessagePrivate &other);
     ~QCoapMessagePrivate();
 
     quint8 version;
