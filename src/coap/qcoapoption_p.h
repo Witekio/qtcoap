@@ -53,7 +53,7 @@
 
 QT_BEGIN_NAMESPACE
 
-class Q_AUTOTEST_EXPORT QCoapOptionPrivate : public QObjectPrivate
+class Q_AUTOTEST_EXPORT QCoapOptionPrivate
 {
 public:
     QCoapOptionPrivate();
