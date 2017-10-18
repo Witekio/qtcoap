@@ -75,7 +75,7 @@ public:
     void setUrl(const QUrl &url);
     void setProxyUrl(const QUrl &proxyUrl);
     void setOperation(Operation operation);
-    void setObserve(bool observe);
+    void enableObserve();
 };
 
 Q_DECLARE_METATYPE(QCoapRequest::Operation)

@@ -306,7 +306,7 @@ QCoapReply *QCoapClient::observe(const QCoapRequest &request)
 
     QCoapRequest copyRequest(request);
     copyRequest.addOption(QCoapOption::Observe);
-    copyRequest.setObserve(true);
+    copyRequest.enableObserve();
 
     QCoapReply *reply = nullptr;
     reply = get(copyRequest);

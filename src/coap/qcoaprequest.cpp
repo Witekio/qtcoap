@@ -60,7 +60,7 @@ QCoapRequestPrivate::QCoapRequestPrivate(const QCoapRequestPrivate &other) :
 
 /*!
     \class QCoapRequest
-    \brief The QCoapRequest class holds a coap request. This request
+    \brief The QCoapRequest class holds a CoAP request. This request
     can be sent with QCoapClient.
 
     \reentrant
@@ -105,6 +105,7 @@ QUrl QCoapRequest::url() const
 
 /*!
     Returns the proxy uri of the request.
+    The request shall be sent directly if this is invalid.
 
     \sa setProxyUrl()
 */
@@ -128,7 +129,7 @@ QCoapRequest::Operation QCoapRequest::operation() const
 /*!
     Returns true if the request is an observe request.
 
-    \sa setObserve()
+    \sa enableObserve()
 */
 bool QCoapRequest::observe() const
 {
@@ -137,7 +138,7 @@ bool QCoapRequest::observe() const
 }
 
 /*!
-    Sets the target uri of the request to the given \a url.
+    Sets the target URI of the request to the given \a url.
 
     \sa url()
 */
@@ -170,15 +171,14 @@ void QCoapRequest::setOperation(Operation operation)
 }
 
 /*!
-    Sets the observe parameter of the request to the given \a observe value.
     Sets the observe to true to make an observe request.
 
     \sa observe()
 */
-void QCoapRequest::setObserve(bool observe)
+void QCoapRequest::enableObserve()
 {
     QCoapRequestPrivate *d = static_cast<QCoapRequestPrivate*>(d_ptr);
-    d->observe = observe;
+    d->observe = true;
 }
 
 /*!
@@ -191,8 +191,7 @@ QCoapRequest &QCoapRequest::operator=(const QCoapRequest &other)
 }
 
 /*!
-    Returns true if this QCoapRequest message id is lower than
-    the message id of \a other.
+    Returns true if this QCoapRequest has a lower message id than \a other has.
 */
 bool QCoapRequest::operator<(const QCoapRequest &other) const
 {
