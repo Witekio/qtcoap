@@ -57,13 +57,14 @@ class Q_AUTOTEST_EXPORT QCoapResourcePrivate
 public:
     QCoapResourcePrivate();
 
-    bool observable = false; // obs field
     int maximumSize = -1;    // sz field
     uint contentFormat = 0;  // ct field
     QString resourceType;    // rt field
     QString interface;       // if field
     QString path;
     QString title;
+    bool observable = false; // obs field
+
 };
 
 QT_END_NAMESPACE
