@@ -38,14 +38,9 @@
 
 QT_BEGIN_NAMESPACE
 
-QCoapOptionPrivate::QCoapOptionPrivate() :
-    value(QByteArray())
-{
-}
-
 /*!
     \class QCoapOption
-    \brief The QCoapOption class holds data about coap options.
+    \brief The QCoapOption class holds data about CoAP options.
 
     \reentrant
 
@@ -54,11 +49,10 @@ QCoapOptionPrivate::QCoapOptionPrivate() :
 */
 
 /*!
-    \enum QCoapOption::QCoapOptionName
+    \enum QCoapOption::OptionName
 
-    Indicates the name of the option.
-    Its value is the id related to the name of the option
-    as defined in the CoAP specifications.
+    Indicates the name of an option.
+    The value of each ID is as specified by the CoAP standard.
 
     \value IfMatchCoapOption        If-match
     \value UriHostCoapOption        Uri-Host
