@@ -14,13 +14,7 @@ class tst_QCoapConnection : public QObject
 {
     Q_OBJECT
 
-public:
-    tst_QCoapConnection();
-    ~tst_QCoapConnection();
-
 private Q_SLOTS:
-    void initTestCase();
-    void cleanupTestCase();
     void ctor();
     void connectToHost();
     void sendRequest_data();
@@ -38,14 +32,6 @@ public:
     void bindSocketForTest() { d_func()->bindSocket(); }
 };
 
-tst_QCoapConnection::tst_QCoapConnection()
-{
-}
-
-tst_QCoapConnection::~tst_QCoapConnection()
-{
-}
-
 void tst_QCoapConnection::initTestCase()
 {
 }
@@ -56,8 +42,8 @@ void tst_QCoapConnection::cleanupTestCase()
 
 void tst_QCoapConnection::ctor()
 {
-    QCoapConnection *connection = new QCoapConnection();
-    QVERIFY(connection->socket() != nullptr);
+    QCoapConnection connection;
+    QVERIFY(connection.socket());
 
     delete connection;
 }
@@ -89,16 +75,38 @@ void tst_QCoapConnection::sendRequest_data()
     QTest::addColumn<QString>("dataHexaHeader");
     QTest::addColumn<QString>("dataHexaPayload");
 
-    QTest::newRow("simple_get_request") << "coap://" << "172.17.0.3" << "/test" << quint16(5683)
-                                        << QCoapRequest::Get << "5445"
-                                        << "61626364c0211eff547970653a203120284e4f4e290a436f64653a20312028474554290a4d49443a2032343830360a546f6b656e3a203631363236333634";
-    QTest::newRow("simple_put_request") << "coap://" << "172.17.0.3" << "/test" << quint16(5683)
-                                        << QCoapRequest::Put << "5444" << "61626364";
-    QTest::newRow("simple_post_request") << "coap://" << "172.17.0.3" << "/test" << quint16(5683)
-                                         << QCoapRequest::Post << "5441"
-                                         << "61626364896c6f636174696f6e31096c6f636174696f6e32096c6f636174696f6e33";
-    QTest::newRow("simple_delete_request") << "coap://" << "172.17.0.3" << "/test" << quint16(5683)
-                                           << QCoapRequest::Delete << "5442" << "61626364";
+    QTest::newRow("simple_get_request")
+    << "coap://"
+    << "172.17.0.3" << "/test" << quint16(5683)
+    << QCoapRequest::Get << "5445"
+    < "61626364c0211eff547970653a203120284e4f4e290a436f64653a20312028474554290a4d49443a2032343830360a546f6b656e3a203631363236333634";
+
+    QTest::newRow("simple_put_request")
+    << "coap://"
+    << "172.17.0.3"
+    << "/test"
+    << quint16(5683)
+    << QCoapRequest::Put
+    << "5444"
+    << "61626364";
+
+    QTest::newRow("simple_post_request")
+    << "coap://"
+    << "172.17.0.3"
+    << "/test"
+    << quint16(5683)
+    << QCoapRequest::Post
+    << "5441"
+    << "61626364896c6f636174696f6e31096c6f636174696f6e32096c6f636174696f6e33";
+
+    QTest::newRow("simple_delete_request")
+    << "coap://"
+    << "172.17.0.3"
+    << "/test"
+    << quint16(5683)
+    << QCoapRequest::Delete
+    << "5442"
+    << "61626364";
 }
 
 void tst_QCoapConnection::sendRequest()
