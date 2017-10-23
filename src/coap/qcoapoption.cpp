@@ -38,6 +38,11 @@
 
 QT_BEGIN_NAMESPACE
 
+QCoapOptionPrivate::QCoapOptionPrivate() :
+    value(QByteArray())
+{
+}
+
 /*!
     \class QCoapOption
     \brief The QCoapOption class holds data about CoAP options.
