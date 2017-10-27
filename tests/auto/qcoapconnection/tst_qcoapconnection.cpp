@@ -43,9 +43,7 @@ void tst_QCoapConnection::cleanupTestCase()
 void tst_QCoapConnection::ctor()
 {
     QCoapConnection connection;
-    QVERIFY(connection.socket());
-
-    delete connection;
+    QVERIFY(connection.socket() != NULL);
 }
 
 void tst_QCoapConnection::connectToHost()
