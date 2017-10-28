@@ -177,15 +177,15 @@ void tst_QCoapReply::updateReply()
 {
     QFETCH(QString, data);
 
-    QCoapReplyForTests *reply;
+    QCoapReplyForTests reply;
     QCoapInternalReply internalReply;
     internalReply.message().setPayload(data.toUtf8());
-    QSignalSpy spyReplyFinished(reply, SIGNAL(finished()));
+    QSignalSpy spyReplyFinished(&reply, SIGNAL(finished()));
 
-    reply->updateFromInternalReplyForTests(internalReply);
+    reply.updateFromInternalReplyForTests(internalReply);
 
     QTRY_COMPARE_WITH_TIMEOUT(spyReplyFinished.count(), 1, 1000);
-    QCOMPARE(reply->readAll(), data.toUtf8());
+    QCOMPARE(reply.readAll(), data.toUtf8());
 }
 
 QTEST_MAIN(tst_QCoapReply)
