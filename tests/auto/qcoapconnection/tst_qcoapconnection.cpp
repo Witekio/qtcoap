@@ -32,14 +32,6 @@ public:
     void bindSocketForTest() { d_func()->bindSocket(); }
 };
 
-void tst_QCoapConnection::initTestCase()
-{
-}
-
-void tst_QCoapConnection::cleanupTestCase()
-{
-}
-
 void tst_QCoapConnection::ctor()
 {
     QCoapConnection connection;
