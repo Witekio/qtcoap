@@ -93,7 +93,7 @@ void QCoapDiscoveryReply::updateFromInternalReply(const QCoapInternalReply &inte
         if (d->status >= BadRequest)
             replyError(d->status);
         else
-            d->resources  = QCoapProtocol::resourcesFromCoreLinkList(internalReplyMessage.payload());
+            d->resources = QCoapProtocol::resourcesFromCoreLinkList(internalReplyMessage.payload());
 
         emit finished();
     }

@@ -37,7 +37,9 @@
 #ifndef QCOAPDISCOVERYREPLY_P_H
 #define QCOAPDISCOVERYREPLY_P_H
 
+#include <QtCore/qlist.h>
 #include <QtCoap/qcoapdiscoveryreply.h>
+#include <QtCoap/qcoapresource.h>
 #include <private/qcoapreply_p.h>
 
 //

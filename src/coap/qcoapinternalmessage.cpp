@@ -45,8 +45,7 @@ QCoapInternalMessagePrivate::QCoapInternalMessagePrivate() :
 {
 }
 
-QCoapInternalMessagePrivate::QCoapInternalMessagePrivate
-    (const QCoapInternalMessagePrivate &other) :
+QCoapInternalMessagePrivate::QCoapInternalMessagePrivate(const QCoapInternalMessagePrivate &other) :
     QObjectPrivate (other),
     message(other.message),
     currentBlockNumber(other.currentBlockNumber),
@@ -180,7 +179,7 @@ uint QCoapInternalMessage::currentBlockNumber() const
 /*!
     \internal
 
-    Returns true if it has next block or false if it is the last block.
+    Returns \c true if it has a next block,\c false otherwise.
 */
 bool QCoapInternalMessage::hasNextBlock() const
 {

@@ -42,7 +42,7 @@
 QT_BEGIN_NAMESPACE
 
 #ifndef QT_STATIC
-#  if defined(QT_BUILD_COAP_LIB)
+#  ifdef QT_BUILD_COAP_LIB
 #    define Q_COAP_EXPORT Q_AUTOTEST_EXPORT
 #  else
 #    define Q_COAP_EXPORT Q_DECL_IMPORT
