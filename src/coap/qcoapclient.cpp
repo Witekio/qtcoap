@@ -54,6 +54,11 @@ QCoapClientPrivate::QCoapClientPrivate() :
 
 QCoapClientPrivate::~QCoapClientPrivate()
 {
+    workerThread->quit();
+    workerThread->wait();
+    delete workerThread;
+    delete protocol;
+    delete connection;
 }
 
 /*!
@@ -122,8 +127,6 @@ QCoapClient::QCoapClient(QObject *parent) :
     QObject(* new QCoapClientPrivate, parent)
 {
     Q_D(QCoapClient);
-    connect(d->workerThread, &QThread::finished,
-            d->workerThread, &QThread::deleteLater);
     connect(d->connection, SIGNAL(readyRead(const QByteArray&)),
             d->protocol, SLOT(messageReceived(const QByteArray&)));
     connect(d->protocol, &QCoapProtocol::finished,
@@ -143,12 +146,6 @@ QCoapClient::QCoapClient(QObject *parent) :
 */
 QCoapClient::~QCoapClient()
 {
-    Q_D(QCoapClient);
-    d->workerThread->quit();
-    d->workerThread->wait();
-    delete d->workerThread;
-    delete d->protocol;
-    delete d->connection;
     qDeleteAll(findChildren<QCoapReply*>(QString(), Qt::FindDirectChildrenOnly));
 }
 
