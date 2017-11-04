@@ -86,7 +86,7 @@ QCoapResource& QCoapResource::operator =(const QCoapResource& other)
 /*!
     Swap function for Q_DECLARE_SHARED
  */
-void QCoapResource::swap(QCoapResource &other)
+void QCoapResource::swap(QCoapResource &other) Q_DECL_NOTHROW
 {
     d.swap(other.d);
 }
