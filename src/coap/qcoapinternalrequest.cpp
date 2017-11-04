@@ -161,9 +161,9 @@ QByteArray QCoapInternalRequest::toQByteArray() const
     if (!d->message.optionList().isEmpty()) {
         // Sort options by ascending order
         QList<QCoapOption> optionList = d->message.optionList();
-        qSort(optionList.begin(), optionList.end(),
-              [](const QCoapOption &a, const QCoapOption &b) -> bool {
-            return (a.name() < b.name());
+        std::sort(optionList.begin(), optionList.end(),
+            [](const QCoapOption &a, const QCoapOption &b) -> bool {
+                return (a.name() < b.name());
         });
 
         quint8 lastOptionNumber = 0;

@@ -295,9 +295,9 @@ void QCoapProtocolPrivate::onLastBlock(QCoapInternalRequest *request)
 
     // If multiple blocks : append data from all blocks to the final reply
     if (replies.size() > 1) {
-        qStableSort(std::begin(replies), std::end(replies),
-              [](QCoapInternalReply *a, QCoapInternalReply *b) -> bool {
-            return (a->currentBlockNumber() < b->currentBlockNumber());
+        std::stable_sort(std::begin(replies), std::end(replies),
+            [](QCoapInternalReply *a, QCoapInternalReply *b) -> bool {
+                return (a->currentBlockNumber() < b->currentBlockNumber());
         });
 
         QByteArray finalPayload;
