@@ -194,7 +194,7 @@ QCoapReply *QCoapClient::put(const QCoapRequest &request, const QByteArray &data
     \overload
 
     Posts a PUT request sending the contents of the \a data device to the
-    target \a request. If the device is null, then it returns a nullptr.
+    target \a request. A null device is treated as an empty content.
 
     \note The device has to be open and readable before calling this function.
 
