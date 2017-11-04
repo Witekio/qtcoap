@@ -440,14 +440,16 @@ void QCoapClient::enableMulticastLoopbackOption()
     udpSocket->setSocketOption(QAbstractSocket::MulticastLoopbackOption, 1);
 }
 
+#if 0
+//! Disabled until fully supported
 /*!
-    Sets the protocol used by the client. Allows the user to make its
-    own protocol class.
+    Sets the protocol used by the client. Allows developers to create and make
+    use of their own protocol
 */
 void QCoapClient::setProtocol(QCoapProtocol *protocol)
 {
     Q_D(QCoapClient);
     d->protocol = protocol;
 }
-
+#endif
 QT_END_NAMESPACE

@@ -73,7 +73,10 @@ public:
     void setBlockSize(quint16 blockSize);
     void enableMulticastLoopbackOption();
     void setMulticastTtlOption(int ttlValue);
+
+#if 0
     void setProtocol(QCoapProtocol *protocol);
+#endif
 
 Q_SIGNALS:
     void finished(QCoapReply *);
