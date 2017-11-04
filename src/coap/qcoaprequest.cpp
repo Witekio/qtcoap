@@ -85,11 +85,15 @@ QCoapRequest::QCoapRequest(const QUrl &url, MessageType type, const QUrl &proxyU
 }
 
 /*!
-    Constructs a copy of the \a other QCoapRequest
+    Constructs a copy of the \a other QCoapRequest. Optionally allows to
+    overwrite the QCoapRequest::Operation of the request with the \a op
+    argument.
 */
-QCoapRequest::QCoapRequest(const QCoapRequest &other) :
+QCoapRequest::QCoapRequest(const QCoapRequest &other, QCoapRequest::Operation op) :
     QCoapMessage(other)
 {
+    if (op != QCoapRequest::Empty)
+        setOperation(op);
 }
 
 /*!

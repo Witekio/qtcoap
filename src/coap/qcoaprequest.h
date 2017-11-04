@@ -62,7 +62,8 @@ public:
     explicit QCoapRequest(const QUrl &url = QUrl(),
                  MessageType type = NonConfirmable,
                  const QUrl &proxyUrl = QUrl());
-    QCoapRequest(const QCoapRequest &other);
+    QCoapRequest(const QCoapRequest &other,
+                 QCoapRequest::Operation op = Empty);
     ~QCoapRequest() {}
 
     QCoapRequest &operator=(const QCoapRequest &other);

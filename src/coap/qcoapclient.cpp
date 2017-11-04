@@ -160,8 +160,7 @@ QCoapReply *QCoapClient::get(const QCoapRequest &target)
 {
     Q_D(QCoapClient);
 
-    QCoapRequest copyRequest(target);
-    copyRequest.setOperation(QCoapRequest::Get);
+    QCoapRequest copyRequest(target, QCoapRequest::Get);
 
     QCoapReply *reply = d->sendRequest(copyRequest);
     d->requestMap[target] = reply;
@@ -180,8 +179,7 @@ QCoapReply *QCoapClient::put(const QCoapRequest &request, const QByteArray &data
 {
     Q_D(QCoapClient);
 
-    QCoapRequest copyRequest(request);
-    copyRequest.setOperation(QCoapRequest::Put);
+    QCoapRequest copyRequest(request, QCoapRequest::Put);
     copyRequest.setPayload(data);
 
     QCoapReply *reply = d->sendRequest(copyRequest);
@@ -216,8 +214,7 @@ QCoapReply *QCoapClient::post(const QCoapRequest &request, const QByteArray &dat
 {
     Q_D(QCoapClient);
 
-    QCoapRequest copyRequest(request);
-    copyRequest.setOperation(QCoapRequest::Post);
+    QCoapRequest copyRequest(request, QCoapRequest::Post);
     copyRequest.setPayload(data);
 
     QCoapReply *reply = d->sendRequest(copyRequest);
@@ -253,8 +250,7 @@ QCoapReply *QCoapClient::deleteResource(const QCoapRequest &request)
 {
     Q_D(QCoapClient);
 
-    QCoapRequest copyRequest(request);
-    copyRequest.setOperation(QCoapRequest::Delete);
+    QCoapRequest copyRequest(request, QCoapRequest::Delete);
 
     QCoapReply *reply = d->sendRequest(copyRequest);
     d->requestMap[request] = reply;
