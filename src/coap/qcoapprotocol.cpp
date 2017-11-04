@@ -430,6 +430,7 @@ QList<QCoapResource> QCoapProtocol::resourcesFromCoreLinkList(const QByteArray &
 {
     QList<QCoapResource> resourceList;
 
+    QLatin1String quote = QLatin1String("\"");
     const QList<QByteArray> links = data.split(',');
     for (QByteArray link : links)
     {
@@ -437,20 +438,20 @@ QList<QCoapResource> QCoapProtocol::resourcesFromCoreLinkList(const QByteArray &
         const QList<QByteArray> parameterList = link.split(';');
         for (QByteArray parameter : parameterList)
         {
-            QString parameterString = QString(parameter);
+            QString parameterString = QLatin1String(parameter);
             int length = parameter.length();
             if (parameter.startsWith('<'))
                 resource.setPath(parameterString.mid(1, length-2));
             else if (parameter.startsWith("title="))
-                resource.setTitle(parameterString.right(length-6).remove("\""));
+                resource.setTitle(parameterString.right(length-6).remove(quote));
             else if (parameter.startsWith("rt="))
-                resource.setResourceType(parameterString.right(length-3).remove("\""));
+                resource.setResourceType(parameterString.right(length-3).remove(quote));
             else if (parameter.startsWith("if="))
-                resource.setInterface(parameterString.right(length-3).remove("\""));
+                resource.setInterface(parameterString.right(length-3).remove(quote));
             else if (parameter.startsWith("sz="))
-                resource.setMaximumSize(parameterString.right(length-3).remove("\"").toInt());
+                resource.setMaximumSize(parameterString.right(length-3).remove(quote).toInt());
             else if (parameter.startsWith("ct="))
-                resource.setContentFormat(parameterString.right(length-3).remove("\"").toUInt());
+                resource.setContentFormat(parameterString.right(length-3).remove(quote).toUInt());
             else if (parameter == "obs")
                 resource.setObservable(true);
         }

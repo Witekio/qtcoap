@@ -350,7 +350,7 @@ void QCoapInternalRequest::addUriOptions(const QUrl &uri, const QUrl &proxyUri)
         addOption(QCoapOption::ProxyUri, uri.toString().toUtf8());
     }
 
-    QRegExp ipv4Regex("^([0-9]{1,3}.){3}([0-9]{1,3})$");
+    QRegExp ipv4Regex(QLatin1String("^([0-9]{1,3}.){3}([0-9]{1,3})$"));
     QString host = mainUri.host();
     if (!ipv4Regex.exactMatch(host))
         addOption(QCoapOption::UriHost, host.toUtf8());
@@ -362,7 +362,7 @@ void QCoapInternalRequest::addUriOptions(const QUrl &uri, const QUrl &proxyUri)
 
     // Convert path into QCoapOptions
     QString path = mainUri.path();
-    QStringList listPath = path.split("/");
+    QStringList listPath = path.split('/');
     for (QString pathPart : qAsConst(listPath)) {
         if (!pathPart.isEmpty())
             addOption(QCoapOption::UriPath, pathPart.toUtf8());
@@ -370,7 +370,7 @@ void QCoapInternalRequest::addUriOptions(const QUrl &uri, const QUrl &proxyUri)
 
     // Convert query into QCoapOptions
     QString query = mainUri.query();
-    QStringList listQuery = query.split("&");
+    QStringList listQuery = query.split('&');
     for (const QString query : qAsConst(listQuery)) {
         if (!query.isEmpty())
             addOption(QCoapOption::UriQuery, query.toUtf8());
