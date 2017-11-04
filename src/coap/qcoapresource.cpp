@@ -132,7 +132,12 @@ QString QCoapResource::resourceType() const
 }
 
 /*!
-    Returns the interface of the resource.
+    Returns the interface description of the resource.
+
+    The Interface Description 'if' attribute is an opaque string used to
+    provide a name or URI indicating a specific interface definition used
+    to interact with the target resource. It is specified in
+    \l{https://tools.ietf.org/html/rfc6690#section-3.2}{RFC 6690}.
 
     \sa setInterface()
  */
@@ -144,6 +149,11 @@ QString QCoapResource::interface() const
 /*!
     Returns the maximum size of the resource.
 
+    The maximum size estimate attribute 'sz' gives an indication of the
+    maximum size of the resource representation returned by performing a
+    GET on the target URI. It is specified in
+    \l{https://tools.ietf.org/html/rfc6690#section-3.3}{RFC 6690}.
+
     \sa setMaximumSize()
  */
 int QCoapResource::maximumSize() const
@@ -152,7 +162,11 @@ int QCoapResource::maximumSize() const
 }
 
 /*!
-    Returns the content format of the resource.
+    Returns the Content-Format code of the resource.
+
+    The Content-Format code corresponds to the 'ct' attribute and provides a
+    hint about the Content-Formats this resource returns. It is specified
+    in \l{https://tools.ietf.org/html/rfc7252#section-7.2.1}{RFC 7252}.
 
     \sa setContentFormat()
  */
