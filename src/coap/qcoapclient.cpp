@@ -303,8 +303,7 @@ QCoapReply *QCoapClient::observe(const QCoapRequest &request)
     QCoapRequest copyRequest(request);
     copyRequest.enableObserve();
 
-    QCoapReply *reply = nullptr;
-    reply = get(copyRequest);
+    QCoapReply *reply = get(copyRequest);
     d->requestMap[request] = reply;
 
     return reply;
@@ -364,7 +363,8 @@ QCoapReply *QCoapClientPrivate::sendRequest(const QCoapRequest &request)
                reply, SLOT(connectionError(QAbstractSocket::SocketError)));
 
     QMetaObject::invokeMethod(protocol, "sendRequest",
-                              Q_ARG(QPointer<QCoapReply>, reply), Q_ARG(QCoapConnection*, connection));
+                              Q_ARG(QPointer<QCoapReply>, reply),
+                              Q_ARG(QCoapConnection*, connection));
 
     return reply;
 }
@@ -385,7 +385,7 @@ QCoapDiscoveryReply *QCoapClientPrivate::sendDiscovery(const QCoapRequest &reque
     if (scheme != QLatin1String("coap"))
         return nullptr;
 
-    // Prepare the reply and send it
+    // Prepare the reply
     QPointer<QCoapReply> reply = new QCoapDiscoveryReply(q);
     reply->setRequest(request);
 
@@ -397,7 +397,8 @@ QCoapDiscoveryReply *QCoapClientPrivate::sendDiscovery(const QCoapRequest &reque
                reply, SLOT(connectionError(QAbstractSocket::SocketError)));
 
     QMetaObject::invokeMethod(protocol, "sendRequest",
-                              Q_ARG(QPointer<QCoapReply>, reply), Q_ARG(QCoapConnection*, connection));
+                              Q_ARG(QPointer<QCoapReply>, reply),
+                              Q_ARG(QCoapConnection*, connection));
 
     return static_cast<QCoapDiscoveryReply*>(reply.data());
 }
@@ -410,7 +411,7 @@ void QCoapClient::setBlockSize(quint16 blockSize)
 {
     Q_D(QCoapClient);
     // If it is not a power of two
-    if ((blockSize & (blockSize-1)) != 0)
+    if ((blockSize & (blockSize - 1)) != 0)
         return;
 
     d->protocol->setBlockSize(blockSize);
