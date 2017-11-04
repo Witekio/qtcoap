@@ -162,7 +162,7 @@ void QCoapMessage::removeOption(const QCoapOption &option)
 /*!
     Removes the first option with the given \a name.
 */
-void QCoapMessage::removeOptionByName(QCoapOption::OptionName name)
+void QCoapMessage::removeOption(QCoapOption::OptionName name)
 {
     for (QCoapOption option : d_ptr->options) {
         if (option.name() == name) {

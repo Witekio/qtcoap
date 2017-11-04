@@ -54,7 +54,7 @@ public:
 
     void addOption(QCoapOption::OptionName name, const QByteArray &value);
     virtual void addOption(const QCoapOption &option);
-    void removeOptionByName(QCoapOption::OptionName name);
+    void removeOption(QCoapOption::OptionName name);
 
     QCoapMessage message() const;
     uint currentBlockNumber() const;

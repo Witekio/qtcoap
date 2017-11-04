@@ -198,7 +198,7 @@ void QCoapProtocolPrivate::handleFrame(const QByteArray &frame)
     // Reply when the server ask an ACK
     if (request->cancelObserve()) {
         // Remove option to ensure that it will stop
-        request->removeOptionByName(QCoapOption::Observe);
+        request->removeOption(QCoapOption::Observe);
         sendReset(request);
     } else if (internalReplyMessage.type() == QCoapMessage::Confirmable) {
         sendAcknowledgement(request);

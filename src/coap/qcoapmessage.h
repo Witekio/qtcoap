@@ -84,7 +84,7 @@ public:
     virtual void addOption(const QCoapOption &option);
     QCoapOption findOptionByName(QCoapOption::OptionName name);
     void removeOption(const QCoapOption &option);
-    void removeOptionByName(QCoapOption::OptionName name);
+    void removeOption(QCoapOption::OptionName name);
     void removeAllOptions();
 
 protected:

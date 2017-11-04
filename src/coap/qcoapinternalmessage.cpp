@@ -148,10 +148,10 @@ void QCoapInternalMessage::addOption(const QCoapOption &option)
 
     Removes the option with the given \a name.
 */
-void QCoapInternalMessage::removeOptionByName(QCoapOption::OptionName name)
+void QCoapInternalMessage::removeOption(QCoapOption::OptionName name)
 {
     Q_D(QCoapInternalMessage);
-    d->message.removeOptionByName(name);
+    d->message.removeOption(name);
 }
 
 /*!

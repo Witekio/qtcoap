@@ -241,8 +241,8 @@ void QCoapInternalRequest::setRequestToAskBlock(uint blockNumber, uint blockSize
         block2Value.append(static_cast<char>(block2Data >> 8) & 0xFF);
     block2Value.append(static_cast<char>(block2Data & 0xFF));
 
-    d->message.removeOptionByName(QCoapOption::Block2);
-    d->message.removeOptionByName(QCoapOption::Block1);
+    d->message.removeOption(QCoapOption::Block2);
+    d->message.removeOption(QCoapOption::Block1);
     addOption(QCoapOption::Block2, block2Value);
 
     d->message.setMessageId(d->message.messageId() + 1);
@@ -272,7 +272,7 @@ void QCoapInternalRequest::setRequestToSendBlock(uint blockNumber, uint blockSiz
         block2Value.append(static_cast<char>(block2Data >> 8 & 0xFF));
     block2Value.append(static_cast<char>(block2Data & 0xFF));
 
-    d->message.removeOptionByName(QCoapOption::Block1);
+    d->message.removeOption(QCoapOption::Block1);
     addOption(QCoapOption::Block1, block2Value);
 
     d->message.setMessageId(d->message.messageId()+1);
