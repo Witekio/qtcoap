@@ -179,6 +179,8 @@ void QCoapRequest::enableObserve()
 {
     QCoapRequestPrivate *d = static_cast<QCoapRequestPrivate*>(d_ptr);
     d->observe = true;
+
+    addOption(QCoapOption::Observe);
 }
 
 /*!
