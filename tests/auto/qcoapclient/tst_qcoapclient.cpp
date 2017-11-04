@@ -90,6 +90,18 @@ public:
 
 };
 
+class Helper : public QObject
+{
+    Q_OBJECT
+public:
+    Helper() {}
+
+public slots:
+    void onError(QCoapReply::NetworkError error) {
+        qWarning() << "Network error" << error << "occured";
+    }
+};
+
 tst_QCoapClient::tst_QCoapClient()
 {
 }
@@ -413,8 +425,12 @@ void tst_QCoapClient::blockwiseReply()
     request.setType(type);
     QCoapReply *reply = client.get(request);
     QSignalSpy spyReplyFinished(reply, SIGNAL(finished()));
+    QSignalSpy spyReplyError(reply, SIGNAL(error(QCoapReply::NetworkError)));
+    Helper helper;
+    connect(reply, SIGNAL(error(QCoapReply::NetworkError)), &helper, SLOT(onError(QCoapReply::NetworkError)));
 
     QTRY_COMPARE_WITH_TIMEOUT(spyReplyFinished.count(), 1, 30000);
+    QCOMPARE(spyReplyError.count(), 0);
 
     QByteArray dataReply = reply->readAll();
     QCOMPARE(dataReply, replyData);
@@ -532,14 +548,16 @@ void tst_QCoapClient::observe()
 
     QTRY_COMPARE_WITH_TIMEOUT(spyReplyNotified.count(), 3, 30000);
     for (QList<QVariant> receivedSignals : qAsConst(spyReplyNotified)) {
-        qDebug() << receivedSignals.first().toByteArray();
+        Q_UNUSED(receivedSignals)
+        //qDebug() << receivedSignals.first().toByteArray();
     }
 
     client.cancelObserve(reply);
     QThread::sleep(12);
     QTRY_COMPARE_WITH_TIMEOUT(spyReplyNotified.count(), 4, 30000);
     for (QList<QVariant> receivedSignals : qAsConst(spyReplyNotified)) {
-        qDebug() << receivedSignals.first().toByteArray();
+        Q_UNUSED(receivedSignals)
+        //qDebug() << receivedSignals.first().toByteArray();
     }
 
     if (reply)
