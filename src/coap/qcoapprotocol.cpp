@@ -430,12 +430,12 @@ QList<QCoapResource> QCoapProtocol::resourcesFromCoreLinkList(const QByteArray &
 {
     QList<QCoapResource> resourceList;
 
-    QList<QByteArray> links = data.split(',');
+    const QList<QByteArray> links = data.split(',');
     for (QByteArray link : links)
     {
         QCoapResource resource;
-        QList<QByteArray> parameterList = link.split(';');
-        for (QByteArray parameter : qAsConst(parameterList))
+        const QList<QByteArray> parameterList = link.split(';');
+        for (QByteArray parameter : parameterList)
         {
             QString parameterString = QString(parameter);
             int length = parameter.length();

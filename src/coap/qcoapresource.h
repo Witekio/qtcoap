@@ -38,15 +38,21 @@
 #define QCOAPRESOURCE_H
 
 #include <QtCoap/qcoapglobal.h>
+#include <QtCore/qshareddata.h>
 
 QT_BEGIN_NAMESPACE
 
 class QCoapResourcePrivate;
+
 class Q_COAP_EXPORT QCoapResource
 {
 public:
     QCoapResource();
+    QCoapResource(const QCoapResource& other);
     ~QCoapResource();
+    QCoapResource& operator =(const QCoapResource& other);
+
+    void swap(QCoapResource &other) Q_DECL_NOTHROW;
 
     QString path() const;
     QString title() const;
@@ -65,8 +71,10 @@ public:
     void setContentFormat(uint contentFormat);
 
 private:
-    QCoapResourcePrivate *d;
+    QSharedDataPointer<QCoapResourcePrivate> d;
 };
+
+Q_DECLARE_SHARED(QCoapResource)
 
 QT_END_NAMESPACE
 

@@ -38,10 +38,6 @@
 
 QT_BEGIN_NAMESPACE
 
-QCoapResourcePrivate::QCoapResourcePrivate()
-{
-}
-
 /*!
     \class QCoapResource
     \brief The QCoapResource class holds information about a discovered
@@ -64,12 +60,35 @@ QCoapResource::QCoapResource() :
 }
 
 /*!
-    Destroys the instance.
+    Copy constructs a new QCoapResource.
+ */
+QCoapResource::QCoapResource(const QCoapResource& other) :
+    d(other.d)
+{
+}
+
+/*!
+    Destroy the QCoapResource.
  */
 QCoapResource::~QCoapResource()
 {
-    if (d)
-        delete d;
+}
+
+/*!
+    Assignment operator.
+ */
+QCoapResource& QCoapResource::operator =(const QCoapResource& other)
+{
+    d = other.d;
+    return *this;
+}
+
+/*!
+    Swap function for Q_DECLARE_SHARED
+ */
+void QCoapResource::swap(QCoapResource &other)
+{
+    d.swap(other.d);
 }
 
 /*!

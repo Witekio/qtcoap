@@ -38,6 +38,7 @@
 #define QCOAPRESOURCE_P_H
 
 #include <QtCoap/qcoapresource.h>
+#include <QtCore/qshareddata.h>
 
 //
 //  W A R N I N G
@@ -52,10 +53,15 @@
 
 QT_BEGIN_NAMESPACE
 
-class Q_AUTOTEST_EXPORT QCoapResourcePrivate
+class Q_AUTOTEST_EXPORT QCoapResourcePrivate : public QSharedData
 {
 public:
-    QCoapResourcePrivate();
+    QCoapResourcePrivate() {}
+    QCoapResourcePrivate(const QCoapResourcePrivate& other): QSharedData(other), maximumSize(other.maximumSize)
+      , contentFormat(other.contentFormat), resourceType(other.resourceType)
+      , interface(other.interface), path(other.path), title(other.title)
+      , observable(other.observable) {}
+    ~QCoapResourcePrivate() {}
 
     int maximumSize = -1;    // sz field
     uint contentFormat = 0;  // ct field
@@ -64,7 +70,6 @@ public:
     QString path;
     QString title;
     bool observable = false; // obs field
-
 };
 
 QT_END_NAMESPACE

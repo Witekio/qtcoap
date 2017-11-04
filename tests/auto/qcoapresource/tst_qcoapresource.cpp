@@ -9,31 +9,15 @@ class tst_QCoapResource : public QObject
     Q_OBJECT
 
 public:
-    tst_QCoapResource();
-    ~tst_QCoapResource();
+    tst_QCoapResource() {}
+    ~tst_QCoapResource() {}
 
 private Q_SLOTS:
-    void initTestCase();
-    void cleanupTestCase();
+    void initTestCase() {}
+    void cleanupTestCase() {}
     void parseCoreLink_data();
     void parseCoreLink();
 };
-
-tst_QCoapResource::tst_QCoapResource()
-{
-}
-
-tst_QCoapResource::~tst_QCoapResource()
-{
-}
-
-void tst_QCoapResource::initTestCase()
-{
-}
-
-void tst_QCoapResource::cleanupTestCase()
-{
-}
 
 void tst_QCoapResource::parseCoreLink_data()
 {
@@ -93,6 +77,7 @@ void tst_QCoapResource::parseCoreLink_data()
                    << true << false;
 
     QByteArray coreLinks;
+    // Resources are separated by a comma
     coreLinks.append("</obs>;obs;rt=\"observe\";title=\"Observable resource which changes every");
     coreLinks.append(" 5 seconds\",</separate>;title=\"Resource which cannot be served immediately");
     coreLinks.append(" and which cannot be acknowledged in a piggy-backed way\",</seg1>;title=\"");
@@ -132,8 +117,7 @@ void tst_QCoapResource::parseCoreLink()
     QFETCH(QList<bool>, observableList);
     QFETCH(QByteArray, coreLinkList);
 
-    QList<QCoapResource> resourceList;
-    resourceList = QCoapProtocol::resourcesFromCoreLinkList(coreLinkList);
+    const QList<QCoapResource> resourceList = QCoapProtocol::resourcesFromCoreLinkList(coreLinkList);
 
     QCOMPARE(resourceList.size(), resourceNumber);
     for (int i = 0; i < resourceList.size(); ++i) {
@@ -147,6 +131,6 @@ void tst_QCoapResource::parseCoreLink()
     }
 }
 
-QTEST_MAIN(tst_QCoapResource)
+QTEST_APPLESS_MAIN(tst_QCoapResource)
 
 #include "tst_qcoapresource.moc"
