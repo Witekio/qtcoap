@@ -99,7 +99,7 @@ QCoapConnection::~QCoapConnection()
 /*!
     \internal
 
-    Binds the socket to a random port and return true if it succeeds.
+    Binds the socket to a random port and returns \c true if it succeeds.
 */
 bool QCoapConnectionPrivate::bind()
 {
@@ -148,7 +148,7 @@ void QCoapConnection::sendRequest(const QByteArray &request, const QString &host
 /*!
     \internal
 
-    Writes the given \a data frame to the socket to the stored host and port.
+    Writes the given \a data frame to the socket to the stored \a host and \a port.
 */
 void QCoapConnectionPrivate::writeToSocket(const QByteArray &data, const QString &host, quint16 port)
 {
@@ -217,7 +217,7 @@ void QCoapConnectionPrivate::_q_socketError(QAbstractSocket::SocketError error)
 {
     Q_Q(QCoapConnection);
 
-    qDebug() << "CoAP UDP socket error " << error << udpSocket->errorString();
+    qWarning() << "CoAP UDP socket error " << error << udpSocket->errorString();
     emit q->error(error);
 }
 

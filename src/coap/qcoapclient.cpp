@@ -72,22 +72,22 @@ QCoapClientPrivate::~QCoapClientPrivate()
     signal arrives.
 
     A simple request can be sent with:
-    // TODO : replace by snippet
     \code
         QCoapClient *client = new QCoapClient(this);
         connect(client, &QCoapClient::finished, this, &TestClass::slotFinished);
         client->get(QCoapRequest(Qurl("coap://coap.me/test")));
     \endcode
 
-    You can also use an "observe" request. This can be used as above, but it can be
-    more useful to use the \l{QCoapReply::notified(const QByteArray&)}{notified(const QByteArray&)} signal:
+    You can also use an "observe" request. This can be used as above, or more
+    conveniently with the \l{QCoapReply::notified(const QByteArray&)}{notified(const QByteArray&)}
+    signal:
     \code
         QCoapRequest request = QCoapRequest(Qurl("coap://coap.me/obs"));
         CoapReply *reply = client->observe(request);
         connect(reply, &QCoapReply::notified, this, &TestClass::slotNotified);
     \endcode
 
-    And the observation can be cancelled with :
+    And the observation can be cancelled with:
     \code
         client->cancelObserve(request);
     \endcode
@@ -96,8 +96,7 @@ QCoapClientPrivate::~QCoapClientPrivate()
         client->cancelObserve(reply);
     \endcode
 
-    When a reply arrives, the QCoapClient emits a
-    \l{QCoapClient::finished(QCoapReply*)}{finished(QCoapReply*)} signal.
+    When a reply arrives, the QCoapClient emits a finished(QCoapReply *) signal.
 
     \note For a discovery request, the returned object is a QCoapDiscoveryReply.
     It can be used the same way as a QCoapReply but contains also a list of
@@ -110,7 +109,7 @@ QCoapClientPrivate::~QCoapClientPrivate()
     \fn void QCoapClient::finished(QCoapReply *reply)
 
     This signal is emitted along with the \l{QCoapReply::finished()} signal
-    whenever a coap reply is finished. The \a reply parameter will contain a
+    whenever a CoAP reply is finished. The \a reply parameter will contain a
     pointer to the reply that has just finished.
 
     \sa QCoapReply::finished(), QCoapReply::error(QCoapReply::QCoapNetworkError)
@@ -160,15 +159,15 @@ QCoapClient::~QCoapClient()
 
     \sa post(), put(), deleteResource(), observe(), discover()
 */
-QCoapReply *QCoapClient::get(const QCoapRequest &request)
+QCoapReply *QCoapClient::get(const QCoapRequest &target)
 {
     Q_D(QCoapClient);
 
-    QCoapRequest copyRequest(request);
+    QCoapRequest copyRequest(target);
     copyRequest.setOperation(QCoapRequest::Get);
 
     QCoapReply *reply = d->sendRequest(copyRequest);
-    d->requestMap[request] = reply;
+    d->requestMap[target] = reply;
 
     return reply;
 }
