@@ -95,7 +95,7 @@ QCoapMessagePrivate::~QCoapMessagePrivate()
     \value ResetCoapMessage             A Reset message. A message sent
                                         sometimes in case of errors or to stop
                                         transmissions. (For example, it is used
-                                        to cancel an observation)
+                                        to cancel an observation).
 */
 
 /*!
@@ -174,7 +174,7 @@ void QCoapMessage::removeOption(QCoapOption::OptionName name)
 
 /*!
     Finds and returns the option with the given \a name.
-    If there is no such option, returns an invalid CoapOption with en empty value.
+    If there is no such option, returns an Invalid CoapOption with an empty value.
 */
 QCoapOption QCoapMessage::findOptionByName(QCoapOption::OptionName name)
 {
