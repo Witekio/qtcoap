@@ -70,7 +70,7 @@ public:
         Post,
         Put,
         Delete,
-#ifdef 0
+#if 0
         //! TODO, included in RFC 8132
         //! https://tools.ietf.org/html/rfc8132
         Fetch,
