@@ -51,6 +51,13 @@ CMakeLists.txt.user*
 /mkspecs
 /src/coap/QtCoap.version*
 .pch
+tests/auto/qcoapclient/qcoapclient
+tests/auto/qcoapconnection/qcoapconnection
+tests/auto/qcoapmessage/qcoapmessage
+tests/auto/qcoapreply/qcoapreply
+tests/auto/qcoaprequest/qcoaprequest
+tests/auto/qcoapresource/qcoapresource
 
 # Other
 *.swp
+
