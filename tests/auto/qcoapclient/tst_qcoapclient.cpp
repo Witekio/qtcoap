@@ -314,7 +314,7 @@ void tst_QCoapClient::socketError()
 
 void tst_QCoapClient::timeout()
 {
-    QWARN("Timeout test may take some times...");
+    QWARN("Timeout test may take some time...");
 
     QCoapClientForTests client;
     client.protocol()->setAckTimeout(300);
@@ -471,6 +471,7 @@ void tst_QCoapClient::discover_data()
     QTest::addColumn<QUrl>("url");
     QTest::addColumn<int>("resourceNumber");
 
+    // Californium test server exposes 29 resources
     QTest::newRow("discover") << QUrl("coap://172.17.0.3:5683/")
                               << 29;
 }
@@ -487,30 +488,47 @@ void tst_QCoapClient::discover()
 
     QTRY_COMPARE_WITH_TIMEOUT(spyReplyFinished.count(), 1, 30000);
     QCOMPARE(resourcesReply->resourceList().length(), resourceNumber);
+
+    //! TODO Test discovery content too
 }
 
 void tst_QCoapClient::observe_data()
 {
-    QWARN("Observe tests may take some times...");
+    QWARN("Observe tests may take some time, don't forget to raise Tests timeout in settings.");
     QTest::addColumn<QUrl>("url");
     QTest::addColumn<QCoapMessage::MessageType>("type");
 
-    QTest::newRow("observe") << QUrl("coap://172.17.0.3:5683/obs")
-                             << QCoapMessage::NonConfirmable;
-    QTest::newRow("observe_confirmable") << QUrl("coap://172.17.0.3:5683/obs")
-                                         << QCoapMessage::Confirmable;
-    QTest::newRow("observe_receive_non") << QUrl("coap://172.17.0.3:5683/obs-non")
-                                         << QCoapMessage::NonConfirmable;
-    QTest::newRow("observe_receive_non_confirmable") << QUrl("coap://172.17.0.3:5683/obs-non")
-                                                     << QCoapMessage::Confirmable;
-    QTest::newRow("observe_large") << QUrl("coap://172.17.0.3:5683/obs-large")
-                                   << QCoapMessage::NonConfirmable;
-    QTest::newRow("observe_large_confirmable") << QUrl("coap://172.17.0.3:5683/obs-large")
-                                               << QCoapMessage::Confirmable;
-    QTest::newRow("observe_pumping") << QUrl("coap://172.17.0.3:5683/obs-pumping")
-                                     << QCoapMessage::NonConfirmable;
-    QTest::newRow("observe_pumping_confirmable") << QUrl("coap://172.17.0.3:5683/obs-pumping")
-                                                 << QCoapMessage::Confirmable;
+    QTest::newRow("observe")
+        << QUrl("coap://172.17.0.3:5683/obs")
+        << QCoapMessage::NonConfirmable;
+
+    QTest::newRow("observe_confirmable")
+        << QUrl("coap://172.17.0.3:5683/obs")
+        << QCoapMessage::Confirmable;
+
+    QTest::newRow("observe_receive_non")
+        << QUrl("coap://172.17.0.3:5683/obs-non")
+        << QCoapMessage::NonConfirmable;
+
+    QTest::newRow("observe_receive_non_confirmable")
+        << QUrl("coap://172.17.0.3:5683/obs-non")
+        << QCoapMessage::Confirmable;
+
+    QTest::newRow("observe_large")
+        << QUrl("coap://172.17.0.3:5683/obs-large")
+        << QCoapMessage::NonConfirmable;
+
+    QTest::newRow("observe_large_confirmable")
+        << QUrl("coap://172.17.0.3:5683/obs-large")
+        << QCoapMessage::Confirmable;
+
+    QTest::newRow("observe_pumping")
+        << QUrl("coap://172.17.0.3:5683/obs-pumping")
+        << QCoapMessage::NonConfirmable;
+
+    QTest::newRow("observe_pumping_confirmable")
+        << QUrl("coap://172.17.0.3:5683/obs-pumping")
+        << QCoapMessage::Confirmable;
 }
 
 void tst_QCoapClient::observe()
