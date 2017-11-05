@@ -71,15 +71,15 @@ public:
     quint8 tokenLength() const;
     quint16 messageId() const;
     QByteArray payload() const;
-    QCoapOption option(int index) const;
-    QList<QCoapOption> optionList() const;
-    int optionsLength() const;
     void setVersion(quint8 version);
     void setType(const MessageType &type);
     void setToken(const QByteArray &token);
     void setMessageId(quint16);
     void setPayload(const QByteArray &payload);
 
+    QCoapOption option(int index) const;
+    const QList<QCoapOption>& optionList() const;
+    int optionCount() const;
     void addOption(QCoapOption::OptionName name, const QByteArray &value = QByteArray());
     virtual void addOption(const QCoapOption &option);
     QCoapOption findOptionByName(QCoapOption::OptionName name);

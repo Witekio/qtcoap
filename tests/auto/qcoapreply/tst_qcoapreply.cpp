@@ -134,7 +134,7 @@ void tst_QCoapReply::parseReplyPdu()
     QCOMPARE(reply.statusCode(), statusCode);
     QCOMPARE(reply.message().messageId(), messageId);
     QCOMPARE(reply.message().token().toHex(), token);
-    QCOMPARE(reply.message().optionsLength(), optionsListLength);
+    QCOMPARE(reply.message().optionCount(), optionsListLength);
     for (int i = 0; i < optionsListLength; ++i) {
         QCoapOption option = reply.message().option(i);
         QCOMPARE(option.name(), optionsNames.at(i));

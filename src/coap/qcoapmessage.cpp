@@ -251,7 +251,7 @@ QCoapOption QCoapMessage::option(int index) const
 /*!
     Returns the list of options.
 */
-QList<QCoapOption> QCoapMessage::optionList() const
+const QList<QCoapOption>& QCoapMessage::optionList() const
 {
     return d_ptr->options;
 }
@@ -259,7 +259,7 @@ QList<QCoapOption> QCoapMessage::optionList() const
 /*!
     Returns the number of options.
 */
-int QCoapMessage::optionsLength() const
+int QCoapMessage::optionCount() const
 {
     return d_ptr->options.length();
 }
@@ -319,15 +319,22 @@ void QCoapMessage::swap(QCoapMessage &other) Q_DECL_NOTHROW
     qSwap(d_ptr, other.d_ptr);
 }
 
+/*!
+    Move assignment operator.
+ */
 QCoapMessage &QCoapMessage::operator=(QCoapMessage &&other) Q_DECL_NOTHROW
 {
     swap(other);
     return *this;
 }
 
+/*!
+    Assignment operator.
+ */
 QCoapMessage &QCoapMessage::operator=(const QCoapMessage &other)
 {
     d_ptr = other.d_ptr;
     return *this;
 }
+
 QT_END_NAMESPACE
