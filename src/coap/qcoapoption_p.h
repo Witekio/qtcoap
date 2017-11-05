@@ -56,7 +56,7 @@ QT_BEGIN_NAMESPACE
 class Q_AUTOTEST_EXPORT QCoapOptionPrivate
 {
 public:
-    QCoapOptionPrivate();
+    QCoapOptionPrivate() {}
 
     QCoapOption::OptionName name;
     QByteArray value;

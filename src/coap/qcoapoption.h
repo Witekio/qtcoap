@@ -48,6 +48,7 @@ class Q_COAP_EXPORT QCoapOption
 {
 public:
     enum OptionName {
+        Invalid         = 0,
         IfMatch         = 1,
         UriHost         = 3,
         Etag            = 4,
@@ -66,11 +67,10 @@ public:
         Size2           = 28,
         ProxyUri        = 35,
         ProxyScheme     = 39,
-        Size1           = 60,
-        Invalid
+        Size1           = 60
     };
 
-    QCoapOption(OptionName name, const QByteArray &value);
+    QCoapOption(OptionName name = Invalid, const QByteArray &value = QByteArray());
 
     QByteArray value() const;
     quint8 length() const;

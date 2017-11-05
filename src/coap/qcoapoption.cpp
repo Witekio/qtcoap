@@ -38,11 +38,6 @@
 
 QT_BEGIN_NAMESPACE
 
-QCoapOptionPrivate::QCoapOptionPrivate() :
-    value(QByteArray())
-{
-}
-
 /*!
     \class QCoapOption
     \brief The QCoapOption class holds data about CoAP options.
@@ -50,14 +45,17 @@ QCoapOptionPrivate::QCoapOptionPrivate() :
     \reentrant
 
     An option contains a name, related to an option id, and a value.
-    The name is set with an enumeration value : QCoapOptionName.
+    The name is one of the values from the OptionName enumeration.
 */
 
 /*!
     \enum QCoapOption::OptionName
 
     Indicates the name of an option.
-    The value of each ID is as specified by the CoAP standard.
+    The value of each ID is as specified by the CoAP standard, with the
+    exception of Invalid. You can refer to the
+    \l{https://tools.ietf.org/html/rfc7252#section-5.10}{RFC 7252} for more
+    details.
 
     \value IfMatchCoapOption        If-match
     \value UriHostCoapOption        Uri-Host
@@ -82,7 +80,8 @@ QCoapOptionPrivate::QCoapOptionPrivate() :
 
 /*!
     Constructs a QCoapOption object with the given \a name
-    and \a value.
+    and \a value. If no parameters are passed, constructs
+    an Invalid object.
  */
 QCoapOption::QCoapOption(OptionName name,
                          const QByteArray &value) :
@@ -117,7 +116,7 @@ QCoapOption::OptionName QCoapOption::name() const
 }
 
 /*!
-    Returns true if this QCoapOption and \a other are equals.
+    Returns \c true if this QCoapOption and \a other are equals.
  */
 bool QCoapOption::operator==(const QCoapOption &other) const
 {

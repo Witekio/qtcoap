@@ -183,7 +183,7 @@ QCoapOption QCoapMessage::findOptionByName(QCoapOption::OptionName name)
             return option;
     }
 
-    return QCoapOption(QCoapOption::Invalid, QByteArray());
+    return QCoapOption();
 }
 
 /*!
