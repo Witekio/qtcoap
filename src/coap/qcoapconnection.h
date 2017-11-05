@@ -70,6 +70,8 @@ Q_SIGNALS:
 protected:
     explicit QCoapConnection(QCoapConnectionPrivate &dd, QObject *parent = nullptr);
 
+    virtual void createSocket();
+
     Q_DECLARE_PRIVATE(QCoapConnection)
     Q_PRIVATE_SLOT(d_func(), void _q_socketReadyRead())
     Q_PRIVATE_SLOT(d_func(), void _q_socketBound())

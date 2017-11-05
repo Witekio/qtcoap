@@ -40,6 +40,7 @@ private Q_SLOTS:
 class QCoapConnectionForSocketErrorTestsPrivate : public QCoapConnectionPrivate
 {
     bool bind() {
+        // Force a socket binding error
         QUdpSocket anotherSocket;
         anotherSocket.bind(QHostAddress::Any, 6080);
         return socket()->bind(QHostAddress::Any, 6080);
@@ -51,7 +52,9 @@ class QCoapConnectionForSocketErrorTests : public QCoapConnection
 public:
     QCoapConnectionForSocketErrorTests() :
         QCoapConnection (* new QCoapConnectionForSocketErrorTestsPrivate)
-    {}
+    {
+        createSocket();
+    }
 
 private:
     Q_DECLARE_PRIVATE(QCoapConnectionForSocketErrorTests)
@@ -303,6 +306,7 @@ void tst_QCoapClient::socketError()
     QUrl url = QUrl("coap://172.17.0.3:5683/test");
 
     QUdpSocket *socket = client.connection()->socket();
+    QVERIFY2(socket, "Socket not properly created with connection");
     QSignalSpy spySocketError(socket, SIGNAL(error(QAbstractSocket::SocketError)));
     QScopedPointer<QCoapReply> reply(client.get(QCoapRequest(url)));
     QSignalSpy spyReplyError(reply.data(), SIGNAL(error(QCoapReply::NetworkError)));

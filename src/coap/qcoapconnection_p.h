@@ -67,8 +67,7 @@ struct CoapFrame {
 class Q_AUTOTEST_EXPORT QCoapConnectionPrivate : public QObjectPrivate
 {
 public:
-    QCoapConnectionPrivate();
-    ~QCoapConnectionPrivate();
+    QCoapConnectionPrivate() {}
 
     QCoapConnection::ConnectionState state = QCoapConnection::Unconnected;
     QQueue<CoapFrame> framesToSend;

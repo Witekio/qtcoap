@@ -39,17 +39,6 @@
 
 QT_BEGIN_NAMESPACE
 
-QCoapConnectionPrivate::QCoapConnectionPrivate()
-{
-    //! TODO Create DTLS socket here when available
-    setSocket(new QUdpSocket());
-}
-
-QCoapConnectionPrivate::~QCoapConnectionPrivate()
-{
-    delete udpSocket;
-}
-
 /*!
     \class QCoapConnection
     \brief The QCoapConnection class handles the transfer of a frame to a
@@ -74,10 +63,12 @@ QCoapConnectionPrivate::~QCoapConnectionPrivate()
 QCoapConnection::QCoapConnection(QObject *parent) :
     QCoapConnection(*new QCoapConnectionPrivate, parent)
 {
+    createSocket();
 }
 
 /*!
     \internal
+
     Constructs a new QCoapConnection with \a dd as the d_ptr.
     This constructor must be used when internally subclassing
     the QCoapConnection class.
@@ -85,6 +76,20 @@ QCoapConnection::QCoapConnection(QObject *parent) :
 QCoapConnection::QCoapConnection(QCoapConnectionPrivate &dd, QObject *parent) :
     QObject(dd, parent)
 {
+}
+
+/*!
+    \internal
+
+    Creates the socket used by the connection and set it in connection's private
+    class
+*/
+void QCoapConnection::createSocket()
+{
+    Q_D(QCoapConnection);
+
+    //! TODO Create DTLS socket here when available
+    d->setSocket(new QUdpSocket(this));
 }
 
 /*!
