@@ -42,7 +42,7 @@ class QCoapConnectionForSocketErrorTestsPrivate : public QCoapConnectionPrivate
     bool bind() {
         QUdpSocket anotherSocket;
         anotherSocket.bind(QHostAddress::Any, 6080);
-        return udpSocket->bind(QHostAddress::Any, 6080);
+        return socket()->bind(QHostAddress::Any, 6080);
     }
 };
 

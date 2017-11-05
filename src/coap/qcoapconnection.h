@@ -56,7 +56,6 @@ public:
     };
 
     explicit QCoapConnection(QObject *parent = nullptr);
-    ~QCoapConnection();
 
     void sendRequest(const QByteArray &request, const QString &host, quint16 port);
 

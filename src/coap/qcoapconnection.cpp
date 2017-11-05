@@ -39,13 +39,15 @@
 
 QT_BEGIN_NAMESPACE
 
-QCoapConnectionPrivate::QCoapConnectionPrivate() :
-    state(QCoapConnection::Unconnected)
+QCoapConnectionPrivate::QCoapConnectionPrivate()
 {
+    //! TODO Create DTLS socket here when available
+    setSocket(new QUdpSocket());
 }
 
 QCoapConnectionPrivate::~QCoapConnectionPrivate()
 {
+    delete udpSocket;
 }
 
 /*!
@@ -83,17 +85,6 @@ QCoapConnection::QCoapConnection(QObject *parent) :
 QCoapConnection::QCoapConnection(QCoapConnectionPrivate &dd, QObject *parent) :
     QObject(dd, parent)
 {
-    Q_D(QCoapConnection);
-    d->udpSocket = new QUdpSocket(this);
-}
-
-/*!
-    Destroys the QCoapConnection and frees the socket.
-*/
-QCoapConnection::~QCoapConnection()
-{
-    Q_D(QCoapConnection);
-    delete d->udpSocket;
 }
 
 /*!
@@ -103,7 +94,7 @@ QCoapConnection::~QCoapConnection()
 */
 bool QCoapConnectionPrivate::bind()
 {
-    return udpSocket->bind(QHostAddress::Any, 0, QAbstractSocket::ShareAddress);
+    return socket()->bind(QHostAddress::Any, 0, QAbstractSocket::ShareAddress);
 }
 
 /*!
@@ -115,8 +106,8 @@ void QCoapConnectionPrivate::bindSocket()
 {
     Q_Q(QCoapConnection);
 
-    if (udpSocket->state() == QUdpSocket::ConnectedState)
-        udpSocket->disconnectFromHost();
+    if (socket()->state() == QUdpSocket::ConnectedState)
+        socket()->disconnectFromHost();
 
     q->connect(udpSocket, SIGNAL(error(QAbstractSocket::SocketError)),
                q, SLOT(_q_socketError(QAbstractSocket::SocketError)));
@@ -150,12 +141,12 @@ void QCoapConnection::sendRequest(const QByteArray &request, const QString &host
 
     Writes the given \a data frame to the socket to the stored \a host and \a port.
 */
-void QCoapConnectionPrivate::writeToSocket(const QByteArray &data, const QString &host, quint16 port)
+void QCoapConnectionPrivate::writeToSocket(const CoapFrame& frame)
 {
-    if (!udpSocket->isWritable())
-        udpSocket->open(udpSocket->openMode() | QIODevice::WriteOnly);
+    if (!socket()->isWritable())
+        socket()->open(socket()->openMode() | QIODevice::WriteOnly);
 
-    udpSocket->writeDatagram(data, QHostAddress(host), port);
+    socket()->writeDatagram(frame.currentPdu, QHostAddress(frame.host), frame.port);
 }
 
 /*!
@@ -182,8 +173,8 @@ void QCoapConnectionPrivate::_q_socketBound()
 */
 void QCoapConnectionPrivate::_q_startToSendRequest()
 {
-    CoapFrame frame = framesToSend.dequeue();
-    writeToSocket(frame.currentPdu, frame.host, frame.port);
+    const CoapFrame frame = framesToSend.dequeue();
+    writeToSocket(frame);
 }
 
 /*!
@@ -198,11 +189,11 @@ void QCoapConnectionPrivate::_q_socketReadyRead()
 {
     Q_Q(QCoapConnection);
 
-    if (!udpSocket->isReadable())
-        udpSocket->open(udpSocket->openMode() | QIODevice::ReadOnly);
+    if (!socket()->isReadable())
+        socket()->open(socket()->openMode() | QIODevice::ReadOnly);
 
-    while (udpSocket->hasPendingDatagrams()) {
-        QByteArray data = udpSocket->receiveDatagram().data();
+    while (socket()->hasPendingDatagrams()) {
+        QByteArray data = socket()->receiveDatagram().data();
         emit q->readyRead(data);
     }
 }
@@ -217,7 +208,7 @@ void QCoapConnectionPrivate::_q_socketError(QAbstractSocket::SocketError error)
 {
     Q_Q(QCoapConnection);
 
-    qWarning() << "CoAP UDP socket error " << error << udpSocket->errorString();
+    qWarning() << "CoAP UDP socket error " << error << socket()->errorString();
     emit q->error(error);
 }
 
@@ -246,12 +237,10 @@ QCoapConnection::ConnectionState QCoapConnection::state() const
 
     \sa socket()
 */
-#if 0
 void QCoapConnectionPrivate::setSocket(QUdpSocket *socket)
 {
     udpSocket = socket;
 }
-#endif
 
 /*!
     \internal

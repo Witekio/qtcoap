@@ -70,14 +70,14 @@ public:
     QCoapConnectionPrivate();
     ~QCoapConnectionPrivate();
 
-    QUdpSocket *udpSocket = nullptr;
-    QCoapConnection::ConnectionState state;
+    QCoapConnection::ConnectionState state = QCoapConnection::Unconnected;
     QQueue<CoapFrame> framesToSend;
 
     virtual bool bind();
 
     void bindSocket();
-    void writeToSocket(const QByteArray &data, const QString &host, quint16 port);
+    void writeToSocket(const CoapFrame &frame);
+    QUdpSocket* socket() { return udpSocket; }
     void setSocket(QUdpSocket *socket);
     void setState(QCoapConnection::ConnectionState newState);
 
@@ -85,6 +85,9 @@ public:
     void _q_socketReadyRead();
     void _q_startToSendRequest();
     void _q_socketError(QAbstractSocket::SocketError);
+
+private:
+    QUdpSocket *udpSocket = nullptr;
 
     Q_DECLARE_PUBLIC(QCoapConnection)
 };
