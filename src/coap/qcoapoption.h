@@ -77,6 +77,7 @@ public:
     OptionName name() const;
 
     bool operator==(const QCoapOption &other) const;
+    bool operator!=(const QCoapOption &other) const;
 
 protected:
     QCoapOptionPrivate *d_ptr;

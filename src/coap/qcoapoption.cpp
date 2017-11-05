@@ -124,4 +124,12 @@ bool QCoapOption::operator==(const QCoapOption &other) const
             && d_ptr->value == other.d_ptr->value);
 }
 
+/*!
+    Returns \c true if this QCoapOption and \a other are different.
+ */
+bool QCoapOption::operator!=(const QCoapOption &other) const
+{
+    return !(*this == other);
+}
+
 QT_END_NAMESPACE
