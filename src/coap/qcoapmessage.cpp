@@ -38,15 +38,6 @@
 
 QT_BEGIN_NAMESPACE
 
-QCoapMessagePrivate::QCoapMessagePrivate() :
-    version(1),
-    type(QCoapMessage::NonConfirmable),
-    messageId(0),
-    token(QByteArray()),
-    payload(QByteArray())
-{
-}
-
 #if 0
 QCoapMessagePrivate::QCoapMessagePrivate(const QCoapMessagePrivate &other) :
     QSharedData(other),
@@ -59,11 +50,6 @@ QCoapMessagePrivate::QCoapMessagePrivate(const QCoapMessagePrivate &other) :
 {
 }
 #endif
-
-QCoapMessagePrivate::~QCoapMessagePrivate()
-{
-}
-
 
 /*!
     \class QCoapMessage
