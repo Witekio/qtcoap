@@ -88,7 +88,7 @@ QCoapOption::QCoapOption(OptionName name,
     d_ptr(new QCoapOptionPrivate)
 {
     d_ptr->name = name;
-    d_ptr->value = value;
+    setValue(value);
 }
 
 /*!
@@ -102,9 +102,9 @@ QByteArray QCoapOption::value() const
 /*!
     Returns the length of the value of the option.
  */
-quint8 QCoapOption::length() const
+int QCoapOption::length() const
 {
-    return quint8(d_ptr->value.length());
+    return d_ptr->value.length();
 }
 
 /*!
@@ -130,6 +130,69 @@ bool QCoapOption::operator==(const QCoapOption &other) const
 bool QCoapOption::operator!=(const QCoapOption &other) const
 {
     return !(*this == other);
+}
+
+/*!
+    Sets the value for the option
+ */
+void QCoapOption::setValue(const QByteArray &value)
+{
+    bool oversized = false;
+
+    // Check for value maximum size, according to section 5.10 of RFC 7252
+    // https://tools.ietf.org/html/rfc7252#section-5.10
+    switch(d_ptr->name) {
+    case IfNoneMatch:
+        if (value.size() > 0)
+            oversized = true;
+        break;
+
+    case UriPort:
+    case ContentFormat:
+    case Accept:
+        if (value.size() > 2)
+            oversized = true;
+        break;
+
+    case MaxAge:
+    case Size1:
+        if (value.size() > 4)
+            oversized = true;
+        break;
+
+    case IfMatch:
+    case Etag:
+        if (value.size() > 8)
+            oversized = true;
+        break;
+
+    case UriHost:
+    case LocationPath:
+    case UriPath:
+    case UriQuery:
+    case LocationQuery:
+    case ProxyScheme:
+        if (value.size() > 255)
+            oversized = true;
+        break;
+
+    case ProxyUri:
+        if (value.size() > 1034)
+            oversized = true;
+        break;
+
+    case Observe:
+    case Block2:
+    case Block1:
+    case Size2:
+    default:
+        break;
+    }
+
+    if (oversized)
+        qWarning() << "QCoapOption::setValue: value is probably too big for option" << d_ptr->name;
+
+    d_ptr->value = value;
 }
 
 QT_END_NAMESPACE

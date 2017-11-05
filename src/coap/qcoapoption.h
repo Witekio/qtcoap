@@ -73,13 +73,15 @@ public:
     QCoapOption(OptionName name = Invalid, const QByteArray &value = QByteArray());
 
     QByteArray value() const;
-    quint8 length() const;
+    int length() const;
     OptionName name() const;
 
     bool operator==(const QCoapOption &other) const;
     bool operator!=(const QCoapOption &other) const;
 
 protected:
+    void setValue(const QByteArray &value);
+
     QCoapOptionPrivate *d_ptr;
 };
 
