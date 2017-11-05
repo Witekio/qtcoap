@@ -536,8 +536,8 @@ void QCoapInternalRequest::setTimeout(uint timeout)
 
 /*!
     \internal
-    Returns true if this QCoapInternalRequest message id is lower than \a other
-    message id.
+    Returns true if this QCoapInternalRequest has a lower message id than
+    \a other has.
 */
 bool QCoapInternalRequest::operator<(const QCoapInternalRequest &other) const
 {
