@@ -70,6 +70,13 @@ public:
         Post,
         Put,
         Delete,
+#ifdef 0
+        //! TODO, included in RFC 8132
+        //! https://tools.ietf.org/html/rfc8132
+        Fetch,
+        Patch,
+        IPatch,
+#endif
         Other
     };
     Q_ENUM(OperationInternal)
