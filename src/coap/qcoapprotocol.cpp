@@ -290,7 +290,7 @@ void QCoapProtocolPrivate::onLastBlock(QCoapInternalRequest *request)
 
     QCoapInternalReply *finalReply(replies.last());
     if (finalReply->message().type() == QCoapMessage::Acknowledgement
-            && finalReply->statusCode() == QCoapInternalReply::Invalid)
+            && finalReply->statusCode() == QtCoap::Invalid)
         return;
 
     // If multiple blocks : append data from all blocks to the final reply

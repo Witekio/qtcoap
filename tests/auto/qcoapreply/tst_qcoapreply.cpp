@@ -17,7 +17,7 @@ private Q_SLOTS:
 
 void tst_QCoapReply::parseReplyPdu_data()
 {
-    QTest::addColumn<QCoapInternalReply::StatusCodeInternal>("statusCode");
+    QTest::addColumn<QtCoap::StatusCode>("statusCode");
     QTest::addColumn<QCoapMessage::MessageType>("type");
     QTest::addColumn<quint16>("messageId");
     QTest::addColumn<QByteArray>("token");
@@ -39,7 +39,7 @@ void tst_QCoapReply::parseReplyPdu_data()
     QList<QByteArray> bigOptionsValuesReply({QByteArray("abcdefghijklmnopqrstuvwxyz")});
 
     QTest::newRow("reply_with_option_and_payload")
-        << QCoapInternalReply::Content
+        << QtCoap::Content
         << QCoapMessage::NonConfirmable
         << quint16(64463)
         << QByteArray("4647f09b")
@@ -56,7 +56,7 @@ void tst_QCoapReply::parseReplyPdu_data()
            "3962";
 
     QTest::newRow("reply_without_options")
-        << QCoapInternalReply::Content
+        << QtCoap::Content
         << QCoapMessage::NonConfirmable
         << quint16(64463)
         << QByteArray("4647f09b")
@@ -72,7 +72,7 @@ void tst_QCoapReply::parseReplyPdu_data()
            "546f6b656e3a203436343766303962";
 
     QTest::newRow("reply_without_payload")
-        << QCoapInternalReply::Content
+        << QtCoap::Content
         << QCoapMessage::NonConfirmable
         << quint16(64463)
         << QByteArray("4647f09b")
@@ -85,7 +85,7 @@ void tst_QCoapReply::parseReplyPdu_data()
         << "5445fbcf4647f09bc0211e";
 
     QTest::newRow("reply_only")
-        << QCoapInternalReply::Content
+        << QtCoap::Content
         << QCoapMessage::NonConfirmable
         << quint16(64463)
         << QByteArray("4647f09b")
@@ -98,7 +98,7 @@ void tst_QCoapReply::parseReplyPdu_data()
         << "5445fbcf4647f09b";
 
     QTest::newRow("reply_with_big_option")
-        << QCoapInternalReply::Content
+        << QtCoap::Content
         << QCoapMessage::NonConfirmable
         << quint16(64463)
         << QByteArray("4647f09b")
@@ -115,7 +115,7 @@ void tst_QCoapReply::parseReplyPdu_data()
 
 void tst_QCoapReply::parseReplyPdu()
 {
-    QFETCH(QCoapInternalReply::StatusCodeInternal, statusCode);
+    QFETCH(QtCoap::StatusCode, statusCode);
     QFETCH(QCoapMessage::MessageType, type);
     QFETCH(quint16, messageId);
     QFETCH(QByteArray, token);

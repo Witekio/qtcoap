@@ -138,16 +138,16 @@ void tst_QCoapClient::operations()
         replyData = reply->readAll();
         if (qstrcmp(QTest::currentDataTag(), "get") == 0) {
             QVERIFY(!replyData.isEmpty());
-            QCOMPARE(reply->statusCode(), QCoapReply::Content);
+            QCOMPARE(reply->statusCode(), QtCoap::Content);
         } else if (qstrcmp(QTest::currentDataTag(), "post") == 0) {
             QVERIFY(replyData.isEmpty());
-            QCOMPARE(reply->statusCode(), QCoapReply::Created);
+            QCOMPARE(reply->statusCode(), QtCoap::Created);
         } else if (qstrcmp(QTest::currentDataTag(), "put") == 0) {
             QVERIFY(replyData.isEmpty());
-            QCOMPARE(reply->statusCode(), QCoapReply::Changed);
+            QCOMPARE(reply->statusCode(), QtCoap::Changed);
         } else if (qstrcmp(QTest::currentDataTag(), "delete") == 0) {
             QVERIFY(replyData.isEmpty());
-            QCOMPARE(reply->statusCode(), QCoapReply::Deleted);
+            QCOMPARE(reply->statusCode(), QtCoap::Deleted);
         } else {
             QFAIL("Unrecognized operation");
         }
@@ -177,7 +177,7 @@ void tst_QCoapClient::separateOperation()
     QByteArray replyData = reply->readAll();
 
     QVERIFY(!replyData.isEmpty());
-    QCOMPARE(reply->statusCode(), QCoapReply::Content);
+    QCOMPARE(reply->statusCode(), QtCoap::Content);
 }
 
 void tst_QCoapClient::removeReply_data()
@@ -238,10 +238,10 @@ void tst_QCoapClient::requestWithQIODevice()
 
     if (qstrcmp(QTest::currentDataTag(), "post") == 0) {
         QVERIFY(replyData.isEmpty());
-        QCOMPARE(reply->statusCode(), QCoapReply::Created);
+        QCOMPARE(reply->statusCode(), QtCoap::Created);
     } else if (qstrcmp(QTest::currentDataTag(), "put") == 0) {
         QVERIFY(replyData.isEmpty());
-        QCOMPARE(reply->statusCode(), QCoapReply::Changed);
+        QCOMPARE(reply->statusCode(), QtCoap::Changed);
     }
 }
 
@@ -284,10 +284,10 @@ void tst_QCoapClient::multipleRequests()
     QByteArray replyData3 = replyGet3->readAll();
     QByteArray replyData4 = replyGet4->readAll();
 
-    QCOMPARE(replyGet1->statusCode(), QCoapReply::Content);
-    QCOMPARE(replyGet2->statusCode(), QCoapReply::Content);
-    QCOMPARE(replyGet3->statusCode(), QCoapReply::Content);
-    QCOMPARE(replyGet4->statusCode(), QCoapReply::Content);
+    QCOMPARE(replyGet1->statusCode(), QtCoap::Content);
+    QCOMPARE(replyGet2->statusCode(), QtCoap::Content);
+    QCOMPARE(replyGet3->statusCode(), QtCoap::Content);
+    QCOMPARE(replyGet4->statusCode(), QtCoap::Content);
 
     QVERIFY(replyData1 != replyData2);
     QVERIFY(replyData1 != replyData3);
@@ -421,7 +421,7 @@ void tst_QCoapClient::blockwiseRequest_data()
     QTest::addColumn<QUrl>("url");
     QTest::addColumn<QCoapMessage::MessageType>("type");
     QTest::addColumn<QByteArray>("requestData");
-    QTest::addColumn<QCoapReply::StatusCode>("statusCode");
+    QTest::addColumn<QtCoap::StatusCode>("statusCode");
     QTest::addColumn<QByteArray>("replyData");
 
     QByteArray data;
@@ -432,12 +432,12 @@ void tst_QCoapClient::blockwiseRequest_data()
     QTest::newRow("large_post_empty_reply") << QUrl("coap://172.17.0.3:5683/query")
                                << QCoapMessage::NonConfirmable
                                << data
-                               << QCoapReply::MethodNotAllowed
+                               << QtCoap::MethodNotAllowed
                                << QByteArray();
     QTest::newRow("large_post_large_reply") << QUrl("coap://172.17.0.3:5683/large-post")
                                << QCoapMessage::NonConfirmable
                                << data
-                               << QCoapReply::Changed
+                               << QtCoap::Changed
                                << data.toUpper();
 }
 
@@ -446,7 +446,7 @@ void tst_QCoapClient::blockwiseRequest()
     QFETCH(QUrl, url);
     QFETCH(QCoapMessage::MessageType, type);
     QFETCH(QByteArray, requestData);
-    QFETCH(QCoapReply::StatusCode, statusCode);
+    QFETCH(QtCoap::StatusCode, statusCode);
     QFETCH(QByteArray, replyData);
 
     QCoapClient client;

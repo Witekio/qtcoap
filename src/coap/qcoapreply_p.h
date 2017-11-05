@@ -60,7 +60,7 @@ public:
     QCoapReplyPrivate();
 
     QCoapRequest request;
-    QCoapReply::StatusCode status;
+    QtCoap::StatusCode status;
     QCoapReply::NetworkError error;
     QCoapMessage message;
     bool isRunning;

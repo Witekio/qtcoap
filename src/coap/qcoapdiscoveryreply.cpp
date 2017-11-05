@@ -85,12 +85,12 @@ void QCoapDiscoveryReply::updateFromInternalReply(const QCoapInternalReply &inte
         d->message.setPayload(internalReplyMessage.payload());
         d->message.setType(internalReplyMessage.type());
         d->message.setVersion(internalReplyMessage.version());
-        d->status = QCoapReply::StatusCode(internalReply.statusCode());
+        d->status = internalReply.statusCode();
 
         d->isFinished = true;
         d->isRunning = false;
 
-        if (d->status >= BadRequest)
+        if (d->status >= QtCoap::BadRequest)
             replyError(d->status);
         else
             d->resources = QCoapProtocol::resourcesFromCoreLinkList(internalReplyMessage.payload());

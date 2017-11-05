@@ -41,7 +41,7 @@
 QT_BEGIN_NAMESPACE
 
 QCoapReplyPrivate::QCoapReplyPrivate() :
-    status(QCoapReply::Invalid),
+    status(QtCoap::Invalid),
     message(QCoapMessage()),
     isRunning(false),
     isFinished(false),
@@ -88,6 +88,13 @@ QCoapReplyPrivate::QCoapReplyPrivate() :
     \value UnknownCoapError         an unknown error was detected.
 
     \sa error()
+*/
+/*!
+    \enum QtCoap::StatusCode
+
+    This enum maps the status code of the CoAP protocol, as defined in
+    the 'response' section of the
+    \l{https://tools.ietf.org/html/rfc7252#section-5.2}{RFC 7252}
 */
 
 /*!
@@ -190,7 +197,7 @@ qint64 QCoapReply::writeData(const char *data, qint64 maxSize)
 /*!
     Returns the status code of the request.
 */
-QCoapReply::StatusCode QCoapReply::statusCode() const
+QtCoap::StatusCode QCoapReply::statusCode() const
 {
     Q_D(const QCoapReply);
     return d->status;
@@ -326,11 +333,11 @@ void QCoapReply::updateFromInternalReply(const QCoapInternalReply &internalReply
         d->message.setPayload(internalReplyMessage.payload());
         d->message.setType(internalReplyMessage.type());
         d->message.setVersion(internalReplyMessage.version());
-        d->status = QCoapReply::StatusCode(internalReply.statusCode());
+        d->status = internalReply.statusCode();
         d->isFinished = true;
         d->isRunning = false;
 
-        if (d->status >= BadRequest)
+        if (d->status >= QtCoap::BadRequest)
             replyError(d->status);
 
         if (d->request.observe())
@@ -358,59 +365,59 @@ void QCoapReply::abortRequest()
 
     Maps the reply status code \a errorCode to the related coap network error.
 */
-void QCoapReply::replyError(StatusCode errorCode)
+void QCoapReply::replyError(QtCoap::StatusCode errorCode)
 {
     NetworkError networkError;
     switch (errorCode) {
-    case BadRequest:
+    case QtCoap::BadRequest:
         networkError = BadRequestError;
         break;
-    case Unauthorized:
+    case QtCoap::Unauthorized:
         networkError = UnauthorizedError;
         break;
-    case BadOption:
+    case QtCoap::BadOption:
         networkError = BadOptionError;
         break;
-    case Forbidden:
+    case QtCoap::Forbidden:
         networkError = ForbiddenError;
         break;
-    case NotFound:
+    case QtCoap::NotFound:
         networkError = NotFoundError;
         break;
-    case MethodNotAllowed:
+    case QtCoap::MethodNotAllowed:
         networkError = MethodNotAllowedError;
         break;
-    case NotAcceptable:
+    case QtCoap::NotAcceptable:
         networkError = NotAcceptableError;
         break;
-    case RequestEntityIncomplete:
+    case QtCoap::RequestEntityIncomplete:
         networkError = RequestEntityIncompleteError;
         break;
-    case PreconditionFailed:
+    case QtCoap::PreconditionFailed:
         networkError = PreconditionFailedError;
         break;
-    case RequestEntityTooLarge:
+    case QtCoap::RequestEntityTooLarge:
         networkError = RequestEntityTooLargeError;
         break;
-    case UnsupportedContentFormat:
+    case QtCoap::UnsupportedContentFormat:
         networkError = UnsupportedContentFormatError;
         break;
-    case InternalServerError:
+    case QtCoap::InternalServerError:
         networkError = InternalServerErrorError;
         break;
-    case NotImplemented:
+    case QtCoap::NotImplemented:
         networkError = NotImplementedError;
         break;
-    case BadGateway:
+    case QtCoap::BadGateway:
         networkError = BadGatewayError;
         break;
-    case ServiceUnavailable:
+    case QtCoap::ServiceUnavailable:
         networkError = ServiceUnavailableError;
         break;
-    case GatewayTimeout:
+    case QtCoap::GatewayTimeout:
         networkError = GatewayTimeoutError;
         break;
-    case ProxyingNotSupported:
+    case QtCoap::ProxyingNotSupported:
         networkError = ProxyingNotSupportedError;
         break;
     default:
