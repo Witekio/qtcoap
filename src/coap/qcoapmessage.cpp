@@ -150,7 +150,7 @@ void QCoapMessage::removeOption(const QCoapOption &option)
 */
 void QCoapMessage::removeOption(QCoapOption::OptionName name)
 {
-    for (QCoapOption option : d_ptr->options) {
+    for (const QCoapOption &option : qAsConst(d_ptr->options)) {
         if (option.name() == name) {
             removeOption(option);
             break;
@@ -164,7 +164,7 @@ void QCoapMessage::removeOption(QCoapOption::OptionName name)
 */
 QCoapOption QCoapMessage::findOptionByName(QCoapOption::OptionName name)
 {
-    for (QCoapOption option : d_ptr->options) {
+    for (const QCoapOption &option : qAsConst(d_ptr->options)) {
         if (option.name() == name)
             return option;
     }
