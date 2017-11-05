@@ -10,6 +10,7 @@ class tst_QCoapMessage : public QObject
 private Q_SLOTS:
     void setMessageType_data();
     void setMessageType();
+    void removeOption();
 };
 
 void tst_QCoapMessage::setMessageType_data()
@@ -30,6 +31,11 @@ void tst_QCoapMessage::setMessageType()
     QCOMPARE(message.type(), type);
 
     //! TODO extend QCoapMessage tests
+}
+
+void tst_QCoapMessage::removeOption()
+{
+    //! TODO with one and more than one identical options
 }
 
 QTEST_APPLESS_MAIN(tst_QCoapMessage)

@@ -146,16 +146,18 @@ void QCoapMessage::removeOption(const QCoapOption &option)
 }
 
 /*!
-    Removes the first option with the given \a name.
+    Removes all options with the given \a name.
+    The CoAP protocol allows for the same option to repeat.
 */
 void QCoapMessage::removeOption(QCoapOption::OptionName name)
 {
-    for (const QCoapOption &option : qAsConst(d_ptr->options)) {
-        if (option.name() == name) {
-            removeOption(option);
-            break;
-        }
-    }
+    auto namesMatch = [name](const QCoapOption &option) {
+        return option.name() == name;
+    };
+
+    auto &options = d_ptr->options;
+    options.erase(std::remove_if(options.begin(), options.end(), namesMatch),
+                  options.end());
 }
 
 /*!
