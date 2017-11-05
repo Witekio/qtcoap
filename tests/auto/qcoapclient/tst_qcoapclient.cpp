@@ -13,9 +13,6 @@ class tst_QCoapClient : public QObject
 {
     Q_OBJECT
 
-public:
-    tst_QCoapClient() {}
-
 private Q_SLOTS:
     void operations_data();
     void operations();

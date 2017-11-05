@@ -28,8 +28,10 @@ void tst_QCoapMessage::setMessageType()
     QCoapMessage message;
     message.setType(type);
     QCOMPARE(message.type(), type);
+
+    //! TODO extend QCoapMessage tests
 }
 
-QTEST_MAIN(tst_QCoapMessage)
+QTEST_APPLESS_MAIN(tst_QCoapMessage)
 
 #include "tst_qcoapmessage.moc"

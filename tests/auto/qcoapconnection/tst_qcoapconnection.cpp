@@ -35,7 +35,7 @@ public:
 void tst_QCoapConnection::ctor()
 {
     QCoapConnection connection;
-    QVERIFY(connection.socket() != NULL);
+    QVERIFY(connection.socket());
 }
 
 void tst_QCoapConnection::connectToHost()
@@ -66,37 +66,42 @@ void tst_QCoapConnection::sendRequest_data()
     QTest::addColumn<QString>("dataHexaPayload");
 
     QTest::newRow("simple_get_request")
-    << "coap://"
-    << "172.17.0.3" << "/test" << quint16(5683)
-    << QCoapRequest::Get << "5445"
-    << "61626364c0211eff547970653a203120284e4f4e290a436f64653a20312028474554290a4d49443a2032343830360a546f6b656e3a203631363236333634";
+        << "coap://"
+        << "172.17.0.3" << "/test" << quint16(5683)
+        << QCoapRequest::Get << "5445"
+        << "61626364c0211eff547970653a203120"
+           "284e4f4e290a436f64653a2031202847"
+           "4554290a4d49443a2032343830360a54"
+           "6f6b656e3a203631363236333634";
 
     QTest::newRow("simple_put_request")
-    << "coap://"
-    << "172.17.0.3"
-    << "/test"
-    << quint16(5683)
-    << QCoapRequest::Put
-    << "5444"
-    << "61626364";
+        << "coap://"
+        << "172.17.0.3"
+        << "/test"
+        << quint16(5683)
+        << QCoapRequest::Put
+        << "5444"
+        << "61626364";
 
     QTest::newRow("simple_post_request")
-    << "coap://"
-    << "172.17.0.3"
-    << "/test"
-    << quint16(5683)
-    << QCoapRequest::Post
-    << "5441"
-    << "61626364896c6f636174696f6e31096c6f636174696f6e32096c6f636174696f6e33";
+        << "coap://"
+        << "172.17.0.3"
+        << "/test"
+        << quint16(5683)
+        << QCoapRequest::Post
+        << "5441"
+        << "61626364896c6f636174696f6e31096c"
+           "6f636174696f6e32096c6f636174696f"
+           "6e33";
 
     QTest::newRow("simple_delete_request")
-    << "coap://"
-    << "172.17.0.3"
-    << "/test"
-    << quint16(5683)
-    << QCoapRequest::Delete
-    << "5442"
-    << "61626364";
+        << "coap://"
+        << "172.17.0.3"
+        << "/test"
+        << quint16(5683)
+        << QCoapRequest::Delete
+        << "5442"
+        << "61626364";
 }
 
 void tst_QCoapConnection::sendRequest()

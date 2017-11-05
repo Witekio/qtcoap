@@ -8,13 +8,7 @@ class tst_QCoapResource : public QObject
 {
     Q_OBJECT
 
-public:
-    tst_QCoapResource() {}
-    ~tst_QCoapResource() {}
-
 private Q_SLOTS:
-    void initTestCase() {}
-    void cleanupTestCase() {}
     void parseCoreLink_data();
     void parseCoreLink();
 };
