@@ -167,7 +167,7 @@ QByteArray QCoapInternalRequest::toQByteArray() const
         });
 
         quint8 lastOptionNumber = 0;
-        for (QCoapOption option :qAsConst(optionList)) {
+        for (const QCoapOption &option : qAsConst(optionList)) {
             quint8 optionPdu;
 
             quint16 optionDelta = static_cast<quint16>(option.name()) - lastOptionNumber;
@@ -363,7 +363,7 @@ void QCoapInternalRequest::addUriOptions(const QUrl &uri, const QUrl &proxyUri)
     // Convert path into QCoapOptions
     QString path = mainUri.path();
     QStringList listPath = path.split('/');
-    for (QString pathPart : qAsConst(listPath)) {
+    for (const QString &pathPart : qAsConst(listPath)) {
         if (!pathPart.isEmpty())
             addOption(QCoapOption::UriPath, pathPart.toUtf8());
     }
@@ -371,7 +371,7 @@ void QCoapInternalRequest::addUriOptions(const QUrl &uri, const QUrl &proxyUri)
     // Convert query into QCoapOptions
     QString query = mainUri.query();
     QStringList listQuery = query.split('&');
-    for (const QString query : qAsConst(listQuery)) {
+    for (const QString &query : qAsConst(listQuery)) {
         if (!query.isEmpty())
             addOption(QCoapOption::UriQuery, query.toUtf8());
     }
