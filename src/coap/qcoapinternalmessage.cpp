@@ -157,12 +157,23 @@ void QCoapInternalMessage::removeOption(QCoapOption::OptionName name)
 /*!
     \internal
 
-    Returns the message instance.
+    Returns a pointer to the message.
 */
-QCoapMessage QCoapInternalMessage::message() const
+QCoapMessage *QCoapInternalMessage::message()
+{
+    Q_D(QCoapInternalMessage);
+    return &(d->message);
+}
+
+/*!
+    \internal
+
+    Returns a const pointer to the message.
+*/
+const QCoapMessage *QCoapInternalMessage::message() const
 {
     Q_D(const QCoapInternalMessage);
-    return d->message;
+    return &(d->message);
 }
 
 /*!

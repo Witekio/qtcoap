@@ -327,12 +327,11 @@ void QCoapReply::updateFromInternalReply(const QCoapInternalReply &internalReply
     Q_D(QCoapReply);
 
     if (!d->isAborted) {
+        const QCoapMessage *internalReplyMessage = internalReply.message();
 
-        QCoapMessage internalReplyMessage = internalReply.message();
-
-        d->message.setPayload(internalReplyMessage.payload());
-        d->message.setType(internalReplyMessage.type());
-        d->message.setVersion(internalReplyMessage.version());
+        d->message.setPayload(internalReplyMessage->payload());
+        d->message.setType(internalReplyMessage->type());
+        d->message.setVersion(internalReplyMessage->version());
         d->status = internalReply.statusCode();
         d->isFinished = true;
         d->isRunning = false;
@@ -341,7 +340,7 @@ void QCoapReply::updateFromInternalReply(const QCoapInternalReply &internalReply
             replyError(d->status);
 
         if (d->request.observe())
-            emit notified(internalReplyMessage.payload());
+            emit notified(internalReplyMessage->payload());
 
         emit finished();
     }

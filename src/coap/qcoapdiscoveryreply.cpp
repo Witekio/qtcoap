@@ -80,11 +80,11 @@ void QCoapDiscoveryReply::updateFromInternalReply(const QCoapInternalReply &inte
     Q_D(QCoapDiscoveryReply);
 
     if (!d->isAborted) {
-        QCoapMessage internalReplyMessage = internalReply.message();
+        const QCoapMessage *internalReplyMessage = internalReply.message();
 
-        d->message.setPayload(internalReplyMessage.payload());
-        d->message.setType(internalReplyMessage.type());
-        d->message.setVersion(internalReplyMessage.version());
+        d->message.setPayload(internalReplyMessage->payload());
+        d->message.setType(internalReplyMessage->type());
+        d->message.setVersion(internalReplyMessage->version());
         d->status = internalReply.statusCode();
 
         d->isFinished = true;
@@ -93,7 +93,7 @@ void QCoapDiscoveryReply::updateFromInternalReply(const QCoapInternalReply &inte
         if (d->status >= QtCoap::BadRequest)
             replyError(d->status);
         else
-            d->resources = QCoapProtocol::resourcesFromCoreLinkList(internalReplyMessage.payload());
+            d->resources = QCoapProtocol::resourcesFromCoreLinkList(internalReplyMessage->payload());
 
         emit finished();
     }

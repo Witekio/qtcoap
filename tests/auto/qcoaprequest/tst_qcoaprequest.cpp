@@ -201,7 +201,7 @@ void tst_QCoapRequest::parseUri()
     QCoapRequest request(uri, QCoapMessage::NonConfirmable, proxyUri);
     QCoapInternalRequest internalRequest(request);
 
-    QCOMPARE(internalRequest.message().optionCount(), optionsNumber);
+    QCOMPARE(internalRequest.message()->optionCount(), optionsNumber);
 }
 
 QTEST_APPLESS_MAIN(tst_QCoapRequest)

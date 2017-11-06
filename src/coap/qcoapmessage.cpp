@@ -40,7 +40,6 @@ QT_BEGIN_NAMESPACE
 
 QCoapMessagePrivate::QCoapMessagePrivate()
 {
-    qWarning() << "New" << this;
 }
 
 QCoapMessagePrivate::QCoapMessagePrivate(const QCoapMessagePrivate &other) :
@@ -48,12 +47,10 @@ QCoapMessagePrivate::QCoapMessagePrivate(const QCoapMessagePrivate &other) :
     version(other.version), type(other.type), messageId(other.messageId),
     token(other.token), options(other.options), payload(other.payload)
 {
-    qWarning() << "Copy" << this << &other;
 }
 
 QCoapMessagePrivate::~QCoapMessagePrivate()
 {
-    qWarning() << "Destroyed" << this;
 }
 
 /*!
@@ -316,9 +313,7 @@ void QCoapMessage::setMessageId(quint16 id)
 */
 void QCoapMessage::setPayload(const QByteArray &payload)
 {
-    qWarning() << payload;
     d_ptr->payload = payload;
-    qWarning() << d_ptr << d_ptr->payload;
 }
 
 void QCoapMessage::swap(QCoapMessage &other) Q_DECL_NOTHROW
