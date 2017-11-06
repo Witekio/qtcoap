@@ -196,6 +196,8 @@ bool QCoapRequest::operator<(const QCoapRequest &other) const
 
 /*!
     \internal
+
+    For QSharedDataPointer.
 */
 QCoapRequestPrivate* QCoapRequest::d_func()
 {

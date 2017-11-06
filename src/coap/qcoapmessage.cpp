@@ -136,7 +136,8 @@ void QCoapMessage::addOption(QCoapOption::OptionName name, const QByteArray &val
 */
 void QCoapMessage::addOption(const QCoapOption &option)
 {
-    d_ptr->options.push_back(option);
+    Q_D(QCoapMessage);
+    d->options.push_back(option);
 }
 
 /*!
@@ -144,7 +145,8 @@ void QCoapMessage::addOption(const QCoapOption &option)
 */
 void QCoapMessage::removeOption(const QCoapOption &option)
 {
-    d_ptr->options.removeOne(option);
+    Q_D(QCoapMessage);
+    d->options.removeOne(option);
 }
 
 /*!
@@ -153,11 +155,12 @@ void QCoapMessage::removeOption(const QCoapOption &option)
 */
 void QCoapMessage::removeOption(QCoapOption::OptionName name)
 {
+    Q_D(QCoapMessage);
     auto namesMatch = [name](const QCoapOption &option) {
         return option.name() == name;
     };
 
-    auto &options = d_ptr->options;
+    auto &options = d->options;
     options.erase(std::remove_if(options.begin(), options.end(), namesMatch),
                   options.end());
 }
@@ -168,7 +171,8 @@ void QCoapMessage::removeOption(QCoapOption::OptionName name)
 */
 QCoapOption QCoapMessage::findOptionByName(QCoapOption::OptionName name)
 {
-    for (const QCoapOption &option : qAsConst(d_ptr->options)) {
+    Q_D(const QCoapMessage);
+    for (const QCoapOption &option : d->options) {
         if (option.name() == name)
             return option;
     }
@@ -181,7 +185,8 @@ QCoapOption QCoapMessage::findOptionByName(QCoapOption::OptionName name)
 */
 void QCoapMessage::removeAllOptions()
 {
-    d_ptr->options.clear();
+    Q_D(QCoapMessage);
+    d->options.clear();
 }
 
 /*!
@@ -191,7 +196,8 @@ void QCoapMessage::removeAllOptions()
 */
 quint8 QCoapMessage::version() const
 {
-    return d_ptr->version;
+    Q_D(const QCoapMessage);
+    return d->version;
 }
 
 /*!
@@ -201,7 +207,8 @@ quint8 QCoapMessage::version() const
 */
 QCoapMessage::MessageType QCoapMessage::type() const
 {
-    return d_ptr->type;
+    Q_D(const QCoapMessage);
+    return d->type;
 }
 
 /*!
@@ -211,7 +218,8 @@ QCoapMessage::MessageType QCoapMessage::type() const
 */
 QByteArray QCoapMessage::token() const
 {
-    return d_ptr->token;
+    Q_D(const QCoapMessage);
+    return d->token;
 }
 
 /*!
@@ -219,7 +227,8 @@ QByteArray QCoapMessage::token() const
 */
 quint8 QCoapMessage::tokenLength() const
 {
-    return static_cast<quint8>(d_ptr->token.length());
+    Q_D(const QCoapMessage);
+    return static_cast<quint8>(d->token.length());
 }
 
 /*!
@@ -229,7 +238,8 @@ quint8 QCoapMessage::tokenLength() const
 */
 quint16 QCoapMessage::messageId() const
 {
-    return d_ptr->messageId;
+    Q_D(const QCoapMessage);
+    return d->messageId;
 }
 
 /*!
@@ -239,7 +249,8 @@ quint16 QCoapMessage::messageId() const
 */
 QByteArray QCoapMessage::payload() const
 {
-    return d_ptr->payload;
+    Q_D(const QCoapMessage);
+    return d->payload;
 }
 
 /*!
@@ -247,7 +258,8 @@ QByteArray QCoapMessage::payload() const
 */
 QCoapOption QCoapMessage::option(int index) const
 {
-    return d_ptr->options.at(index);
+    Q_D(const QCoapMessage);
+    return d->options.at(index);
 }
 
 /*!
@@ -255,7 +267,8 @@ QCoapOption QCoapMessage::option(int index) const
 */
 const QList<QCoapOption>& QCoapMessage::optionList() const
 {
-    return d_ptr->options;
+    Q_D(const QCoapMessage);
+    return d->options;
 }
 
 /*!
@@ -263,7 +276,8 @@ const QList<QCoapOption>& QCoapMessage::optionList() const
 */
 int QCoapMessage::optionCount() const
 {
-    return d_ptr->options.length();
+    Q_D(const QCoapMessage);
+    return d->options.length();
 }
 
 /*!
@@ -273,7 +287,8 @@ int QCoapMessage::optionCount() const
 */
 void QCoapMessage::setVersion(quint8 version)
 {
-    d_ptr->version = version;
+    Q_D(QCoapMessage);
+    d->version = version;
 }
 
 /*!
@@ -283,7 +298,8 @@ void QCoapMessage::setVersion(quint8 version)
 */
 void QCoapMessage::setType(const MessageType &type)
 {
-    d_ptr->type = type;
+    Q_D(QCoapMessage);
+    d->type = type;
 }
 
 /*!
@@ -293,7 +309,8 @@ void QCoapMessage::setType(const MessageType &type)
 */
 void QCoapMessage::setToken(const QByteArray &token)
 {
-    d_ptr->token = token;
+    Q_D(QCoapMessage);
+    d->token = token;
 }
 
 /*!
@@ -303,7 +320,8 @@ void QCoapMessage::setToken(const QByteArray &token)
 */
 void QCoapMessage::setMessageId(quint16 id)
 {
-    d_ptr->messageId = id;
+    Q_D(QCoapMessage);
+    d->messageId = id;
 }
 
 /*!
@@ -313,7 +331,8 @@ void QCoapMessage::setMessageId(quint16 id)
 */
 void QCoapMessage::setPayload(const QByteArray &payload)
 {
-    d_ptr->payload = payload;
+    Q_D(QCoapMessage);
+    d->payload = payload;
 }
 
 void QCoapMessage::swap(QCoapMessage &other) Q_DECL_NOTHROW
@@ -337,6 +356,16 @@ QCoapMessage &QCoapMessage::operator=(const QCoapMessage &other)
 {
     d_ptr = other.d_ptr;
     return *this;
+}
+
+/*!
+    \internal
+
+    For QSharedDataPointer.
+*/
+QCoapMessagePrivate* QCoapMessage::d_func()
+{
+    return d_ptr.data();
 }
 
 QT_END_NAMESPACE

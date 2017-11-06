@@ -91,6 +91,9 @@ protected:
     explicit QCoapMessage(QCoapMessagePrivate &dd);
 
     QSharedDataPointer<QCoapMessagePrivate> d_ptr;
+
+    //! For QSharedDataPointer
+    QCoapMessagePrivate* d_func();
     inline const QCoapMessagePrivate* d_func() const
     {
         return d_ptr.constData();

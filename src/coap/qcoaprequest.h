@@ -79,6 +79,7 @@ public:
     void enableObserve();
 
 private:
+    //! For QSharedDataPointer
     QCoapRequestPrivate* d_func();
     inline const QCoapRequestPrivate* d_func() const
     {
