@@ -57,7 +57,9 @@ QT_BEGIN_NAMESPACE
 class Q_AUTOTEST_EXPORT QCoapMessagePrivate : public QSharedData
 {
 public:
-    QCoapMessagePrivate() {}
+    QCoapMessagePrivate();
+    QCoapMessagePrivate(const QCoapMessagePrivate &other);
+    ~QCoapMessagePrivate();
 
     quint8 version = 1;
     QCoapMessage::MessageType type = QCoapMessage::NonConfirmable;

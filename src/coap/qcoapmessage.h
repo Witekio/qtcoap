@@ -90,10 +90,14 @@ public:
 protected:
     explicit QCoapMessage(QCoapMessagePrivate &dd);
 
-    QCoapMessagePrivate* d_ptr;
+    QSharedDataPointer<QCoapMessagePrivate> d_ptr;
+    inline const QCoapMessagePrivate* d_func() const
+    {
+        return d_ptr.constData();
+    }
 };
 
-//Q_DECLARE_SHARED(QCoapMessage)
+Q_DECLARE_SHARED(QCoapMessage)
 Q_DECLARE_METATYPE(QCoapMessage::MessageType)
 
 QT_END_NAMESPACE

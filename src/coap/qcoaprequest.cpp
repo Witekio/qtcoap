@@ -35,26 +35,19 @@
 ****************************************************************************/
 
 #include "qcoaprequest_p.h"
-#include "qcoapinternalrequest_p.h"
 #include <QtCore/qmath.h>
 #include <QtCore/qdatetime.h>
 
 QT_BEGIN_NAMESPACE
 
-QCoapRequestPrivate::QCoapRequestPrivate() :
-    uri(QUrl()),
-    proxyUri(QUrl()),
-    operation(QCoapRequest::Empty),
-    observe(false)
+QCoapRequestPrivate::QCoapRequestPrivate(const QUrl &url, QCoapMessage::MessageType _type, const QUrl &proxyUrl) :
+    uri(url),
+    proxyUri(proxyUrl)
 {
+    type = _type;
 }
 
-QCoapRequestPrivate::QCoapRequestPrivate(const QCoapRequestPrivate &other) :
-    QCoapMessagePrivate(other),
-    uri(other.uri),
-    proxyUri(other.proxyUri),
-    operation(other.operation),
-    observe(other.observe)
+QCoapRequestPrivate::~QCoapRequestPrivate()
 {
 }
 
@@ -65,7 +58,7 @@ QCoapRequestPrivate::QCoapRequestPrivate(const QCoapRequestPrivate &other) :
 
     \reentrant
 
-    The QCoapRequest contains data needed to make coap frames that can be
+    The QCoapRequest contains data needed to make CoAP frames that can be
     sent to the url it holds.
 
     \sa QCoapClient, QCoapReply, QCoapDiscoveryReply
@@ -76,11 +69,8 @@ QCoapRequestPrivate::QCoapRequestPrivate(const QCoapRequestPrivate &other) :
     the proxy url \a proxyUrl and the \a type of the message.
 */
 QCoapRequest::QCoapRequest(const QUrl &url, MessageType type, const QUrl &proxyUrl) :
-    QCoapMessage(*new QCoapRequestPrivate)
+    QCoapMessage(*new QCoapRequestPrivate(url, type, proxyUrl))
 {
-    setUrl(url);
-    setProxyUrl(proxyUrl);
-    setType(type);
     qsrand(static_cast<uint>(QTime::currentTime().msec())); // to generate message ids and tokens
 }
 
@@ -97,25 +87,25 @@ QCoapRequest::QCoapRequest(const QCoapRequest &other, QCoapRequest::Operation op
 }
 
 /*!
-    Returns the target uri of the request.
+    Returns the target URI of the request.
 
     \sa setUrl()
 */
 QUrl QCoapRequest::url() const
 {
-    QCoapRequestPrivate *d = static_cast<QCoapRequestPrivate*>(d_ptr);
+    Q_D(const QCoapRequest);
     return d->uri;
 }
 
 /*!
-    Returns the proxy uri of the request.
+    Returns the proxy URI of the request.
     The request shall be sent directly if this is invalid.
 
     \sa setProxyUrl()
 */
 QUrl QCoapRequest::proxyUrl() const
 {
-    QCoapRequestPrivate *d = static_cast<QCoapRequestPrivate*>(d_ptr);
+    Q_D(const QCoapRequest);
     return d->proxyUri;
 }
 
@@ -126,7 +116,7 @@ QUrl QCoapRequest::proxyUrl() const
 */
 QCoapRequest::Operation QCoapRequest::operation() const
 {
-    QCoapRequestPrivate *d = static_cast<QCoapRequestPrivate*>(d_ptr);
+    Q_D(const QCoapRequest);
     return d->operation;
 }
 
@@ -137,7 +127,7 @@ QCoapRequest::Operation QCoapRequest::operation() const
 */
 bool QCoapRequest::observe() const
 {
-    QCoapRequestPrivate *d = static_cast<QCoapRequestPrivate*>(d_ptr);
+    Q_D(const QCoapRequest);
     return d->observe;
 }
 
@@ -148,18 +138,18 @@ bool QCoapRequest::observe() const
 */
 void QCoapRequest::setUrl(const QUrl &url)
 {
-    QCoapRequestPrivate *d = static_cast<QCoapRequestPrivate*>(d_ptr);
+    Q_D(QCoapRequest);
     d->uri = url;
 }
 
 /*!
-    Sets the proxy uri of the request to the given \a proxyUrl.
+    Sets the proxy URI of the request to the given \a proxyUrl.
 
     \sa proxyUrl()
 */
 void QCoapRequest::setProxyUrl(const QUrl &proxyUrl)
 {
-    QCoapRequestPrivate *d = static_cast<QCoapRequestPrivate*>(d_ptr);
+    Q_D(QCoapRequest);
     d->proxyUri = proxyUrl;
 }
 
@@ -170,7 +160,7 @@ void QCoapRequest::setProxyUrl(const QUrl &proxyUrl)
 */
 void QCoapRequest::setOperation(Operation operation)
 {
-    QCoapRequestPrivate *d = static_cast<QCoapRequestPrivate*>(d_ptr);
+    Q_D(QCoapRequest);
     d->operation = operation;
 }
 
@@ -181,7 +171,7 @@ void QCoapRequest::setOperation(Operation operation)
 */
 void QCoapRequest::enableObserve()
 {
-    QCoapRequestPrivate *d = static_cast<QCoapRequestPrivate*>(d_ptr);
+    Q_D(QCoapRequest);
     d->observe = true;
 
     addOption(QCoapOption::Observe);
@@ -201,7 +191,15 @@ QCoapRequest &QCoapRequest::operator=(const QCoapRequest &other)
 */
 bool QCoapRequest::operator<(const QCoapRequest &other) const
 {
-    return (d_ptr->messageId < other.messageId());
+    return d_ptr->messageId < other.messageId();
+}
+
+/*!
+    \internal
+*/
+QCoapRequestPrivate* QCoapRequest::d_func()
+{
+    return static_cast<QCoapRequestPrivate*>(d_ptr.data());
 }
 
 QT_END_NAMESPACE

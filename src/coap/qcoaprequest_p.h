@@ -56,14 +56,16 @@ QT_BEGIN_NAMESPACE
 class Q_AUTOTEST_EXPORT QCoapRequestPrivate : public QCoapMessagePrivate
 {
 public:
-    QCoapRequestPrivate();
-    QCoapRequestPrivate(const QCoapRequestPrivate &other);
-    ~QCoapRequestPrivate() {}
+    QCoapRequestPrivate(const QUrl &url = QUrl(),
+            QCoapMessage::MessageType type = QCoapMessage::NonConfirmable,
+            const QUrl &proxyUrl = QUrl());
+    QCoapRequestPrivate(const QCoapRequestPrivate &other) = default;
+    ~QCoapRequestPrivate();
 
     QUrl uri;
     QUrl proxyUri;
-    QCoapRequest::Operation operation;
-    bool observe;
+    QCoapRequest::Operation operation = QCoapRequest::Empty;
+    bool observe = false;
 };
 
 QT_END_NAMESPACE

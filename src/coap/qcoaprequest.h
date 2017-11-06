@@ -77,6 +77,13 @@ public:
     void setProxyUrl(const QUrl &proxyUrl);
     void setOperation(Operation operation);
     void enableObserve();
+
+private:
+    QCoapRequestPrivate* d_func();
+    inline const QCoapRequestPrivate* d_func() const
+    {
+        return reinterpret_cast<const QCoapRequestPrivate*>(d_ptr.constData());
+    }
 };
 
 Q_DECLARE_METATYPE(QCoapRequest::Operation)
