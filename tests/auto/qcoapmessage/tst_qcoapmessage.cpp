@@ -8,10 +8,34 @@ class tst_QCoapMessage : public QObject
     Q_OBJECT
 
 private Q_SLOTS:
+    void copyAndDetach();
     void setMessageType_data();
     void setMessageType();
     void removeOption();
 };
+
+void tst_QCoapMessage::copyAndDetach()
+{
+    QCoapMessage a;
+    a.setMessageId(3);
+    a.setPayload("payload");
+    a.setToken("token");
+    a.setType(QCoapMessage::Acknowledgement);
+    a.setVersion(5);
+
+    // Test the copy
+    QCoapMessage b(a);
+    QVERIFY2(b.messageId() == 3, "Message not copied correctly");
+    QVERIFY2(b.payload() == "payload", "Message not copied correctly");
+    QVERIFY2(b.token() == "token", "Message not copied correctly");
+    QVERIFY2(b.type() == QCoapMessage::Acknowledgement, "Message not copied correctly");
+    QVERIFY2(b.version() == 5, "Message not copied correctly");
+
+    // Detach
+    b.setMessageId(9);
+    QCOMPARE(b.messageId(), 9);
+    QCOMPARE(a.messageId(), 3);
+}
 
 void tst_QCoapMessage::setMessageType_data()
 {

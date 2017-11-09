@@ -17,6 +17,7 @@ private Q_SLOTS:
     void setUrl();
     void setOperation_data();
     void setOperation();
+    void copyAndDetach();
     void internalRequestToFrame_data();
     void internalRequestToFrame();
     void parseUri_data();
@@ -74,6 +75,40 @@ void tst_QCoapRequest::setOperation()
     QCoapRequest request;
     request.setOperation(operation);
     QCOMPARE(request.operation(), operation);
+}
+
+void tst_QCoapRequest::copyAndDetach()
+{
+    QCoapRequest a;
+    a.setMessageId(3);
+    a.setPayload("payload");
+    a.setToken("token");
+    a.setType(QCoapMessage::Acknowledgement);
+    a.setVersion(5);
+    a.setOperation(QCoapRequest::Delete);
+    QUrl testUrl("test://url");
+    a.setUrl(testUrl);
+    QUrl testProxyUrl("test://proxyurl");
+    a.setProxyUrl(testProxyUrl);
+
+    // Test the QCoapMessage copy
+    QCoapMessage b(a);
+    QVERIFY2(b.messageId() == 3, "Message not copied correctly");
+    QVERIFY2(b.payload() == "payload", "Message not copied correctly");
+    QVERIFY2(b.token() == "token", "Message not copied correctly");
+    QVERIFY2(b.type() == QCoapMessage::Acknowledgement, "Message not copied correctly");
+    QVERIFY2(b.version() == 5, "Message not copied correctly");
+
+    // Test the QCoapRequest copy
+    QCoapRequest c(a);
+    QVERIFY2(c.operation() == QCoapRequest::Delete, "Request not copied correctly");
+    QVERIFY2(c.url() == testUrl, "Request not copied correctly");
+    QVERIFY2(c.proxyUrl() == testProxyUrl, "Request not copied correctly");
+
+    // Detach
+    c.setMessageId(9);
+    QCOMPARE(c.messageId(), 9);
+    QCOMPARE(a.messageId(), 3);
 }
 
 void tst_QCoapRequest::internalRequestToFrame_data()
