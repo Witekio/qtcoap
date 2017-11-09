@@ -37,9 +37,9 @@
 #ifndef QCOAPCLIENT_H
 #define QCOAPCLIENT_H
 
+#include <QtCore/qglobal.h>
 #include <QtCoap/qcoapglobal.h>
 #include <QtCore/qobject.h>
-#include <QtCore/qglobal.h>
 #include <QtCore/qiodevice.h>
 
 QT_BEGIN_NAMESPACE

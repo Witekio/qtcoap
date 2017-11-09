@@ -37,9 +37,9 @@
 #ifndef QCOAPMESSAGE_H
 #define QCOAPMESSAGE_H
 
+#include <QtCore/qglobal.h>
 #include <QtCoap/qcoapglobal.h>
 #include <QtCoap/qcoapoption.h>
-#include <QtCore/qglobal.h>
 #include <QtCore/qobject.h>
 #include <QtCore/qlist.h>
 #include <QtCore/qshareddata.h>

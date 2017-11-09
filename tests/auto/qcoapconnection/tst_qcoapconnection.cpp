@@ -1,9 +1,9 @@
 #include <QtTest>
 #include <QCoreApplication>
 
-#include <QtNetwork/qudpsocket.h>
-#include <QtCore/qbuffer.h>
 #include <QtCore/qglobal.h>
+#include <QtCore/qbuffer.h>
+#include <QtNetwork/qudpsocket.h>
 #include <QtCoap/qcoapglobal.h>
 #include <QtCoap/qcoapconnection.h>
 #include <QtCoap/qcoaprequest.h>

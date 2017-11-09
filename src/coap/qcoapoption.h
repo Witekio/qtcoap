@@ -37,9 +37,9 @@
 #ifndef QCOAPOPTION_H
 #define QCOAPOPTION_H
 
+#include <QtCore/qglobal.h>
 #include <QtCoap/qcoapglobal.h>
 #include <QtCore/qobject.h>
-#include <QtCore/qglobal.h>
 
 QT_BEGIN_NAMESPACE
 

@@ -37,8 +37,8 @@
 #ifndef QCOAPCONNECTION_H
 #define QCOAPCONNECTION_H
 
-#include <QtCoap/qcoapglobal.h>
 #include <QtCore/qglobal.h>
+#include <QtCoap/qcoapglobal.h>
 #include <QtCore/qstring.h>
 #include <QtNetwork/qudpsocket.h>
 
