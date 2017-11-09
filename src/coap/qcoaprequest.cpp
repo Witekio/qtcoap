@@ -80,7 +80,9 @@ QCoapRequest::QCoapRequest(const QUrl &url, MessageType type, const QUrl &proxyU
     argument.
 */
 QCoapRequest::QCoapRequest(const QCoapRequest &other, QCoapRequest::Operation op) :
-    QCoapMessage(other)
+    //! No private data sharing, as QCoapRequestPrivate!=QCoapMessagePrivate
+    //! and the d_ptr is a QSharedDataPointer<QCoapMessagePrivate>
+    QCoapMessage(* new QCoapRequestPrivate(*other.d_func()))
 {
     if (op != QCoapRequest::Empty)
         setOperation(op);
