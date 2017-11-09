@@ -48,7 +48,7 @@ QT_BEGIN_NAMESPACE
 
     The QCoapConnection class is used by the QCoapClient class to send
     requests to a server. It has a socket listening for UDP messages,
-    that is used to send the coap frames.
+    that is used to send the CoAP frames.
 
     When a reply is available, the QCoapConnection object emits a
     \l{QCoapConnection::readyRead(const QByteArray&)}

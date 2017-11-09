@@ -55,7 +55,7 @@ QCoapMessagePrivate::~QCoapMessagePrivate()
 
 /*!
     \class QCoapMessage
-    \brief The QCoapMessage class holds information about a coap message that
+    \brief The QCoapMessage class holds information about a CoAP message that
     can be a request or a reply.
 
     \reentrant
@@ -123,7 +123,7 @@ QCoapMessage::QCoapMessage(QCoapMessagePrivate &dd) :
 /*!
     \overload
 
-    Adds the coap option with the given \a name and \a value.
+    Adds the CoAP option with the given \a name and \a value.
 */
 void QCoapMessage::addOption(QCoapOption::OptionName name, const QByteArray &value)
 {
@@ -132,7 +132,7 @@ void QCoapMessage::addOption(QCoapOption::OptionName name, const QByteArray &val
 }
 
 /*!
-    Adds the given coap \a option.
+    Adds the given CoAP \a option.
 */
 void QCoapMessage::addOption(const QCoapOption &option)
 {
@@ -190,7 +190,7 @@ void QCoapMessage::removeAllOptions()
 }
 
 /*!
-    Returns the coap version.
+    Returns the CoAP version.
 
     \sa setVersion()
 */
@@ -281,7 +281,7 @@ int QCoapMessage::optionCount() const
 }
 
 /*!
-    Sets the coap version.
+    Sets the CoAP version.
 
     \sa version()
 */

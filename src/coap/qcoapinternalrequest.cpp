@@ -134,7 +134,7 @@ void QCoapInternalRequest::initForReset(quint16 messageId)
 
 /*!
     \internal
-    Returns the coap frame corresponding to the QCoapInternalRequest into
+    Returns the CoAP frame corresponding to the QCoapInternalRequest into
     a QByteArray object.
 */
 QByteArray QCoapInternalRequest::toQByteArray() const
@@ -143,7 +143,7 @@ QByteArray QCoapInternalRequest::toQByteArray() const
     QByteArray pdu;
 
     // Insert header
-    quint32 coapHeader = (quint32(d->message.version()) << 30)              // Coap version
+    quint32 coapHeader = (quint32(d->message.version()) << 30)              // CoAP version
                          | (quint32(d->message.type()) << 28)               // Message type
                          | (quint32(d->message.token().length()) << 24)     // Token Length
                          | (quint32(d->operation) << 16)                    // Operation type
@@ -312,7 +312,7 @@ QByteArray QCoapInternalRequest::generateToken()
 
 /*!
     \internal
-    Adds the given coap \a option and sets block parameters if needed.
+    Adds the given CoAP \a option and sets block parameters if needed.
 */
 void QCoapInternalRequest::addOption(const QCoapOption &option)
 {
@@ -334,7 +334,7 @@ void QCoapInternalRequest::addOption(const QCoapOption &option)
 
 /*!
     \internal
-    Adds the coap options related to the target and proxy with the given \a uri
+    Adds the CoAP options related to the target and proxy with the given \a uri
     and \a proxyUri.
 */
 void QCoapInternalRequest::addUriOptions(const QUrl &uri, const QUrl &proxyUri)

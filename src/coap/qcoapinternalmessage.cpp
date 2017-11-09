@@ -124,7 +124,7 @@ QCoapInternalMessage::QCoapInternalMessage(QCoapInternalMessagePrivate &dd, QObj
     \internal
     \overload
 
-    Adds the coap option with the given \a name and \a value.
+    Adds the CoAP option with the given \a name and \a value.
 */
 void QCoapInternalMessage::addOption(QCoapOption::OptionName name, const QByteArray &value)
 {
@@ -135,7 +135,7 @@ void QCoapInternalMessage::addOption(QCoapOption::OptionName name, const QByteAr
 /*!
     \internal
 
-    Adds the given coap \a option.
+    Adds the given CoAP \a option.
 */
 void QCoapInternalMessage::addOption(const QCoapOption &option)
 {

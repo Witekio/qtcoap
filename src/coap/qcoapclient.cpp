@@ -64,7 +64,7 @@ QCoapClientPrivate::~QCoapClientPrivate()
 /*!
     \class QCoapClient
     \brief The QCoapClient class allows the application to
-    send coap requests and receive replies.
+    send CoAP requests and receive replies.
 
     \reentrant
 
@@ -335,7 +335,7 @@ void QCoapClient::cancelObserve(QCoapReply *notifiedReply)
 /*!
     \internal
 
-    Sends the coap \a request to its own url and returns a new QCoapReply
+    Sends the CoAP \a request to its own url and returns a new QCoapReply
     object which emits the \l{QCoapReply::finished()}{finished()} signal
     whenever the response arrives.
 */
@@ -368,7 +368,7 @@ QCoapReply *QCoapClientPrivate::sendRequest(const QCoapRequest &request)
 /*!
     \internal
 
-    Sends the coap \a request to its own url and returns a
+    Sends the CoAP \a request to its own url and returns a
     new QCoapDiscoveryReply object which emits the
     \l{QCoapReply::finished()}{finished()} signal whenever
     the response arrives.

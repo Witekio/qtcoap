@@ -51,7 +51,7 @@ QCoapReplyPrivate::QCoapReplyPrivate() :
 
 /*!
     \class QCoapReply
-    \brief The QCoapReply class holds the data of a coap reply.
+    \brief The QCoapReply class holds the data of a CoAP reply.
 
     \reentrant
 
@@ -362,7 +362,7 @@ void QCoapReply::abortRequest()
 /*!
     \internal
 
-    Maps the reply status code \a errorCode to the related coap network error.
+    Maps the reply status code \a errorCode to the related CoAP network error.
 */
 void QCoapReply::replyError(QtCoap::StatusCode errorCode)
 {
@@ -429,7 +429,7 @@ void QCoapReply::replyError(QtCoap::StatusCode errorCode)
 /*!
     \internal
 
-    Maps the socket error \a socketError to the related coap network error.
+    Maps the socket error \a socketError to the related CoAP network error.
 */
 void QCoapReply::connectionError(QAbstractSocket::SocketError socketError)
 {

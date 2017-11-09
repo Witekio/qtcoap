@@ -81,7 +81,7 @@ QCoapInternalReply::QCoapInternalReply(const QCoapInternalReply &other, QObject 
 /*!
     \internal
     Creates a QCoapInternalReply from the \a reply byte array which needs
-    to be a coap reply frame.
+    to be a CoAP reply frame.
     Reference : RFC 7252
 */
 QCoapInternalReply QCoapInternalReply::fromQByteArray(const QByteArray &reply)
@@ -165,7 +165,7 @@ void QCoapInternalReply::appendData(const QByteArray &data)
 
 /*!
     \internal
-    Adds the given coap \a option and sets block parameters if needed.
+    Adds the given CoAP \a option and sets block parameters if needed.
 */
 void QCoapInternalReply::addOption(const QCoapOption &option)
 {
