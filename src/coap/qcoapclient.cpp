@@ -335,7 +335,7 @@ void QCoapClient::cancelObserve(QCoapReply *notifiedReply)
 /*!
     \internal
 
-    Sends the CoAP \a request to its own url and returns a new QCoapReply
+    Sends the CoAP \a request to its own URL and returns a new QCoapReply
     object which emits the \l{QCoapReply::finished()}{finished()} signal
     whenever the response arrives.
 */
@@ -368,7 +368,7 @@ QCoapReply *QCoapClientPrivate::sendRequest(const QCoapRequest &request)
 /*!
     \internal
 
-    Sends the CoAP \a request to its own url and returns a
+    Sends the CoAP \a request to its own URL and returns a
     new QCoapDiscoveryReply object which emits the
     \l{QCoapReply::finished()}{finished()} signal whenever
     the response arrives.

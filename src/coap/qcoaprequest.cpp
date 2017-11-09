@@ -59,14 +59,14 @@ QCoapRequestPrivate::~QCoapRequestPrivate()
     \reentrant
 
     The QCoapRequest contains data needed to make CoAP frames that can be
-    sent to the url it holds.
+    sent to the URL it holds.
 
     \sa QCoapClient, QCoapReply, QCoapDiscoveryReply
 */
 
 /*!
     Constructs a QCoapRequest object with the target \a url,
-    the proxy url \a proxyUrl and the \a type of the message.
+    the proxy URL \a proxyUrl and the \a type of the message.
 */
 QCoapRequest::QCoapRequest(const QUrl &url, MessageType type, const QUrl &proxyUrl) :
     QCoapMessage(*new QCoapRequestPrivate(url, type, proxyUrl))
