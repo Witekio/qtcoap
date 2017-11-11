@@ -53,30 +53,31 @@ QT_BEGIN_NAMESPACE
     the response is fully received and when request fails.
 
     The \l{QCoapReply::notified(const QByteArray&)}
-    {notified(const QByteArray&)} signal is emitted when a resource send
+    {notified(const QByteArray&)} signal is emitted when a resource sends
     a notification in response of an observe request.
 
     \sa QCoapClient, QCoapRequest, QCoapDiscoveryReply
 */
 
+//! TODO Document all enum values
 /*!
-    \enum QNetworkReply::NetworkError
+    \enum QCoapReply::NetworkError
 
     Indicates all possible error conditions found during the
     processing of the request.
 
-    \value NoCoapError              no error condition.
+    \value NoError                  No error condition.
 
-    \value HostNotFoundCoapError    the remote host name was not
+    \value HostNotFoundError        The remote host name was not
                                     found.
 
-    \value BadRequestCoapError      the request was not recognized.
+    \value BadRequestError          The request was not recognized.
 
-    \value AddressInUseCoapError    the address is already in use.
+    \value AddressInUseError        The address is already in use.
 
-    \value TimeOutCoapError         the response did not arrive in time.
+    \value TimeOutError             The response did not arrive in time.
 
-    \value UnknownCoapError         an unknown error was detected.
+    \value UnknownError             An unknown error was detected.
 
     \sa error()
 */
