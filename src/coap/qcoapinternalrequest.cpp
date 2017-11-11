@@ -88,8 +88,8 @@ QCoapInternalRequest::QCoapInternalRequest(const QCoapRequest &request, QObject 
     d->message.setType(request.type());
     d->message.setMessageId(request.messageId());
     d->message.setToken(request.token());
-    for (int i = 0; i < request.optionCount(); ++i)
-        d->message.addOption(request.option(i));
+    foreach (const QCoapOption &option, request.optionList())
+        d->message.addOption(option);
     d->message.setPayload(request.payload());
     d->operation = QCoapInternalRequest::OperationInternal(request.operation());
     d->fullPayload = request.payload();
