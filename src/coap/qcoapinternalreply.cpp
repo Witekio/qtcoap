@@ -80,16 +80,28 @@ QCoapInternalReply::QCoapInternalReply(const QCoapInternalReply &other, QObject 
 
 /*!
     \internal
-    Creates a QCoapInternalReply from the \a reply byte array which needs
-    to be a CoAP reply frame.
-    Reference : RFC 7252
+    Creates a QCoapInternalReply from the CoAP \a reply frame, as a QByteArray.
+
+    For more details, refer to section
+    \l{https://tools.ietf.org/html/rfc7252#section-3}{'Message format' of RFC 7252}.
 */
+//! 0                   1                   2                   3
+//! 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+//! +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+//! |Ver| T |  TKL  |      Code     |          Message ID           |
+//! +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+//! |   Token (if any, TKL bytes) ...
+//! +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+//! |   Options (if any) ...
+//! +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+//! |1 1 1 1 1 1 1 1|    Payload (if any) ...
+//! +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-
 QCoapInternalReply QCoapInternalReply::fromQByteArray(const QByteArray &reply)
 {
     QCoapInternalReply internalReply;
     QCoapInternalReplyPrivate *d = internalReply.d_func();
 
-    quint8 *pduData = reinterpret_cast<quint8 *>(const_cast<char *>(reply.data()));
+    const quint8 *pduData = reinterpret_cast<const quint8 *>(reply.data());
 
     // Parse Header and Token
     d->message.setVersion((pduData[0] >> 6) & 0x03);
@@ -103,7 +115,7 @@ QCoapInternalReply QCoapInternalReply::fromQByteArray(const QByteArray &reply)
     // Parse Options
     int i = 4 + tokenLength;
     quint16 lastOptionNumber = 0;
-    while (i != reply.length() && (pduData[i]) != 0xFF) {
+    while (i != reply.length() && pduData[i] != 0xFF) {
         quint16 optionDelta = ((pduData[i] >> 4) & 0x0F);
         quint8 optionDeltaExtended = 0;
         quint16 optionLength = (pduData[i] & 0x0F);
@@ -131,14 +143,10 @@ QCoapInternalReply QCoapInternalReply::fromQByteArray(const QByteArray &reply)
             optionLength = optionLengthExtended + 269;
         }
 
-        QByteArray optionValue("");
-        if (optionLength != 0) {
-            optionValue = QByteArray(reinterpret_cast<char *>(pduData + i + 1),
-                                     optionLength);
-        }
-
         quint16 optionNumber = lastOptionNumber + optionDelta;
-        internalReply.addOption(QCoapOption::OptionName(optionNumber), optionValue);
+        internalReply.addOption(QCoapOption::OptionName(optionNumber),
+                                QByteArray::fromRawData(reply.data() + i + 1,
+                                                        optionLength));
         lastOptionNumber = optionNumber;
         i += 1 + optionLength;
     }
@@ -166,6 +174,11 @@ void QCoapInternalReply::appendData(const QByteArray &data)
 /*!
     \internal
     Adds the given CoAP \a option and sets block parameters if needed.
+
+    For block-wise transfer, the size of the block is expressed in power
+    of two. See
+    \l{https://tools.ietf.org/html/rfc7959#section-2.2}{'Structure of a Block Option'}
+    of the RFC 7959 for more information.
 */
 void QCoapInternalReply::addOption(const QCoapOption &option)
 {
