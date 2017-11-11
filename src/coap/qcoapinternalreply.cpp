@@ -185,6 +185,7 @@ void QCoapInternalReply::addOption(const QCoapOption &option)
     Q_D(QCoapInternalReply);
     // If it is a BLOCK option, we need to know the block number
     if (option.name() == QCoapOption::Block2) {
+        //! TODO Cover with tests
         quint32 blockNumber = 0;
         quint8 *optionData = reinterpret_cast<quint8 *>(option.value().data());
         for (int i = 0; i < option.length() - 1; ++i)

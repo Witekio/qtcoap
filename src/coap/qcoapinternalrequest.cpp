@@ -34,9 +34,10 @@
 **
 ****************************************************************************/
 
+#include <QtCore/qmath.h>
+#include <QtCore/qrandom.h>
 #include "qcoapinternalrequest_p.h"
 #include "qcoaprequest.h"
-#include <QtCore/qmath.h>
 
 QT_BEGIN_NAMESPACE
 
@@ -309,7 +310,7 @@ void QCoapInternalRequest::setRequestToSendBlock(uint blockNumber, uint blockSiz
 quint16 QCoapInternalRequest::generateMessageId()
 {
     Q_D(QCoapInternalRequest);
-    quint16 id = static_cast<quint16>(qrand() % 65536);
+    quint16 id = QRandomGenerator::bounded(0x10000);
     d->message.setMessageId(id);
     return id;
 }
@@ -323,12 +324,12 @@ QByteArray QCoapInternalRequest::generateToken()
     Q_D(QCoapInternalRequest);
 
     QByteArray token("");
-    quint8 length = (qrand() % 7) + 1;
+    quint8 length = QRandomGenerator::bounded(1, 8);
     token.resize(length);
 
     quint8 *tokenData = reinterpret_cast<quint8 *>(token.data());
     for (int i = 0; i < token.size(); ++i)
-        tokenData[i] = static_cast<quint8>(qrand() % 256);
+        tokenData[i] = QRandomGenerator::bounded(256);
 
     d->message.setToken(token);
     return token;
