@@ -264,7 +264,9 @@ QCoapReply *QCoapClient::deleteResource(const QCoapRequest &request)
     \l{QCoapReply::finished()}{finished()} signal whenever the response
     arrives.
 
-    The path of the discovery can be set by giving the \a discoveryPath.
+    Discovery path defaults to "/.well-known/core", but can be changed
+    by passing a different path to \a discoveryPath. Discovery is described in
+    \l[https://tools.ietf.org/html/rfc6690#section-1.2.1}[RFC 6690}.
 
     \sa get(), post(), put(), deleteResource(), observe()
 */
