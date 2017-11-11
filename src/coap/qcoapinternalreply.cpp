@@ -95,7 +95,7 @@ QCoapInternalReply::QCoapInternalReply(const QCoapInternalReply &other, QObject 
 //! |   Options (if any) ...
 //! +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //! |1 1 1 1 1 1 1 1|    Payload (if any) ...
-//! +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-
+//! +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 QCoapInternalReply QCoapInternalReply::fromQByteArray(const QByteArray &reply)
 {
     QCoapInternalReply internalReply;
@@ -192,7 +192,7 @@ void QCoapInternalReply::addOption(const QCoapOption &option)
         blockNumber = (blockNumber << 4) | ((optionData[option.length()-1]) >> 4);
         d->currentBlockNumber = blockNumber;
         d->hasNextBlock = ((optionData[option.length()-1] & 0x8) == 0x8);
-        d->blockSize = static_cast<uint>(qPow(2, (optionData[option.length()-1] & 0x7) + 4));
+        d->blockSize = static_cast<uint>(1u << (optionData[option.length()-1] & 0x7) + 4);
     }
 
     d->message.addOption(option);
