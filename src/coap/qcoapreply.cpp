@@ -173,6 +173,11 @@ qint64 QCoapReply::readData(char *data, qint64 maxSize)
     qint64 len = qMin(maxSize, qint64(payload.size()) - pos());
     if (len <= 0)
         return qint64(0);
+
+    // Ensure memcpy is compatible with a qint64 length.
+    // Tested against "sizeof(qint64) - 1" to account for the sign bit
+    // FIXME Isn't it going to be a problem on ARM based platforms?
+    Q_STATIC_ASSERT(sizeof(size_t) >= sizeof(qint64) - 1);
     memcpy(data, payload.constData() + pos(), static_cast<size_t>(len));
 
     return len;
@@ -352,7 +357,7 @@ void QCoapReply::abortRequest()
 {
     Q_D(QCoapReply);
     d->isAborted = true;
-    if (!this->isFinished())
+    if (!isFinished())
         emit aborted(this);
 }
 
@@ -418,6 +423,7 @@ void QCoapReply::replyError(QtCoap::StatusCode errorCode)
         break;
     default:
         networkError = UnknownError;
+        break;
     }
 
     setError(networkError);
@@ -440,6 +446,7 @@ void QCoapReply::connectionError(QAbstractSocket::SocketError socketError)
         break;
     default:
         networkError = UnknownError;
+        break;
     }
 
     setError(networkError);
