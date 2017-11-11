@@ -98,31 +98,36 @@ QT_BEGIN_NAMESPACE
 */
 
 /*!
-    \fn void QCoapReply::notified(const QByteArray&)
+    \fn void QCoapReply::notified(const QByteArray &payload)
 
     This signal is emitted whenever a notification is received from a resource
     for an observe request.
 
-    Its parameter is a byte array containing the payload of the notification.
+    Its \a payload parameter is a QByteArray containing the payload of the
+    notification.
 
-    \sa QCoapClient::finished(), isFinished(), finished()
+    \sa QCoapClient::finished(), isFinished(), finished(), notified()
 */
 
 /*!
-    \fn void QCoapReply::error(QCoapReply::QCoapNetworkError)
+    \fn void QCoapReply::error(QCoapReply::QCoapNetworkError error)
 
     This signal is emitted whenever an error is sent by the socket or the code
     received into the reply is an error code.
 
-    Its parameter is the error received.
+    Its \a error parameter is the error received.
+
+    \sa finished(), aborted()
 */
 
 /*!
-    \fn void QCoapReply::aborted(QCoapReply*);
+    \fn void QCoapReply::aborted(QCoapReply *reply);
 
     This signal is emitted when the request is aborted or the reply is deleted.
 
-    Its parameter is the reply object related to the aborted request.
+    Its \a reply parameter is the reply object related to the aborted request.
+
+    \sa finished(), error()
 */
 
 /*!
@@ -146,8 +151,8 @@ QCoapReply::QCoapReply(QCoapReplyPrivate &dd, QObject *parent) :
 }
 
 /*!
-    Destroys the QCoapReply object and abort the request in case of the
-    response has not been received yet.
+    Destroys the QCoapReply object and aborts the request if its response has
+    not yet been received.
 */
 QCoapReply::~QCoapReply()
 {
@@ -263,7 +268,7 @@ QCoapRequest::Operation QCoapReply::operation() const
 }
 
 /*!
-    Returns the error of the reply or NoCoapError if there is no error.
+    Returns the error of the reply or QCoapReply::NoError if there is no error.
 */
 QCoapReply::NetworkError QCoapReply::errorReceived() const
 {
@@ -272,7 +277,7 @@ QCoapReply::NetworkError QCoapReply::errorReceived() const
 }
 
 /*!
-    Sets the request associated to the this QCoapReply to the given \a request.
+    Sets the request associated with this QCoapReply to the given \a request.
 
     \sa request()
 */
@@ -312,7 +317,7 @@ void QCoapReply::setError(NetworkError newError)
     \internal
 
     Updates the QCoapReply object and its message with data of the internal
-    reply \a internalReply.
+    reply \a internalReply, unless this QCoapReply object has been aborted.
 */
 void QCoapReply::updateFromInternalReply(const QCoapInternalReply &internalReply)
 {

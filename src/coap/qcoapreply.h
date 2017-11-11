@@ -95,13 +95,13 @@ public:
 
 Q_SIGNALS:
     void finished();
-    void notified(const QByteArray&);
-    void error(QCoapReply::NetworkError);
+    void notified(const QByteArray &payload);
+    void error(QCoapReply::NetworkError error);
     void aborted(QCoapReply*);
 
 protected Q_SLOTS:
-    void connectionError(QAbstractSocket::SocketError);
-    void replyError(QtCoap::StatusCode);
+    void connectionError(QAbstractSocket::SocketError error);
+    void replyError(QtCoap::StatusCode statusCode);
 
 public Q_SLOTS:
     void abortRequest();
