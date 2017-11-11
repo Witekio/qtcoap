@@ -136,23 +136,33 @@ void QCoapInternalRequest::initForReset(quint16 messageId)
     \internal
     Returns the CoAP frame corresponding to the QCoapInternalRequest into
     a QByteArray object.
+
+    For more details, refer to section
+    \l{https://tools.ietf.org/html/rfc7252#section-3}{'Message format' of RFC 7252}.
 */
+//! 0                   1                   2                   3
+//! 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+//! +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+//! |Ver| T |  TKL  |      Code     |          Message ID           |
+//! +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+//! |   Token (if any, TKL bytes) ...
+//! +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+//! |   Options (if any) ...
+//! +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
+//! |1 1 1 1 1 1 1 1|    Payload (if any) ...
+//! +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 QByteArray QCoapInternalRequest::toQByteArray() const
 {
     Q_D(const QCoapInternalRequest);
     QByteArray pdu;
 
     // Insert header
-    quint32 coapHeader = (quint32(d->message.version()) << 30)              // CoAP version
-                         | (quint32(d->message.type()) << 28)               // Message type
-                         | (quint32(d->message.token().length()) << 24)     // Token Length
-                         | (quint32(d->operation) << 16)                    // Operation type
-                         | (quint32(d->message.messageId()));               // Message ID
-
-    pdu.append(static_cast<char>(coapHeader >> 24));
-    pdu.append(static_cast<char>((coapHeader >> 16) & 0xFF));
-    pdu.append(static_cast<char>((coapHeader >> 8) & 0xFF));
-    pdu.append(static_cast<char>(coapHeader & 0xFF));
+    pdu.append(static_cast<char>((d->message.version()   << 6)              // CoAP version
+                               | (d->message.type()      << 4)              // Message type
+                               |  d->message.token().length()));            // Token Length
+    pdu.append(static_cast<char>( d->operation                 & 0xFF));    // Operation type
+    pdu.append(static_cast<char>((d->message.messageId() >> 8) & 0xFF));    // Message ID
+    pdu.append(static_cast<char>( d->message.messageId()       & 0xFF));
 
     // Insert Token
     pdu.append(d->message.token());
