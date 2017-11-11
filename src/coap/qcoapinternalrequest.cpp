@@ -386,20 +386,20 @@ void QCoapInternalRequest::addUriOptions(const QUrl &uri, const QUrl &proxyUri)
     // Convert port into QCoapOption if it is not the default port
     int port = mainUri.port();
     if (port > 0 && port != 5683)
-        addOption(QCoapOption::UriPort, QByteArray::number(port, 10));
+        addOption(QCoapOption::UriPort, QByteArray::number(port));
 
     // Convert path into QCoapOptions
     QString path = mainUri.path();
-    QStringList listPath = path.split('/');
-    for (const QString &pathPart : qAsConst(listPath)) {
+    const auto listPath = path.splitRef('/');
+    for (const QStringRef &pathPart : listPath) {
         if (!pathPart.isEmpty())
             addOption(QCoapOption::UriPath, pathPart.toUtf8());
     }
 
     // Convert query into QCoapOptions
     QString query = mainUri.query();
-    QStringList listQuery = query.split('&');
-    for (const QString &query : qAsConst(listQuery)) {
+    const auto listQuery = query.splitRef('&');
+    for (const QStringRef &query : listQuery) {
         if (!query.isEmpty())
             addOption(QCoapOption::UriQuery, query.toUtf8());
     }
