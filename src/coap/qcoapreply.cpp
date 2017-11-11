@@ -58,8 +58,8 @@ QCoapReplyPrivate::QCoapReplyPrivate() :
     The QCoapReply contains data related to a request sent with the
     QCoapClient.
 
-    The \l{QCoapReply::finished()}{finished()}  signal is emitted when
-    the response is fully received.
+    The \l{QCoapReply::finished()}{finished()} signal is emitted when
+    the response is fully received and when request fails.
 
     The \l{QCoapReply::notified(const QByteArray&)}
     {notified(const QByteArray&)} signal is emitted when a resource send

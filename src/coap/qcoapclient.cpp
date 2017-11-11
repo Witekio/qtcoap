@@ -151,8 +151,7 @@ QCoapClient::~QCoapClient()
 
 /*!
     Posts a GET request to \a target and returns a new
-    QCoapReply object which emits the \l{QCoapReply::finished()}{finished()}
-    signal whenever the response arrives.
+    QCoapReply object.
 
     \sa post(), put(), deleteResource(), observe(), discover()
 */
@@ -170,10 +169,9 @@ QCoapReply *QCoapClient::get(const QCoapRequest &target)
 
 /*!
     Posts a PUT request sending the contents of the \a data byte array to the
-    target \a request and returns a new QCoapReply object which emits the
-    \l{QCoapReply::finished()}{finished()} signal whenever the response arrives.
+    target \a request and returns a new QCoapReply object.
 
-    \sa get(), post(), deleteResource(), observe(), discover(), cancelObserve()
+    \sa get(), post(), deleteResource(), observe(), discover()
 */
 QCoapReply *QCoapClient::put(const QCoapRequest &request, const QByteArray &data)
 {
@@ -196,7 +194,7 @@ QCoapReply *QCoapClient::put(const QCoapRequest &request, const QByteArray &data
 
     \note The device has to be open and readable before calling this function.
 
-    \sa get(), post(), deleteResource(), observe(), discover(), cancelObserve()
+    \sa get(), post(), deleteResource(), observe(), discover()
 */
 QCoapReply *QCoapClient::put(const QCoapRequest &request, QIODevice *device)
 {
@@ -205,10 +203,9 @@ QCoapReply *QCoapClient::put(const QCoapRequest &request, QIODevice *device)
 
 /*!
     Posts a POST request sending the contents of the \a data byte array to the
-    target \a request and returns a new QCoapReply object which emits the
-    \l{QCoapReply::finished()}{finished()} signal whenever the response arrives.
+    target \a request and returns a new QCoapReply object.
 
-    \sa get(), put(), deleteResource(), observe(), discover(), cancelObserve()
+    \sa get(), put(), deleteResource(), observe(), discover()
 */
 QCoapReply *QCoapClient::post(const QCoapRequest &request, const QByteArray &data)
 {
@@ -231,7 +228,7 @@ QCoapReply *QCoapClient::post(const QCoapRequest &request, const QByteArray &dat
 
     \note The device has to be open and readable before calling this function.
 
-    \sa get(), put(), deleteResource(), observe(), discover(), cancelObserve()
+    \sa get(), put(), deleteResource(), observe(), discover()
 */
 QCoapReply *QCoapClient::post(const QCoapRequest &request, QIODevice *device)
 {
@@ -244,7 +241,7 @@ QCoapReply *QCoapClient::post(const QCoapRequest &request, QIODevice *device)
 /*!
     Sends a DELETE request to the target of \a request.
 
-    \sa get(), put(), post(), observe(), discover(), cancelObserve()
+    \sa get(), put(), post(), observe(), discover()
  */
 QCoapReply *QCoapClient::deleteResource(const QCoapRequest &request)
 {
@@ -258,6 +255,9 @@ QCoapReply *QCoapClient::deleteResource(const QCoapRequest &request)
     return reply;
 }
 
+//! TODO discover should probably use a signal different from
+//! 'finished', in order to be able to report multiple discovery
+//! answers, from different CoAP servers.
 /*!
     Discovers the resources available at the given \a url and returns
     a new QCoapDiscoveryReply object which emits the
@@ -266,7 +266,7 @@ QCoapReply *QCoapClient::deleteResource(const QCoapRequest &request)
 
     The path of the discovery can be set by giving the \a discoveryPath.
 
-    \sa get(), post(), put(), deleteResource(), observe(), cancelObserve()
+    \sa get(), post(), put(), deleteResource(), observe()
 */
 QCoapDiscoveryReply *QCoapClient::discover(const QUrl &url, const QString &discoveryPath)
 {
@@ -290,7 +290,7 @@ QCoapDiscoveryReply *QCoapClient::discover(const QUrl &url, const QString &disco
     \l{QCoapReply::notified(const QByteArray&)}{notified(const QByteArray&)}
     signal whenever a new notification arrives.
 
-    \sa get(), post(), put(), deleteResource(), discover(), cancelObserve()
+    \sa cancelObserve(), get(), post(), put(), deleteResource(), discover()
 */
 QCoapReply *QCoapClient::observe(const QCoapRequest &request)
 {
@@ -308,7 +308,7 @@ QCoapReply *QCoapClient::observe(const QCoapRequest &request)
 /*!
     Sends a request to cancel the observation of the target \a request.
 
-    \sa get(), post(), put(), deleteResource(), observe(), discover()
+    \sa observe()
 */
 void QCoapClient::cancelObserve(const QCoapRequest &request)
 {
@@ -323,7 +323,7 @@ void QCoapClient::cancelObserve(const QCoapRequest &request)
     Sends a request to cancel the observation of the target used by the
     reply \a notifiedReply
 
-    \sa get(), post(), put(), deleteResource(), observe(), discover()
+    \sa observe()
 */
 void QCoapClient::cancelObserve(QCoapReply *notifiedReply)
 {
@@ -336,8 +336,7 @@ void QCoapClient::cancelObserve(QCoapReply *notifiedReply)
     \internal
 
     Sends the CoAP \a request to its own URL and returns a new QCoapReply
-    object which emits the \l{QCoapReply::finished()}{finished()} signal
-    whenever the response arrives.
+    object.
 */
 QCoapReply *QCoapClientPrivate::sendRequest(const QCoapRequest &request)
 {
@@ -369,9 +368,7 @@ QCoapReply *QCoapClientPrivate::sendRequest(const QCoapRequest &request)
     \internal
 
     Sends the CoAP \a request to its own URL and returns a
-    new QCoapDiscoveryReply object which emits the
-    \l{QCoapReply::finished()}{finished()} signal whenever
-    the response arrives.
+    new QCoapDiscoveryReply object.
 */
 QCoapDiscoveryReply *QCoapClientPrivate::sendDiscovery(const QCoapRequest &request)
 {
