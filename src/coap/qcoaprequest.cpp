@@ -1,7 +1,7 @@
 /****************************************************************************
 **
-** Copyright (C) 2017 The Qt Company Ltd.
-** Contact: http://www.qt.io/licensing/
+** Copyright (C) 2017 Witekio.
+** Contact: https://witekio.com/contact/
 **
 ** This file is part of the QtCoap module.
 **
