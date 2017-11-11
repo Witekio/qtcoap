@@ -40,15 +40,6 @@
 
 QT_BEGIN_NAMESPACE
 
-QCoapReplyPrivate::QCoapReplyPrivate() :
-    status(QtCoap::Invalid),
-    message(QCoapMessage()),
-    isRunning(false),
-    isFinished(false),
-    isAborted(false)
-{
-}
-
 /*!
     \class QCoapReply
     \brief The QCoapReply class holds the data of a CoAP reply.

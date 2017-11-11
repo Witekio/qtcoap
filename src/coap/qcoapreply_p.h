@@ -57,15 +57,15 @@ QT_BEGIN_NAMESPACE
 class Q_AUTOTEST_EXPORT QCoapReplyPrivate : public QIODevicePrivate
 {
 public:
-    QCoapReplyPrivate();
+    QCoapReplyPrivate() = default;
 
     QCoapRequest request;
-    QtCoap::StatusCode status;
-    QCoapReply::NetworkError error;
     QCoapMessage message;
-    bool isRunning;
-    bool isFinished;
-    bool isAborted;
+    QtCoap::StatusCode status = QtCoap::Invalid;
+    QCoapReply::NetworkError error = QCoapReply::NoError;
+    bool isRunning = false;
+    bool isFinished = false;
+    bool isAborted = false;
 
     Q_DECLARE_PUBLIC(QCoapReply)
 };
