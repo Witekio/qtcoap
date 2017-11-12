@@ -255,16 +255,13 @@ QCoapInternalRequest *QCoapProtocolPrivate::findInternalRequestByToken(const QBy
 */
 QCoapInternalRequest *QCoapProtocolPrivate::findInternalRequestByReply(QCoapReply *reply)
 {
-    QCoapInternalRequest *copyRequest = nullptr;
-    InternalMessageMap::Iterator it;
-    for (it = internalReplies.begin(); it != internalReplies.end(); ++it) {
+    for (InternalMessageMap::iterator it = internalReplies.begin(); it != internalReplies.end(); ++it) {
         if (it.value().userReply == reply) {
-            copyRequest = const_cast<QCoapInternalRequest*>(it.key());
-            break;
+            return const_cast<QCoapInternalRequest*>(it.key());
         }
     }
 
-    return copyRequest;
+    return nullptr;
 }
 
 /*!
