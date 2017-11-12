@@ -77,42 +77,42 @@ void QCoapProtocol::sendRequest(QPointer<QCoapReply> reply, QCoapConnection *con
         return;
 
     // Generate unique token and message id
-    QCoapInternalRequest *copyInternalRequest = new QCoapInternalRequest(reply->request(), this);
-    if (copyInternalRequest->message()->messageId() == 0) {
+    QCoapInternalRequest *internalRequest = new QCoapInternalRequest(reply->request(), this);
+    if (internalRequest->message()->messageId() == 0) {
         do {
-            copyInternalRequest->generateMessageId();
-        } while (d->containsMessageId(copyInternalRequest->message()->messageId()));
+            internalRequest->generateMessageId();
+        } while (d->containsMessageId(internalRequest->message()->messageId()));
     }
-    if (copyInternalRequest->message()->token().isEmpty()) {
+    if (internalRequest->message()->token().isEmpty()) {
         do {
-            copyInternalRequest->generateToken();
-        } while (d->containsToken(copyInternalRequest->message()->token()));
+            internalRequest->generateToken();
+        } while (d->containsToken(internalRequest->message()->token()));
     }
 
-    copyInternalRequest->setConnection(connection);
+    internalRequest->setConnection(connection);
 
     // If this request does not already exist we add it to the map
-    if (!reply.isNull() && !d->findInternalRequestByToken(copyInternalRequest->message()->token())) {
+    if (!reply.isNull() && !d->findInternalRequestByToken(internalRequest->message()->token())) {
         InternalMessagePair pair = { reply, QList<QCoapInternalReply*>() };
-        d->internalReplies[copyInternalRequest] = pair;
+        d->internalReplies[internalRequest] = pair;
         reply->setIsRunning(true);
     }
 
     // If the user specified a size for blockwise request/replies
     if (d->blockSize > 0) {
-        copyInternalRequest->setRequestToAskBlock(0, d->blockSize);
-        if (copyInternalRequest->message()->payload().length() > d->blockSize)
-            copyInternalRequest->setRequestToSendBlock(0, d->blockSize);
+        internalRequest->setRequestToAskBlock(0, d->blockSize);
+        if (internalRequest->message()->payload().length() > d->blockSize)
+            internalRequest->setRequestToSendBlock(0, d->blockSize);
     }
 
-    if (copyInternalRequest->message()->type() == QCoapMessage::Confirmable) {
-        copyInternalRequest->setTimeout(d->ackTimeout);
-        connect(copyInternalRequest, SIGNAL(timeout(QCoapInternalRequest*)),
+    if (internalRequest->message()->type() == QCoapMessage::Confirmable) {
+        internalRequest->setTimeout(d->ackTimeout);
+        connect(internalRequest, SIGNAL(timeout(QCoapInternalRequest*)),
                 this, SLOT(resendRequest(QCoapInternalRequest*)));
     }
 
     QMetaObject::invokeMethod(this, "sendRequest",
-                              Q_ARG(QCoapInternalRequest*, copyInternalRequest));
+                              Q_ARG(QCoapInternalRequest*, internalRequest));
 }
 
 /*!
