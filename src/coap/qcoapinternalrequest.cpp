@@ -433,6 +433,7 @@ void QCoapInternalRequest::stopTransmission()
     Q_D(QCoapInternalRequest);
     d->retransmissionCounter = 0;
     d->timer->stop();
+    d->timer->setInterval(0);
 }
 
 /*!
