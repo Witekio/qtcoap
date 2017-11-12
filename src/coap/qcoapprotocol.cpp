@@ -571,6 +571,47 @@ quint16 QCoapProtocol::blockSize() const
 }
 
 /*!
+    Returns the MAX_RETRANSMIT_SPAN in milliseconds, as defined in
+    \l{https://tools.ietf.org/search/rfc7252#section-4.8.2}{RFC 7252}.
+
+    It is the maximum time from the first transmission of a Confirmable
+    message to its last retransmission.
+*/
+uint QCoapProtocol::maxRetransmitSpan() const
+{
+    if (maxRetransmit() == 0)
+        return 0;
+
+    return ackTimeout() * (1u << (maxRetransmit() - 1)) * ackRandomFactor();
+}
+
+/*!
+    Returns the MAX_RETRANSMIT_WAIT in milliseconds, as defined in
+    \l{https://tools.ietf.org/search/rfc7252#section-4.8.2}{RFC 7252}.
+
+    It is the maximum time from the first transmission of a Confirmable
+    message to the time when the sender gives up on receiving an
+    acknowledgement or reset.
+*/
+uint QCoapProtocol::maxRetransmitWait() const
+{
+    return ackTimeout() * (1u << (maxRetransmit() + 1)) * ackRandomFactor();
+}
+
+/*!
+    Returns the MAX_LATENCY in milliseconds, as defined in
+    \l{https://tools.ietf.org/search/rfc7252#section-4.8.2}{RFC 7252}. This
+    value is arbitrarily set to 100 seconds by the standard.
+
+    It is the maximum time a datagram is expected to take from the start of
+    its transmission to the completion of its reception.
+*/
+constexpr uint QCoapProtocol::maxLatency()
+{
+    return 100 * 1000;
+}
+
+/*!
     Sets the ACK_TIMEOUT value to \a ackTimeout in milliseconds. This value
     defauts to 2000 ms.
 
