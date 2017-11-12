@@ -352,8 +352,8 @@ QCoapReply *QCoapClientPrivate::sendRequest(const QCoapRequest &request)
     QPointer<QCoapReply> reply = new QCoapReply(q);
     reply->setRequest(request);
 
-    // connect with DirectConnection type to secure from deleting the reply
-    // (reply destructor emits the signal)
+    // DirectConnection is used to process the signal before the QCoapReply is
+    // deleted, as aborted() is emitted in ~QCoapReply
     q->connect(reply, SIGNAL(aborted(QCoapReply*)),
                protocol, SLOT(onAbortedRequest(QCoapReply*)), Qt::DirectConnection);
     q->connect(connection, SIGNAL(error(QAbstractSocket::SocketError)),

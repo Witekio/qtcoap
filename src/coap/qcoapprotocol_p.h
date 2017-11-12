@@ -67,9 +67,8 @@ typedef QMap<QCoapInternalRequest*, InternalMessagePair> InternalMessageMap;
 class Q_AUTOTEST_EXPORT QCoapProtocolPrivate : public QObjectPrivate
 {
 public:
-    QCoapProtocolPrivate();
+    QCoapProtocolPrivate() = default;
 
-    void handleFrame();
     void handleFrame(const QByteArray &frame);
     void onLastBlock(QCoapInternalRequest *request);
     void onNextBlock(QCoapInternalRequest *request, uint currentBlockNumber, uint blockSize);
@@ -91,11 +90,11 @@ public:
 
     InternalMessageMap internalReplies;
     QQueue<QByteArray> frameQueue;
-    quint16 blockSize;
+    quint16 blockSize = 0;
 
-    uint ackTimeout;
-    double ackRandomFactor;
-    uint maxRetransmit;
+    uint ackTimeout = 2000;
+    double ackRandomFactor = 1.5;
+    uint maxRetransmit = 4;
 
     Q_DECLARE_PUBLIC(QCoapProtocol)
 };

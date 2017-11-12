@@ -109,7 +109,9 @@ void QCoapInternalRequest::initForAcknowledgement(quint16 messageId, const QByte
 /*!
     \internal
     Initialize parameters to transform the QCoapInternalRequest into a
-    reset message with the message id \a messageId.
+    Reset message (RST) with the message id \a messageId.
+
+    A Reset message should be empty, and contain the \a messageId.
 */
 void QCoapInternalRequest::initForReset(quint16 messageId)
 {
@@ -545,7 +547,10 @@ void QCoapInternalRequest::setTargetUri(QUrl targetUri)
 
 /*!
     \internal
-    Sets the timeout to the given \a timeout value in milliseconds.
+    Sets the timeout to the given \a timeout value in milliseconds. Timeout is
+    used for reliable transmission of Confirmable messages.
+
+    When such request times out, its timeout value will double.
 */
 void QCoapInternalRequest::setTimeout(uint timeout)
 {

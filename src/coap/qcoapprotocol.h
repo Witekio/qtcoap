@@ -58,6 +58,10 @@ public:
     double ackRandomFactor() const;
     uint maxRetransmit() const;
     quint16 blockSize() const;
+    uint maxRetransmitSpan() const;
+    uint maxRetransmitWait() const;
+    static constexpr uint maxLatency();
+
     void setAckTimeout(uint ackTimeout);
     void setAckRandomFactor(double ackRandomFactor);
     void setMaxRetransmit(uint maxRetransmit);

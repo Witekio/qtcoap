@@ -429,9 +429,9 @@ void tst_QCoapClient::blockwiseRequest_data()
     QTest::addColumn<QByteArray>("replyData");
 
     QByteArray data;
-    data.append("abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyz");
-    data.append("abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyz");
-    data.append("abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyz");
+    const char alphabet[] = "abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyz";
+    for (int i = 3; i-- > 0; )
+        data.append(alphabet);
 
     QTest::newRow("large_post_empty_reply") << QUrl("coap://172.17.0.3:5683/query")
                                << QCoapMessage::NonConfirmable
