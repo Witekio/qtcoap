@@ -34,6 +34,7 @@
 **
 ****************************************************************************/
 
+#include <QtCore/qrandom.h>
 #include "qcoapprotocol_p.h"
 #include "qcoapinternalrequest_p.h"
 #include "qcoapinternalreply_p.h"
@@ -106,7 +107,7 @@ void QCoapProtocol::sendRequest(QPointer<QCoapReply> reply, QCoapConnection *con
     }
 
     if (internalRequest->message()->type() == QCoapMessage::Confirmable) {
-        internalRequest->setTimeout(d->ackTimeout);
+        internalRequest->setTimeout(QRandomGenerator::bounded(d->ackTimeout, d->ackTimeout * d->ackRandomFactor));
         connect(internalRequest, SIGNAL(timeout(QCoapInternalRequest*)),
                 this, SLOT(resendRequest(QCoapInternalRequest*)));
     }
@@ -570,9 +571,13 @@ quint16 QCoapProtocol::blockSize() const
 }
 
 /*!
-    Sets the ACK_TIMEOUT value to \a ackTimeout.
+    Sets the ACK_TIMEOUT value to \a ackTimeout in milliseconds. This value
+    defauts to 2000 ms.
 
-    \sa ackTimeout()
+    Final timeout for transmission is a random value between ackTimeout() and
+    ackTimeout() * ackRandomFactor().
+
+    \sa ackTimeout(), setAckRandomFactor()
 */
 void QCoapProtocol::setAckTimeout(uint ackTimeout)
 {
@@ -581,9 +586,10 @@ void QCoapProtocol::setAckTimeout(uint ackTimeout)
 }
 
 /*!
-    Sets the ACK_RANDOM_FACTOR value to \a ackRandomFactor.
+    Sets the ACK_RANDOM_FACTOR value to \a ackRandomFactor. This value
+    defaults to 1.5.
 
-    \sa ackRandomFactor()
+    \sa ackRandomFactor(), setAckTimeout()
 */
 void QCoapProtocol::setAckRandomFactor(double ackRandomFactor)
 {
@@ -592,7 +598,8 @@ void QCoapProtocol::setAckRandomFactor(double ackRandomFactor)
 }
 
 /*!
-    Sets the MAX_RETRANSMIT value to \a maxRetransmit.
+    Sets the MAX_RETRANSMIT value to \a maxRetransmit. This value
+    defaults to 4.
 
     \sa maxRetransmit()
 */

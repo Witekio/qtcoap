@@ -556,7 +556,10 @@ void QCoapInternalRequest::setTargetUri(QUrl targetUri)
 
 /*!
     \internal
-    Sets the timeout to the given \a timeout value in milliseconds.
+    Sets the timeout to the given \a timeout value in milliseconds. Timeout is
+    used for reliable transmission of Confirmable messages.
+
+    When such request times out, its timeout value will double.
 */
 void QCoapInternalRequest::setTimeout(uint timeout)
 {

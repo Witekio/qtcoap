@@ -94,7 +94,7 @@ public:
 
     uint ackTimeout = 2000;
     double ackRandomFactor = 1.5;
-    uint maxRetransmit = 1;
+    uint maxRetransmit = 4;
 
     Q_DECLARE_PUBLIC(QCoapProtocol)
 };
