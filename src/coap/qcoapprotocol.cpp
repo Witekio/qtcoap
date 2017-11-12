@@ -141,8 +141,16 @@ void QCoapProtocolPrivate::sendRequest(QCoapInternalRequest *request)
 void QCoapProtocolPrivate::messageReceived(const QByteArray &frameReply)
 {
     frameQueue.enqueue(frameReply);
-    if (frameQueue.size() == 1)
-        handleFrame(frameQueue.head());
+
+    if (frameQueue.size() == 1) {
+        do {
+            handleFrame(frameQueue.head());
+            frameQueue.dequeue();
+            // Continue until queue is empty
+            // TODO I don't think this is possible anymore, possible
+            // code simplification.
+        } while (frameQueue.size() > 0);
+    }
 }
 
 /*!
@@ -187,7 +195,6 @@ void QCoapProtocolPrivate::handleFrame(const QByteArray &frame)
         // No matching request found, drop the frame.
         if (!request) {
             delete internalReply;
-            frameQueue.dequeue();
             return;
         }
     }
@@ -216,11 +223,6 @@ void QCoapProtocolPrivate::handleFrame(const QByteArray &frame)
     } else {
         onLastBlock(request);
     }
-
-    // Dequeue current frame, and take the next one, if there is any
-    frameQueue.dequeue();
-    if (!frameQueue.isEmpty())
-        handleFrame(frameQueue.head());
 }
 
 /*!
