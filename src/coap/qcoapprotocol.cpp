@@ -287,16 +287,15 @@ QCoapInternalRequest *QCoapProtocolPrivate::findInternalRequestByMessageId(quint
 
     Handles what to do when we received the last block of a reply.
 
-    Here it merges all blocks, removes the request from the map,
-    updates the associated QCoapReply and emits a
+    Merges all blocks, removes the request from the map, updates the
+    associated QCoapReply and emits a
     \l{QCoapProtocol::finished(QCoapReply*)}{finished(QCoapReply*)} signal.
 */
 void QCoapProtocolPrivate::onLastBlock(QCoapInternalRequest *request)
 {
     Q_Q(QCoapProtocol);
 
-    QList<InternalMessagePair> internalRepliesValue = internalReplies.values(request);
-    if (internalRepliesValue.isEmpty())
+    if (!internalReplies.contains(request))
         return;
 
     QList<QCoapInternalReply*> replies = internalReplies[request].replies;
@@ -325,7 +324,7 @@ void QCoapProtocolPrivate::onLastBlock(QCoapInternalRequest *request)
                 continue;
 
             finalPayload.append(replyPayload);
-            lastBlockNumber = static_cast<int>(reply->currentBlockNumber());
+            lastBlockNumber = currentBlock;
         }
 
         finalReply->message()->setPayload(finalPayload);
@@ -357,7 +356,7 @@ void QCoapProtocolPrivate::onNextBlock(QCoapInternalRequest *request,
                                        uint currentBlockNumber,
                                        uint blockSize)
 {
-    request->setRequestToAskBlock(currentBlockNumber+1, blockSize);
+    request->setRequestToAskBlock(currentBlockNumber + 1, blockSize);
     sendRequest(request);
 }
 
