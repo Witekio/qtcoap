@@ -574,7 +574,8 @@ quint16 QCoapProtocol::blockSize() const
     Sets the ACK_TIMEOUT value to \a ackTimeout in milliseconds. This value
     defauts to 2000 ms.
 
-    Final timeout for transmission is a random value between ackTimeout() and
+    Timeout only applies to Confirmable message. The actual timeout for
+    reliable transmissions is a random value between ackTimeout() and
     ackTimeout() * ackRandomFactor().
 
     \sa ackTimeout(), setAckRandomFactor()
