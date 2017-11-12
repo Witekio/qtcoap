@@ -69,7 +69,6 @@ class Q_AUTOTEST_EXPORT QCoapProtocolPrivate : public QObjectPrivate
 public:
     QCoapProtocolPrivate() = default;
 
-    void handleFrame();
     void handleFrame(const QByteArray &frame);
     void onLastBlock(QCoapInternalRequest *request);
     void onNextBlock(QCoapInternalRequest *request, uint currentBlockNumber, uint blockSize);

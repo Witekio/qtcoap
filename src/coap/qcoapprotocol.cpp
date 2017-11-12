@@ -142,19 +142,7 @@ void QCoapProtocolPrivate::messageReceived(const QByteArray &frameReply)
 {
     frameQueue.enqueue(frameReply);
     if (frameQueue.size() == 1)
-        handleFrame();
-}
-
-/*!
-    \internal
-    \class QCoapProtocolPrivate
-
-    Takes the first frame of the queue (without removing it)
-    and handles it.
-*/
-void QCoapProtocolPrivate::handleFrame()
-{
-    handleFrame(frameQueue.head());
+        handleFrame(frameQueue.head());
 }
 
 /*!
@@ -195,8 +183,13 @@ void QCoapProtocolPrivate::handleFrame(const QByteArray &frame)
 
     if (!request) {
         request = findInternalRequestByMessageId(internalReplyMessage->messageId());
-        if (!request)
+
+        // No matching request found, drop the frame.
+        if (!request) {
+            delete internalReply;
+            frameQueue.dequeue();
             return;
+        }
     }
 
     request->stopTransmission();
@@ -224,10 +217,10 @@ void QCoapProtocolPrivate::handleFrame(const QByteArray &frame)
         onLastBlock(request);
     }
 
-    // Take the next frame, if there is one:
+    // Dequeue current frame, and take the next one, if there is any
     frameQueue.dequeue();
     if (!frameQueue.isEmpty())
-        handleFrame();
+        handleFrame(frameQueue.head());
 }
 
 /*!
@@ -239,7 +232,7 @@ void QCoapProtocolPrivate::handleFrame(const QByteArray &frame)
 QCoapInternalRequest *QCoapProtocolPrivate::findInternalRequestByToken(const QByteArray &token)
 {
     for (InternalMessageMap::iterator it = internalReplies.begin();
-         it != internalReplies.end(); ++it) {
+        it != internalReplies.end(); ++it) {
         if (it.key()->message()->token() == token)
             return const_cast<QCoapInternalRequest*>(it.key()); // key is the internal request
     }
