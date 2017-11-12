@@ -49,7 +49,7 @@ QT_BEGIN_NAMESPACE
 
     The QCoapProtocol is used by the QCoapClient class to handle the logical
     part of the protocol. It can encode requests and decode replies. It also
-    handles what to do when a message is received and the retransmission of
+    handles what to do when a message is received, along with retransmission of
     lost messages.
 
     \sa QCoapClient
@@ -93,9 +93,9 @@ void QCoapProtocol::sendRequest(QPointer<QCoapReply> reply, QCoapConnection *con
 
     // If this request does not already exist we add it to the map
     if (!reply.isNull() && !d->findInternalRequestByToken(copyInternalRequest->message()->token())) {
-            InternalMessagePair pair = { reply, QList<QCoapInternalReply*>() };
-            d->internalReplies[copyInternalRequest] = pair;
-            reply->setIsRunning(true);
+        InternalMessagePair pair = { reply, QList<QCoapInternalReply*>() };
+        d->internalReplies[copyInternalRequest] = pair;
+        reply->setIsRunning(true);
     }
 
     // If the user specified a size for blockwise request/replies
@@ -116,6 +116,9 @@ void QCoapProtocol::sendRequest(QPointer<QCoapReply> reply, QCoapConnection *con
 }
 
 /*!
+    \internal
+    \class QCoapProtocolPrivate
+
     Encodes and sends the given \a request to the server.
 */
 void QCoapProtocolPrivate::sendRequest(QCoapInternalRequest *request)
@@ -127,6 +130,9 @@ void QCoapProtocolPrivate::sendRequest(QCoapInternalRequest *request)
 }
 
 /*!
+    \internal
+    \class QCoapProtocolPrivate
+
     Handles what to do when a new message is received.
 
     Here, it puts the frame \a frameReply into a queue and runs the function
@@ -140,6 +146,9 @@ void QCoapProtocolPrivate::messageReceived(const QByteArray &frameReply)
 }
 
 /*!
+    \internal
+    \class QCoapProtocolPrivate
+
     Takes the first frame of the queue (without removing it)
     and handles it.
 */
@@ -149,6 +158,9 @@ void QCoapProtocolPrivate::handleFrame()
 }
 
 /*!
+    \internal
+    \class QCoapProtocolPrivate
+
     This slot is used to send again the given \a request after a timeout or
     aborts the request and transfers a timeout error to the reply.
 */
@@ -167,6 +179,9 @@ void QCoapProtocolPrivate::resendRequest(QCoapInternalRequest *request)
 }
 
 /*!
+    \internal
+    \class QCoapProtocolPrivate
+
     Handles the given \a frame and takes the next.
 */
 void QCoapProtocolPrivate::handleFrame(const QByteArray &frame)
@@ -187,7 +202,7 @@ void QCoapProtocolPrivate::handleFrame(const QByteArray &frame)
     request->stopTransmission();
     internalReplies[request].replies.push_back(internalReply);
 
-    // Reply when the server ask an ACK
+    // Reply when the server asks for an ACK
     if (request->cancelObserve()) {
         // Remove option to ensure that it will stop
         request->removeOption(QCoapOption::Observe);
@@ -209,13 +224,16 @@ void QCoapProtocolPrivate::handleFrame(const QByteArray &frame)
         onLastBlock(request);
     }
 
-    // Take the next frame if needed
+    // Take the next frame, if there is one:
     frameQueue.dequeue();
     if (!frameQueue.isEmpty())
         handleFrame();
 }
 
 /*!
+    \internal
+    \class QCoapProtocolPrivate
+
     Finds an internal request containing the given \a token.
 */
 QCoapInternalRequest *QCoapProtocolPrivate::findInternalRequestByToken(const QByteArray &token)
@@ -230,6 +248,9 @@ QCoapInternalRequest *QCoapProtocolPrivate::findInternalRequestByToken(const QBy
 }
 
 /*!
+    \internal
+    \class QCoapProtocolPrivate
+
     Finds an internal request matching the given \a reply.
 */
 QCoapInternalRequest *QCoapProtocolPrivate::findInternalRequestByReply(QCoapReply *reply)
@@ -247,6 +268,9 @@ QCoapInternalRequest *QCoapProtocolPrivate::findInternalRequestByReply(QCoapRepl
 }
 
 /*!
+    \internal
+    \class QCoapProtocolPrivate
+
     Finds an internal request containing the message id \a messageId.
 */
 QCoapInternalRequest *QCoapProtocolPrivate::findInternalRequestByMessageId(quint16 messageId)
@@ -261,6 +285,9 @@ QCoapInternalRequest *QCoapProtocolPrivate::findInternalRequestByMessageId(quint
 }
 
 /*!
+    \internal
+    \class QCoapProtocolPrivate
+
     Handles what to do when we received the last block of a reply.
 
     Here it merges all blocks, removes the request from the map,
@@ -320,6 +347,9 @@ void QCoapProtocolPrivate::onLastBlock(QCoapInternalRequest *request)
 }
 
 /*!
+    \internal
+    \class QCoapProtocolPrivate
+
     Handles what to do when we received a new block that is not the last.
 
     Here it sets the given internal \a request to ask the block number
@@ -335,8 +365,11 @@ void QCoapProtocolPrivate::onNextBlock(QCoapInternalRequest *request,
 }
 
 /*!
-    Creates a new internal request with the same uri and connection than
-    \a request, sets it up to make it an acknowledgement message and sends it.
+    \internal
+    \class QCoapProtocolPrivate
+
+    Sends an internal request acknowledging the given \a request, reusing its
+    URI and connection.
 */
 void QCoapProtocolPrivate::sendAcknowledgement(QCoapInternalRequest *request)
 {
@@ -351,8 +384,12 @@ void QCoapProtocolPrivate::sendAcknowledgement(QCoapInternalRequest *request)
 }
 
 /*!
-    Creates a new internal request with the same uri and connection than
-    \a request, sets it up to make it a reset message and sends it.
+    \internal
+    \class QCoapProtocolPrivate
+
+    Sends a Reset message (RST), reusing the details of the given
+    \a request. A Reset message indicates that a specific message has been
+    received, but cannot be properly processed.
 */
 void QCoapProtocolPrivate::sendReset(QCoapInternalRequest *request)
 {
@@ -366,10 +403,10 @@ void QCoapProtocolPrivate::sendReset(QCoapInternalRequest *request)
 }
 
 /*!
-    Handles what to do when the user want to stop to observe a resource.
+    Handles what to do when the user want to stop observing a resource.
 
-    Here it just finds the internal request associated to the \a reply and
-    sets it to ask to cancel the observe request.
+    Finds the internal request associated with \a reply and tells it to stop
+    observing.
 */
 void QCoapProtocol::cancelObserve(QPointer<QCoapReply> reply)
 {
@@ -383,6 +420,9 @@ void QCoapProtocol::cancelObserve(QPointer<QCoapReply> reply)
 }
 
 /*!
+    \internal
+    \class QCoapProtocolPrivate
+
     Encodes the QCoapInternalRequest object \a request to a QByteArray frame.
 */
 QByteArray QCoapProtocolPrivate::encode(QCoapInternalRequest *request)
@@ -391,6 +431,9 @@ QByteArray QCoapProtocolPrivate::encode(QCoapInternalRequest *request)
 }
 
 /*!
+    \internal
+    \class QCoapProtocolPrivate
+
     Decodes the QByteArray \a message to a QCoapInternalReply object.
 */
 QCoapInternalReply *QCoapProtocolPrivate::decode(const QByteArray &message)
@@ -400,10 +443,12 @@ QCoapInternalReply *QCoapProtocolPrivate::decode(const QByteArray &message)
 }
 
 /*!
-    Handles what to do when the request corresponding to the given
-    \a reply has been aborted.
+    \internal
+    \class QCoapProtocolPrivate
 
-    Here it stops the transmission of the request and removes it from the map.
+    Aborts the request corresponding to the given \a reply. This is triggered
+    by the destruction of the QCoapReply object or a call to
+    QCoapReply::abortRequest().
 */
 void QCoapProtocolPrivate::onAbortedRequest(QCoapReply *reply)
 {
@@ -456,6 +501,9 @@ QList<QCoapResource> QCoapProtocol::resourcesFromCoreLinkList(const QByteArray &
 }
 
 /*!
+    \internal
+    \class QCoapProtocolPrivate
+
     Returns true if a request has a token equal to \a token.
 */
 bool QCoapProtocolPrivate::containsToken(const QByteArray &token)
@@ -469,6 +517,9 @@ bool QCoapProtocolPrivate::containsToken(const QByteArray &token)
 }
 
 /*!
+    \internal
+    \class QCoapProtocolPrivate
+
     Returns true if a request has a message id equal to \a id.
 */
 bool QCoapProtocolPrivate::containsMessageId(quint16 id)
@@ -565,7 +616,7 @@ void QCoapProtocol::setMaxRetransmit(uint maxRetransmit)
 */
 void QCoapProtocol::setBlockSize(quint16 blockSize)
 {
-    // A size of 0 mean that the server choose the blocks size
+    // A size of 0 invites the server chose the block size.
     Q_D(QCoapProtocol);
     d->blockSize = blockSize;
 }
