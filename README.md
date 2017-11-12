@@ -25,10 +25,13 @@ sudo docker run -it --rm -p 6080:80 -p 5900:5900 -v /var/run/docker.sock:/run/do
 
 #### CoAP test server
 
-Test server is based on [Califormium](https://www.eclipse.org/californium/).
+Test server is based on [Califormium](https://www.eclipse.org/californium/), the Dockerfile can be found in the downloads.
 
 - Build the first time with: `sudo docker build -t coap-server .`
-- Run with : sudo docker run coap-server
+- Run with : `sudo docker run -d -p 5683:5683/udp coap-server`
+
+In order for automatic tests to work, the IP of the test server should be `172.17.0.3`. Docker has no way to give static IP, the easiest is for this container to be the second to start, which should assign it that IP.
+You can show containers IP with `docker inspect <container_id>`.
 
 ### Links to access the new repository
 
