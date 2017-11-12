@@ -471,20 +471,22 @@ QList<QCoapResource> QCoapProtocol::resourcesFromCoreLinkList(const QByteArray &
         const QList<QByteArray> parameterList = link.split(';');
         for (QByteArray parameter : parameterList)
         {
-            QString parameterString = QLatin1String(parameter);
-            int length = parameter.length();
+            QString parameterString = QString::fromUtf8(parameter);
+            int length = parameterString.length();
             if (parameter.startsWith('<'))
-                resource.setPath(parameterString.mid(1, length-2));
+                resource.setPath(parameterString.mid(1, length - 2));
             else if (parameter.startsWith("title="))
-                resource.setTitle(parameterString.right(length-6).remove(quote));
+                resource.setTitle(parameterString.mid(6).remove(quote));
             else if (parameter.startsWith("rt="))
-                resource.setResourceType(parameterString.right(length-3).remove(quote));
+                resource.setResourceType(parameterString.mid(3).remove(quote));
             else if (parameter.startsWith("if="))
-                resource.setInterface(parameterString.right(length-3).remove(quote));
+                resource.setInterface(parameterString.mid(3).remove(quote));
             else if (parameter.startsWith("sz="))
-                resource.setMaximumSize(parameterString.right(length-3).remove(quote).toInt());
+                resource.setMaximumSize(parameterString.mid(3).remove(quote)
+                                                              .toInt());
             else if (parameter.startsWith("ct="))
-                resource.setContentFormat(parameterString.right(length-3).remove(quote).toUInt());
+                resource.setContentFormat(parameterString.mid(3).remove(quote)
+                                                                .toUInt());
             else if (parameter == "obs")
                 resource.setObservable(true);
         }
