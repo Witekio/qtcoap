@@ -40,14 +40,6 @@
 
 QT_BEGIN_NAMESPACE
 
-QCoapProtocolPrivate::QCoapProtocolPrivate() :
-    blockSize(0),
-    ackTimeout(2000),
-    ackRandomFactor(1.5),
-    maxRetransmit(4)
-{
-}
-
 /*!
     \class QCoapProtocol
     \brief The QCoapProtocol class handles the logical part of the CoAP
