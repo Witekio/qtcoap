@@ -41,16 +41,6 @@
 
 QT_BEGIN_NAMESPACE
 
-QCoapInternalRequestPrivate::QCoapInternalRequestPrivate() :
-    targetUri(QUrl()),
-    operation(QCoapInternalRequest::Empty),
-    cancelObserve(false),
-    retransmissionCounter(0),
-    timeout(0),
-    timer(nullptr)
-{
-}
-
 /*!
     \internal
 

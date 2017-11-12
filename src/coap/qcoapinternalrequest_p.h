@@ -125,16 +125,16 @@ private:
 class Q_AUTOTEST_EXPORT QCoapInternalRequestPrivate : public QCoapInternalMessagePrivate
 {
 public:
-    QCoapInternalRequestPrivate();
+    QCoapInternalRequestPrivate() = default;
 
     QUrl targetUri;
-    QCoapInternalRequest::OperationInternal operation;
-    QCoapConnection *connection;
-    bool cancelObserve;
+    QCoapInternalRequest::OperationInternal operation = QCoapInternalRequest::Empty;
+    QCoapConnection *connection = nullptr;
     QByteArray fullPayload;
+    bool cancelObserve = false;
 
-    uint retransmissionCounter;
-    int timeout;
+    int timeout = 0;
+    uint retransmissionCounter = 0;
     QTimer *timer = nullptr;
 
     void _q_timeout();
