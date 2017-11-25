@@ -70,6 +70,8 @@ public:
     void setOperation(QtCoap::Operation operation);
     void enableObserve();
 
+    static bool isUrlValid(const QUrl& url);
+
 private:
     //! For QSharedDataPointer
     QCoapRequestPrivate* d_func();

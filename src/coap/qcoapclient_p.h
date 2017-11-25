@@ -70,8 +70,8 @@ public:
     QCoapConnection *connection;
     QThread *workerThread;
 
-    QCoapReply *sendRequest(const QCoapRequest &request);
-    QCoapDiscoveryReply *sendDiscovery(const QCoapRequest &request);
+    QCoapReply *sendRequest(QCoapRequest &request);
+    QCoapDiscoveryReply *sendDiscovery(QCoapRequest &request);
 
     Q_DECLARE_PUBLIC(QCoapClient)
 };

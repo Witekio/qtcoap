@@ -67,7 +67,11 @@ public:
     void cancelObserve(const QCoapRequest &request);
     void cancelObserve(QCoapReply *notifiedReply);
 
-    QCoapDiscoveryReply *discover(const QUrl &url,
+#if 0
+    //! TODO Add global discovery
+    QCoapDiscoveryReply *discover(const QString &discoveryPath = QLatin1String("/.well-known/core"));
+#endif
+    QCoapDiscoveryReply *discover(const QUrl &baseUrl,
                                   const QString &discoveryPath = QLatin1String("/.well-known/core"));
 
     void setBlockSize(quint16 blockSize);

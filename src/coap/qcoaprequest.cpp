@@ -41,14 +41,52 @@
 QT_BEGIN_NAMESPACE
 
 QCoapRequestPrivate::QCoapRequestPrivate(const QUrl &url, QCoapMessage::MessageType _type, const QUrl &proxyUrl) :
-    uri(url),
     proxyUri(proxyUrl)
 {
     type = _type;
+    setUrl(url);
 }
 
 QCoapRequestPrivate::~QCoapRequestPrivate()
 {
+}
+
+/*!
+    \internal
+
+    \brief Sets the url after adjusting it, and asserting its validity.
+*/
+void QCoapRequestPrivate::setUrl(const QUrl &url)
+{
+    // Print no warning when resetting URL
+    if (url.isEmpty()) {
+        uri = url;
+        return;
+    }
+
+    // Make first checks before editing the URL, to avoid editing it
+    // in a wrong way (e.g. when adding the scheme)
+    if (!url.isValid()) {
+        qWarning() << "QCoapRequest: Invalid CoAP url" << url.toString();
+        return;
+    }
+
+    QUrl finalizedUrl = url;
+    if (finalizedUrl.isRelative())
+        finalizedUrl = url.toString().prepend(QLatin1String("coap://"));
+    else if (finalizedUrl.scheme().isEmpty())
+        finalizedUrl.setScheme(QLatin1String("coap"));
+
+    if (finalizedUrl.port() == -1) {
+        finalizedUrl.setPort(5683);
+    }
+
+    if (!QCoapRequest::isUrlValid(finalizedUrl)) {
+        qWarning() << "QCoapRequest: Invalid CoAP url" << finalizedUrl.toString();
+        return;
+    }
+
+    uri = finalizedUrl;
 }
 
 /*!
@@ -67,6 +105,9 @@ QCoapRequestPrivate::~QCoapRequestPrivate()
 /*!
     Constructs a QCoapRequest object with the target \a url,
     the proxy URL \a proxyUrl and the \a type of the message.
+
+    If not indicated, the scheme of the URL will default to 'coap', and its
+    port will default to 5683.
 */
 QCoapRequest::QCoapRequest(const QUrl &url, MessageType type, const QUrl &proxyUrl) :
     QCoapMessage(*new QCoapRequestPrivate(url, type, proxyUrl))
@@ -143,12 +184,15 @@ bool QCoapRequest::observe() const
 /*!
     Sets the target URI of the request to the given \a url.
 
+    If not indicated, the scheme of the URL will default to 'coap', and its
+    port will default to 5683.
+
     \sa url()
 */
 void QCoapRequest::setUrl(const QUrl &url)
 {
     Q_D(QCoapRequest);
-    d->uri = url;
+    d->setUrl(url);
 }
 
 /*!
@@ -201,6 +245,15 @@ QCoapRequest &QCoapRequest::operator=(const QCoapRequest &other)
 bool QCoapRequest::operator<(const QCoapRequest &other) const
 {
     return d_ptr->messageId < other.messageId();
+}
+
+/*!
+    Returns true if the \a url is valid a CoAP URL.
+*/
+bool QCoapRequest::isUrlValid(const QUrl& url)
+{
+    return (url.isValid() && !url.isLocalFile() && !url.isLocalFile()
+            && url.scheme() == QLatin1String("coap"));
 }
 
 /*!

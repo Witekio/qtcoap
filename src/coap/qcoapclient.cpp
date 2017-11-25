@@ -365,12 +365,11 @@ void QCoapClient::cancelObserve(QCoapReply *notifiedReply)
     Sends the CoAP \a request to its own URL and returns a new QCoapReply
     object.
 */
-QCoapReply *QCoapClientPrivate::sendRequest(const QCoapRequest &request)
+QCoapReply *QCoapClientPrivate::sendRequest(QCoapRequest &request)
 {
     Q_Q(QCoapClient);
 
-    QString scheme = request.url().scheme();
-    if (scheme != QLatin1String("coap"))
+    if (!QCoapRequest::isUrlValid(request.url()))
         return nullptr;
 
     // Prepare the reply
@@ -397,12 +396,11 @@ QCoapReply *QCoapClientPrivate::sendRequest(const QCoapRequest &request)
     Sends the CoAP \a request to its own URL and returns a
     new QCoapDiscoveryReply object.
 */
-QCoapDiscoveryReply *QCoapClientPrivate::sendDiscovery(const QCoapRequest &request)
+QCoapDiscoveryReply *QCoapClientPrivate::sendDiscovery(QCoapRequest &request)
 {
     Q_Q(QCoapClient);
 
-    QString scheme = request.url().scheme();
-    if (scheme != QLatin1String("coap"))
+    if (!QCoapRequest::isUrlValid(request.url()))
         return nullptr;
 
     // Prepare the reply

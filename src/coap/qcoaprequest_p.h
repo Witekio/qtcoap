@@ -63,6 +63,8 @@ public:
     QCoapRequestPrivate(const QCoapRequestPrivate &other) = default;
     ~QCoapRequestPrivate();
 
+    void setUrl(const QUrl &url);
+
     QUrl uri;
     QUrl proxyUri;
     QtCoap::Operation operation = QtCoap::Empty;
