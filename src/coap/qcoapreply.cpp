@@ -266,7 +266,7 @@ QUrl QCoapReply::url() const
 /*!
     Returns the operation of the associated request.
 */
-QCoapRequest::Operation QCoapReply::operation() const
+QtCoap::Operation QCoapReply::operation() const
 {
     Q_D(const QCoapReply);
     return d->request.operation();

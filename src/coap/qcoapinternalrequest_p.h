@@ -39,6 +39,7 @@
 
 #include <QtCore/qglobal.h>
 #include <QtCoap/qcoapglobal.h>
+#include <QtCoap/qcoapnamespace.h>
 #include <QtCoap/qcoapinternalmessage.h>
 #include <QtCoap/qcoapconnection.h>
 #include <QtCore/qtimer.h>
@@ -64,23 +65,6 @@ class Q_AUTOTEST_EXPORT QCoapInternalRequest : public QCoapInternalMessage
 {
     Q_OBJECT
 public:
-    enum OperationInternal {
-        Empty,
-        Get,
-        Post,
-        Put,
-        Delete,
-#if 0
-        //! TODO, included in RFC 8132
-        //! https://tools.ietf.org/html/rfc8132
-        Fetch,
-        Patch,
-        IPatch,
-#endif
-        Other
-    };
-    Q_ENUM(OperationInternal)
-
     explicit QCoapInternalRequest(QObject *parent = nullptr);
     explicit QCoapInternalRequest(const QCoapRequest &request, QObject *parent = nullptr);
 
@@ -98,11 +82,11 @@ public:
     void addUriOptions(const QUrl &uri, const QUrl &proxyUri = QUrl());
 
     QUrl targetUri() const;
-    OperationInternal operation() const;
+    QtCoap::Operation operation() const;
     bool cancelObserve() const;
     QCoapConnection *connection() const;
     uint retransmissionCounter() const;
-    void setOperation(OperationInternal operation);
+    void setOperation(QtCoap::Operation operation);
     void setConnection(QCoapConnection *connection);
     void setCancelObserve(bool cancelObserve);
 
@@ -128,7 +112,7 @@ public:
     QCoapInternalRequestPrivate() = default;
 
     QUrl targetUri;
-    QCoapInternalRequest::OperationInternal operation = QCoapInternalRequest::Empty;
+    QtCoap::Operation operation = QtCoap::Empty;
     QCoapConnection *connection = nullptr;
     QByteArray fullPayload;
     bool cancelObserve = false;

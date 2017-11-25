@@ -159,7 +159,7 @@ QCoapReply *QCoapClient::get(const QCoapRequest &target)
 {
     Q_D(QCoapClient);
 
-    QCoapRequest copyRequest(target, QCoapRequest::Get);
+    QCoapRequest copyRequest(target, QtCoap::Get);
 
     QCoapReply *reply = d->sendRequest(copyRequest);
     d->requestMap[target] = reply;
@@ -177,7 +177,7 @@ QCoapReply *QCoapClient::put(const QCoapRequest &request, const QByteArray &data
 {
     Q_D(QCoapClient);
 
-    QCoapRequest copyRequest(request, QCoapRequest::Put);
+    QCoapRequest copyRequest(request, QtCoap::Put);
     copyRequest.setPayload(data);
 
     QCoapReply *reply = d->sendRequest(copyRequest);
@@ -211,7 +211,7 @@ QCoapReply *QCoapClient::post(const QCoapRequest &request, const QByteArray &dat
 {
     Q_D(QCoapClient);
 
-    QCoapRequest copyRequest(request, QCoapRequest::Post);
+    QCoapRequest copyRequest(request, QtCoap::Post);
     copyRequest.setPayload(data);
 
     QCoapReply *reply = d->sendRequest(copyRequest);
@@ -247,7 +247,7 @@ QCoapReply *QCoapClient::deleteResource(const QCoapRequest &request)
 {
     Q_D(QCoapClient);
 
-    QCoapRequest copyRequest(request, QCoapRequest::Delete);
+    QCoapRequest copyRequest(request, QtCoap::Delete);
 
     QCoapReply *reply = d->sendRequest(copyRequest);
     d->requestMap[request] = reply;
@@ -278,7 +278,7 @@ QCoapDiscoveryReply *QCoapClient::discover(const QUrl &url, const QString &disco
     discoveryUrl.setPath(url.path() + discoveryPath);
 
     QCoapRequest request(discoveryUrl);
-    request.setOperation(QCoapRequest::Get);
+    request.setOperation(QtCoap::Get);
 
     QCoapDiscoveryReply *reply = d->sendDiscovery(request);
     d->requestMap[request] = reply;

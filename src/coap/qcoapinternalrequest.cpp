@@ -82,7 +82,7 @@ QCoapInternalRequest::QCoapInternalRequest(const QCoapRequest &request, QObject 
     foreach (const QCoapOption &option, request.optionList())
         d->message.addOption(option);
     d->message.setPayload(request.payload());
-    d->operation = QCoapInternalRequest::OperationInternal(request.operation());
+    d->operation = request.operation();
     d->fullPayload = request.payload();
 
     addUriOptions(request.url(), request.proxyUrl());
@@ -98,7 +98,7 @@ void QCoapInternalRequest::initForAcknowledgement(quint16 messageId, const QByte
 {
     Q_D(QCoapInternalRequest);
 
-    setOperation(Empty);
+    setOperation(QtCoap::Empty);
     d->message.setType(QCoapMessage::Acknowledgement);
     d->message.setMessageId(messageId);
     d->message.setToken(token);
@@ -117,7 +117,7 @@ void QCoapInternalRequest::initForReset(quint16 messageId)
 {
     Q_D(QCoapInternalRequest);
 
-    setOperation(Empty);
+    setOperation(QtCoap::Empty);
     d->message.setType(QCoapMessage::Reset);
     d->message.setMessageId(messageId);
     d->message.setToken(QByteArray());
@@ -469,7 +469,7 @@ QCoapConnection *QCoapInternalRequest::connection() const
 
     \sa setOperation()
 */
-QCoapInternalRequest::OperationInternal QCoapInternalRequest::operation() const
+QtCoap::Operation QCoapInternalRequest::operation() const
 {
     Q_D(const QCoapInternalRequest);
     return d->operation;
@@ -503,7 +503,7 @@ uint QCoapInternalRequest::retransmissionCounter() const
 
     \sa operation()
 */
-void QCoapInternalRequest::setOperation(OperationInternal operation)
+void QCoapInternalRequest::setOperation(QtCoap::Operation operation)
 {
     Q_D(QCoapInternalRequest);
     d->operation = operation;

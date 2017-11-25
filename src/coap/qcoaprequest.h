@@ -38,6 +38,7 @@
 #define QCOAPREQUEST_H
 
 #include <QtCoap/qcoapglobal.h>
+#include <QtCoap/qcoapnamespace.h>
 #include <QtCoap/qcoapmessage.h>
 #include <QtCoap/qcoapconnection.h>
 #include <QtCore/qobject.h>
@@ -50,20 +51,11 @@ class QCoapRequestPrivate;
 class Q_COAP_EXPORT QCoapRequest : public QCoapMessage
 {
 public:
-    enum Operation {
-        Empty,
-        Get,
-        Post,
-        Put,
-        Delete,
-        Other
-    };
-
     explicit QCoapRequest(const QUrl &url = QUrl(),
                  MessageType type = NonConfirmable,
                  const QUrl &proxyUrl = QUrl());
     QCoapRequest(const QCoapRequest &other,
-                 QCoapRequest::Operation op = Empty);
+                 QtCoap::Operation op = QtCoap::Empty);
     ~QCoapRequest();
 
     QCoapRequest &operator=(const QCoapRequest &other);
@@ -71,11 +63,11 @@ public:
 
     QUrl url() const;
     QUrl proxyUrl() const;
-    Operation operation() const;
+    QtCoap::Operation operation() const;
     bool observe() const;
     void setUrl(const QUrl &url);
     void setProxyUrl(const QUrl &proxyUrl);
-    void setOperation(Operation operation);
+    void setOperation(QtCoap::Operation operation);
     void enableObserve();
 
 private:
@@ -86,8 +78,6 @@ private:
         return reinterpret_cast<const QCoapRequestPrivate*>(d_ptr.constData());
     }
 };
-
-Q_DECLARE_METATYPE(QCoapRequest::Operation)
 
 QT_END_NAMESPACE
 

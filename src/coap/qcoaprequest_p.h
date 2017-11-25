@@ -37,6 +37,7 @@
 #ifndef QCOAPREQUEST_P_H
 #define QCOAPREQUEST_P_H
 
+#include <QtCoap/qcoapnamespace.h>
 #include <QtCoap/qcoaprequest.h>
 #include <private/qcoapmessage_p.h>
 
@@ -64,7 +65,7 @@ public:
 
     QUrl uri;
     QUrl proxyUri;
-    QCoapRequest::Operation operation = QCoapRequest::Empty;
+    QtCoap::Operation operation = QtCoap::Empty;
     bool observe = false;
 };
 

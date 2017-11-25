@@ -79,12 +79,12 @@ QCoapRequest::QCoapRequest(const QUrl &url, MessageType type, const QUrl &proxyU
     overwrite the QCoapRequest::Operation of the request with the \a op
     argument.
 */
-QCoapRequest::QCoapRequest(const QCoapRequest &other, QCoapRequest::Operation op) :
+QCoapRequest::QCoapRequest(const QCoapRequest &other, QtCoap::Operation op) :
     //! No private data sharing, as QCoapRequestPrivate!=QCoapMessagePrivate
     //! and the d_ptr is a QSharedDataPointer<QCoapMessagePrivate>
     QCoapMessage(* new QCoapRequestPrivate(*other.d_func()))
 {
-    if (op != QCoapRequest::Empty)
+    if (op != QtCoap::Empty)
         setOperation(op);
 }
 
@@ -123,7 +123,7 @@ QUrl QCoapRequest::proxyUrl() const
 
     \sa setOperation()
 */
-QCoapRequest::Operation QCoapRequest::operation() const
+QtCoap::Operation QCoapRequest::operation() const
 {
     Q_D(const QCoapRequest);
     return d->operation;
@@ -167,7 +167,7 @@ void QCoapRequest::setProxyUrl(const QUrl &proxyUrl)
 
     \sa operation()
 */
-void QCoapRequest::setOperation(Operation operation)
+void QCoapRequest::setOperation(QtCoap::Operation operation)
 {
     Q_D(QCoapRequest);
     d->operation = operation;

@@ -2,6 +2,7 @@
 #include <QCoreApplication>
 
 #include <QtCoap/qcoapglobal.h>
+#include <QtCoap/qcoapnamespace.h>
 #include <QtCoap/qcoaprequest.h>
 #include <QtCoap/qcoapconnection.h>
 #include <private/qcoapinternalrequest_p.h>
@@ -59,18 +60,18 @@ void tst_QCoapRequest::setUrl()
 
 void tst_QCoapRequest::setOperation_data()
 {
-    QTest::addColumn<QCoapRequest::Operation>("operation");
+    QTest::addColumn<QtCoap::Operation>("operation");
 
-    QTest::newRow("get") << QCoapRequest::Get;
-    QTest::newRow("put") << QCoapRequest::Put;
-    QTest::newRow("post") << QCoapRequest::Post;
-    QTest::newRow("delete") << QCoapRequest::Delete;
-    QTest::newRow("other") << QCoapRequest::Other;
+    QTest::newRow("get") << QtCoap::Get;
+    QTest::newRow("put") << QtCoap::Put;
+    QTest::newRow("post") << QtCoap::Post;
+    QTest::newRow("delete") << QtCoap::Delete;
+    QTest::newRow("other") << QtCoap::Other;
 }
 
 void tst_QCoapRequest::setOperation()
 {
-    QFETCH(QCoapRequest::Operation, operation);
+    QFETCH(QtCoap::Operation, operation);
 
     QCoapRequest request;
     request.setOperation(operation);
@@ -85,7 +86,7 @@ void tst_QCoapRequest::copyAndDetach()
     a.setToken("token");
     a.setType(QCoapMessage::Acknowledgement);
     a.setVersion(5);
-    a.setOperation(QCoapRequest::Delete);
+    a.setOperation(QtCoap::Delete);
     QUrl testUrl("test://url");
     a.setUrl(testUrl);
     QUrl testProxyUrl("test://proxyurl");
@@ -101,7 +102,7 @@ void tst_QCoapRequest::copyAndDetach()
 
     // Test the QCoapRequest copy
     QCoapRequest c(a);
-    QVERIFY2(c.operation() == QCoapRequest::Delete, "Request not copied correctly");
+    QVERIFY2(c.operation() == QtCoap::Delete, "Request not copied correctly");
     QVERIFY2(c.url() == testUrl, "Request not copied correctly");
     QVERIFY2(c.proxyUrl() == testProxyUrl, "Request not copied correctly");
 
@@ -114,7 +115,7 @@ void tst_QCoapRequest::copyAndDetach()
 void tst_QCoapRequest::internalRequestToFrame_data()
 {
     QTest::addColumn<QUrl>("url");
-    QTest::addColumn<QCoapRequest::Operation>("operation");
+    QTest::addColumn<QtCoap::Operation>("operation");
     QTest::addColumn<QCoapMessage::MessageType>("type");
     QTest::addColumn<quint16>("messageId");
     QTest::addColumn<QByteArray>("token");
@@ -123,7 +124,7 @@ void tst_QCoapRequest::internalRequestToFrame_data()
 
     QTest::newRow("request_with_option_and_payload")
         << QUrl("coap://172.17.0.3:5683/test")
-        << QCoapRequest::Get
+        << QtCoap::Get
         << QCoapRequest::NonConfirmable
         << quint16(56400)
         << QByteArray::fromHex("4647f09b")
@@ -132,7 +133,7 @@ void tst_QCoapRequest::internalRequestToFrame_data()
 
     QTest::newRow("request_without_payload")
         << QUrl("coap://172.17.0.3:5683/test")
-        << QCoapRequest::Get
+        << QtCoap::Get
         << QCoapRequest::NonConfirmable
         << quint16(56400)
         << QByteArray::fromHex("4647f09b")
@@ -141,7 +142,7 @@ void tst_QCoapRequest::internalRequestToFrame_data()
 
     QTest::newRow("request_without_option")
         << QUrl("coap://172.17.0.3:5683/")
-        << QCoapRequest::Put
+        << QtCoap::Put
         << QCoapRequest::Confirmable
         << quint16(56400)
         << QByteArray::fromHex("4647f09b")
@@ -150,7 +151,7 @@ void tst_QCoapRequest::internalRequestToFrame_data()
 
     QTest::newRow("request_only")
         << QUrl("coap://172.17.0.3:5683/")
-        << QCoapRequest::Get
+        << QtCoap::Get
         << QCoapRequest::NonConfirmable
         << quint16(56400)
         << QByteArray::fromHex("4647f09b")
@@ -159,7 +160,7 @@ void tst_QCoapRequest::internalRequestToFrame_data()
 
     QTest::newRow("request_with_multiple_options")
         << QUrl("coap://172.17.0.3:5683/test/oui")
-        << QCoapRequest::Get
+        << QtCoap::Get
         << QCoapRequest::NonConfirmable
         << quint16(56400)
         << QByteArray::fromHex("4647f09b")
@@ -169,7 +170,7 @@ void tst_QCoapRequest::internalRequestToFrame_data()
 
     QTest::newRow("request_with_big_option_number")
         << QUrl("coap://172.17.0.3:5683/test")
-        << QCoapRequest::Get
+        << QtCoap::Get
         << QCoapRequest::NonConfirmable
         << quint16(56400)
         << QByteArray::fromHex("4647f09b")
@@ -182,7 +183,7 @@ void tst_QCoapRequest::internalRequestToFrame_data()
 void tst_QCoapRequest::internalRequestToFrame()
 {
     QFETCH(QUrl, url);
-    QFETCH(QCoapRequest::Operation, operation);
+    QFETCH(QtCoap::Operation, operation);
     QFETCH(QCoapMessage::MessageType, type);
     QFETCH(quint16, messageId);
     QFETCH(QByteArray, token);

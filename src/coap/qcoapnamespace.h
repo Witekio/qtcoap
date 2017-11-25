@@ -76,9 +76,27 @@ public:
         GatewayTimeout = 0xA4, // 5.04
         ProxyingNotSupported = 0xA5 // 5.05
     };
-
     Q_ENUM(StatusCode)
+
+    enum Operation {
+        Empty,
+        Get,
+        Post,
+        Put,
+        Delete,
+#if 0
+        //! TODO, included in RFC 8132
+        //! https://tools.ietf.org/html/rfc8132
+        Fetch,
+        Patch,
+        IPatch,
+#endif
+        Other
+    };
+    Q_ENUM(Operation)
 };
+
+Q_DECLARE_METATYPE(QtCoap::Operation)
 
 QT_END_NAMESPACE
 
