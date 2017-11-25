@@ -510,11 +510,11 @@ void tst_QCoapClient::observe_data()
         << QUrl("coap://172.17.0.3:5683/obs")
         << QCoapMessage::Confirmable;
 
-    QTest::newRow("observe_receive_non")
+    QTest::newRow("observe_receive")
         << QUrl("coap://172.17.0.3:5683/obs-non")
         << QCoapMessage::NonConfirmable;
 
-    QTest::newRow("observe_receive_non_confirmable")
+    QTest::newRow("observe_receive_confirmable")
         << QUrl("coap://172.17.0.3:5683/obs-non")
         << QCoapMessage::Confirmable;
 

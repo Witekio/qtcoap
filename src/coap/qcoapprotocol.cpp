@@ -107,7 +107,7 @@ void QCoapProtocol::sendRequest(QPointer<QCoapReply> reply, QCoapConnection *con
     }
 
     if (internalRequest->message()->type() == QCoapMessage::Confirmable) {
-        internalRequest->setTimeout(QRandomGenerator::bounded(d->ackTimeout, d->ackTimeout * d->ackRandomFactor));
+        internalRequest->setTimeout(QRandomGenerator::bounded(d->ackTimeout, static_cast<uint>(d->ackTimeout * d->ackRandomFactor)));
         connect(internalRequest, SIGNAL(timeout(QCoapInternalRequest*)),
                 this, SLOT(resendRequest(QCoapInternalRequest*)));
     }
@@ -582,7 +582,7 @@ uint QCoapProtocol::maxRetransmitSpan() const
     if (maxRetransmit() == 0)
         return 0;
 
-    return ackTimeout() * (1u << (maxRetransmit() - 1)) * ackRandomFactor();
+    return static_cast<uint>(ackTimeout() * (1u << (maxRetransmit() - 1)) * ackRandomFactor());
 }
 
 /*!
@@ -595,7 +595,7 @@ uint QCoapProtocol::maxRetransmitSpan() const
 */
 uint QCoapProtocol::maxRetransmitWait() const
 {
-    return ackTimeout() * (1u << (maxRetransmit() + 1)) * ackRandomFactor();
+    return static_cast<uint>(ackTimeout() * (1u << (maxRetransmit() + 1)) * ackRandomFactor());
 }
 
 /*!

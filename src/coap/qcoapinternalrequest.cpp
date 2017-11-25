@@ -274,7 +274,7 @@ void QCoapInternalRequest::setRequestToSendBlock(uint blockNumber, uint blockSiz
     Q_ASSERT((blockSize & (blockSize - 1)) == 0); // is a power of two
     Q_ASSERT(!(blockSize >> 10)); // blockSize < 1024
 
-    d->message.setPayload(d->fullPayload.mid(blockNumber*blockSize, blockSize));
+    d->message.setPayload(d->fullPayload.mid(blockNumber * blockSize, blockSize));
 
     // Set the Block2Option option to get the new block
     // size = (2^(SZX + 4))
@@ -302,7 +302,7 @@ void QCoapInternalRequest::setRequestToSendBlock(uint blockNumber, uint blockSiz
 quint16 QCoapInternalRequest::generateMessageId()
 {
     Q_D(QCoapInternalRequest);
-    quint16 id = QRandomGenerator::bounded(0x10000);
+    quint16 id = static_cast<quint16>(QRandomGenerator::bounded(0x10000));
     d->message.setMessageId(id);
     return id;
 }
@@ -316,12 +316,12 @@ QByteArray QCoapInternalRequest::generateToken()
     Q_D(QCoapInternalRequest);
 
     QByteArray token("");
-    quint8 length = QRandomGenerator::bounded(1, 8);
+    quint8 length = static_cast<quint8>(QRandomGenerator::bounded(1, 8));
     token.resize(length);
 
     quint8 *tokenData = reinterpret_cast<quint8 *>(token.data());
     for (int i = 0; i < token.size(); ++i)
-        tokenData[i] = QRandomGenerator::bounded(256);
+        tokenData[i] = static_cast<quint8>(QRandomGenerator::bounded(256));
 
     d->message.setToken(token);
     return token;
