@@ -89,6 +89,13 @@ QCoapRequest::QCoapRequest(const QCoapRequest &other, QCoapRequest::Operation op
 }
 
 /*!
+    Destroys the QCoapRequest.
+*/
+QCoapRequest::~QCoapRequest()
+{
+}
+
+/*!
     Returns the target URI of the request.
 
     \sa setUrl()

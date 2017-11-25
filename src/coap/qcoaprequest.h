@@ -64,7 +64,7 @@ public:
                  const QUrl &proxyUrl = QUrl());
     QCoapRequest(const QCoapRequest &other,
                  QCoapRequest::Operation op = Empty);
-    ~QCoapRequest() {}
+    ~QCoapRequest();
 
     QCoapRequest &operator=(const QCoapRequest &other);
     bool operator<(const QCoapRequest &other) const;

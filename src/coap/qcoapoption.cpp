@@ -34,6 +34,7 @@
 **
 ****************************************************************************/
 
+#include <QtCore/qdebug.h>
 #include "qcoapoption_p.h"
 
 QT_BEGIN_NAMESPACE
@@ -141,7 +142,7 @@ void QCoapOption::setValue(const QByteArray &value)
 
     // Check for value maximum size, according to section 5.10 of RFC 7252
     // https://tools.ietf.org/html/rfc7252#section-5.10
-    switch(d_ptr->name) {
+    switch (d_ptr->name) {
     case IfNoneMatch:
         if (value.size() > 0)
             oversized = true;
