@@ -43,19 +43,26 @@ void tst_QCoapRequest::ctor()
 
 void tst_QCoapRequest::setUrl_data()
 {
-    QTest::addColumn<QUrl>("url");
+    QTest::addColumn<QUrl>("inputUrl");
+    QTest::addColumn<QUrl>("expectedUrl");
 
-    QTest::newRow("empty") << QUrl();
-    QTest::newRow("coap") << QUrl("coap://vs0.inf.ethz.ch:5683/test");
+    QTest::newRow("empty") << QUrl() << QUrl();
+    QTest::newRow("coap") << QUrl("coap://vs0.inf.ethz.ch:5683/test") << QUrl("coap://vs0.inf.ethz.ch:5683/test");
+    QTest::newRow("other_port") << QUrl("coap://vs0.inf.ethz.ch:8888/test") << QUrl("coap://vs0.inf.ethz.ch:8888/test");
+    QTest::newRow("no_port") << QUrl("coap://vs0.inf.ethz.ch/test") << QUrl("coap://vs0.inf.ethz.ch:5683/test");
+    QTest::newRow("no_scheme_no_port") << QUrl("vs0.inf.ethz.ch/test") << QUrl("coap://vs0.inf.ethz.ch:5683/test");
+    QTest::newRow("incorrect_scheme") << QUrl("http://vs0.inf.ethz.ch:5683/test") << QUrl();
+    QTest::newRow("invalid") << QUrl("-coap://vs0.inf.ethz.ch:5683/test") << QUrl();
 }
 
 void tst_QCoapRequest::setUrl()
 {
-    QFETCH(QUrl, url);
+    QFETCH(QUrl, inputUrl);
+    QFETCH(QUrl, expectedUrl);
 
     QCoapRequest request;
-    request.setUrl(url);
-    QCOMPARE(request.url(), url);
+    request.setUrl(inputUrl);
+    QCOMPARE(request.url(), expectedUrl);
 }
 
 void tst_QCoapRequest::setOperation_data()
@@ -87,7 +94,7 @@ void tst_QCoapRequest::copyAndDetach()
     a.setType(QCoapMessage::Acknowledgement);
     a.setVersion(5);
     a.setOperation(QtCoap::Delete);
-    QUrl testUrl("test://url");
+    QUrl testUrl("coap://url:500/resource");
     a.setUrl(testUrl);
     QUrl testProxyUrl("test://proxyurl");
     a.setProxyUrl(testProxyUrl);
