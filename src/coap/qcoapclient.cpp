@@ -159,6 +159,11 @@ QCoapReply *QCoapClient::get(const QCoapRequest &target)
 {
     Q_D(QCoapClient);
 
+    if (target.operation() != QtCoap::Empty
+            && target.operation() != QtCoap::Get)
+        qWarning("QCoapClient::get: Only 'Get' operation is "
+                 "compatible with 'get' method, operation value ignored.");
+
     QCoapRequest copyRequest(target, QtCoap::Get);
 
     QCoapReply *reply = d->sendRequest(copyRequest);
@@ -176,6 +181,11 @@ QCoapReply *QCoapClient::get(const QCoapRequest &target)
 QCoapReply *QCoapClient::put(const QCoapRequest &request, const QByteArray &data)
 {
     Q_D(QCoapClient);
+
+    if (request.operation() != QtCoap::Empty
+            && request.operation() != QtCoap::Put)
+        qWarning("QCoapClient::put: Only 'Put' operation is "
+                 "compatible with 'put' method, operation value ignored.");
 
     QCoapRequest copyRequest(request, QtCoap::Put);
     copyRequest.setPayload(data);
@@ -210,6 +220,11 @@ QCoapReply *QCoapClient::put(const QCoapRequest &request, QIODevice *device)
 QCoapReply *QCoapClient::post(const QCoapRequest &request, const QByteArray &data)
 {
     Q_D(QCoapClient);
+
+    if (request.operation() != QtCoap::Empty
+            && request.operation() != QtCoap::Post)
+        qWarning("QCoapClient::post: Only 'Post' operation is "
+                 "compatible with 'post' method, operation value ignored.");
 
     QCoapRequest copyRequest(request, QtCoap::Post);
     copyRequest.setPayload(data);
@@ -246,6 +261,11 @@ QCoapReply *QCoapClient::post(const QCoapRequest &request, QIODevice *device)
 QCoapReply *QCoapClient::deleteResource(const QCoapRequest &request)
 {
     Q_D(QCoapClient);
+
+    if (request.operation() != QtCoap::Empty
+            && request.operation() != QtCoap::Delete)
+        qWarning("QCoapClient::deleteResource: Only 'Delete' operation is "
+                 "compatible with 'deleteResource' method, operation value ignored.");
 
     QCoapRequest copyRequest(request, QtCoap::Delete);
 
@@ -298,7 +318,12 @@ QCoapReply *QCoapClient::observe(const QCoapRequest &request)
 {
     Q_D(QCoapClient);
 
-    QCoapRequest copyRequest(request);
+    if (request.operation() != QtCoap::Empty
+            && request.operation() != QtCoap::Get)
+        qWarning("QCoapClient::deleteResource: Only 'Get' operation is "
+                 "compatible with observation, operation value ignored.");
+
+    QCoapRequest copyRequest(request, QtCoap::Get);
     copyRequest.enableObserve();
 
     QCoapReply *reply = get(copyRequest);
