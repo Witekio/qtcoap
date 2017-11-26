@@ -83,10 +83,10 @@ public:
     bool containsToken(const QByteArray &token);
     QCoapInternalRequest *findInternalRequestByToken(const QByteArray &token);
     QCoapInternalRequest *findInternalRequestByMessageId(quint16 messageId);
-    QCoapInternalRequest *findInternalRequestByReply(QCoapReply *reply);
+    QCoapInternalRequest *findInternalRequestByReply(const QCoapReply *reply);
 
     void messageReceived(const QByteArray &frameReply);
-    void onAbortedRequest(QCoapReply *reply);
+    void onAbortedRequest(const QCoapReply *reply);
 
     InternalMessageMap internalReplies;
     QQueue<QByteArray> frameQueue;

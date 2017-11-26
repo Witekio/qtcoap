@@ -64,8 +64,7 @@ public:
     QCoapReply *post(const QCoapRequest &request, QIODevice *device);
     QCoapReply *deleteResource(const QCoapRequest &request);
     QCoapReply *observe(const QCoapRequest &request);
-    void cancelObserve(const QCoapRequest &request);
-    void cancelObserve(QCoapReply *notifiedReply);
+    void cancelObserve(const QCoapReply *notifiedReply);
 
 #if 0
     //! TODO Add global discovery

@@ -166,10 +166,7 @@ QCoapReply *QCoapClient::get(const QCoapRequest &target)
 
     QCoapRequest copyRequest(target, QtCoap::Get);
 
-    QCoapReply *reply = d->sendRequest(copyRequest);
-    d->requestMap[target] = reply;
-
-    return reply;
+    return d->sendRequest(copyRequest);
 }
 
 /*!
@@ -190,10 +187,7 @@ QCoapReply *QCoapClient::put(const QCoapRequest &request, const QByteArray &data
     QCoapRequest copyRequest(request, QtCoap::Put);
     copyRequest.setPayload(data);
 
-    QCoapReply *reply = d->sendRequest(copyRequest);
-    d->requestMap[request] = reply;
-
-    return reply;
+    return d->sendRequest(copyRequest);
 }
 
 /*!
@@ -229,10 +223,7 @@ QCoapReply *QCoapClient::post(const QCoapRequest &request, const QByteArray &dat
     QCoapRequest copyRequest(request, QtCoap::Post);
     copyRequest.setPayload(data);
 
-    QCoapReply *reply = d->sendRequest(copyRequest);
-    d->requestMap[request] = reply;
-
-    return reply;
+    return d->sendRequest(copyRequest);
 }
 
 /*!
@@ -269,10 +260,7 @@ QCoapReply *QCoapClient::deleteResource(const QCoapRequest &request)
 
     QCoapRequest copyRequest(request, QtCoap::Delete);
 
-    QCoapReply *reply = d->sendRequest(copyRequest);
-    d->requestMap[request] = reply;
-
-    return reply;
+    return d->sendRequest(copyRequest);
 }
 
 //! TODO discover should probably use a signal different from
@@ -300,10 +288,7 @@ QCoapDiscoveryReply *QCoapClient::discover(const QUrl &url, const QString &disco
     QCoapRequest request(discoveryUrl);
     request.setOperation(QtCoap::Get);
 
-    QCoapDiscoveryReply *reply = d->sendDiscovery(request);
-    d->requestMap[request] = reply;
-
-    return reply;
+    return d->sendDiscovery(request);
 }
 
 /*!
@@ -316,8 +301,6 @@ QCoapDiscoveryReply *QCoapClient::discover(const QUrl &url, const QString &disco
 */
 QCoapReply *QCoapClient::observe(const QCoapRequest &request)
 {
-    Q_D(QCoapClient);
-
     if (request.operation() != QtCoap::Empty
             && request.operation() != QtCoap::Get)
         qWarning("QCoapClient::deleteResource: Only 'Get' operation is "
@@ -326,22 +309,7 @@ QCoapReply *QCoapClient::observe(const QCoapRequest &request)
     QCoapRequest copyRequest(request, QtCoap::Get);
     copyRequest.enableObserve();
 
-    QCoapReply *reply = get(copyRequest);
-    d->requestMap[request] = reply;
-
-    return reply;
-}
-
-/*!
-    Sends a request to cancel the observation of the target \a request.
-
-    \sa observe()
-*/
-void QCoapClient::cancelObserve(const QCoapRequest &request)
-{
-    Q_D(QCoapClient);
-    QMetaObject::invokeMethod(d->protocol, "cancelObserve",
-                              Q_ARG(QPointer<QCoapReply>, d->requestMap[request]));
+    return get(copyRequest);
 }
 
 /*!
@@ -352,11 +320,11 @@ void QCoapClient::cancelObserve(const QCoapRequest &request)
 
     \sa observe()
 */
-void QCoapClient::cancelObserve(QCoapReply *notifiedReply)
+void QCoapClient::cancelObserve(const QCoapReply *notifiedReply)
 {
     Q_D(QCoapClient);
     QMetaObject::invokeMethod(d->protocol, "cancelObserve",
-                              Q_ARG(QPointer<QCoapReply>, notifiedReply));
+                              Q_ARG(QPointer<const QCoapReply>, notifiedReply));
 }
 
 /*!

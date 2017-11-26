@@ -57,15 +57,12 @@
 
 QT_BEGIN_NAMESPACE
 
-typedef QMap<QCoapRequest, QPointer<QCoapReply>> CoapMessageMap;
-
 class Q_AUTOTEST_EXPORT QCoapClientPrivate : public QObjectPrivate
 {
 public:
     QCoapClientPrivate();
     ~QCoapClientPrivate();
 
-    CoapMessageMap requestMap;
     QCoapProtocol *protocol;
     QCoapConnection *connection;
     QThread *workerThread;

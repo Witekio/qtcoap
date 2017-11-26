@@ -74,7 +74,7 @@ Q_SIGNALS:
 
 public Q_SLOTS:
     void sendRequest(QPointer<QCoapReply> reply, QCoapConnection *connection);
-    void cancelObserve(QPointer<QCoapReply> reply);
+    void cancelObserve(QPointer<const QCoapReply> reply);
 
 private:
     Q_DECLARE_PRIVATE(QCoapProtocol)

@@ -249,7 +249,7 @@ QCoapInternalRequest *QCoapProtocolPrivate::findInternalRequestByToken(const QBy
 
     Finds an internal request matching the given \a reply.
 */
-QCoapInternalRequest *QCoapProtocolPrivate::findInternalRequestByReply(QCoapReply *reply)
+QCoapInternalRequest *QCoapProtocolPrivate::findInternalRequestByReply(const QCoapReply *reply)
 {
     for (InternalMessageMap::iterator it = internalReplies.begin(); it != internalReplies.end(); ++it) {
         if (it.value().userReply == reply) {
@@ -400,7 +400,7 @@ void QCoapProtocolPrivate::sendReset(QCoapInternalRequest *request)
     Finds the internal request associated with \a reply and tells it to stop
     observing.
 */
-void QCoapProtocol::cancelObserve(QPointer<QCoapReply> reply)
+void QCoapProtocol::cancelObserve(QPointer<const QCoapReply> reply)
 {
     if (!reply)
         return;
@@ -442,7 +442,7 @@ QCoapInternalReply *QCoapProtocolPrivate::decode(const QByteArray &message)
     by the destruction of the QCoapReply object or a call to
     QCoapReply::abortRequest().
 */
-void QCoapProtocolPrivate::onAbortedRequest(QCoapReply *reply)
+void QCoapProtocolPrivate::onAbortedRequest(const QCoapReply *reply)
 {
     QCoapInternalRequest *request = findInternalRequestByReply(reply);
     if (request) {
