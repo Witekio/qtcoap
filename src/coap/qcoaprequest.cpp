@@ -231,6 +231,15 @@ void QCoapRequest::enableObserve()
 }
 
 /*!
+    Creates a copy of \a other.
+*/
+QCoapRequest &QCoapRequest::operator=(const QCoapRequest &other)
+{
+    d_ptr = other.d_ptr;
+    return *this;
+}
+
+/*!
     Returns true if the \a url is valid a CoAP URL.
 */
 bool QCoapRequest::isUrlValid(const QUrl& url)

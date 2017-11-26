@@ -58,6 +58,8 @@ public:
                  QtCoap::Operation op = QtCoap::Empty);
     ~QCoapRequest();
 
+    QCoapRequest &operator=(const QCoapRequest &other);
+
     QUrl url() const;
     QUrl proxyUrl() const;
     QtCoap::Operation operation() const;
