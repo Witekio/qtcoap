@@ -337,23 +337,14 @@ QCoapReply *QCoapClientPrivate::sendRequest(QCoapRequest &request)
 {
     Q_Q(QCoapClient);
 
-    if (!QCoapRequest::isUrlValid(request.url()))
-        return nullptr;
-
     // Prepare the reply
-    QPointer<QCoapReply> reply = new QCoapReply(q);
+    QCoapReply *reply = new QCoapReply(q);
     reply->setRequest(request);
 
-    // DirectConnection is used to process the signal before the QCoapReply is
-    // deleted, as aborted() is emitted in ~QCoapReply
-    q->connect(reply, SIGNAL(aborted(QCoapReply*)),
-               protocol, SLOT(onAbortedRequest(QCoapReply*)), Qt::DirectConnection);
-    q->connect(connection, SIGNAL(error(QAbstractSocket::SocketError)),
-               reply, SLOT(connectionError(QAbstractSocket::SocketError)));
-
-    QMetaObject::invokeMethod(protocol, "sendRequest",
-                              Q_ARG(QPointer<QCoapReply>, reply),
-                              Q_ARG(QCoapConnection*, connection));
+    if (!send(reply)) {
+        delete reply;
+        return nullptr;
+    }
 
     return reply;
 }
@@ -368,25 +359,44 @@ QCoapDiscoveryReply *QCoapClientPrivate::sendDiscovery(QCoapRequest &request)
 {
     Q_Q(QCoapClient);
 
-    if (!QCoapRequest::isUrlValid(request.url()))
-        return nullptr;
-
     // Prepare the reply
-    QPointer<QCoapReply> reply = new QCoapDiscoveryReply(q);
+    QCoapDiscoveryReply *reply = new QCoapDiscoveryReply(q);
     reply->setRequest(request);
 
-    // connect with DirectConnection type to secure from deleting the reply
-    // (reply destructor emits the signal)
+    if (!send(reply)) {
+        delete reply;
+        return nullptr;
+    }
+
+    return reply;
+}
+
+/*!
+    \internal
+
+    Connect to the reply and use the protocol to send it.
+*/
+bool QCoapClientPrivate::send(QCoapReply *reply)
+{
+    Q_Q(QCoapClient);
+
+    if (!QCoapRequest::isUrlValid(reply->request().url())) {
+        qWarning() << "QCoapClient: Failed to send request for an invalid URL.";
+        return false;
+    }
+
+    // DirectConnection is used to process the signal before the QCoapReply is
+    // deleted, as aborted() is emitted in ~QCoapReply
     q->connect(reply, SIGNAL(aborted(QCoapReply*)),
                protocol, SLOT(onAbortedRequest(QCoapReply*)), Qt::DirectConnection);
     q->connect(connection, SIGNAL(error(QAbstractSocket::SocketError)),
                reply, SLOT(connectionError(QAbstractSocket::SocketError)));
 
     QMetaObject::invokeMethod(protocol, "sendRequest",
-                              Q_ARG(QPointer<QCoapReply>, reply),
+                              Q_ARG(QPointer<QCoapReply>, QPointer<QCoapReply>(reply)),
                               Q_ARG(QCoapConnection*, connection));
 
-    return static_cast<QCoapDiscoveryReply*>(reply.data());
+    return true;
 }
 
 /*!

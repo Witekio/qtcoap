@@ -69,6 +69,7 @@ public:
 
     QCoapReply *sendRequest(QCoapRequest &request);
     QCoapDiscoveryReply *sendDiscovery(QCoapRequest &request);
+    bool send(QCoapReply *reply);
 
     Q_DECLARE_PUBLIC(QCoapClient)
 };
