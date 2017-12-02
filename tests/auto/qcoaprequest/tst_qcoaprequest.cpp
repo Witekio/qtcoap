@@ -76,8 +76,8 @@ void tst_QCoapRequest::setUrl_data()
     QTest::addColumn<QUrl>("expectedUrl");
 
     QTest::newRow("empty") << QUrl() << QUrl();
-    QTest::newRow("coap") << QUrl("coap://vs0.inf.ethz.ch:5683/test") << QUrl("coap://vs0.inf.ethz.ch:5683/test");
-    QTest::newRow("other_port") << QUrl("coap://vs0.inf.ethz.ch:8888/test") << QUrl("coap://vs0.inf.ethz.ch:8888/test");
+    QTest::newRow("coap") << QUrl("coap://10.11.12.13:5683/test") << QUrl("coap://10.11.12.13:5683/test");
+    QTest::newRow("other_port") << QUrl("coap://10.11.12.13:8888/test") << QUrl("coap://10.11.12.13:8888/test");
     QTest::newRow("no_port") << QUrl("coap://vs0.inf.ethz.ch/test") << QUrl("coap://vs0.inf.ethz.ch:5683/test");
     QTest::newRow("no_scheme_no_port") << QUrl("vs0.inf.ethz.ch/test") << QUrl("coap://vs0.inf.ethz.ch:5683/test");
     QTest::newRow("incorrect_scheme") << QUrl("http://vs0.inf.ethz.ch:5683/test") << QUrl();

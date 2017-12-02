@@ -65,14 +65,14 @@ void QCoapRequestPrivate::setUrl(const QUrl &url)
     }
 
     QUrl finalizedUrl = url;
-    if (finalizedUrl.isRelative())
+    if (url.isRelative()) {
         finalizedUrl = url.toString().prepend(QLatin1String("coap://"));
-    else if (finalizedUrl.scheme().isEmpty())
+    } else if (url.scheme().isEmpty()) {
         finalizedUrl.setScheme(QLatin1String("coap"));
-
-    if (finalizedUrl.port() == -1) {
-        finalizedUrl.setPort(5683);
     }
+
+    if (url.port() == -1)
+        finalizedUrl.setPort(5683);
 
     if (!QCoapRequest::isUrlValid(finalizedUrl)) {
         qWarning() << "QCoapRequest: Invalid CoAP url" << finalizedUrl.toString();
@@ -232,11 +232,11 @@ QCoapRequest &QCoapRequest::operator=(const QCoapRequest &other)
 }
 
 /*!
-    Returns true if the \a url is valid a CoAP URL.
+    Returns true if the \a url is a valid CoAP URL.
 */
 bool QCoapRequest::isUrlValid(const QUrl &url)
 {
-    return (url.isValid() && !url.isLocalFile() && !url.isLocalFile()
+    return (url.isValid() && !url.isLocalFile() && !url.isRelative()
             && url.scheme() == QLatin1String("coap"));
 }
 
