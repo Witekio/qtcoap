@@ -31,7 +31,8 @@
 
 QT_BEGIN_NAMESPACE
 
-QCoapMessagePrivate::QCoapMessagePrivate()
+QCoapMessagePrivate::QCoapMessagePrivate(QCoapMessage::MessageType _type) :
+    type(_type)
 {
 }
 

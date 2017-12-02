@@ -245,9 +245,8 @@ QCoapInternalRequest *QCoapProtocolPrivate::findInternalRequestByToken(const QBy
 QCoapInternalRequest *QCoapProtocolPrivate::findInternalRequestByReply(const QCoapReply *reply)
 {
     for (InternalMessageMap::iterator it = internalReplies.begin(); it != internalReplies.end(); ++it) {
-        if (it.value().userReply == reply) {
+        if (it.value().userReply == reply)
             return const_cast<QCoapInternalRequest*>(it.key());
-        }
     }
 
     return nullptr;
@@ -471,11 +470,9 @@ QList<QCoapResource> QCoapProtocol::resourcesFromCoreLinkList(const QByteArray &
             else if (parameter.startsWith("if="))
                 resource.setInterface(parameterString.mid(3).remove(quote));
             else if (parameter.startsWith("sz="))
-                resource.setMaximumSize(parameterString.mid(3).remove(quote)
-                                                              .toInt());
+                resource.setMaximumSize(parameterString.mid(3).remove(quote).toInt());
             else if (parameter.startsWith("ct="))
-                resource.setContentFormat(parameterString.mid(3).remove(quote)
-                                                                .toUInt());
+                resource.setContentFormat(parameterString.mid(3).remove(quote).toUInt());
             else if (parameter == "obs")
                 resource.setObservable(true);
         }
@@ -651,7 +648,7 @@ void QCoapProtocol::setMaxRetransmit(uint maxRetransmit)
 */
 void QCoapProtocol::setBlockSize(quint16 blockSize)
 {
-    // A size of 0 invites the server chose the block size.
+    // A size of 0 invites the server to chose the block size.
     Q_D(QCoapProtocol);
     d->blockSize = blockSize;
 }

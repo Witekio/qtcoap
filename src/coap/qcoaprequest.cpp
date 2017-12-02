@@ -33,10 +33,10 @@
 
 QT_BEGIN_NAMESPACE
 
-QCoapRequestPrivate::QCoapRequestPrivate(const QUrl &url, QCoapMessage::MessageType _type, const QUrl &proxyUrl) :
+QCoapRequestPrivate::QCoapRequestPrivate(const QUrl &url, QCoapMessage::MessageType type, const QUrl &proxyUrl) :
+    QCoapMessagePrivate(type),
     proxyUri(proxyUrl)
 {
-    type = _type;
     setUrl(url);
 }
 
@@ -51,7 +51,7 @@ QCoapRequestPrivate::~QCoapRequestPrivate()
 */
 void QCoapRequestPrivate::setUrl(const QUrl &url)
 {
-    // Print no warning when resetting URL
+    // Print no warning when clearing URL
     if (url.isEmpty()) {
         uri = url;
         return;
@@ -105,7 +105,6 @@ void QCoapRequestPrivate::setUrl(const QUrl &url)
 QCoapRequest::QCoapRequest(const QUrl &url, MessageType type, const QUrl &proxyUrl) :
     QCoapMessage(*new QCoapRequestPrivate(url, type, proxyUrl))
 {
-    qsrand(static_cast<uint>(QTime::currentTime().msec())); // to generate message ids and tokens
 }
 
 /*!
