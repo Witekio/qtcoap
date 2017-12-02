@@ -183,7 +183,7 @@ uint QCoapInternalMessage::currentBlockNumber() const
 /*!
     \internal
 
-    Returns \c true if it has a next block,\c false otherwise.
+    Returns \c true if it has a next block, \c false otherwise.
 */
 bool QCoapInternalMessage::hasNextBlock() const
 {

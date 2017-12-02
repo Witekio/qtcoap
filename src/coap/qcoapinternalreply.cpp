@@ -168,10 +168,10 @@ void QCoapInternalReply::appendData(const QByteArray &data)
     \internal
     Adds the given CoAP \a option and sets block parameters if needed.
 
-    For block-wise transfer, the size of the block is expressed in power
+    For block-wise transfer, the size of the block is expressed by a power
     of two. See
     \l{https://tools.ietf.org/html/rfc7959#section-2.2}{'Structure of a Block Option'}
-    of the RFC 7959 for more information.
+    in RFC 7959 for more information.
 */
 void QCoapInternalReply::addOption(const QCoapOption &option)
 {
