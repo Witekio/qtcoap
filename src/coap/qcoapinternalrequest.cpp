@@ -364,9 +364,10 @@ void QCoapInternalRequest::addUriOptions(const QUrl &uri, const QUrl &proxyUri)
         addOption(QCoapOption::ProxyUri, uri.toString().toUtf8());
     }
 
+    //! FIXME What about IPv6?
     QRegularExpression ipv4Regex(QLatin1String("^([0-9]{1,3}.){3}([0-9]{1,3})$"));
     QString host = mainUri.host();
-    if (ipv4Regex.match(host).hasMatch())
+    if (!ipv4Regex.match(host).hasMatch())
         addOption(QCoapOption::UriHost, host.toUtf8());
 
     // Convert port into QCoapOption if it is not the default port
