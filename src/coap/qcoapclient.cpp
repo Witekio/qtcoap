@@ -61,7 +61,7 @@ QCoapClientPrivate::~QCoapClientPrivate()
 
     \reentrant
 
-    The QCoapClient class contains signals that gets triggered when the
+    The QCoapClient class contains signals that get triggered when the
     reply of a sent request has arrived.
 
     The application can use a QCoapClient to send requests over a CoAP
@@ -143,28 +143,28 @@ QCoapClient::~QCoapClient()
 }
 
 /*!
-    Posts a GET request to \a target and returns a new
-    QCoapReply object.
+    Sends \a request using the GET method and returns a new QCoapReply object.
 
     \sa post(), put(), deleteResource(), observe(), discover()
 */
-QCoapReply *QCoapClient::get(const QCoapRequest &target)
+QCoapReply *QCoapClient::get(const QCoapRequest &request)
 {
     Q_D(QCoapClient);
 
-    if (target.operation() != QtCoap::Empty
-            && target.operation() != QtCoap::Get)
+    if (request.operation() != QtCoap::Empty
+            && request.operation() != QtCoap::Get) {
         qWarning("QCoapClient::get: Only 'Get' operation is "
                  "compatible with 'get' method, operation value ignored.");
+    }
 
-    QCoapRequest copyRequest(target, QtCoap::Get);
+    QCoapRequest copyRequest(request, QtCoap::Get);
 
     return d->sendRequest(copyRequest);
 }
 
 /*!
-    Posts a PUT request sending the contents of the \a data byte array to the
-    target \a request and returns a new QCoapReply object.
+    Sends \a request using the PUT method and returns a new QCoapReply object.
+    Uses \a data as the payload for this request.
 
     \sa get(), post(), deleteResource(), observe(), discover()
 */
@@ -186,8 +186,9 @@ QCoapReply *QCoapClient::put(const QCoapRequest &request, const QByteArray &data
 /*!
     \overload
 
-    Posts a PUT request sending the contents of the \a data device to the
-    target \a request. A null device is treated as an empty content.
+    Sends \a request using the PUT method and returns a new QCoapReply object.
+    Uses \a device content as the payload for this request. A null device is
+    treated as empty content.
 
     \note The device has to be open and readable before calling this function.
 
@@ -429,8 +430,7 @@ void QCoapClient::enableMulticastLoopbackOption()
 #if 0
 //! Disabled until fully supported
 /*!
-    Sets the protocol used by the client. Allows developers to create and make
-    use of their own protocol
+    Sets the protocol used by the client. Allows to use a custom protocol.
 */
 void QCoapClient::setProtocol(QCoapProtocol *protocol)
 {

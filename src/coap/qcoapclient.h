@@ -50,7 +50,7 @@ public:
     explicit QCoapClient(QObject *parent = nullptr);
     ~QCoapClient();
 
-    QCoapReply *get(const QCoapRequest &target);
+    QCoapReply *get(const QCoapRequest &request);
     QCoapReply *put(const QCoapRequest &request, const QByteArray &data = QByteArray());
     QCoapReply *put(const QCoapRequest &request, QIODevice *device);
     QCoapReply *post(const QCoapRequest &request, const QByteArray &data = QByteArray());
