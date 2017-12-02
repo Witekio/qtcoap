@@ -1,11 +1,11 @@
 /****************************************************************************
 **
-** Copyright (C) 2017 The Qt Company Ltd.
-** Contact: http://www.qt.io/licensing/
+** Copyright (C) 2017 Witekio.
+** Contact: https://witekio.com/contact/
 **
 ** This file is part of the QtCoap module.
 **
-** $QT_BEGIN_LICENSE:LGPL3$
+** $QT_BEGIN_LICENSE:GPL3$
 ** Commercial License Usage
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
@@ -37,6 +37,7 @@
 #ifndef QCOAPREQUEST_P_H
 #define QCOAPREQUEST_P_H
 
+#include <QtCoap/qcoapnamespace.h>
 #include <QtCoap/qcoaprequest.h>
 #include <private/qcoapmessage_p.h>
 
@@ -56,14 +57,18 @@ QT_BEGIN_NAMESPACE
 class Q_AUTOTEST_EXPORT QCoapRequestPrivate : public QCoapMessagePrivate
 {
 public:
-    QCoapRequestPrivate();
-    QCoapRequestPrivate(const QCoapRequestPrivate &other);
-    ~QCoapRequestPrivate() {}
+    QCoapRequestPrivate(const QUrl &url = QUrl(),
+            QCoapMessage::MessageType type = QCoapMessage::NonConfirmable,
+            const QUrl &proxyUrl = QUrl());
+    QCoapRequestPrivate(const QCoapRequestPrivate &other) = default;
+    ~QCoapRequestPrivate();
+
+    void setUrl(const QUrl &url);
 
     QUrl uri;
     QUrl proxyUri;
-    QCoapRequest::Operation operation;
-    bool observe;
+    QtCoap::Operation operation = QtCoap::Empty;
+    bool observe = false;
 };
 
 QT_END_NAMESPACE

@@ -1,11 +1,11 @@
 /****************************************************************************
 **
-** Copyright (C) 2017 The Qt Company Ltd.
-** Contact: http://www.qt.io/licensing/
+** Copyright (C) 2017 Witekio.
+** Contact: https://witekio.com/contact/
 **
 ** This file is part of the QtCoap module.
 **
-** $QT_BEGIN_LICENSE:LGPL3$
+** $QT_BEGIN_LICENSE:GPL3$
 ** Commercial License Usage
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
@@ -38,21 +38,6 @@
 
 QT_BEGIN_NAMESPACE
 
-QCoapResourcePrivate::QCoapResourcePrivate() :
-    path(""),
-    title(""),
-    observable(false),
-    resourceType(""),
-    interface(""),
-    maximumSize(-1),
-    contentFormat(0)
-{
-}
-
-QCoapResourcePrivate::~QCoapResourcePrivate()
-{
-}
-
 /*!
     \class QCoapResource
     \brief The QCoapResource class holds information about a discovered
@@ -70,8 +55,40 @@ QCoapResourcePrivate::~QCoapResourcePrivate()
     Constructs a new QCoapResource.
  */
 QCoapResource::QCoapResource() :
-    d_ptr(new QCoapResourcePrivate)
+    d(new QCoapResourcePrivate)
 {
+}
+
+/*!
+    Copy constructs a new QCoapResource.
+ */
+QCoapResource::QCoapResource(const QCoapResource& other) :
+    d(other.d)
+{
+}
+
+/*!
+    Destroy the QCoapResource.
+ */
+QCoapResource::~QCoapResource()
+{
+}
+
+/*!
+    Assignment operator.
+ */
+QCoapResource& QCoapResource::operator =(const QCoapResource& other)
+{
+    d = other.d;
+    return *this;
+}
+
+/*!
+    Swap function for Q_DECLARE_SHARED
+ */
+void QCoapResource::swap(QCoapResource &other) Q_DECL_NOTHROW
+{
+    d.swap(other.d);
 }
 
 /*!
@@ -81,7 +98,7 @@ QCoapResource::QCoapResource() :
  */
 QString QCoapResource::path() const
 {
-    return d_ptr->path;
+    return d->path;
 }
 
 /*!
@@ -91,7 +108,7 @@ QString QCoapResource::path() const
  */
 QString QCoapResource::title() const
 {
-    return d_ptr->title;
+    return d->title;
 }
 
 /*!
@@ -101,7 +118,7 @@ QString QCoapResource::title() const
  */
 bool QCoapResource::observable() const
 {
-    return d_ptr->observable;
+    return d->observable;
 }
 
 /*!
@@ -111,37 +128,51 @@ bool QCoapResource::observable() const
  */
 QString QCoapResource::resourceType() const
 {
-    return d_ptr->resourceType;
+    return d->resourceType;
 }
 
 /*!
-    Returns the interface of the resource.
+    Returns the interface description of the resource.
+
+    The Interface Description 'if' attribute is an opaque string used to
+    provide a name or URI indicating a specific interface definition used
+    to interact with the target resource. It is specified in
+    \l{https://tools.ietf.org/html/rfc6690#section-3.2}{RFC 6690}.
 
     \sa setInterface()
  */
 QString QCoapResource::interface() const
 {
-    return d_ptr->interface;
+    return d->interface;
 }
 
 /*!
     Returns the maximum size of the resource.
 
+    The maximum size estimate attribute 'sz' gives an indication of the
+    maximum size of the resource representation returned by performing a
+    GET on the target URI. It is specified in
+    \l{https://tools.ietf.org/html/rfc6690#section-3.3}{RFC 6690}.
+
     \sa setMaximumSize()
  */
 int QCoapResource::maximumSize() const
 {
-    return d_ptr->maximumSize;
+    return d->maximumSize;
 }
 
 /*!
-    Returns the content format of the resource.
+    Returns the Content-Format code of the resource.
+
+    The Content-Format code corresponds to the 'ct' attribute and provides a
+    hint about the Content-Formats this resource returns. It is specified
+    in \l{https://tools.ietf.org/html/rfc7252#section-7.2.1}{RFC 7252}.
 
     \sa setContentFormat()
  */
 uint QCoapResource::contentFormat() const
 {
-    return d_ptr->contentFormat;
+    return d->contentFormat;
 }
 
 /*!
@@ -151,7 +182,7 @@ uint QCoapResource::contentFormat() const
  */
 void QCoapResource::setPath(const QString &path)
 {
-    d_ptr->path = path;
+    d->path = path;
 }
 
 /*!
@@ -161,7 +192,7 @@ void QCoapResource::setPath(const QString &path)
  */
 void QCoapResource::setTitle(const QString &title)
 {
-    d_ptr->title = title;
+    d->title = title;
 }
 
 /*!
@@ -172,7 +203,7 @@ void QCoapResource::setTitle(const QString &title)
  */
 void QCoapResource::setObservable(bool observable)
 {
-    d_ptr->observable = observable;
+    d->observable = observable;
 }
 
 /*!
@@ -182,7 +213,7 @@ void QCoapResource::setObservable(bool observable)
  */
 void QCoapResource::setResourceType(const QString &resourceType)
 {
-    d_ptr->resourceType = resourceType;
+    d->resourceType = resourceType;
 }
 
 /*!
@@ -192,7 +223,7 @@ void QCoapResource::setResourceType(const QString &resourceType)
  */
 void QCoapResource::setInterface(const QString &interface)
 {
-    d_ptr->interface = interface;
+    d->interface = interface;
 }
 
 /*!
@@ -202,7 +233,7 @@ void QCoapResource::setInterface(const QString &interface)
  */
 void QCoapResource::setMaximumSize(int maximumSize)
 {
-    d_ptr->maximumSize = maximumSize;
+    d->maximumSize = maximumSize;
 }
 
 /*!
@@ -212,7 +243,7 @@ void QCoapResource::setMaximumSize(int maximumSize)
  */
 void QCoapResource::setContentFormat(uint contentFormat)
 {
-    d_ptr->contentFormat = contentFormat;
+    d->contentFormat = contentFormat;
 }
 
 QT_END_NAMESPACE

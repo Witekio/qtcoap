@@ -1,11 +1,11 @@
 /****************************************************************************
 **
-** Copyright (C) 2017 The Qt Company Ltd.
-** Contact: http://www.qt.io/licensing/
+** Copyright (C) 2017 Witekio.
+** Contact: https://witekio.com/contact/
 **
 ** This file is part of the QtCoap module.
 **
-** $QT_BEGIN_LICENSE:LGPL3$
+** $QT_BEGIN_LICENSE:GPL3$
 ** Commercial License Usage
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
@@ -67,13 +67,12 @@ typedef QMap<QCoapInternalRequest*, InternalMessagePair> InternalMessageMap;
 class Q_AUTOTEST_EXPORT QCoapProtocolPrivate : public QObjectPrivate
 {
 public:
-    QCoapProtocolPrivate();
+    QCoapProtocolPrivate() = default;
 
-    void handleFrame();
     void handleFrame(const QByteArray &frame);
     void onLastBlock(QCoapInternalRequest *request);
     void onNextBlock(QCoapInternalRequest *request, uint currentBlockNumber, uint blockSize);
-    void sendAcknowledgment(QCoapInternalRequest *request);
+    void sendAcknowledgement(QCoapInternalRequest *request);
     void sendReset(QCoapInternalRequest *request);
     QByteArray encode(QCoapInternalRequest *request);
     QCoapInternalReply *decode(const QByteArray &message);
@@ -84,18 +83,18 @@ public:
     bool containsToken(const QByteArray &token);
     QCoapInternalRequest *findInternalRequestByToken(const QByteArray &token);
     QCoapInternalRequest *findInternalRequestByMessageId(quint16 messageId);
-    QCoapInternalRequest *findInternalRequestByReply(QCoapReply *reply);
+    QCoapInternalRequest *findInternalRequestByReply(const QCoapReply *reply);
 
     void messageReceived(const QByteArray &frameReply);
-    void onAbortedRequest(QCoapReply *reply);
+    void onAbortedRequest(const QCoapReply *reply);
 
     InternalMessageMap internalReplies;
     QQueue<QByteArray> frameQueue;
-    quint16 blockSize;
+    quint16 blockSize = 0;
 
-    uint ackTimeout;
-    double ackRandomFactor;
-    uint maxRetransmit;
+    uint ackTimeout = 2000;
+    double ackRandomFactor = 1.5;
+    uint maxRetransmit = 4;
 
     Q_DECLARE_PUBLIC(QCoapProtocol)
 };

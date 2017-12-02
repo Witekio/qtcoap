@@ -1,7 +1,44 @@
+/****************************************************************************
+**
+** Copyright (C) 2017 Witekio.
+** Contact: https://witekio.com/contact/
+**
+** This file is part of the QtCoap module.
+**
+** $QT_BEGIN_LICENSE:GPL3$
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and The Qt Company. For licensing terms
+** and conditions see http://www.qt.io/terms-conditions. For further
+** information use the contact form at http://www.qt.io/contact-us.
+**
+** GNU Lesser General Public License Usage
+** Alternatively, this file may be used under the terms of the GNU Lesser
+** General Public License version 3 as published by the Free Software
+** Foundation and appearing in the file LICENSE.LGPLv3 included in the
+** packaging of this file. Please review the following information to
+** ensure the GNU Lesser General Public License version 3 requirements
+** will be met: https://www.gnu.org/licenses/lgpl.html.
+**
+** GNU General Public License Usage
+** Alternatively, this file may be used under the terms of the GNU
+** General Public License version 2.0 or later as published by the Free
+** Software Foundation and appearing in the file LICENSE.GPL included in
+** the packaging of this file. Please review the following information to
+** ensure the GNU General Public License version 2.0 requirements will be
+** met: http://www.gnu.org/licenses/gpl-2.0.html.
+**
+** $QT_END_LICENSE$
+**
+****************************************************************************/
+
 #include <QtTest>
 #include <QCoreApplication>
 
 #include <QtCoap/qcoapglobal.h>
+#include <QtCoap/qcoapnamespace.h>
 #include <QtCoap/qcoaprequest.h>
 #include <QtCoap/qcoapconnection.h>
 #include <private/qcoapinternalrequest_p.h>
@@ -10,41 +47,19 @@ class tst_QCoapRequest : public QObject
 {
     Q_OBJECT
 
-public:
-    tst_QCoapRequest();
-    ~tst_QCoapRequest();
-
 private Q_SLOTS:
-    void initTestCase();
-    void cleanupTestCase();
-
     void ctor_data();
     void ctor();
     void setUrl_data();
     void setUrl();
     void setOperation_data();
     void setOperation();
+    void copyAndDetach();
     void internalRequestToFrame_data();
     void internalRequestToFrame();
     void parseUri_data();
     void parseUri();
 };
-
-tst_QCoapRequest::tst_QCoapRequest()
-{
-}
-
-tst_QCoapRequest::~tst_QCoapRequest()
-{
-}
-
-void tst_QCoapRequest::initTestCase()
-{
-}
-
-void tst_QCoapRequest::cleanupTestCase()
-{
-}
 
 void tst_QCoapRequest::ctor_data()
 {
@@ -64,87 +79,154 @@ void tst_QCoapRequest::ctor()
 
 void tst_QCoapRequest::setUrl_data()
 {
-    QTest::addColumn<QUrl>("url");
+    QTest::addColumn<QUrl>("inputUrl");
+    QTest::addColumn<QUrl>("expectedUrl");
 
-    QTest::newRow("empty") << QUrl();
-    QTest::newRow("coap") << QUrl("coap://vs0.inf.ethz.ch:5683/test");
+    QTest::newRow("empty") << QUrl() << QUrl();
+    QTest::newRow("coap") << QUrl("coap://vs0.inf.ethz.ch:5683/test") << QUrl("coap://vs0.inf.ethz.ch:5683/test");
+    QTest::newRow("other_port") << QUrl("coap://vs0.inf.ethz.ch:8888/test") << QUrl("coap://vs0.inf.ethz.ch:8888/test");
+    QTest::newRow("no_port") << QUrl("coap://vs0.inf.ethz.ch/test") << QUrl("coap://vs0.inf.ethz.ch:5683/test");
+    QTest::newRow("no_scheme_no_port") << QUrl("vs0.inf.ethz.ch/test") << QUrl("coap://vs0.inf.ethz.ch:5683/test");
+    QTest::newRow("incorrect_scheme") << QUrl("http://vs0.inf.ethz.ch:5683/test") << QUrl();
+    QTest::newRow("invalid") << QUrl("-coap://vs0.inf.ethz.ch:5683/test") << QUrl();
 }
 
 void tst_QCoapRequest::setUrl()
 {
-    QFETCH(QUrl, url);
+    QFETCH(QUrl, inputUrl);
+    QFETCH(QUrl, expectedUrl);
 
     QCoapRequest request;
-    request.setUrl(url);
-    QCOMPARE(request.url(), url);
+    request.setUrl(inputUrl);
+    QCOMPARE(request.url(), expectedUrl);
 }
 
 void tst_QCoapRequest::setOperation_data()
 {
-    QTest::addColumn<QCoapRequest::Operation>("operation");
+    QTest::addColumn<QtCoap::Operation>("operation");
 
-    QTest::newRow("get") << QCoapRequest::Get;
-    QTest::newRow("put") << QCoapRequest::Put;
-    QTest::newRow("post") << QCoapRequest::Post;
-    QTest::newRow("delete") << QCoapRequest::Delete;
-    QTest::newRow("other") << QCoapRequest::Other;
+    QTest::newRow("get") << QtCoap::Get;
+    QTest::newRow("put") << QtCoap::Put;
+    QTest::newRow("post") << QtCoap::Post;
+    QTest::newRow("delete") << QtCoap::Delete;
+    QTest::newRow("other") << QtCoap::Other;
 }
 
 void tst_QCoapRequest::setOperation()
 {
-    QFETCH(QCoapRequest::Operation, operation);
+    QFETCH(QtCoap::Operation, operation);
 
     QCoapRequest request;
     request.setOperation(operation);
     QCOMPARE(request.operation(), operation);
 }
 
+void tst_QCoapRequest::copyAndDetach()
+{
+    QCoapRequest a;
+    a.setMessageId(3);
+    a.setPayload("payload");
+    a.setToken("token");
+    a.setType(QCoapMessage::Acknowledgement);
+    a.setVersion(5);
+    a.setOperation(QtCoap::Delete);
+    QUrl testUrl("coap://url:500/resource");
+    a.setUrl(testUrl);
+    QUrl testProxyUrl("test://proxyurl");
+    a.setProxyUrl(testProxyUrl);
+
+    // Test the QCoapMessage copy
+    QCoapMessage b(a);
+    QVERIFY2(b.messageId() == 3, "Message not copied correctly");
+    QVERIFY2(b.payload() == "payload", "Message not copied correctly");
+    QVERIFY2(b.token() == "token", "Message not copied correctly");
+    QVERIFY2(b.type() == QCoapMessage::Acknowledgement, "Message not copied correctly");
+    QVERIFY2(b.version() == 5, "Message not copied correctly");
+
+    // Test the QCoapRequest copy
+    QCoapRequest c(a);
+    QVERIFY2(c.operation() == QtCoap::Delete, "Request not copied correctly");
+    QVERIFY2(c.url() == testUrl, "Request not copied correctly");
+    QVERIFY2(c.proxyUrl() == testProxyUrl, "Request not copied correctly");
+
+    // Detach
+    c.setMessageId(9);
+    QCOMPARE(c.messageId(), 9);
+    QCOMPARE(a.messageId(), 3);
+}
+
 void tst_QCoapRequest::internalRequestToFrame_data()
 {
     QTest::addColumn<QUrl>("url");
-    QTest::addColumn<QCoapRequest::Operation>("operation");
+    QTest::addColumn<QtCoap::Operation>("operation");
     QTest::addColumn<QCoapMessage::MessageType>("type");
     QTest::addColumn<quint16>("messageId");
     QTest::addColumn<QByteArray>("token");
     QTest::addColumn<QString>("pduHeader");
     QTest::addColumn<QString>("pduPayload");
 
-    QTest::newRow("request_with_option_and_payload") << QUrl("coap://172.17.0.3:5683/test")
-                                                     << QCoapRequest::Get
-                                                     << QCoapRequest::NonConfirmable
-                                                     << quint16(56400) << QByteArray::fromHex("4647f09b")
-                                                     << "5401dc504647f09bb474657374ff" << "Some payload";
-    QTest::newRow("request_without_payload") << QUrl("coap://172.17.0.3:5683/test")
-                                             << QCoapRequest::Get
-                                             << QCoapRequest::NonConfirmable
-                                             << quint16(56400) << QByteArray::fromHex("4647f09b")
-                                             << "5401dc504647f09bb474657374" << "";
-    QTest::newRow("request_without_option") << QUrl("coap://172.17.0.3:5683/")
-                                            << QCoapRequest::Put
-                                            << QCoapRequest::Confirmable
-                                            << quint16(56400) << QByteArray::fromHex("4647f09b")
-                                            << "4403dc504647f09bff" << "Some payload";
-    QTest::newRow("request_only") << QUrl("coap://172.17.0.3:5683/")
-                                  << QCoapRequest::Get
-                                  << QCoapRequest::NonConfirmable
-                                  << quint16(56400) << QByteArray::fromHex("4647f09b")
-                                  << "5401dc504647f09b" << "";
-    QTest::newRow("request_with_multiple_options") << QUrl("coap://172.17.0.3:5683/test/oui")
-                                                   << QCoapRequest::Get
-                                                   << QCoapRequest::NonConfirmable
-                                                   << quint16(56400) << QByteArray::fromHex("4647f09b")
-                                                   << "5401dc504647f09bb474657374036f7569" << "";
-    QTest::newRow("request_with_big_option_number") << QUrl("coap://172.17.0.3:5683/test")
-                                                    << QCoapRequest::Get
-                                                    << QCoapRequest::NonConfirmable
-                                                    << quint16(56400) << QByteArray::fromHex("4647f09b")
-                                                    << "5401dc504647f09bb474657374dd240d6162636465666768696a6b6c6d6e6f707172737475767778797aff" << "Some payload";
+    QTest::newRow("request_with_option_and_payload")
+        << QUrl("coap://172.17.0.3:5683/test")
+        << QtCoap::Get
+        << QCoapRequest::NonConfirmable
+        << quint16(56400)
+        << QByteArray::fromHex("4647f09b")
+        << "5401dc504647f09bb474657374ff"
+        << "Some payload";
+
+    QTest::newRow("request_without_payload")
+        << QUrl("coap://172.17.0.3:5683/test")
+        << QtCoap::Get
+        << QCoapRequest::NonConfirmable
+        << quint16(56400)
+        << QByteArray::fromHex("4647f09b")
+        << "5401dc504647f09bb474657374"
+        << "";
+
+    QTest::newRow("request_without_option")
+        << QUrl("coap://172.17.0.3:5683/")
+        << QtCoap::Put
+        << QCoapRequest::Confirmable
+        << quint16(56400)
+        << QByteArray::fromHex("4647f09b")
+        << "4403dc504647f09bff"
+        << "Some payload";
+
+    QTest::newRow("request_only")
+        << QUrl("coap://172.17.0.3:5683/")
+        << QtCoap::Get
+        << QCoapRequest::NonConfirmable
+        << quint16(56400)
+        << QByteArray::fromHex("4647f09b")
+        << "5401dc504647f09b"
+        << "";
+
+    QTest::newRow("request_with_multiple_options")
+        << QUrl("coap://172.17.0.3:5683/test/oui")
+        << QtCoap::Get
+        << QCoapRequest::NonConfirmable
+        << quint16(56400)
+        << QByteArray::fromHex("4647f09b")
+        << "5401dc504647f09bb474657374036f75"
+           "69"
+        << "";
+
+    QTest::newRow("request_with_big_option_number")
+        << QUrl("coap://172.17.0.3:5683/test")
+        << QtCoap::Get
+        << QCoapRequest::NonConfirmable
+        << quint16(56400)
+        << QByteArray::fromHex("4647f09b")
+        << "5401dc504647f09bb474657374dd240d"
+           "6162636465666768696a6b6c6d6e6f70"
+           "7172737475767778797aff"
+        << "Some payload";
 }
 
 void tst_QCoapRequest::internalRequestToFrame()
 {
     QFETCH(QUrl, url);
-    QFETCH(QCoapRequest::Operation, operation);
+    QFETCH(QtCoap::Operation, operation);
     QFETCH(QCoapMessage::MessageType, type);
     QFETCH(quint16, messageId);
     QFETCH(QByteArray, token);
@@ -159,7 +241,6 @@ void tst_QCoapRequest::internalRequestToFrame()
     request.setToken(token);
     if (qstrcmp(QTest::currentDataTag(), "request_with_big_option_number") == 0)
         request.addOption(QCoapOption::Size1, QByteArray("abcdefghijklmnopqrstuvwxyz"));
-
 
     QByteArray pdu;
     pdu.append(pduHeader);
@@ -199,11 +280,9 @@ void tst_QCoapRequest::parseUri()
     QCoapRequest request(uri, QCoapMessage::NonConfirmable, proxyUri);
     QCoapInternalRequest internalRequest(request);
 
-    QCOMPARE(internalRequest.message().optionsLength(), optionsNumber);
+    QCOMPARE(internalRequest.message()->optionCount(), optionsNumber);
 }
 
-
-
-QTEST_MAIN(tst_QCoapRequest)
+QTEST_APPLESS_MAIN(tst_QCoapRequest)
 
 #include "tst_qcoaprequest.moc"

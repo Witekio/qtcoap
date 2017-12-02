@@ -1,11 +1,11 @@
 /****************************************************************************
 **
-** Copyright (C) 2017 The Qt Company Ltd.
-** Contact: http://www.qt.io/licensing/
+** Copyright (C) 2017 Witekio.
+** Contact: https://witekio.com/contact/
 **
 ** This file is part of the QtCoap module.
 **
-** $QT_BEGIN_LICENSE:LGPL3$
+** $QT_BEGIN_LICENSE:GPL3$
 ** Commercial License Usage
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
@@ -38,39 +38,29 @@
 
 QT_BEGIN_NAMESPACE
 
-QCoapMessagePrivate::QCoapMessagePrivate() :
-    version(1),
-    type(QCoapMessage::NonConfirmable),
-    messageId(0),
-    token(QByteArray()),
-    payload(QByteArray())
+QCoapMessagePrivate::QCoapMessagePrivate()
 {
 }
 
-/*QCoapMessagePrivate::QCoapMessagePrivate(const QCoapMessagePrivate &other) :
+QCoapMessagePrivate::QCoapMessagePrivate(const QCoapMessagePrivate &other) :
     QSharedData(other),
-    version(other.version),
-    type(other.type),
-    messageId(other.messageId),
-    token(other.token),
-    options(other.options),
-    payload(other.payload)
+    version(other.version), type(other.type), messageId(other.messageId),
+    token(other.token), options(other.options), payload(other.payload)
 {
-}*/
+}
 
 QCoapMessagePrivate::~QCoapMessagePrivate()
 {
 }
 
-
 /*!
     \class QCoapMessage
-    \brief The QCoapMessage class holds information about a coap message that
+    \brief The QCoapMessage class holds information about a CoAP message that
     can be a request or a reply.
 
     \reentrant
 
-    It holds information as the message type, message id, token and other
+    It holds information such as the message type, message id, token and other
     ancillary data.
 
     \sa QCoapOption, QCoapReply, QCoapRequest
@@ -87,13 +77,13 @@ QCoapMessagePrivate::~QCoapMessagePrivate()
     \value NonConfirmableCoapMessage    A Non-Confirmable message. The
                                         destination endpoint does not need to
                                         acknowledge the message.
-    \value AcknowledgmentCoapMessage    An Acknowledgment message. A message
+    \value AcknowledgementCoapMessage   An Acknowledgement message. A message
                                         sent or received in reply to a
                                         Confirmable message.
     \value ResetCoapMessage             A Reset message. A message sent
                                         sometimes in case of errors or to stop
                                         transmissions. (For example, it is used
-                                        to cancel an observation)
+                                        to cancel an observation).
 */
 
 /*!
@@ -112,7 +102,7 @@ QCoapMessage::~QCoapMessage()
 }
 
 /*!
-    Constructs a copy of \a other.
+    Constructs a shallow copy of \a other.
 */
 QCoapMessage::QCoapMessage(const QCoapMessage &other) :
     d_ptr(other.d_ptr)
@@ -122,7 +112,7 @@ QCoapMessage::QCoapMessage(const QCoapMessage &other) :
 /*!
     \internal
     Constructs a new QCoapMessage with \a dd as the d_ptr.
-    This constructor must be used when subclassing internally
+    This constructor must be used internally when subclassing
     the QCoapMessage class.
 */
 QCoapMessage::QCoapMessage(QCoapMessagePrivate &dd) :
@@ -133,7 +123,7 @@ QCoapMessage::QCoapMessage(QCoapMessagePrivate &dd) :
 /*!
     \overload
 
-    Adds the coap option with the given \a name and \a value.
+    Adds the CoAP option with the given \a name and \a value.
 */
 void QCoapMessage::addOption(QCoapOption::OptionName name, const QByteArray &value)
 {
@@ -142,11 +132,12 @@ void QCoapMessage::addOption(QCoapOption::OptionName name, const QByteArray &val
 }
 
 /*!
-    Adds the given coap \a option.
+    Adds the given CoAP \a option.
 */
 void QCoapMessage::addOption(const QCoapOption &option)
 {
-    d_ptr->options.push_back(option);
+    Q_D(QCoapMessage);
+    d->options.push_back(option);
 }
 
 /*!
@@ -154,34 +145,39 @@ void QCoapMessage::addOption(const QCoapOption &option)
 */
 void QCoapMessage::removeOption(const QCoapOption &option)
 {
-    d_ptr->options.removeOne(option);
+    Q_D(QCoapMessage);
+    d->options.removeOne(option);
 }
 
 /*!
-    Removes the option with the given \a name.
+    Removes all options with the given \a name.
+    The CoAP protocol allows for the same option to repeat.
 */
-void QCoapMessage::removeOptionByName(QCoapOption::OptionName name)
+void QCoapMessage::removeOption(QCoapOption::OptionName name)
 {
-    for (QCoapOption option : d_ptr->options) {
-        if (option.name() == name) {
-            removeOption(option);
-            break;
-        }
-    }
+    Q_D(QCoapMessage);
+    auto namesMatch = [name](const QCoapOption &option) {
+        return option.name() == name;
+    };
+
+    auto &options = d->options;
+    options.erase(std::remove_if(options.begin(), options.end(), namesMatch),
+                  options.end());
 }
 
 /*!
     Finds and returns the option with the given \a name.
-    If no option found, returns an InvalidCoapOption with en empty value.
+    If there is no such option, returns an Invalid CoapOption with an empty value.
 */
 QCoapOption QCoapMessage::findOptionByName(QCoapOption::OptionName name)
 {
-    for (QCoapOption option : d_ptr->options) {
+    Q_D(const QCoapMessage);
+    for (const QCoapOption &option : d->options) {
         if (option.name() == name)
             return option;
     }
 
-    return QCoapOption(QCoapOption::Invalid, QByteArray());
+    return QCoapOption();
 }
 
 /*!
@@ -189,17 +185,19 @@ QCoapOption QCoapMessage::findOptionByName(QCoapOption::OptionName name)
 */
 void QCoapMessage::removeAllOptions()
 {
-    d_ptr->options.clear();
+    Q_D(QCoapMessage);
+    d->options.clear();
 }
 
 /*!
-    Returns the coap version.
+    Returns the CoAP version.
 
     \sa setVersion()
 */
 quint8 QCoapMessage::version() const
 {
-    return d_ptr->version;
+    Q_D(const QCoapMessage);
+    return d->version;
 }
 
 /*!
@@ -209,7 +207,8 @@ quint8 QCoapMessage::version() const
 */
 QCoapMessage::MessageType QCoapMessage::type() const
 {
-    return d_ptr->type;
+    Q_D(const QCoapMessage);
+    return d->type;
 }
 
 /*!
@@ -219,7 +218,8 @@ QCoapMessage::MessageType QCoapMessage::type() const
 */
 QByteArray QCoapMessage::token() const
 {
-    return d_ptr->token;
+    Q_D(const QCoapMessage);
+    return d->token;
 }
 
 /*!
@@ -227,7 +227,8 @@ QByteArray QCoapMessage::token() const
 */
 quint8 QCoapMessage::tokenLength() const
 {
-    return static_cast<quint8>(d_ptr->token.length()); //tokenLength;
+    Q_D(const QCoapMessage);
+    return static_cast<quint8>(d->token.length());
 }
 
 /*!
@@ -237,7 +238,8 @@ quint8 QCoapMessage::tokenLength() const
 */
 quint16 QCoapMessage::messageId() const
 {
-    return d_ptr->messageId;
+    Q_D(const QCoapMessage);
+    return d->messageId;
 }
 
 /*!
@@ -247,7 +249,8 @@ quint16 QCoapMessage::messageId() const
 */
 QByteArray QCoapMessage::payload() const
 {
-    return d_ptr->payload;
+    Q_D(const QCoapMessage);
+    return d->payload;
 }
 
 /*!
@@ -255,33 +258,37 @@ QByteArray QCoapMessage::payload() const
 */
 QCoapOption QCoapMessage::option(int index) const
 {
-    return d_ptr->options.at(index);
+    Q_D(const QCoapMessage);
+    return d->options.at(index);
 }
 
 /*!
     Returns the list of options.
 */
-QList<QCoapOption> QCoapMessage::optionList() const
+const QList<QCoapOption>& QCoapMessage::optionList() const
 {
-    return d_ptr->options;
+    Q_D(const QCoapMessage);
+    return d->options;
 }
 
 /*!
     Returns the number of options.
 */
-int QCoapMessage::optionsLength() const
+int QCoapMessage::optionCount() const
 {
-    return d_ptr->options.length();
+    Q_D(const QCoapMessage);
+    return d->options.length();
 }
 
 /*!
-    Sets the coap version.
+    Sets the CoAP version.
 
     \sa version()
 */
 void QCoapMessage::setVersion(quint8 version)
 {
-    d_ptr->version = version;
+    Q_D(QCoapMessage);
+    d->version = version;
 }
 
 /*!
@@ -291,7 +298,8 @@ void QCoapMessage::setVersion(quint8 version)
 */
 void QCoapMessage::setType(const MessageType &type)
 {
-    d_ptr->type = type;
+    Q_D(QCoapMessage);
+    d->type = type;
 }
 
 /*!
@@ -301,7 +309,8 @@ void QCoapMessage::setType(const MessageType &type)
 */
 void QCoapMessage::setToken(const QByteArray &token)
 {
-    d_ptr->token = token;
+    Q_D(QCoapMessage);
+    d->token = token;
 }
 
 /*!
@@ -311,7 +320,8 @@ void QCoapMessage::setToken(const QByteArray &token)
 */
 void QCoapMessage::setMessageId(quint16 id)
 {
-    d_ptr->messageId = id;
+    Q_D(QCoapMessage);
+    d->messageId = id;
 }
 
 /*!
@@ -319,12 +329,10 @@ void QCoapMessage::setMessageId(quint16 id)
 
     \sa payload()
 */
-#include <QDebug>
 void QCoapMessage::setPayload(const QByteArray &payload)
 {
-    qDebug() << "1 " << payload;
-    d_ptr->payload = payload;
-    qDebug() << "2 " << this->payload() << this;
+    Q_D(QCoapMessage);
+    d->payload = payload;
 }
 
 void QCoapMessage::swap(QCoapMessage &other) Q_DECL_NOTHROW
@@ -332,15 +340,32 @@ void QCoapMessage::swap(QCoapMessage &other) Q_DECL_NOTHROW
     qSwap(d_ptr, other.d_ptr);
 }
 
+/*!
+    Move assignment operator.
+ */
 QCoapMessage &QCoapMessage::operator=(QCoapMessage &&other) Q_DECL_NOTHROW
 {
     swap(other);
     return *this;
 }
 
+/*!
+    Assignment operator.
+ */
 QCoapMessage &QCoapMessage::operator=(const QCoapMessage &other)
 {
     d_ptr = other.d_ptr;
     return *this;
 }
+
+/*!
+    \internal
+
+    For QSharedDataPointer.
+*/
+QCoapMessagePrivate* QCoapMessage::d_func()
+{
+    return d_ptr.data();
+}
+
 QT_END_NAMESPACE

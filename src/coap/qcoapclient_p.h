@@ -1,11 +1,11 @@
 /****************************************************************************
 **
-** Copyright (C) 2017 The Qt Company Ltd.
-** Contact: http://www.qt.io/licensing/
+** Copyright (C) 2017 Witekio.
+** Contact: https://witekio.com/contact/
 **
 ** This file is part of the QtCoap module.
 **
-** $QT_BEGIN_LICENSE:LGPL3$
+** $QT_BEGIN_LICENSE:GPL3$
 ** Commercial License Usage
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
@@ -57,21 +57,19 @@
 
 QT_BEGIN_NAMESPACE
 
-typedef QMap<QCoapRequest, QPointer<QCoapReply>> CoapMessageMap;
-
 class Q_AUTOTEST_EXPORT QCoapClientPrivate : public QObjectPrivate
 {
 public:
     QCoapClientPrivate();
     ~QCoapClientPrivate();
 
-    CoapMessageMap requestMap;
     QCoapProtocol *protocol;
     QCoapConnection *connection;
     QThread *workerThread;
 
-    QCoapReply *sendRequest(const QCoapRequest &request);
-    QCoapDiscoveryReply *sendDiscovery(const QCoapRequest &request);
+    QCoapReply *sendRequest(QCoapRequest &request);
+    QCoapDiscoveryReply *sendDiscovery(QCoapRequest &request);
+    bool send(QCoapReply *reply);
 
     Q_DECLARE_PUBLIC(QCoapClient)
 };

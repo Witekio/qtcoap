@@ -1,11 +1,11 @@
 /****************************************************************************
 **
-** Copyright (C) 2017 The Qt Company Ltd.
-** Contact: http://www.qt.io/licensing/
+** Copyright (C) 2017 Witekio.
+** Contact: https://witekio.com/contact/
 **
 ** This file is part of the QtCoap module.
 **
-** $QT_BEGIN_LICENSE:LGPL3$
+** $QT_BEGIN_LICENSE:GPL3$
 ** Commercial License Usage
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
@@ -37,10 +37,11 @@
 #ifndef QCOAPINTERNALREQUEST_H
 #define QCOAPINTERNALREQUEST_H
 
+#include <QtCore/qglobal.h>
 #include <QtCoap/qcoapglobal.h>
+#include <QtCoap/qcoapnamespace.h>
 #include <QtCoap/qcoapinternalmessage.h>
 #include <QtCoap/qcoapconnection.h>
-#include <QtCore/qglobal.h>
 #include <QtCore/qtimer.h>
 #include <QtCore/qurl.h>
 #include <private/qcoapinternalmessage_p.h>
@@ -64,20 +65,10 @@ class Q_AUTOTEST_EXPORT QCoapInternalRequest : public QCoapInternalMessage
 {
     Q_OBJECT
 public:
-    enum OperationInternal {
-        Empty,
-        Get,
-        Post,
-        Put,
-        Delete,
-        Other
-    };
-    Q_ENUM(OperationInternal)
-
     explicit QCoapInternalRequest(QObject *parent = nullptr);
     explicit QCoapInternalRequest(const QCoapRequest &request, QObject *parent = nullptr);
 
-    void initForAcknowledgment(quint16 messageId, const QByteArray &token);
+    void initForAcknowledgement(quint16 messageId, const QByteArray &token);
     void initForReset(quint16 messageId);
 
     QByteArray toQByteArray() const;
@@ -91,11 +82,11 @@ public:
     void addUriOptions(const QUrl &uri, const QUrl &proxyUri = QUrl());
 
     QUrl targetUri() const;
-    OperationInternal operation() const;
+    QtCoap::Operation operation() const;
     bool cancelObserve() const;
     QCoapConnection *connection() const;
     uint retransmissionCounter() const;
-    void setOperation(OperationInternal operation);
+    void setOperation(QtCoap::Operation operation);
     void setConnection(QCoapConnection *connection);
     void setCancelObserve(bool cancelObserve);
 
@@ -104,7 +95,7 @@ public:
     void beginTransmission();
     void stopTransmission();
 
-    // To use into QMap
+    // To support use as keys in QMap
     bool operator<(const QCoapInternalRequest &other) const;
 
 Q_SIGNALS:
@@ -118,16 +109,16 @@ private:
 class Q_AUTOTEST_EXPORT QCoapInternalRequestPrivate : public QCoapInternalMessagePrivate
 {
 public:
-    QCoapInternalRequestPrivate();
+    QCoapInternalRequestPrivate() = default;
 
     QUrl targetUri;
-    QCoapInternalRequest::OperationInternal operation;
-    QCoapConnection *connection;
-    bool cancelObserve;
+    QtCoap::Operation operation = QtCoap::Empty;
+    QCoapConnection *connection = nullptr;
     QByteArray fullPayload;
+    bool cancelObserve = false;
 
-    uint retransmissionCounter;
-    int timeout;
+    int timeout = 0;
+    uint retransmissionCounter = 0;
     QTimer *timer = nullptr;
 
     void _q_timeout();

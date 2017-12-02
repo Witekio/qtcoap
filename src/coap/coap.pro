@@ -14,7 +14,8 @@ PUBLIC_HEADERS += \
     qcoapprotocol.h \
     qcoapinternalmessage.h \
     qcoapglobal.h \
-    qcoapdiscoveryreply.h
+    qcoapdiscoveryreply.h \
+    qcoapnamespace.h
 
 PRIVATE_HEADERS += \
     qcoapmessage_p.h \

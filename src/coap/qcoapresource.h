@@ -1,11 +1,11 @@
 /****************************************************************************
 **
-** Copyright (C) 2017 The Qt Company Ltd.
-** Contact: http://www.qt.io/licensing/
+** Copyright (C) 2017 Witekio.
+** Contact: https://witekio.com/contact/
 **
 ** This file is part of the QtCoap module.
 **
-** $QT_BEGIN_LICENSE:LGPL3$
+** $QT_BEGIN_LICENSE:GPL3$
 ** Commercial License Usage
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
@@ -38,16 +38,21 @@
 #define QCOAPRESOURCE_H
 
 #include <QtCoap/qcoapglobal.h>
-#include <QtCore/qglobal.h>
-#include <QtCore/qobject.h>
+#include <QtCore/qshareddata.h>
 
 QT_BEGIN_NAMESPACE
 
 class QCoapResourcePrivate;
+
 class Q_COAP_EXPORT QCoapResource
 {
 public:
     QCoapResource();
+    QCoapResource(const QCoapResource& other);
+    ~QCoapResource();
+    QCoapResource& operator =(const QCoapResource& other);
+
+    void swap(QCoapResource &other) Q_DECL_NOTHROW;
 
     QString path() const;
     QString title() const;
@@ -66,8 +71,10 @@ public:
     void setContentFormat(uint contentFormat);
 
 private:
-    QCoapResourcePrivate *d_ptr;
+    QSharedDataPointer<QCoapResourcePrivate> d;
 };
+
+Q_DECLARE_SHARED(QCoapResource)
 
 QT_END_NAMESPACE
 

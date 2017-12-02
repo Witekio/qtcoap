@@ -1,11 +1,11 @@
 /****************************************************************************
 **
-** Copyright (C) 2017 The Qt Company Ltd.
-** Contact: http://www.qt.io/licensing/
+** Copyright (C) 2017 Witekio.
+** Contact: https://witekio.com/contact/
 **
 ** This file is part of the QtCoap module.
 **
-** $QT_BEGIN_LICENSE:LGPL3$
+** $QT_BEGIN_LICENSE:GPL3$
 ** Commercial License Usage
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
@@ -38,9 +38,9 @@
 #define QCOAPREQUEST_H
 
 #include <QtCoap/qcoapglobal.h>
+#include <QtCoap/qcoapnamespace.h>
 #include <QtCoap/qcoapmessage.h>
 #include <QtCoap/qcoapconnection.h>
-#include <QtCore/qglobal.h>
 #include <QtCore/qobject.h>
 #include <QtCore/qurl.h>
 
@@ -51,35 +51,34 @@ class QCoapRequestPrivate;
 class Q_COAP_EXPORT QCoapRequest : public QCoapMessage
 {
 public:
-    enum Operation {
-        Empty,
-        Get,
-        Post,
-        Put,
-        Delete,
-        Other
-    };
-
     explicit QCoapRequest(const QUrl &url = QUrl(),
                  MessageType type = NonConfirmable,
                  const QUrl &proxyUrl = QUrl());
-    QCoapRequest(const QCoapRequest &other);
-    ~QCoapRequest() {}
+    QCoapRequest(const QCoapRequest &other,
+                 QtCoap::Operation op = QtCoap::Empty);
+    ~QCoapRequest();
 
     QCoapRequest &operator=(const QCoapRequest &other);
-    bool operator<(const QCoapRequest &other) const;
 
     QUrl url() const;
     QUrl proxyUrl() const;
-    Operation operation() const;
+    QtCoap::Operation operation() const;
     bool observe() const;
     void setUrl(const QUrl &url);
     void setProxyUrl(const QUrl &proxyUrl);
-    void setOperation(Operation operation);
-    void setObserve(bool observe);
-};
+    void setOperation(QtCoap::Operation operation);
+    void enableObserve();
 
-Q_DECLARE_METATYPE(QCoapRequest::Operation)
+    static bool isUrlValid(const QUrl& url);
+
+private:
+    //! For QSharedDataPointer
+    QCoapRequestPrivate* d_func();
+    inline const QCoapRequestPrivate* d_func() const
+    {
+        return reinterpret_cast<const QCoapRequestPrivate*>(d_ptr.constData());
+    }
+};
 
 QT_END_NAMESPACE
 

@@ -1,11 +1,11 @@
 /****************************************************************************
 **
-** Copyright (C) 2017 The Qt Company Ltd.
-** Contact: http://www.qt.io/licensing/
+** Copyright (C) 2017 Witekio.
+** Contact: https://witekio.com/contact/
 **
 ** This file is part of the QtCoap module.
 **
-** $QT_BEGIN_LICENSE:LGPL3$
+** $QT_BEGIN_LICENSE:GPL3$
 ** Commercial License Usage
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
@@ -40,54 +40,53 @@
 
 QT_BEGIN_NAMESPACE
 
-QCoapReplyPrivate::QCoapReplyPrivate() :
-    status(QCoapReply::Invalid),
-    message(QCoapMessage()),
-    isRunning(false),
-    isFinished(false),
-    isAborted(false)
-{
-}
-
 /*!
     \class QCoapReply
-    \brief The QCoapReply class holds the data of a coap reply.
+    \brief The QCoapReply class holds the data of a CoAP reply.
 
     \reentrant
 
     The QCoapReply contains data related to a request sent with the
     QCoapClient.
 
-    The \l{QCoapReply::finished()}{finished()}  signal is emitted when
-    the response is fully received.
+    The \l{QCoapReply::finished()}{finished()} signal is emitted when
+    the response is fully received and when request fails.
 
     The \l{QCoapReply::notified(const QByteArray&)}
-    {notified(const QByteArray&)} signal is emitted when a resource send
+    {notified(const QByteArray&)} signal is emitted when a resource sends
     a notification in response of an observe request.
 
     \sa QCoapClient, QCoapRequest, QCoapDiscoveryReply
 */
 
+//! TODO Document all enum values
 /*!
-    \enum QNetworkReply::NetworkError
+    \enum QCoapReply::NetworkError
 
     Indicates all possible error conditions found during the
     processing of the request.
 
-    \value NoCoapError              no error condition.
+    \value NoError                  No error condition.
 
-    \value HostNotFoundCoapError    the remote host name was not
+    \value HostNotFoundError        The remote host name was not
                                     found.
 
-    \value BadRequestCoapError      the request was not recognized.
+    \value BadRequestError          The request was not recognized.
 
-    \value AddressInUseCoapError    the address is already in use.
+    \value AddressInUseError        The address is already in use.
 
-    \value TimeOutCoapError         the response did not arrive in time.
+    \value TimeOutError             The response did not arrive in time.
 
-    \value UnknownCoapError         an unknown error was detected.
+    \value UnknownError             An unknown error was detected.
 
     \sa error()
+*/
+/*!
+    \enum QtCoap::StatusCode
+
+    This enum maps the status code of the CoAP protocol, as defined in
+    the 'response' section of the
+    \l{https://tools.ietf.org/html/rfc7252#section-5.2}{RFC 7252}
 */
 
 /*!
@@ -99,31 +98,36 @@ QCoapReplyPrivate::QCoapReplyPrivate() :
 */
 
 /*!
-    \fn void QCoapReply::notified(const QByteArray&)
+    \fn void QCoapReply::notified(const QByteArray &payload)
 
     This signal is emitted whenever a notification is received from a resource
     for an observe request.
 
-    Its parameter is a byte array containing the payload of the notification.
+    Its \a payload parameter is a QByteArray containing the payload of the
+    notification.
 
-    \sa QCoapClient::finished(), isFinished(), finished()
+    \sa QCoapClient::finished(), isFinished(), finished(), notified()
 */
 
 /*!
-    \fn void QCoapReply::error(QCoapReply::QCoapNetworkError)
+    \fn void QCoapReply::error(QCoapReply::QCoapNetworkError error)
 
     This signal is emitted whenever an error is sent by the socket or the code
     received into the reply is an error code.
 
-    Its parameter is the error received.
+    Its \a error parameter is the error received.
+
+    \sa finished(), aborted()
 */
 
 /*!
-    \fn void QCoapReply::aborted(QCoapReply*);
+    \fn void QCoapReply::aborted(QCoapReply *reply);
 
     This signal is emitted when the request is aborted or the reply is deleted.
 
-    Its parameter is the reply object related to the aborted request.
+    Its \a reply parameter is the reply object related to the aborted request.
+
+    \sa finished(), error()
 */
 
 /*!
@@ -147,8 +151,8 @@ QCoapReply::QCoapReply(QCoapReplyPrivate &dd, QObject *parent) :
 }
 
 /*!
-    Destroys the QCoapReply object and abort the request in case of the
-    response has not been received yet.
+    Destroys the QCoapReply object and aborts the request if its response has
+    not yet been received.
 */
 QCoapReply::~QCoapReply()
 {
@@ -169,6 +173,11 @@ qint64 QCoapReply::readData(char *data, qint64 maxSize)
     qint64 len = qMin(maxSize, qint64(payload.size()) - pos());
     if (len <= 0)
         return qint64(0);
+
+    // Ensure memcpy is compatible with a qint64 length.
+    // Tested against "sizeof(qint64) - 1" to account for the sign bit
+    // FIXME Isn't it going to be a problem on ARM based platforms?
+    Q_STATIC_ASSERT(sizeof(size_t) >= sizeof(qint64) - 1);
     memcpy(data, payload.constData() + pos(), static_cast<size_t>(len));
 
     return len;
@@ -190,7 +199,7 @@ qint64 QCoapReply::writeData(const char *data, qint64 maxSize)
 /*!
     Returns the status code of the request.
 */
-QCoapReply::StatusCode QCoapReply::statusCode() const
+QtCoap::StatusCode QCoapReply::statusCode() const
 {
     Q_D(const QCoapReply);
     return d->status;
@@ -257,14 +266,14 @@ QUrl QCoapReply::url() const
 /*!
     Returns the operation of the associated request.
 */
-QCoapRequest::Operation QCoapReply::operation() const
+QtCoap::Operation QCoapReply::operation() const
 {
     Q_D(const QCoapReply);
     return d->request.operation();
 }
 
 /*!
-    Returns the error of the reply or NoCoapError if there is no error.
+    Returns the error of the reply or QCoapReply::NoError if there is no error.
 */
 QCoapReply::NetworkError QCoapReply::errorReceived() const
 {
@@ -273,7 +282,7 @@ QCoapReply::NetworkError QCoapReply::errorReceived() const
 }
 
 /*!
-    Sets the request associated to the this QCoapReply to the given \a request.
+    Sets the request associated with this QCoapReply to the given \a request.
 
     \sa request()
 */
@@ -313,29 +322,27 @@ void QCoapReply::setError(NetworkError newError)
     \internal
 
     Updates the QCoapReply object and its message with data of the internal
-    reply \a internalReply.
+    reply \a internalReply, unless this QCoapReply object has been aborted.
 */
 void QCoapReply::updateFromInternalReply(const QCoapInternalReply &internalReply)
 {
     Q_D(QCoapReply);
 
     if (!d->isAborted) {
+        const QCoapMessage *internalReplyMessage = internalReply.message();
 
-        QCoapMessage internalReplyMessage = internalReply.message();
-
-        d->message.setPayload(internalReplyMessage.payload());
-        qDebug() << internalReplyMessage.payload();
-        d->message.setType(internalReplyMessage.type());
-        d->message.setVersion(internalReplyMessage.version());
-        d->status = QCoapReply::StatusCode(internalReply.statusCode());
+        d->message.setPayload(internalReplyMessage->payload());
+        d->message.setType(internalReplyMessage->type());
+        d->message.setVersion(internalReplyMessage->version());
+        d->status = internalReply.statusCode();
         d->isFinished = true;
         d->isRunning = false;
 
-        if (d->status >= BadRequest)
+        if (d->status >= QtCoap::BadRequest)
             replyError(d->status);
 
         if (d->request.observe())
-            emit notified(internalReplyMessage.payload());
+            emit notified(internalReplyMessage->payload());
 
         emit finished();
     }
@@ -350,72 +357,73 @@ void QCoapReply::abortRequest()
 {
     Q_D(QCoapReply);
     d->isAborted = true;
-    if (!this->isFinished())
+    if (!isFinished())
         emit aborted(this);
 }
 
 /*!
     \internal
 
-    Maps the reply status code \a errorCode to the related coap network error.
+    Maps the reply status code \a errorCode to the related CoAP network error.
 */
-void QCoapReply::replyError(StatusCode errorCode)
+void QCoapReply::replyError(QtCoap::StatusCode errorCode)
 {
     NetworkError networkError;
     switch (errorCode) {
-    case BadRequest:
+    case QtCoap::BadRequest:
         networkError = BadRequestError;
         break;
-    case Unauthorized:
+    case QtCoap::Unauthorized:
         networkError = UnauthorizedError;
         break;
-    case BadOption:
+    case QtCoap::BadOption:
         networkError = BadOptionError;
         break;
-    case Forbidden:
+    case QtCoap::Forbidden:
         networkError = ForbiddenError;
         break;
-    case NotFound:
+    case QtCoap::NotFound:
         networkError = NotFoundError;
         break;
-    case MethodNotAllowed:
+    case QtCoap::MethodNotAllowed:
         networkError = MethodNotAllowedError;
         break;
-    case NotAcceptable:
+    case QtCoap::NotAcceptable:
         networkError = NotAcceptableError;
         break;
-    case RequestEntityIncomplete:
+    case QtCoap::RequestEntityIncomplete:
         networkError = RequestEntityIncompleteError;
         break;
-    case PreconditionFailed:
+    case QtCoap::PreconditionFailed:
         networkError = PreconditionFailedError;
         break;
-    case RequestEntityTooLarge:
+    case QtCoap::RequestEntityTooLarge:
         networkError = RequestEntityTooLargeError;
         break;
-    case UnsupportedContentFormat:
+    case QtCoap::UnsupportedContentFormat:
         networkError = UnsupportedContentFormatError;
         break;
-    case InternalServerError:
+    case QtCoap::InternalServerError:
         networkError = InternalServerErrorError;
         break;
-    case NotImplemented:
+    case QtCoap::NotImplemented:
         networkError = NotImplementedError;
         break;
-    case BadGateway:
+    case QtCoap::BadGateway:
         networkError = BadGatewayError;
         break;
-    case ServiceUnavailable:
+    case QtCoap::ServiceUnavailable:
         networkError = ServiceUnavailableError;
         break;
-    case GatewayTimeout:
+    case QtCoap::GatewayTimeout:
         networkError = GatewayTimeoutError;
         break;
-    case ProxyingNotSupported:
+    case QtCoap::ProxyingNotSupported:
         networkError = ProxyingNotSupportedError;
         break;
     default:
         networkError = UnknownError;
+        break;
     }
 
     setError(networkError);
@@ -424,7 +432,7 @@ void QCoapReply::replyError(StatusCode errorCode)
 /*!
     \internal
 
-    Maps the socket error \a socketError to the related coap network error.
+    Maps the socket error \a socketError to the related CoAP network error.
 */
 void QCoapReply::connectionError(QAbstractSocket::SocketError socketError)
 {
@@ -438,6 +446,7 @@ void QCoapReply::connectionError(QAbstractSocket::SocketError socketError)
         break;
     default:
         networkError = UnknownError;
+        break;
     }
 
     setError(networkError);

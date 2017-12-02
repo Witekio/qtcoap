@@ -1,11 +1,11 @@
 /****************************************************************************
 **
-** Copyright (C) 2017 The Qt Company Ltd.
-** Contact: http://www.qt.io/licensing/
+** Copyright (C) 2017 Witekio.
+** Contact: https://witekio.com/contact/
 **
 ** This file is part of the QtCoap module.
 **
-** $QT_BEGIN_LICENSE:LGPL3$
+** $QT_BEGIN_LICENSE:GPL3$
 ** Commercial License Usage
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
@@ -58,12 +58,12 @@ class Q_AUTOTEST_EXPORT QCoapMessagePrivate : public QSharedData
 {
 public:
     QCoapMessagePrivate();
-    //QCoapMessagePrivate(const QCoapMessagePrivate &other);
+    QCoapMessagePrivate(const QCoapMessagePrivate &other);
     ~QCoapMessagePrivate();
 
-    quint8 version;
-    QCoapMessage::MessageType type;
-    quint16 messageId;
+    quint8 version = 1;
+    QCoapMessage::MessageType type = QCoapMessage::NonConfirmable;
+    quint16 messageId = 0;
     QByteArray token;
     QList<QCoapOption> options;
     QByteArray payload;

@@ -1,11 +1,11 @@
 /****************************************************************************
 **
-** Copyright (C) 2017 The Qt Company Ltd.
-** Contact: http://www.qt.io/licensing/
+** Copyright (C) 2017 Witekio.
+** Contact: https://witekio.com/contact/
 **
 ** This file is part of the QtCoap module.
 **
-** $QT_BEGIN_LICENSE:LGPL3$
+** $QT_BEGIN_LICENSE:GPL3$
 ** Commercial License Usage
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
@@ -57,15 +57,15 @@ QT_BEGIN_NAMESPACE
 class Q_AUTOTEST_EXPORT QCoapReplyPrivate : public QIODevicePrivate
 {
 public:
-    QCoapReplyPrivate();
+    QCoapReplyPrivate() = default;
 
     QCoapRequest request;
-    QCoapReply::StatusCode status;
-    QCoapReply::NetworkError error;
     QCoapMessage message;
-    bool isRunning;
-    bool isFinished;
-    bool isAborted;
+    QtCoap::StatusCode status = QtCoap::Invalid;
+    QCoapReply::NetworkError error = QCoapReply::NoError;
+    bool isRunning = false;
+    bool isFinished = false;
+    bool isAborted = false;
 
     Q_DECLARE_PUBLIC(QCoapReply)
 };

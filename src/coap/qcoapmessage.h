@@ -1,11 +1,11 @@
 /****************************************************************************
 **
-** Copyright (C) 2017 The Qt Company Ltd.
-** Contact: http://www.qt.io/licensing/
+** Copyright (C) 2017 Witekio.
+** Contact: https://witekio.com/contact/
 **
 ** This file is part of the QtCoap module.
 **
-** $QT_BEGIN_LICENSE:LGPL3$
+** $QT_BEGIN_LICENSE:GPL3$
 ** Commercial License Usage
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
@@ -37,9 +37,9 @@
 #ifndef QCOAPMESSAGE_H
 #define QCOAPMESSAGE_H
 
+#include <QtCore/qglobal.h>
 #include <QtCoap/qcoapglobal.h>
 #include <QtCoap/qcoapoption.h>
-#include <QtCore/qglobal.h>
 #include <QtCore/qobject.h>
 #include <QtCore/qlist.h>
 #include <QtCore/qshareddata.h>
@@ -53,7 +53,7 @@ public:
     enum MessageType {
         Confirmable,
         NonConfirmable,
-        Acknowledgment,
+        Acknowledgement,
         Reset
     };
 
@@ -71,29 +71,36 @@ public:
     quint8 tokenLength() const;
     quint16 messageId() const;
     QByteArray payload() const;
-    QCoapOption option(int index) const;
-    QList<QCoapOption> optionList() const;
-    int optionsLength() const;
     void setVersion(quint8 version);
     void setType(const MessageType &type);
     void setToken(const QByteArray &token);
     void setMessageId(quint16);
     void setPayload(const QByteArray &payload);
 
+    QCoapOption option(int index) const;
+    const QList<QCoapOption>& optionList() const;
+    int optionCount() const;
     void addOption(QCoapOption::OptionName name, const QByteArray &value = QByteArray());
     virtual void addOption(const QCoapOption &option);
     QCoapOption findOptionByName(QCoapOption::OptionName name);
     void removeOption(const QCoapOption &option);
-    void removeOptionByName(QCoapOption::OptionName name);
+    void removeOption(QCoapOption::OptionName name);
     void removeAllOptions();
 
 protected:
     explicit QCoapMessage(QCoapMessagePrivate &dd);
 
-    QCoapMessagePrivate* d_ptr;
+    QSharedDataPointer<QCoapMessagePrivate> d_ptr;
+
+    //! For QSharedDataPointer
+    QCoapMessagePrivate* d_func();
+    inline const QCoapMessagePrivate* d_func() const
+    {
+        return d_ptr.constData();
+    }
 };
 
-//Q_DECLARE_SHARED(QCoapMessage)
+Q_DECLARE_SHARED(QCoapMessage)
 Q_DECLARE_METATYPE(QCoapMessage::MessageType)
 
 QT_END_NAMESPACE

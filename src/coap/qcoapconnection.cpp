@@ -1,11 +1,11 @@
 /****************************************************************************
 **
-** Copyright (C) 2017 The Qt Company Ltd.
-** Contact: http://www.qt.io/licensing/
+** Copyright (C) 2017 Witekio.
+** Contact: https://witekio.com/contact/
 **
 ** This file is part of the QtCoap module.
 **
-** $QT_BEGIN_LICENSE:LGPL3$
+** $QT_BEGIN_LICENSE:GPL3$
 ** Commercial License Usage
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
@@ -39,15 +39,6 @@
 
 QT_BEGIN_NAMESPACE
 
-QCoapConnectionPrivate::QCoapConnectionPrivate() :
-    state(QCoapConnection::Unconnected)
-{
-}
-
-QCoapConnectionPrivate::~QCoapConnectionPrivate()
-{
-}
-
 /*!
     \class QCoapConnection
     \brief The QCoapConnection class handles the transfer of a frame to a
@@ -55,14 +46,13 @@ QCoapConnectionPrivate::~QCoapConnectionPrivate()
 
     \reentrant
 
-    The QCoapConnection class is used by the QCoapClient class to send the
-    requests to a server. It has a socket listening for udp messages and
-    that is used to send the coap frames.
+    The QCoapConnection class is used by the QCoapClient class to send
+    requests to a server. It has a socket listening for UDP messages,
+    that is used to send the CoAP frames.
 
     When a reply is available, the QCoapConnection object emits a
     \l{QCoapConnection::readyRead(const QByteArray&)}
     {readyRead(const QByteArray&)} signal
-
 
     \sa QCoapClient
 */
@@ -73,39 +63,43 @@ QCoapConnectionPrivate::~QCoapConnectionPrivate()
 QCoapConnection::QCoapConnection(QObject *parent) :
     QCoapConnection(*new QCoapConnectionPrivate, parent)
 {
+    createSocket();
 }
 
 /*!
     \internal
+
     Constructs a new QCoapConnection with \a dd as the d_ptr.
-    This constructor must be used when subclassing internally
+    This constructor must be used when internally subclassing
     the QCoapConnection class.
 */
 QCoapConnection::QCoapConnection(QCoapConnectionPrivate &dd, QObject *parent) :
     QObject(dd, parent)
 {
-    Q_D(QCoapConnection);
-    d->udpSocket = new QUdpSocket(this);
-}
-
-/*!
-    Destroys the QCoapConnection and frees the socket.
-*/
-QCoapConnection::~QCoapConnection()
-{
-    Q_D(QCoapConnection);
-    delete d->udpSocket;
 }
 
 /*!
     \internal
 
-    Binds the socket to a random port and return true if it bounds with
-    success.
+    Creates the socket used by the connection and set it in connection's private
+    class
+*/
+void QCoapConnection::createSocket()
+{
+    Q_D(QCoapConnection);
+
+    //! TODO Create DTLS socket here when available
+    d->setSocket(new QUdpSocket(this));
+}
+
+/*!
+    \internal
+
+    Binds the socket to a random port and returns \c true if it succeeds.
 */
 bool QCoapConnectionPrivate::bind()
 {
-    return udpSocket->bind(QHostAddress::Any, 0, QAbstractSocket::ShareAddress);
+    return socket()->bind(QHostAddress::Any, 0, QAbstractSocket::ShareAddress);
 }
 
 /*!
@@ -117,8 +111,8 @@ void QCoapConnectionPrivate::bindSocket()
 {
     Q_Q(QCoapConnection);
 
-    if (udpSocket->state() == QUdpSocket::ConnectedState)
-        udpSocket->disconnectFromHost();
+    if (socket()->state() == QUdpSocket::ConnectedState)
+        socket()->disconnectFromHost();
 
     q->connect(udpSocket, SIGNAL(error(QAbstractSocket::SocketError)),
                q, SLOT(_q_socketError(QAbstractSocket::SocketError)));
@@ -136,11 +130,7 @@ void QCoapConnection::sendRequest(const QByteArray &request, const QString &host
 {
     Q_D(QCoapConnection);
 
-    CoapFrame frame;
-    frame.currentPdu = request;
-    frame.host = host;
-    frame.port = port;
-
+    CoapFrame frame(request, host, port);
     d->framesToSend.enqueue(frame);
 
     if (d->state == Bound) {
@@ -154,14 +144,14 @@ void QCoapConnection::sendRequest(const QByteArray &request, const QString &host
 /*!
     \internal
 
-    Writes the given \a data frame to the socket to the stored host and port.
+    Writes the given \a data frame to the socket to the stored \a host and \a port.
 */
-void QCoapConnectionPrivate::writeToSocket(const QByteArray &data, const QString &host, quint16 port)
+void QCoapConnectionPrivate::writeToSocket(const CoapFrame& frame)
 {
-    if (!udpSocket->isWritable())
-        udpSocket->open(udpSocket->openMode() | QIODevice::WriteOnly);
+    if (!socket()->isWritable())
+        socket()->open(socket()->openMode() | QIODevice::WriteOnly);
 
-    udpSocket->writeDatagram(data, QHostAddress(host), port);
+    socket()->writeDatagram(frame.currentPdu, QHostAddress(frame.host), frame.port);
 }
 
 /*!
@@ -188,8 +178,8 @@ void QCoapConnectionPrivate::_q_socketBound()
 */
 void QCoapConnectionPrivate::_q_startToSendRequest()
 {
-    CoapFrame frame = framesToSend.dequeue();
-    writeToSocket(frame.currentPdu, frame.host, frame.port);
+    const CoapFrame frame = framesToSend.dequeue();
+    writeToSocket(frame);
 }
 
 /*!
@@ -197,18 +187,18 @@ void QCoapConnectionPrivate::_q_startToSendRequest()
 
     This slot reads all data stored in the socket and emits
     \l{QCoapConnection::readyRead(const QByteArray&)}
-    {readyRead(const QByteArray&)} signal for all received
+    {readyRead(const QByteArray&)} signal for each received
     datagram.
 */
 void QCoapConnectionPrivate::_q_socketReadyRead()
 {
     Q_Q(QCoapConnection);
 
-    if (!udpSocket->isReadable())
-        udpSocket->open(udpSocket->openMode() | QIODevice::ReadOnly);
+    if (!socket()->isReadable())
+        socket()->open(socket()->openMode() | QIODevice::ReadOnly);
 
-    while (udpSocket->hasPendingDatagrams()) {
-        QByteArray data = udpSocket->receiveDatagram().data();
+    while (socket()->hasPendingDatagrams()) {
+        QByteArray data = socket()->receiveDatagram().data();
         emit q->readyRead(data);
     }
 }
@@ -223,7 +213,7 @@ void QCoapConnectionPrivate::_q_socketError(QAbstractSocket::SocketError error)
 {
     Q_Q(QCoapConnection);
 
-    qDebug() << "CoAP UDP socket error " << error << udpSocket->errorString();
+    qWarning() << "CoAP UDP socket error " << error << socket()->errorString();
     emit q->error(error);
 }
 

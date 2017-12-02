@@ -1,11 +1,11 @@
 /****************************************************************************
 **
-** Copyright (C) 2017 The Qt Company Ltd.
-** Contact: http://www.qt.io/licensing/
+** Copyright (C) 2017 Witekio.
+** Contact: https://witekio.com/contact/
 **
 ** This file is part of the QtCoap module.
 **
-** $QT_BEGIN_LICENSE:LGPL3$
+** $QT_BEGIN_LICENSE:GPL3$
 ** Commercial License Usage
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
@@ -40,6 +40,7 @@
 #include <QtCoap/qcoapmessage.h>
 #include <QtCoap/qcoaprequest.h>
 #include <QtCoap/qcoapglobal.h>
+#include <QtCoap/qcoapnamespace.h>
 #include <QtCore/qbytearray.h>
 #include <QtCore/qiodevice.h>
 #include <QtCore/qsharedpointer.h>
@@ -78,42 +79,14 @@ public:
     };
     Q_ENUM(NetworkError)
 
-    enum StatusCode {
-        Invalid = 0x00,
-        Created = 0x41, // 2.01
-        Deleted = 0x42, // 2.02
-        Valid   = 0x43, // 2.03
-        Changed = 0x44, // 2.04
-        Content = 0x45, // 2.05
-        Continue = 0x5F, // 2.31
-        BadRequest = 0x80, // 4.00
-        Unauthorized = 0x81, // 4.01
-        BadOption = 0x82, // 4.02
-        Forbidden = 0x83, // 4.03
-        NotFound = 0x84, // 4.04
-        MethodNotAllowed = 0x85, // 4.05
-        NotAcceptable = 0x86, // 4.06
-        RequestEntityIncomplete = 0x88, // 4.08
-        PreconditionFailed = 0x8C, // 4.12
-        RequestEntityTooLarge = 0x8D, // 4.13
-        UnsupportedContentFormat = 0x8E, // 4.14
-        InternalServerError = 0xA0, // 5.00
-        NotImplemented = 0xA1, // 5.01
-        BadGateway = 0xA2, // 5.02
-        ServiceUnavailable = 0xA3, // 5.03
-        GatewayTimeout = 0xA4, // 5.04
-        ProxyingNotSupported = 0xA5 // 5.05
-    };
-    Q_ENUM(StatusCode)
-
     explicit QCoapReply(QObject *parent = nullptr);
     ~QCoapReply();
 
-    StatusCode statusCode() const;
+    QtCoap::StatusCode statusCode() const;
     QCoapMessage message() const;
     QCoapRequest request() const;
     QUrl url() const;
-    QCoapRequest::Operation operation() const;
+    QtCoap::Operation operation() const;
     NetworkError errorReceived() const;
     bool isRunning() const;
     bool isFinished() const;
@@ -122,13 +95,13 @@ public:
 
 Q_SIGNALS:
     void finished();
-    void notified(const QByteArray&);
-    void error(QCoapReply::NetworkError);
+    void notified(const QByteArray &payload);
+    void error(QCoapReply::NetworkError error);
     void aborted(QCoapReply*);
 
 protected Q_SLOTS:
-    void connectionError(QAbstractSocket::SocketError);
-    void replyError(StatusCode);
+    void connectionError(QAbstractSocket::SocketError error);
+    void replyError(QtCoap::StatusCode statusCode);
 
 public Q_SLOTS:
     void abortRequest();

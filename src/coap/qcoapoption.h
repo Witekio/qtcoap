@@ -1,11 +1,11 @@
 /****************************************************************************
 **
-** Copyright (C) 2017 The Qt Company Ltd.
-** Contact: http://www.qt.io/licensing/
+** Copyright (C) 2017 Witekio.
+** Contact: https://witekio.com/contact/
 **
 ** This file is part of the QtCoap module.
 **
-** $QT_BEGIN_LICENSE:LGPL3$
+** $QT_BEGIN_LICENSE:GPL3$
 ** Commercial License Usage
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
@@ -37,9 +37,9 @@
 #ifndef QCOAPOPTION_H
 #define QCOAPOPTION_H
 
+#include <QtCore/qglobal.h>
 #include <QtCoap/qcoapglobal.h>
 #include <QtCore/qobject.h>
-#include <QtCore/qglobal.h>
 
 QT_BEGIN_NAMESPACE
 
@@ -48,6 +48,7 @@ class Q_COAP_EXPORT QCoapOption
 {
 public:
     enum OptionName {
+        Invalid         = 0,
         IfMatch         = 1,
         UriHost         = 3,
         Etag            = 4,
@@ -66,19 +67,21 @@ public:
         Size2           = 28,
         ProxyUri        = 35,
         ProxyScheme     = 39,
-        Size1           = 60,
-        Invalid
+        Size1           = 60
     };
 
-    QCoapOption(OptionName name, const QByteArray &value);
+    QCoapOption(OptionName name = Invalid, const QByteArray &value = QByteArray());
 
     QByteArray value() const;
-    quint8 length() const;
+    int length() const;
     OptionName name() const;
 
     bool operator==(const QCoapOption &other) const;
+    bool operator!=(const QCoapOption &other) const;
 
 protected:
+    void setValue(const QByteArray &value);
+
     QCoapOptionPrivate *d_ptr;
 };
 

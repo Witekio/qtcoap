@@ -1,3 +1,39 @@
+/****************************************************************************
+**
+** Copyright (C) 2017 Witekio.
+** Contact: https://witekio.com/contact/
+**
+** This file is part of the QtCoap module.
+**
+** $QT_BEGIN_LICENSE:GPL3$
+** Commercial License Usage
+** Licensees holding valid commercial Qt licenses may use this file in
+** accordance with the commercial license agreement provided with the
+** Software or, alternatively, in accordance with the terms contained in
+** a written agreement between you and The Qt Company. For licensing terms
+** and conditions see http://www.qt.io/terms-conditions. For further
+** information use the contact form at http://www.qt.io/contact-us.
+**
+** GNU Lesser General Public License Usage
+** Alternatively, this file may be used under the terms of the GNU Lesser
+** General Public License version 3 as published by the Free Software
+** Foundation and appearing in the file LICENSE.LGPLv3 included in the
+** packaging of this file. Please review the following information to
+** ensure the GNU Lesser General Public License version 3 requirements
+** will be met: https://www.gnu.org/licenses/lgpl.html.
+**
+** GNU General Public License Usage
+** Alternatively, this file may be used under the terms of the GNU
+** General Public License version 2.0 or later as published by the Free
+** Software Foundation and appearing in the file LICENSE.GPL included in
+** the packaging of this file. Please review the following information to
+** ensure the GNU General Public License version 2.0 requirements will be
+** met: http://www.gnu.org/licenses/gpl-2.0.html.
+**
+** $QT_END_LICENSE$
+**
+****************************************************************************/
+
 #include <QtTest>
 #include <QCoreApplication>
 
@@ -8,32 +44,10 @@ class tst_QCoapResource : public QObject
 {
     Q_OBJECT
 
-public:
-    tst_QCoapResource();
-    ~tst_QCoapResource();
-
 private Q_SLOTS:
-    void initTestCase();
-    void cleanupTestCase();
     void parseCoreLink_data();
     void parseCoreLink();
 };
-
-tst_QCoapResource::tst_QCoapResource()
-{
-}
-
-tst_QCoapResource::~tst_QCoapResource()
-{
-}
-
-void tst_QCoapResource::initTestCase()
-{
-}
-
-void tst_QCoapResource::cleanupTestCase()
-{
-}
 
 void tst_QCoapResource::parseCoreLink_data()
 {
@@ -93,21 +107,22 @@ void tst_QCoapResource::parseCoreLink_data()
                    << true << false;
 
     QByteArray coreLinks;
-    coreLinks.append("</obs>;obs;rt=\"observe\";title=\"Observable resource which changes every");
-    coreLinks.append(" 5 seconds\",</separate>;title=\"Resource which cannot be served immediately");
-    coreLinks.append(" and which cannot be acknowledged in a piggy-backed way\",</seg1>;title=\"");
-    coreLinks.append("Long path resource\",</seg1/seg2>;title=\"Long path resource\",");
-    coreLinks.append("</large-separate>;rt=\"block\";sz=1280;title=\"Large resource\",");
-    coreLinks.append("</.well-known/core>,</multi-format>;ct=\"0 41\";title=\"Resource that exists");
-    coreLinks.append(" in different content formats (text/plain utf8 and application/xml)\",");
-    coreLinks.append("</path>;ct=40;title=\"Hierarchical link description entry\",</path/sub1>;");
-    coreLinks.append("title=\"Hierarchical link description sub-resource\",</link1>;if=\"If1\";");
-    coreLinks.append("rt=\"Type1 Type2\";title=\"Link test resource\",</validate>;title=\"Resource");
-    coreLinks.append(" which varies\",</test>;title=\"Default test resource\",</query>;");
-    coreLinks.append("title=\"Resource accepting query parameters\",</large-post>;rt=\"block\";");
-    coreLinks.append("title=\"Handle PostOperation with two-way blockwise transfer\",</obs-non>;");
-    coreLinks.append("obs;rt=\"observe\";title=\"Observable resource which changes every 5 ");
-    coreLinks.append("seconds\",</shutdown>");
+    // Resources are separated by a comma
+    coreLinks.append("</obs>;obs;rt=\"observe\";title=\"Observable resource which changes every"
+                     " 5 seconds\",</separate>;title=\"Resource which cannot be served immediately"
+                     " and which cannot be acknowledged in a piggy-backed way\",</seg1>;title=\""
+                     "Long path resource\",</seg1/seg2>;title=\"Long path resource\","
+                     "</large-separate>;rt=\"block\";sz=1280;title=\"Large resource\","
+                     "</.well-known/core>,</multi-format>;ct=\"0 41\";title=\"Resource that exists"
+                     " in different content formats (text/plain utf8 and application/xml)\","
+                     "</path>;ct=40;title=\"Hierarchical link description entry\",</path/sub1>;"
+                     "title=\"Hierarchical link description sub-resource\",</link1>;if=\"If1\";"
+                     "rt=\"Type1 Type2\";title=\"Link test resource\",</validate>;title=\"Resource"
+                     " which varies\",</test>;title=\"Default test resource\",</query>;"
+                     "title=\"Resource accepting query parameters\",</large-post>;rt=\"block\";"
+                     "title=\"Handle PostOperation with two-way blockwise transfer\",</obs-non>;"
+                     "obs;rt=\"observe\";title=\"Observable resource which changes every 5 "
+                     "seconds\",</shutdown>");
 
     QTest::newRow("parse") << 16
                            << pathList
@@ -132,8 +147,7 @@ void tst_QCoapResource::parseCoreLink()
     QFETCH(QList<bool>, observableList);
     QFETCH(QByteArray, coreLinkList);
 
-    QList<QCoapResource> resourceList;
-    resourceList = QCoapProtocol::resourcesFromCoreLinkList(coreLinkList);
+    const QList<QCoapResource> resourceList = QCoapProtocol::resourcesFromCoreLinkList(coreLinkList);
 
     QCOMPARE(resourceList.size(), resourceNumber);
     for (int i = 0; i < resourceList.size(); ++i) {
@@ -147,6 +161,6 @@ void tst_QCoapResource::parseCoreLink()
     }
 }
 
-QTEST_MAIN(tst_QCoapResource)
+QTEST_APPLESS_MAIN(tst_QCoapResource)
 
 #include "tst_qcoapresource.moc"

@@ -1,11 +1,11 @@
 /****************************************************************************
 **
-** Copyright (C) 2017 The Qt Company Ltd.
-** Contact: http://www.qt.io/licensing/
+** Copyright (C) 2017 Witekio.
+** Contact: https://witekio.com/contact/
 **
 ** This file is part of the QtCoap module.
 **
-** $QT_BEGIN_LICENSE:LGPL3$
+** $QT_BEGIN_LICENSE:GPL3$
 ** Commercial License Usage
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
@@ -34,31 +34,29 @@
 **
 ****************************************************************************/
 
+#include <QtCore/qdebug.h>
 #include "qcoapoption_p.h"
 
 QT_BEGIN_NAMESPACE
 
-QCoapOptionPrivate::QCoapOptionPrivate() :
-    value(QByteArray())
-{
-}
-
 /*!
     \class QCoapOption
-    \brief The QCoapOption class holds data about coap options.
+    \brief The QCoapOption class holds data about CoAP options.
 
     \reentrant
 
     An option contains a name, related to an option id, and a value.
-    The name is set with an enumeration value : QCoapOptionName.
+    The name is one of the values from the OptionName enumeration.
 */
 
 /*!
-    \enum QCoapOption::QCoapOptionName
+    \enum QCoapOption::OptionName
 
-    Indicates the name of the option.
-    Its value is the id related to the name of the option
-    as defined in the CoAP specifications.
+    Indicates the name of an option.
+    The value of each ID is as specified by the CoAP standard, with the
+    exception of Invalid. You can refer to the
+    \l{https://tools.ietf.org/html/rfc7252#section-5.10}{RFC 7252} for more
+    details.
 
     \value IfMatchCoapOption        If-match
     \value UriHostCoapOption        Uri-Host
@@ -83,14 +81,15 @@ QCoapOptionPrivate::QCoapOptionPrivate() :
 
 /*!
     Constructs a QCoapOption object with the given \a name
-    and \a value.
+    and \a value. If no parameters are passed, constructs
+    an Invalid object.
  */
 QCoapOption::QCoapOption(OptionName name,
                          const QByteArray &value) :
     d_ptr(new QCoapOptionPrivate)
 {
     d_ptr->name = name;
-    d_ptr->value = value;
+    setValue(value);
 }
 
 /*!
@@ -104,9 +103,9 @@ QByteArray QCoapOption::value() const
 /*!
     Returns the length of the value of the option.
  */
-quint8 QCoapOption::length() const
+int QCoapOption::length() const
 {
-    return quint8(d_ptr->value.length());
+    return d_ptr->value.length();
 }
 
 /*!
@@ -118,12 +117,83 @@ QCoapOption::OptionName QCoapOption::name() const
 }
 
 /*!
-    Returns true if this QCoapOption and \a other are equals.
+    Returns \c true if this QCoapOption and \a other are equals.
  */
 bool QCoapOption::operator==(const QCoapOption &other) const
 {
     return (d_ptr->name == other.d_ptr->name
             && d_ptr->value == other.d_ptr->value);
+}
+
+/*!
+    Returns \c true if this QCoapOption and \a other are different.
+ */
+bool QCoapOption::operator!=(const QCoapOption &other) const
+{
+    return !(*this == other);
+}
+
+/*!
+    Sets the value for the option
+ */
+void QCoapOption::setValue(const QByteArray &value)
+{
+    bool oversized = false;
+
+    // Check for value maximum size, according to section 5.10 of RFC 7252
+    // https://tools.ietf.org/html/rfc7252#section-5.10
+    switch (d_ptr->name) {
+    case IfNoneMatch:
+        if (value.size() > 0)
+            oversized = true;
+        break;
+
+    case UriPort:
+    case ContentFormat:
+    case Accept:
+        if (value.size() > 2)
+            oversized = true;
+        break;
+
+    case MaxAge:
+    case Size1:
+        if (value.size() > 4)
+            oversized = true;
+        break;
+
+    case IfMatch:
+    case Etag:
+        if (value.size() > 8)
+            oversized = true;
+        break;
+
+    case UriHost:
+    case LocationPath:
+    case UriPath:
+    case UriQuery:
+    case LocationQuery:
+    case ProxyScheme:
+        if (value.size() > 255)
+            oversized = true;
+        break;
+
+    case ProxyUri:
+        if (value.size() > 1034)
+            oversized = true;
+        break;
+
+    case Observe:
+    case Block2:
+    case Block1:
+    case Size2:
+    default:
+        break;
+    }
+
+    if (oversized)
+        qWarning() << "QCoapOption::setValue: value is probably too big for option" << d_ptr->name;
+
+    d_ptr->value = value;
 }
 
 QT_END_NAMESPACE

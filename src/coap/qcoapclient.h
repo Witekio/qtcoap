@@ -1,11 +1,11 @@
 /****************************************************************************
 **
-** Copyright (C) 2017 The Qt Company Ltd.
-** Contact: http://www.qt.io/licensing/
+** Copyright (C) 2017 Witekio.
+** Contact: https://witekio.com/contact/
 **
 ** This file is part of the QtCoap module.
 **
-** $QT_BEGIN_LICENSE:LGPL3$
+** $QT_BEGIN_LICENSE:GPL3$
 ** Commercial License Usage
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
@@ -37,9 +37,9 @@
 #ifndef QCOAPCLIENT_H
 #define QCOAPCLIENT_H
 
+#include <QtCore/qglobal.h>
 #include <QtCoap/qcoapglobal.h>
 #include <QtCore/qobject.h>
-#include <QtCore/qglobal.h>
 #include <QtCore/qiodevice.h>
 
 QT_BEGIN_NAMESPACE
@@ -57,23 +57,29 @@ public:
     explicit QCoapClient(QObject *parent = nullptr);
     ~QCoapClient();
 
-    QCoapReply *get(const QCoapRequest &request);
+    QCoapReply *get(const QCoapRequest &target);
     QCoapReply *put(const QCoapRequest &request, const QByteArray &data = QByteArray());
     QCoapReply *put(const QCoapRequest &request, QIODevice *device);
     QCoapReply *post(const QCoapRequest &request, const QByteArray &data = QByteArray());
     QCoapReply *post(const QCoapRequest &request, QIODevice *device);
     QCoapReply *deleteResource(const QCoapRequest &request);
     QCoapReply *observe(const QCoapRequest &request);
-    void cancelObserve(const QCoapRequest &request);
-    void cancelObserve(QCoapReply *notifiedReply);
+    void cancelObserve(const QCoapReply *notifiedReply);
 
-    QCoapDiscoveryReply *discover(const QUrl &url,
+#if 0
+    //! TODO Add global discovery
+    QCoapDiscoveryReply *discover(const QString &discoveryPath = QLatin1String("/.well-known/core"));
+#endif
+    QCoapDiscoveryReply *discover(const QUrl &baseUrl,
                                   const QString &discoveryPath = QLatin1String("/.well-known/core"));
 
     void setBlockSize(quint16 blockSize);
     void enableMulticastLoopbackOption();
     void setMulticastTtlOption(int ttlValue);
+
+#if 0
     void setProtocol(QCoapProtocol *protocol);
+#endif
 
 Q_SIGNALS:
     void finished(QCoapReply *);

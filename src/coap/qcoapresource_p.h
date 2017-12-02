@@ -1,11 +1,11 @@
 /****************************************************************************
 **
-** Copyright (C) 2017 The Qt Company Ltd.
-** Contact: http://www.qt.io/licensing/
+** Copyright (C) 2017 Witekio.
+** Contact: https://witekio.com/contact/
 **
 ** This file is part of the QtCoap module.
 **
-** $QT_BEGIN_LICENSE:LGPL3$
+** $QT_BEGIN_LICENSE:GPL3$
 ** Commercial License Usage
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
@@ -38,6 +38,7 @@
 #define QCOAPRESOURCE_P_H
 
 #include <QtCoap/qcoapresource.h>
+#include <QtCore/qshareddata.h>
 
 //
 //  W A R N I N G
@@ -52,22 +53,23 @@
 
 QT_BEGIN_NAMESPACE
 
-class Q_AUTOTEST_EXPORT QCoapResourcePrivate
+class Q_AUTOTEST_EXPORT QCoapResourcePrivate : public QSharedData
 {
 public:
-    QCoapResourcePrivate();
-    ~QCoapResourcePrivate();
+    QCoapResourcePrivate() {}
+    QCoapResourcePrivate(const QCoapResourcePrivate& other): QSharedData(other), maximumSize(other.maximumSize)
+      , contentFormat(other.contentFormat), resourceType(other.resourceType)
+      , interface(other.interface), path(other.path), title(other.title)
+      , observable(other.observable) {}
+    ~QCoapResourcePrivate() {}
 
-    // The comments obs, rt, etc..., are the names of the fields in
-    // the protocol.
-
+    int maximumSize = -1;    // sz field
+    uint contentFormat = 0;  // ct field
+    QString resourceType;    // rt field
+    QString interface;       // if field
     QString path;
     QString title;
-    bool observable;        // obs
-    QString resourceType;   // rt
-    QString interface;      // if
-    int maximumSize;        // sz
-    uint contentFormat;     // ct
+    bool observable = false; // obs field
 };
 
 QT_END_NAMESPACE

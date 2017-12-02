@@ -1,11 +1,11 @@
 /****************************************************************************
 **
-** Copyright (C) 2017 The Qt Company Ltd.
-** Contact: http://www.qt.io/licensing/
+** Copyright (C) 2017 Witekio.
+** Contact: https://witekio.com/contact/
 **
 ** This file is part of the QtCoap module.
 **
-** $QT_BEGIN_LICENSE:LGPL3$
+** $QT_BEGIN_LICENSE:GPL3$
 ** Commercial License Usage
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
@@ -37,8 +37,8 @@
 #ifndef QCOAPCONNECTION_H
 #define QCOAPCONNECTION_H
 
-#include <QtCoap/qcoapglobal.h>
 #include <QtCore/qglobal.h>
+#include <QtCoap/qcoapglobal.h>
 #include <QtCore/qstring.h>
 #include <QtNetwork/qudpsocket.h>
 
@@ -56,7 +56,6 @@ public:
     };
 
     explicit QCoapConnection(QObject *parent = nullptr);
-    ~QCoapConnection();
 
     void sendRequest(const QByteArray &request, const QString &host, quint16 port);
 
@@ -70,6 +69,8 @@ Q_SIGNALS:
 
 protected:
     explicit QCoapConnection(QCoapConnectionPrivate &dd, QObject *parent = nullptr);
+
+    virtual void createSocket();
 
     Q_DECLARE_PRIVATE(QCoapConnection)
     Q_PRIVATE_SLOT(d_func(), void _q_socketReadyRead())

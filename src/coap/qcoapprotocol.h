@@ -1,11 +1,11 @@
 /****************************************************************************
 **
-** Copyright (C) 2017 The Qt Company Ltd.
-** Contact: http://www.qt.io/licensing/
+** Copyright (C) 2017 Witekio.
+** Contact: https://witekio.com/contact/
 **
 ** This file is part of the QtCoap module.
 **
-** $QT_BEGIN_LICENSE:LGPL3$
+** $QT_BEGIN_LICENSE:GPL3$
 ** Commercial License Usage
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
@@ -58,6 +58,10 @@ public:
     double ackRandomFactor() const;
     uint maxRetransmit() const;
     quint16 blockSize() const;
+    uint maxRetransmitSpan() const;
+    uint maxRetransmitWait() const;
+    static constexpr uint maxLatency();
+
     void setAckTimeout(uint ackTimeout);
     void setAckRandomFactor(double ackRandomFactor);
     void setMaxRetransmit(uint maxRetransmit);
@@ -70,7 +74,7 @@ Q_SIGNALS:
 
 public Q_SLOTS:
     void sendRequest(QPointer<QCoapReply> reply, QCoapConnection *connection);
-    void cancelObserve(QPointer<QCoapReply> reply);
+    void cancelObserve(QPointer<const QCoapReply> reply);
 
 private:
     Q_DECLARE_PRIVATE(QCoapProtocol)

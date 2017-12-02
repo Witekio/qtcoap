@@ -1,11 +1,11 @@
 /****************************************************************************
 **
-** Copyright (C) 2017 The Qt Company Ltd.
-** Contact: http://www.qt.io/licensing/
+** Copyright (C) 2017 Witekio.
+** Contact: https://witekio.com/contact/
 **
 ** This file is part of the QtCoap module.
 **
-** $QT_BEGIN_LICENSE:LGPL3$
+** $QT_BEGIN_LICENSE:GPL3$
 ** Commercial License Usage
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
@@ -35,7 +35,6 @@
 ****************************************************************************/
 
 #include "qcoapinternalmessage_p.h"
-#include <QtCore/qmath.h>
 
 QT_BEGIN_NAMESPACE
 
@@ -46,8 +45,7 @@ QCoapInternalMessagePrivate::QCoapInternalMessagePrivate() :
 {
 }
 
-QCoapInternalMessagePrivate::QCoapInternalMessagePrivate
-    (const QCoapInternalMessagePrivate &other) :
+QCoapInternalMessagePrivate::QCoapInternalMessagePrivate(const QCoapInternalMessagePrivate &other) :
     QObjectPrivate (other),
     message(other.message),
     currentBlockNumber(other.currentBlockNumber),
@@ -71,7 +69,7 @@ QCoapInternalMessagePrivate::~QCoapInternalMessagePrivate()
     \reentrant
 
     The QCoapInternalMessage class is inherited by QCoapInternalRequest and
-    QCoapInternalReply that are used internally to manage request to send
+    QCoapInternalReply that are used internally to manage requests to send
     and receive replies.
 
     \sa QCoapInternalReply, QCoapInternalRequest, QCoapMessage
@@ -126,7 +124,7 @@ QCoapInternalMessage::QCoapInternalMessage(QCoapInternalMessagePrivate &dd, QObj
     \internal
     \overload
 
-    Adds the coap option with the given \a name and \a value.
+    Adds the CoAP option with the given \a name and \a value.
 */
 void QCoapInternalMessage::addOption(QCoapOption::OptionName name, const QByteArray &value)
 {
@@ -137,7 +135,7 @@ void QCoapInternalMessage::addOption(QCoapOption::OptionName name, const QByteAr
 /*!
     \internal
 
-    Adds the given coap \a option.
+    Adds the given CoAP \a option.
 */
 void QCoapInternalMessage::addOption(const QCoapOption &option)
 {
@@ -150,21 +148,32 @@ void QCoapInternalMessage::addOption(const QCoapOption &option)
 
     Removes the option with the given \a name.
 */
-void QCoapInternalMessage::removeOptionByName(QCoapOption::OptionName name)
+void QCoapInternalMessage::removeOption(QCoapOption::OptionName name)
 {
     Q_D(QCoapInternalMessage);
-    d->message.removeOptionByName(name);
+    d->message.removeOption(name);
 }
 
 /*!
     \internal
 
-    Returns the message instance.
+    Returns a pointer to the message.
 */
-QCoapMessage QCoapInternalMessage::message() const
+QCoapMessage *QCoapInternalMessage::message()
+{
+    Q_D(QCoapInternalMessage);
+    return &(d->message);
+}
+
+/*!
+    \internal
+
+    Returns a const pointer to the message.
+*/
+const QCoapMessage *QCoapInternalMessage::message() const
 {
     Q_D(const QCoapInternalMessage);
-    return d->message;
+    return &(d->message);
 }
 
 /*!
@@ -181,8 +190,7 @@ uint QCoapInternalMessage::currentBlockNumber() const
 /*!
     \internal
 
-    Returns true if it has next block.
-    And false if it is the last block.
+    Returns \c true if it has a next block,\c false otherwise.
 */
 bool QCoapInternalMessage::hasNextBlock() const
 {
