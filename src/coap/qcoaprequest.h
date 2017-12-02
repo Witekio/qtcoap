@@ -48,18 +48,18 @@ public:
                  MessageType type = NonConfirmable,
                  const QUrl &proxyUrl = QUrl());
     QCoapRequest(const QCoapRequest &other,
-                 QtCoap::Operation op = QtCoap::Empty);
+                 QtCoap::Method method = QtCoap::Empty);
     ~QCoapRequest();
 
     QCoapRequest &operator=(const QCoapRequest &other);
 
     QUrl url() const;
     QUrl proxyUrl() const;
-    QtCoap::Operation operation() const;
+    QtCoap::Method method() const;
     bool observe() const;
     void setUrl(const QUrl &url);
     void setProxyUrl(const QUrl &proxyUrl);
-    void setOperation(QtCoap::Operation operation);
+    void setMethod(QtCoap::Method method);
     void enableObserve();
 
     static bool isUrlValid(const QUrl& url);

@@ -257,12 +257,12 @@ QUrl QCoapReply::url() const
 }
 
 /*!
-    Returns the operation of the associated request.
+    Returns the method of the associated request.
 */
-QtCoap::Operation QCoapReply::operation() const
+QtCoap::Method QCoapReply::method() const
 {
     Q_D(const QCoapReply);
-    return d->request.operation();
+    return d->request.method();
 }
 
 /*!
@@ -342,7 +342,7 @@ void QCoapReply::updateFromInternalReply(const QCoapInternalReply &internalReply
 }
 
 /*!
-    Aborts the operation immediately and emits the
+    Aborts the request immediately and emits the
     \l{QCoapReply::aborted(QCoapReply*)}{aborted(QCoapReply*)} signal
     if the request was not finished before.
 */

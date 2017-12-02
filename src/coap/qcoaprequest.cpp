@@ -110,16 +110,16 @@ QCoapRequest::QCoapRequest(const QUrl &url, MessageType type, const QUrl &proxyU
 
 /*!
     Constructs a copy of the \a other QCoapRequest. Optionally allows to
-    overwrite the QCoapRequest::Operation of the request with the \a op
+    overwrite the QtCoap::Method of the request with the \a method
     argument.
 */
-QCoapRequest::QCoapRequest(const QCoapRequest &other, QtCoap::Operation op) :
+QCoapRequest::QCoapRequest(const QCoapRequest &other, QtCoap::Method method) :
     //! No private data sharing, as QCoapRequestPrivate!=QCoapMessagePrivate
     //! and the d_ptr is a QSharedDataPointer<QCoapMessagePrivate>
     QCoapMessage(* new QCoapRequestPrivate(*other.d_func()))
 {
-    if (op != QtCoap::Empty)
-        setOperation(op);
+    if (method != QtCoap::Empty)
+        setMethod(method);
 }
 
 /*!
@@ -153,14 +153,14 @@ QUrl QCoapRequest::proxyUrl() const
 }
 
 /*!
-    Returns the operation of the request.
+    Returns the method of the request.
 
-    \sa setOperation()
+    \sa setMethod()
 */
-QtCoap::Operation QCoapRequest::operation() const
+QtCoap::Method QCoapRequest::method() const
 {
     Q_D(const QCoapRequest);
-    return d->operation;
+    return d->method;
 }
 
 /*!
@@ -200,14 +200,14 @@ void QCoapRequest::setProxyUrl(const QUrl &proxyUrl)
 }
 
 /*!
-    Sets the operation of the request to the given \a operation.
+    Sets the method of the request to the given \a method.
 
-    \sa operation()
+    \sa method()
 */
-void QCoapRequest::setOperation(QtCoap::Operation operation)
+void QCoapRequest::setMethod(QtCoap::Method method)
 {
     Q_D(QCoapRequest);
-    d->operation = operation;
+    d->method = method;
 }
 
 /*!

@@ -60,7 +60,7 @@ public:
 
     QUrl uri;
     QUrl proxyUri;
-    QtCoap::Operation operation = QtCoap::Empty;
+    QtCoap::Method method = QtCoap::Empty;
     bool observe = false;
 };
 

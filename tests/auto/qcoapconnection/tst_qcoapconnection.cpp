@@ -91,7 +91,7 @@ void tst_QCoapConnection::sendRequest_data()
     QTest::addColumn<QString>("host");
     QTest::addColumn<QString>("path");
     QTest::addColumn<quint16>("port");
-    QTest::addColumn<QtCoap::Operation>("operation");
+    QTest::addColumn<QtCoap::Method>("method");
     QTest::addColumn<QString>("dataHexaHeader");
     QTest::addColumn<QString>("dataHexaPayload");
 
@@ -140,7 +140,7 @@ void tst_QCoapConnection::sendRequest()
     QFETCH(QString, host);
     QFETCH(QString, path);
     QFETCH(quint16, port);
-    QFETCH(QtCoap::Operation, operation);
+    QFETCH(QtCoap::Method, method);
     QFETCH(QString, dataHexaHeader);
     QFETCH(QString, dataHexaPayload);
 
@@ -152,7 +152,7 @@ void tst_QCoapConnection::sendRequest()
     QCoapRequest request(protocol + host + path);
     request.setMessageId(24806);
     request.setToken(QByteArray("abcd"));
-    request.setOperation(operation);
+    request.setMethod(method);
     QVERIFY(connection.socket() != nullptr);
     QCoapInternalRequest internalRequest(request);
     connection.sendRequest(internalRequest.toQByteArray(), host, port);

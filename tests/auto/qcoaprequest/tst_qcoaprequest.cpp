@@ -45,8 +45,8 @@ private Q_SLOTS:
     void ctor();
     void setUrl_data();
     void setUrl();
-    void setOperation_data();
-    void setOperation();
+    void setMethod_data();
+    void setMethod();
     void copyAndDetach();
     void internalRequestToFrame_data();
     void internalRequestToFrame();
@@ -94,9 +94,9 @@ void tst_QCoapRequest::setUrl()
     QCOMPARE(request.url(), expectedUrl);
 }
 
-void tst_QCoapRequest::setOperation_data()
+void tst_QCoapRequest::setMethod_data()
 {
-    QTest::addColumn<QtCoap::Operation>("operation");
+    QTest::addColumn<QtCoap::Method>("method");
 
     QTest::newRow("get") << QtCoap::Get;
     QTest::newRow("put") << QtCoap::Put;
@@ -105,13 +105,13 @@ void tst_QCoapRequest::setOperation_data()
     QTest::newRow("other") << QtCoap::Other;
 }
 
-void tst_QCoapRequest::setOperation()
+void tst_QCoapRequest::setMethod()
 {
-    QFETCH(QtCoap::Operation, operation);
+    QFETCH(QtCoap::Method, method);
 
     QCoapRequest request;
-    request.setOperation(operation);
-    QCOMPARE(request.operation(), operation);
+    request.setMethod(method);
+    QCOMPARE(request.method(), method);
 }
 
 void tst_QCoapRequest::copyAndDetach()
@@ -122,7 +122,7 @@ void tst_QCoapRequest::copyAndDetach()
     a.setToken("token");
     a.setType(QCoapMessage::Acknowledgement);
     a.setVersion(5);
-    a.setOperation(QtCoap::Delete);
+    a.setMethod(QtCoap::Delete);
     QUrl testUrl("coap://url:500/resource");
     a.setUrl(testUrl);
     QUrl testProxyUrl("test://proxyurl");
@@ -138,7 +138,7 @@ void tst_QCoapRequest::copyAndDetach()
 
     // Test the QCoapRequest copy
     QCoapRequest c(a);
-    QVERIFY2(c.operation() == QtCoap::Delete, "Request not copied correctly");
+    QVERIFY2(c.method() == QtCoap::Delete, "Request not copied correctly");
     QVERIFY2(c.url() == testUrl, "Request not copied correctly");
     QVERIFY2(c.proxyUrl() == testProxyUrl, "Request not copied correctly");
 
@@ -151,7 +151,7 @@ void tst_QCoapRequest::copyAndDetach()
 void tst_QCoapRequest::internalRequestToFrame_data()
 {
     QTest::addColumn<QUrl>("url");
-    QTest::addColumn<QtCoap::Operation>("operation");
+    QTest::addColumn<QtCoap::Method>("method");
     QTest::addColumn<QCoapMessage::MessageType>("type");
     QTest::addColumn<quint16>("messageId");
     QTest::addColumn<QByteArray>("token");
@@ -219,7 +219,7 @@ void tst_QCoapRequest::internalRequestToFrame_data()
 void tst_QCoapRequest::internalRequestToFrame()
 {
     QFETCH(QUrl, url);
-    QFETCH(QtCoap::Operation, operation);
+    QFETCH(QtCoap::Method, method);
     QFETCH(QCoapMessage::MessageType, type);
     QFETCH(quint16, messageId);
     QFETCH(QByteArray, token);
@@ -228,7 +228,7 @@ void tst_QCoapRequest::internalRequestToFrame()
 
     QCoapRequest request(url);
     request.setType(type);
-    request.setOperation(operation);
+    request.setMethod(method);
     request.setPayload(pduPayload.toUtf8());
     request.setMessageId(messageId);
     request.setToken(token);

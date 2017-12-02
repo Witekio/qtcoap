@@ -75,7 +75,7 @@ QCoapInternalRequest::QCoapInternalRequest(const QCoapRequest &request, QObject 
     foreach (const QCoapOption &option, request.optionList())
         d->message.addOption(option);
     d->message.setPayload(request.payload());
-    d->operation = request.operation();
+    d->method = request.method();
     d->fullPayload = request.payload();
 
     addUriOptions(request.url(), request.proxyUrl());
@@ -91,7 +91,7 @@ void QCoapInternalRequest::initForAcknowledgement(quint16 messageId, const QByte
 {
     Q_D(QCoapInternalRequest);
 
-    setOperation(QtCoap::Empty);
+    setMethod(QtCoap::Empty);
     d->message.setType(QCoapMessage::Acknowledgement);
     d->message.setMessageId(messageId);
     d->message.setToken(token);
@@ -110,7 +110,7 @@ void QCoapInternalRequest::initForReset(quint16 messageId)
 {
     Q_D(QCoapInternalRequest);
 
-    setOperation(QtCoap::Empty);
+    setMethod(QtCoap::Empty);
     d->message.setType(QCoapMessage::Reset);
     d->message.setMessageId(messageId);
     d->message.setToken(QByteArray());
@@ -146,7 +146,7 @@ QByteArray QCoapInternalRequest::toQByteArray() const
     pdu.append(static_cast<char>((d->message.version()   << 6)              // CoAP version
                                | (d->message.type()      << 4)              // Message type
                                |  d->message.token().length()));            // Token Length
-    pdu.append(static_cast<char>( d->operation                 & 0xFF));    // Operation type
+    pdu.append(static_cast<char>( d->method                    & 0xFF));    // Method type
     pdu.append(static_cast<char>((d->message.messageId() >> 8) & 0xFF));    // Message ID
     pdu.append(static_cast<char>( d->message.messageId()       & 0xFF));
 
@@ -458,14 +458,14 @@ QCoapConnection *QCoapInternalRequest::connection() const
 
 /*!
     \internal
-    Returns the operation type of the request.
+    Returns the method of the request.
 
-    \sa setOperation()
+    \sa setMethod()
 */
-QtCoap::Operation QCoapInternalRequest::operation() const
+QtCoap::Method QCoapInternalRequest::method() const
 {
     Q_D(const QCoapInternalRequest);
-    return d->operation;
+    return d->method;
 }
 
 /*!
@@ -492,14 +492,14 @@ uint QCoapInternalRequest::retransmissionCounter() const
 
 /*!
     \internal
-    Sets the operation type of the request to the given \a operation.
+    Sets the method of the request to the given \a method.
 
-    \sa operation()
+    \sa method()
 */
-void QCoapInternalRequest::setOperation(QtCoap::Operation operation)
+void QCoapInternalRequest::setMethod(QtCoap::Method method)
 {
     Q_D(QCoapInternalRequest);
-    d->operation = operation;
+    d->method = method;
 }
 
 /*!

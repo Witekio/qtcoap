@@ -71,7 +71,7 @@ public:
     };
     Q_ENUM(StatusCode)
 
-    enum Operation {
+    enum Method {
         Empty,
         Get,
         Post,
@@ -86,10 +86,10 @@ public:
 #endif
         Other
     };
-    Q_ENUM(Operation)
+    Q_ENUM(Method)
 };
 
-Q_DECLARE_METATYPE(QtCoap::Operation)
+Q_DECLARE_METATYPE(QtCoap::Method)
 
 QT_END_NAMESPACE
 

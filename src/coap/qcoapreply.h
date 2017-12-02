@@ -79,7 +79,7 @@ public:
     QCoapMessage message() const;
     QCoapRequest request() const;
     QUrl url() const;
-    QtCoap::Operation operation() const;
+    QtCoap::Method method() const;
     NetworkError errorReceived() const;
     bool isRunning() const;
     bool isFinished() const;

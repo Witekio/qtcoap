@@ -75,11 +75,11 @@ public:
     void addUriOptions(const QUrl &uri, const QUrl &proxyUri = QUrl());
 
     QUrl targetUri() const;
-    QtCoap::Operation operation() const;
+    QtCoap::Method method() const;
     bool cancelObserve() const;
     QCoapConnection *connection() const;
     uint retransmissionCounter() const;
-    void setOperation(QtCoap::Operation operation);
+    void setMethod(QtCoap::Method method);
     void setConnection(QCoapConnection *connection);
     void setCancelObserve(bool cancelObserve);
 
@@ -105,7 +105,7 @@ public:
     QCoapInternalRequestPrivate() = default;
 
     QUrl targetUri;
-    QtCoap::Operation operation = QtCoap::Empty;
+    QtCoap::Method method = QtCoap::Empty;
     QCoapConnection *connection = nullptr;
     QByteArray fullPayload;
     bool cancelObserve = false;
