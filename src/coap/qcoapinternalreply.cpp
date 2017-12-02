@@ -179,14 +179,17 @@ void QCoapInternalReply::addOption(const QCoapOption &option)
     // If it is a BLOCK option, we need to know the block number
     if (option.name() == QCoapOption::Block2) {
         //! TODO Cover with tests
+        const quint8 *optionData = reinterpret_cast<const quint8 *>(option.value().data());
+        const quint8 lastByte = optionData[option.length() - 1];
         quint32 blockNumber = 0;
-        quint8 *optionData = reinterpret_cast<quint8 *>(option.value().data());
+
         for (int i = 0; i < option.length() - 1; ++i)
             blockNumber = (blockNumber << 8) | optionData[i];
-        blockNumber = (blockNumber << 4) | ((optionData[option.length()-1]) >> 4);
+
+        blockNumber = (blockNumber << 4) | (lastByte >> 4);
         d->currentBlockNumber = blockNumber;
-        d->hasNextBlock = ((optionData[option.length()-1] & 0x8) == 0x8);
-        d->blockSize = static_cast<uint>(1u << ((optionData[option.length()-1] & 0x7) + 4));
+        d->hasNextBlock = ((lastByte & 0x8) == 0x8);
+        d->blockSize = static_cast<uint>(1u << ((lastByte & 0x7) + 4));
     }
 
     d->message.addOption(option);
@@ -203,15 +206,16 @@ int QCoapInternalReply::wantNextBlock()
 
     QCoapOption option = d->message.findOptionByName(QCoapOption::Block1);
     if (option.name() != QCoapOption::Invalid) {
-        quint8 *optionData = reinterpret_cast<quint8 *>(option.value().data());
+        const quint8 *optionData = reinterpret_cast<const quint8 *>(option.value().data());
+        const quint8 lastByte = optionData[option.length() - 1];
 
-        bool hasNextBlock = ((optionData[option.length()-1] & 0x8) == 0x8);
+        bool hasNextBlock = ((lastByte & 0x8) == 0x8);
 
         if (hasNextBlock) {
             quint32 blockNumber = 0;
             for (int i = 0; i < option.length() - 1; ++i)
                 blockNumber = (blockNumber << 8) | optionData[i];
-            blockNumber = (blockNumber << 4) | ((optionData[option.length()-1]) >> 4);
+            blockNumber = (blockNumber << 4) | (lastByte >> 4);
             return static_cast<int>(blockNumber) + 1;
         }
     }
