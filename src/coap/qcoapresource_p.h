@@ -50,7 +50,7 @@ class Q_AUTOTEST_EXPORT QCoapResourcePrivate : public QSharedData
 {
 public:
     QCoapResourcePrivate() {}
-    QCoapResourcePrivate(const QCoapResourcePrivate& other): QSharedData(other), maximumSize(other.maximumSize)
+    QCoapResourcePrivate(const QCoapResourcePrivate &other): QSharedData(other), maximumSize(other.maximumSize)
       , contentFormat(other.contentFormat), resourceType(other.resourceType)
       , interface(other.interface), path(other.path), title(other.title)
       , observable(other.observable) {}

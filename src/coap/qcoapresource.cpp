@@ -55,7 +55,7 @@ QCoapResource::QCoapResource() :
 /*!
     Copy constructs a new QCoapResource.
  */
-QCoapResource::QCoapResource(const QCoapResource& other) :
+QCoapResource::QCoapResource(const QCoapResource &other) :
     d(other.d)
 {
 }
@@ -70,7 +70,7 @@ QCoapResource::~QCoapResource()
 /*!
     Assignment operator.
  */
-QCoapResource& QCoapResource::operator =(const QCoapResource& other)
+QCoapResource &QCoapResource::operator =(const QCoapResource &other)
 {
     d = other.d;
     return *this;

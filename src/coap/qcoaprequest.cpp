@@ -235,7 +235,7 @@ QCoapRequest &QCoapRequest::operator=(const QCoapRequest &other)
 /*!
     Returns true if the \a url is valid a CoAP URL.
 */
-bool QCoapRequest::isUrlValid(const QUrl& url)
+bool QCoapRequest::isUrlValid(const QUrl &url)
 {
     return (url.isValid() && !url.isLocalFile() && !url.isLocalFile()
             && url.scheme() == QLatin1String("coap"));

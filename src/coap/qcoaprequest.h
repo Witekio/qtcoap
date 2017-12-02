@@ -62,7 +62,7 @@ public:
     void setMethod(QtCoap::Method method);
     void enableObserve();
 
-    static bool isUrlValid(const QUrl& url);
+    static bool isUrlValid(const QUrl &url);
 
 private:
     //! For QSharedDataPointer

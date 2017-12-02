@@ -258,7 +258,7 @@ QCoapOption QCoapMessage::option(int index) const
 /*!
     Returns the list of options.
 */
-const QList<QCoapOption>& QCoapMessage::optionList() const
+const QList<QCoapOption> &QCoapMessage::optionList() const
 {
     Q_D(const QCoapMessage);
     return d->options;

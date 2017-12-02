@@ -41,9 +41,9 @@ class Q_COAP_EXPORT QCoapResource
 {
 public:
     QCoapResource();
-    QCoapResource(const QCoapResource& other);
+    QCoapResource(const QCoapResource &other);
     ~QCoapResource();
-    QCoapResource& operator =(const QCoapResource& other);
+    QCoapResource &operator =(const QCoapResource &other);
 
     void swap(QCoapResource &other) Q_DECL_NOTHROW;
 

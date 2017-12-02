@@ -71,7 +71,7 @@ public:
     void setPayload(const QByteArray &payload);
 
     QCoapOption option(int index) const;
-    const QList<QCoapOption>& optionList() const;
+    const QList<QCoapOption> &optionList() const;
     int optionCount() const;
     void addOption(QCoapOption::OptionName name, const QByteArray &value = QByteArray());
     virtual void addOption(const QCoapOption &option);
