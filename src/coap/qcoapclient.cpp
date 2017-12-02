@@ -153,8 +153,8 @@ QCoapReply *QCoapClient::get(const QCoapRequest &request)
 
     if (request.method() != QtCoap::Empty
             && request.method() != QtCoap::Get) {
-        qWarning("QCoapClient::get: Only 'Get' method is "
-                 "compatible with 'get' method, method value ignored.");
+        qWarning("QCoapClient::get: Overriding method specified on request:"
+                 "using 'Get' instead.");
     }
 
     QCoapRequest copyRequest(request, QtCoap::Get);
@@ -174,8 +174,8 @@ QCoapReply *QCoapClient::put(const QCoapRequest &request, const QByteArray &data
 
     if (request.method() != QtCoap::Empty
             && request.method() != QtCoap::Put)
-        qWarning("QCoapClient::put: Only 'Put' method is "
-                 "compatible with 'put' method, method value ignored.");
+        qWarning("QCoapClient::put: Overriding method specified on request:"
+                 "using 'Put' instead.");
 
     QCoapRequest copyRequest(request, QtCoap::Put);
     copyRequest.setPayload(data);
@@ -211,8 +211,8 @@ QCoapReply *QCoapClient::post(const QCoapRequest &request, const QByteArray &dat
 
     if (request.method() != QtCoap::Empty
             && request.method() != QtCoap::Post)
-        qWarning("QCoapClient::post: Only 'Post' method is "
-                 "compatible with 'post' method, method value ignored.");
+        qWarning("QCoapClient::post: Overriding method specified on request:"
+                 "using 'Post' instead.");
 
     QCoapRequest copyRequest(request, QtCoap::Post);
     copyRequest.setPayload(data);
@@ -249,8 +249,8 @@ QCoapReply *QCoapClient::deleteResource(const QCoapRequest &request)
 
     if (request.method() != QtCoap::Empty
             && request.method() != QtCoap::Delete)
-        qWarning("QCoapClient::deleteResource: Only 'Delete' method is "
-                 "compatible with 'deleteResource' method, method value ignored.");
+        qWarning("QCoapClient::deleteResource: Overriding method specified on request:"
+                 "using 'Delete' instead.");
 
     QCoapRequest copyRequest(request, QtCoap::Delete);
 
@@ -297,8 +297,8 @@ QCoapReply *QCoapClient::observe(const QCoapRequest &request)
 {
     if (request.method() != QtCoap::Empty
             && request.method() != QtCoap::Get)
-        qWarning("QCoapClient::deleteResource: Only 'Get' method is "
-                 "compatible with observation, method value ignored.");
+        qWarning("QCoapClient::observe: Overriding method specified on request:"
+                 "using 'Get' instead.");
 
     QCoapRequest copyRequest(request, QtCoap::Get);
     copyRequest.enableObserve();
