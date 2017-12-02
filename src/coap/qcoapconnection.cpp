@@ -139,7 +139,7 @@ void QCoapConnection::sendRequest(const QByteArray &request, const QString &host
 
     Writes the given \a data frame to the socket to the stored \a host and \a port.
 */
-void QCoapConnectionPrivate::writeToSocket(const CoapFrame& frame)
+void QCoapConnectionPrivate::writeToSocket(const CoapFrame &frame)
 {
     if (!socket()->isWritable())
         socket()->open(socket()->openMode() | QIODevice::WriteOnly);
