@@ -29,6 +29,7 @@
 
 #include <QtCore/qmath.h>
 #include <QtCore/qrandom.h>
+#include <QtCore/qregularexpression.h>
 #include "qcoapinternalrequest_p.h"
 #include "qcoaprequest.h"
 
@@ -72,7 +73,7 @@ QCoapInternalRequest::QCoapInternalRequest(const QCoapRequest &request, QObject 
     d->message.setType(request.type());
     d->message.setMessageId(request.messageId());
     d->message.setToken(request.token());
-    foreach (const QCoapOption &option, request.optionList())
+    for (const QCoapOption &option : request.optionList())
         d->message.addOption(option);
     d->message.setPayload(request.payload());
     d->method = request.method();
@@ -104,7 +105,7 @@ void QCoapInternalRequest::initForAcknowledgement(quint16 messageId, const QByte
     Initialize parameters to transform the QCoapInternalRequest into a
     Reset message (RST) with the message id \a messageId.
 
-    A Reset message should be empty, and contain the \a messageId.
+    A Reset message should contain only the \a messageId.
 */
 void QCoapInternalRequest::initForReset(quint16 messageId)
 {
@@ -159,7 +160,7 @@ QByteArray QCoapInternalRequest::toQByteArray() const
         QList<QCoapOption> optionList = d->message.optionList();
         std::sort(optionList.begin(), optionList.end(),
             [](const QCoapOption &a, const QCoapOption &b) -> bool {
-                return (a.name() < b.name());
+                return a.name() < b.name();
         });
 
         quint8 lastOptionNumber = 0;
@@ -363,9 +364,9 @@ void QCoapInternalRequest::addUriOptions(const QUrl &uri, const QUrl &proxyUri)
         addOption(QCoapOption::ProxyUri, uri.toString().toUtf8());
     }
 
-    QRegExp ipv4Regex(QLatin1String("^([0-9]{1,3}.){3}([0-9]{1,3})$"));
+    QRegularExpression ipv4Regex(QLatin1String("^([0-9]{1,3}.){3}([0-9]{1,3})$"));
     QString host = mainUri.host();
-    if (!ipv4Regex.exactMatch(host))
+    if (ipv4Regex.match(host).hasMatch())
         addOption(QCoapOption::UriHost, host.toUtf8());
 
     // Convert port into QCoapOption if it is not the default port
