@@ -50,15 +50,15 @@ QT_BEGIN_NAMESPACE
 class Q_AUTOTEST_EXPORT QCoapInternalMessagePrivate : public QObjectPrivate
 {
 public:
-    QCoapInternalMessagePrivate();
-    QCoapInternalMessagePrivate(const QCoapInternalMessagePrivate &other);
+    QCoapInternalMessagePrivate() = default;
+    QCoapInternalMessagePrivate(const QCoapInternalMessagePrivate &other) = default;
     ~QCoapInternalMessagePrivate();
 
     QCoapMessage message;
 
-    uint currentBlockNumber;
-    bool hasNextBlock;
-    uint blockSize;
+    uint currentBlockNumber = 0;
+    bool hasNextBlock = false;
+    uint blockSize = 0;
 };
 
 QT_END_NAMESPACE

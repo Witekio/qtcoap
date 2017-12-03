@@ -28,25 +28,15 @@
 ****************************************************************************/
 
 #include "qcoapinternalmessage_p.h"
+#include <QtCoap/qcoaprequest.h>
 
 QT_BEGIN_NAMESPACE
 
-QCoapInternalMessagePrivate::QCoapInternalMessagePrivate() :
-    currentBlockNumber(0),
-    hasNextBlock(false),
-    blockSize(0)
-{
-}
+/*!
+    \internal
 
-QCoapInternalMessagePrivate::QCoapInternalMessagePrivate(const QCoapInternalMessagePrivate &other) :
-    QObjectPrivate (other),
-    message(other.message),
-    currentBlockNumber(other.currentBlockNumber),
-    hasNextBlock(other.hasNextBlock),
-    blockSize(other.blockSize)
-{
-}
-
+    Destructor of the private class.
+ */
 QCoapInternalMessagePrivate::~QCoapInternalMessagePrivate()
 {
 }
