@@ -392,7 +392,7 @@ void QCoapProtocolPrivate::sendReset(QCoapInternalRequest *request)
     Finds the internal request associated with \a reply and tells it to stop
     observing.
 */
-void QCoapProtocol::cancelObserve(QPointer<const QCoapReply> reply)
+void QCoapProtocol::cancelObserve(QPointer<QCoapReply> reply)
 {
     if (!reply)
         return;

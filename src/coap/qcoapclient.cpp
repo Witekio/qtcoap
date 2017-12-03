@@ -120,15 +120,17 @@ QCoapClient::QCoapClient(QObject *parent) :
     QObject(* new QCoapClientPrivate, parent)
 {
     Q_D(QCoapClient);
+
+    qRegisterMetaType<QCoapReply*>();
+    qRegisterMetaType<QPointer<QCoapReply>>();
+    qRegisterMetaType<QPointer<QCoapDiscoveryReply>>();
+    qRegisterMetaType<QCoapConnection*>();
+    qRegisterMetaType<QCoapReply::NetworkError>();
+
     connect(d->connection, SIGNAL(readyRead(const QByteArray&)),
             d->protocol, SLOT(messageReceived(const QByteArray&)));
     connect(d->protocol, &QCoapProtocol::finished,
             this, &QCoapClient::finished);
-    qRegisterMetaType<QPointer<QCoapReply>>();
-    qRegisterMetaType<QCoapReply*>();
-    qRegisterMetaType<QPointer<QCoapDiscoveryReply>>();
-    qRegisterMetaType<QCoapConnection*>();
-    qRegisterMetaType<QCoapReply::NetworkError>();
 }
 
 /*!
@@ -314,11 +316,11 @@ QCoapReply *QCoapClient::observe(const QCoapRequest &request)
 
     \sa observe()
 */
-void QCoapClient::cancelObserve(const QCoapReply *notifiedReply)
+void QCoapClient::cancelObserve(QCoapReply *notifiedReply)
 {
     Q_D(QCoapClient);
     QMetaObject::invokeMethod(d->protocol, "cancelObserve",
-                              Q_ARG(QPointer<const QCoapReply>, notifiedReply));
+                              Q_ARG(QPointer<QCoapReply>, notifiedReply));
 }
 
 /*!
