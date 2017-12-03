@@ -98,6 +98,7 @@ Q_SIGNALS:
 
 protected:
     void addUriHostOption(const QUrl& uri);
+    QCoapOption blockOption(QCoapOption::OptionName name, uint blockNumber, uint blockSize) const;
 
 private:
     Q_DECLARE_PRIVATE(QCoapInternalRequest)

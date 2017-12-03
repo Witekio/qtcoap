@@ -234,33 +234,17 @@ QByteArray QCoapInternalRequest::toQByteArray() const
     Initializes block parameters and creates the options needed to ask the
     block with the number \a blockNumber and with a size of \a blockSize.
 
-    The \a blockSize should range from 16 to 1024 and be a power of 2,
-    computed as 2^(SZX + 4), with SZX ranging from 0 to 6. For more details,
-    refer to the \l{https://tools.ietf.org/html/rfc7959#section-2.2}{RFC 7959}.
+    \sa blockOption()
 */
 void QCoapInternalRequest::setRequestToAskBlock(uint blockNumber, uint blockSize)
 {
     Q_D(QCoapInternalRequest);
 
-    //! TODO Cover this in tests
-    Q_ASSERT((blockSize & (blockSize - 1)) == 0); // is a power of two
-    Q_ASSERT(!(blockSize >> 11)); // blockSize <= 1024
-
-    // Set the Block2Option option to get the new block
-    // blockSize = (2^(SZX + 4))
-    quint32 block2Data = (blockNumber << 4) | static_cast<quint32>(log2(blockSize) - 4);
-    QByteArray block2Value;
-    if (block2Data > 0xFFFF)
-        block2Value.append(static_cast<char>(block2Data >> 16));
-    if (block2Data > 0xFF)
-        block2Value.append(static_cast<char>((block2Data >> 8) & 0xFF));
-    block2Value.append(static_cast<char>(block2Data & 0xFF));
-
-    d->message.removeOption(QCoapOption::Block2);
-    d->message.removeOption(QCoapOption::Block1);
-    addOption(QCoapOption::Block2, block2Value);
-
     d->message.setMessageId(d->message.messageId() + 1);
+    d->message.removeOption(QCoapOption::Block1);
+    d->message.removeOption(QCoapOption::Block2);
+
+    addOption(blockOption(QCoapOption::Block2, blockNumber, blockSize));
 }
 
 /*!
@@ -268,21 +252,38 @@ void QCoapInternalRequest::setRequestToAskBlock(uint blockNumber, uint blockSize
     Initialize blocks parameters and creates the options needed to send the block with
     the number \a blockNumber and with a size of \a blockSize.
 
-    \sa setRequestToAskBlock()
+    \sa setRequestToAskBlock(), blockOption()
 */
 void QCoapInternalRequest::setRequestToSendBlock(uint blockNumber, uint blockSize)
 {
     Q_D(QCoapInternalRequest);
 
+    d->message.setMessageId(d->message.messageId() + 1);
+    d->message.setPayload(d->fullPayload.mid(blockNumber * blockSize, blockSize));
+    d->message.removeOption(QCoapOption::Block1);
+
+    addOption(blockOption(QCoapOption::Block1, blockNumber, blockSize));
+}
+
+/*!
+    \internal
+    Builds and returns a Block option.
+
+    The \a blockSize should range from 16 to 1024 and be a power of 2,
+    computed as 2^(SZX + 4), with SZX ranging from 0 to 6. For more details,
+    refer to the \l{https://tools.ietf.org/html/rfc7959#section-2.2}{RFC 7959}.
+*/
+QCoapOption QCoapInternalRequest::blockOption(QCoapOption::OptionName name, uint blockNumber, uint blockSize) const
+{
+    Q_D(const QCoapInternalRequest);
+
     //! TODO Cover this in tests
     Q_ASSERT((blockSize & (blockSize - 1)) == 0); // is a power of two
     Q_ASSERT(!(blockSize >> 11)); // blockSize <= 1024
 
-    d->message.setPayload(d->fullPayload.mid(blockNumber * blockSize, blockSize));
-
     // Set the Block2Option option to get the new block
     // size = (2^(SZX + 4))
-    quint32 block2Data = (blockNumber << 4) | static_cast<quint32>(log2(blockSize)-4);
+    quint32 block2Data = (blockNumber << 4) | static_cast<quint32>(log2(blockSize) - 4);
     if (static_cast<int>((blockNumber * blockSize) + blockSize) < d->fullPayload.length())
         block2Data |= 8; // Set the "more" flag to 1
 
@@ -293,10 +294,7 @@ void QCoapInternalRequest::setRequestToSendBlock(uint blockNumber, uint blockSiz
         block2Value.append(static_cast<char>((block2Data >> 8) & 0xFF));
     block2Value.append(static_cast<char>(block2Data & 0xFF));
 
-    d->message.removeOption(QCoapOption::Block1);
-    addOption(QCoapOption::Block1, block2Value);
-
-    d->message.setMessageId(d->message.messageId() + 1);
+    return QCoapOption(name, block2Value);
 }
 
 /*!
