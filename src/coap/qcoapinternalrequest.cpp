@@ -319,10 +319,9 @@ QByteArray QCoapInternalRequest::generateToken()
 {
     Q_D(QCoapInternalRequest);
 
-    QByteArray token("");
     quint8 length = static_cast<quint8>(QRandomGenerator::bounded(1, 8));
-    token.resize(length);
 
+    QByteArray token(length, 0);
     quint8 *tokenData = reinterpret_cast<quint8 *>(token.data());
     for (int i = 0; i < token.size(); ++i)
         tokenData[i] = static_cast<quint8>(QRandomGenerator::bounded(256));
