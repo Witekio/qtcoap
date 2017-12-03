@@ -51,7 +51,7 @@ class Q_AUTOTEST_EXPORT QCoapOptionPrivate
 public:
     QCoapOptionPrivate() {}
 
-    QCoapOption::OptionName name;
+    QCoapOption::OptionName name = QCoapOption::Invalid;
     QByteArray value;
 };
 

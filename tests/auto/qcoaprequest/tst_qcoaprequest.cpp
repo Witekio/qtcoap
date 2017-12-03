@@ -312,7 +312,7 @@ void tst_QCoapRequest::parseUri()
     QCoapInternalRequest internalRequest(request);
 
     for (QCoapOption opt : options)
-        QVERIFY2(internalRequest.message()->optionList().contains(opt), "Missing option");
+        QVERIFY2(internalRequest.message()->options().contains(opt), "Missing option");
 
     QCOMPARE(options.count(), internalRequest.message()->optionCount());
 }

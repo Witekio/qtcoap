@@ -73,7 +73,7 @@ QCoapInternalRequest::QCoapInternalRequest(const QCoapRequest &request, QObject 
     d->message.setType(request.type());
     d->message.setMessageId(request.messageId());
     d->message.setToken(request.token());
-    for (const QCoapOption &option : request.optionList())
+    for (const QCoapOption &option : request.options())
         d->message.addOption(option);
     d->message.setPayload(request.payload());
     d->method = request.method();
@@ -165,16 +165,16 @@ QByteArray QCoapInternalRequest::toQByteArray() const
     pdu.append(d->message.token());
 
     // Insert Options
-    if (!d->message.optionList().isEmpty()) {
+    if (!d->message.options().isEmpty()) {
         // Sort options by ascending order
-        QList<QCoapOption> optionList = d->message.optionList();
-        std::sort(optionList.begin(), optionList.end(),
+        QVector<QCoapOption> options = d->message.options();
+        std::sort(options.begin(), options.end(),
             [](const QCoapOption &a, const QCoapOption &b) -> bool {
                 return a.name() < b.name();
         });
 
         quint8 lastOptionNumber = 0;
-        for (const QCoapOption &option : qAsConst(optionList)) {
+        for (const QCoapOption &option : qAsConst(options)) {
             quint8 optionPdu;
 
             quint16 optionDelta = static_cast<quint16>(option.name()) - lastOptionNumber;
@@ -368,19 +368,22 @@ void QCoapInternalRequest::addOption(const QCoapOption &option)
 bool QCoapInternalRequest::addUriOptions(QUrl uri, const QUrl &proxyUri)
 {
     Q_D(QCoapInternalRequest);
+    // Set to an invalid state
+    d->targetUri = QUrl();
 
     // When using a proxy uri, we SHOULD NOT incude Uri-Host/Port/Path/Query
     // options.
     if (!proxyUri.isEmpty()) {
-        if (!QCoapRequest::isUrlValid(proxyUri))
+        if (!isUrlValid(proxyUri))
             return false;
 
         addOption(QCoapOption::ProxyUri, proxyUri.toString().toUtf8());
+        d->targetUri = proxyUri;
         return true;
     }
 
     // 1/3/4. Fails if URL is relative, has no 'coap' scheme or has a fragment
-    if (!QCoapRequest::isUrlValid(uri))
+    if (!isUrlValid(uri))
         return false;
 
     // 2. TODO Ensure encoding matches CoAP standard (= no % in options)

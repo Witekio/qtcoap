@@ -73,7 +73,7 @@ public:
     void setRequestToSendBlock(uint blockNumber, uint blockSize);
 
     using QCoapInternalMessage::addOption;
-    void addOption(const QCoapOption &option);
+    void addOption(const QCoapOption &option) Q_DECL_OVERRIDE;
     bool addUriOptions(QUrl uri, const QUrl &proxyUri = QUrl());
 
     QUrl targetUri() const;

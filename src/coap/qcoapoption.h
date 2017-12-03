@@ -68,6 +68,7 @@ public:
     QByteArray value() const;
     int length() const;
     OptionName name() const;
+    bool isValid() const;
 
     bool operator==(const QCoapOption &other) const;
     bool operator!=(const QCoapOption &other) const;

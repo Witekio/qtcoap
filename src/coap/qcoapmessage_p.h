@@ -58,7 +58,7 @@ public:
     QCoapMessage::MessageType type = QCoapMessage::NonConfirmable;
     quint16 messageId = 0;
     QByteArray token;
-    QList<QCoapOption> options;
+    QVector<QCoapOption> options;
     QByteArray payload;
 };
 

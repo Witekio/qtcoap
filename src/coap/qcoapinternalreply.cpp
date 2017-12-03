@@ -204,8 +204,8 @@ int QCoapInternalReply::wantNextBlock()
 {
     Q_D(QCoapInternalReply);
 
-    QCoapOption option = d->message.findOptionByName(QCoapOption::Block1);
-    if (option.name() != QCoapOption::Invalid) {
+    QCoapOption option = d->message.option(QCoapOption::Block1);
+    if (option.isValid()) {
         const quint8 *optionData = reinterpret_cast<const quint8 *>(option.value().data());
         const quint8 lastByte = optionData[option.length() - 1];
 

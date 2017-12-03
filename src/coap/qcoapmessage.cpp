@@ -160,21 +160,6 @@ void QCoapMessage::removeOption(QCoapOption::OptionName name)
 }
 
 /*!
-    Finds and returns the option with the given \a name.
-    If there is no such option, returns an Invalid CoapOption with an empty value.
-*/
-QCoapOption QCoapMessage::findOptionByName(QCoapOption::OptionName name)
-{
-    Q_D(const QCoapMessage);
-    for (const QCoapOption &option : d->options) {
-        if (option.name() == name)
-            return option;
-    }
-
-    return QCoapOption();
-}
-
-/*!
     Removes all options.
 */
 void QCoapMessage::removeAllOptions()
@@ -257,9 +242,42 @@ QCoapOption QCoapMessage::option(int index) const
 }
 
 /*!
+    Finds and returns the option with the given \a name.
+    If there is no such option, returns an Invalid CoapOption with an empty value.
+*/
+QCoapOption QCoapMessage::option(QCoapOption::OptionName name) const
+{
+    Q_D(const QCoapMessage);
+
+    auto it = findOption(name);
+    return it != d->options.end() ? *it : QCoapOption();
+}
+
+/*!
+    Finds and returns the option with the given \a name.
+    If there is no such option, returns an Invalid CoapOption with an empty value.
+*/
+QVector<QCoapOption>::const_iterator QCoapMessage::findOption(QCoapOption::OptionName name) const
+{
+    Q_D(const QCoapMessage);
+    return std::find_if(d->options.begin(), d->options.end(), [name](const QCoapOption& option) {
+        return option.name() == name;
+    });
+}
+
+/*!
+    Returns \c true if option is present at least once.
+*/
+bool QCoapMessage::hasOption(QCoapOption::OptionName name) const
+{
+    Q_D(const QCoapMessage);
+    return findOption(name) != d->options.end();
+}
+
+/*!
     Returns the list of options.
 */
-const QList<QCoapOption> &QCoapMessage::optionList() const
+const QVector<QCoapOption> &QCoapMessage::options() const
 {
     Q_D(const QCoapMessage);
     return d->options;

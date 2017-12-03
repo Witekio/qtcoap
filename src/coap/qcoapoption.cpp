@@ -76,6 +76,8 @@ QT_BEGIN_NAMESPACE
     Constructs a QCoapOption object with the given \a name
     and \a value. If no parameters are passed, constructs
     an Invalid object.
+
+    \sa isValid()
  */
 QCoapOption::QCoapOption(OptionName name,
                          const QByteArray &value) :
@@ -107,6 +109,14 @@ int QCoapOption::length() const
 QCoapOption::OptionName QCoapOption::name() const
 {
     return d_ptr->name;
+}
+
+/*!
+    Returns \c true if the option is valid.
+ */
+bool QCoapOption::isValid() const
+{
+    return d_ptr->name != QCoapOption::Invalid;
 }
 
 /*!

@@ -34,7 +34,7 @@
 #include <QtCoap/qcoapglobal.h>
 #include <QtCoap/qcoapoption.h>
 #include <QtCore/qobject.h>
-#include <QtCore/qlist.h>
+#include <QtCore/qvector.h>
 #include <QtCore/qshareddata.h>
 
 QT_BEGIN_NAMESPACE
@@ -71,11 +71,13 @@ public:
     void setPayload(const QByteArray &payload);
 
     QCoapOption option(int index) const;
-    const QList<QCoapOption> &optionList() const;
+    QCoapOption option(QCoapOption::OptionName name) const;
+    QVector<QCoapOption>::const_iterator findOption(QCoapOption::OptionName name) const;
+    bool hasOption(QCoapOption::OptionName name) const;
+    const QVector<QCoapOption> &options() const;
     int optionCount() const;
     void addOption(QCoapOption::OptionName name, const QByteArray &value = QByteArray());
     virtual void addOption(const QCoapOption &option);
-    QCoapOption findOptionByName(QCoapOption::OptionName name);
     void removeOption(const QCoapOption &option);
     void removeOption(QCoapOption::OptionName name);
     void removeAllOptions();
