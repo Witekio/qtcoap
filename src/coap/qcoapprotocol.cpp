@@ -203,7 +203,7 @@ void QCoapProtocolPrivate::handleFrame(const QByteArray &frame)
         request->removeOption(QCoapOption::Observe);
         sendReset(request);
     } else if (internalReplyMessage->type() == QCoapMessage::Confirmable) {
-        sendAcknowledgement(request);
+        sendAcknowledgment(request);
     }
 
     // Check if it is a blockwise request
@@ -293,7 +293,7 @@ void QCoapProtocolPrivate::onLastBlock(QCoapInternalRequest *request)
         return;
 
     QCoapInternalReply *finalReply(replies.last());
-    if (finalReply->message()->type() == QCoapMessage::Acknowledgement
+    if (finalReply->message()->type() == QCoapMessage::Acknowledgment
             && finalReply->statusCode() == QtCoap::Invalid)
         return;
 
@@ -356,13 +356,13 @@ void QCoapProtocolPrivate::onNextBlock(QCoapInternalRequest *request,
     Sends an internal request acknowledging the given \a request, reusing its
     URI and connection.
 */
-void QCoapProtocolPrivate::sendAcknowledgement(QCoapInternalRequest *request)
+void QCoapProtocolPrivate::sendAcknowledgment(QCoapInternalRequest *request)
 {
     QCoapInternalRequest ackRequest;
     QCoapInternalReply *internalReply = internalReplies[request].replies.last();
 
     ackRequest.setTargetUri(request->targetUri());
-    ackRequest.initForAcknowledgement(internalReply->message()->messageId(),
+    ackRequest.initForAcknowledgment(internalReply->message()->messageId(),
                                      internalReply->message()->token());
     ackRequest.setConnection(request->connection());
     sendRequest(&ackRequest);
@@ -582,7 +582,7 @@ uint QCoapProtocol::maxRetransmitSpan() const
 
     It is the maximum time from the first transmission of a Confirmable
     message to the time when the sender gives up on receiving an
-    acknowledgement or reset.
+    acknowledgment or reset.
 */
 uint QCoapProtocol::maxRetransmitWait() const
 {

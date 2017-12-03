@@ -46,7 +46,7 @@ public:
     enum MessageType {
         Confirmable,
         NonConfirmable,
-        Acknowledgement,
+        Acknowledgment,
         Reset
     };
 

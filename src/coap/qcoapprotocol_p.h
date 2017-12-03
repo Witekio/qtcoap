@@ -65,7 +65,7 @@ public:
     void handleFrame(const QByteArray &frame);
     void onLastBlock(QCoapInternalRequest *request);
     void onNextBlock(QCoapInternalRequest *request, uint currentBlockNumber, uint blockSize);
-    void sendAcknowledgement(QCoapInternalRequest *request);
+    void sendAcknowledgment(QCoapInternalRequest *request);
     void sendReset(QCoapInternalRequest *request);
     QByteArray encode(QCoapInternalRequest *request);
     QCoapInternalReply *decode(const QByteArray &message);

@@ -63,7 +63,7 @@ public:
 
     bool isValid() const Q_DECL_OVERRIDE;
 
-    void initForAcknowledgement(quint16 messageId, const QByteArray &token);
+    void initForAcknowledgment(quint16 messageId, const QByteArray &token);
     void initForReset(quint16 messageId);
 
     QByteArray toQByteArray() const;
