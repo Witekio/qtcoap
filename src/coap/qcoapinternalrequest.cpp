@@ -373,7 +373,9 @@ bool QCoapInternalRequest::addUriOptions(QUrl uri, const QUrl &proxyUri)
     // 2. TODO Ensure encoding matches CoAP standard (= no % in options)
 
     // 5. Add Uri-Host option if not a plain IP
-    addUriHostOption(uri);
+    QCoapOption uriHost = uriHostOption(uri);
+    if (uriHost.isValid())
+        addOption(uriHost);
 
     // 6. Set default port
     if (uri.port() == -1)
@@ -581,7 +583,7 @@ bool QCoapInternalRequest::operator<(const QCoapInternalRequest &other) const
     \internal
     Decode the \a uri provided and returns a QCoapOption.
 */
-void QCoapInternalRequest::addUriHostOption(const QUrl &uri)
+QCoapOption QCoapInternalRequest::uriHostOption(const QUrl &uri) const
 {
     //! TODO Should also check for IPv6
     QRegularExpression ipv4Regex(QLatin1String("^([0-9]{1,3}.){3}([0-9]{1,3})$"));
@@ -589,10 +591,9 @@ void QCoapInternalRequest::addUriHostOption(const QUrl &uri)
 
     // No need for Uri-Host option
     if (ipv4Regex.match(host).hasMatch())
-        return;
+        return QCoapOption();
 
-    addOption(QCoapOption::UriHost, host.toUtf8());
-    return;
+    return QCoapOption(QCoapOption::UriHost, host.toUtf8());
 }
 
 QT_END_NAMESPACE

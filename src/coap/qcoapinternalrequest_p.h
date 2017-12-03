@@ -97,7 +97,7 @@ Q_SIGNALS:
     void timeout(QCoapInternalRequest*);
 
 protected:
-    void addUriHostOption(const QUrl& uri);
+    QCoapOption uriHostOption(const QUrl& uri) const;
     QCoapOption blockOption(QCoapOption::OptionName name, uint blockNumber, uint blockSize) const;
 
 private:
