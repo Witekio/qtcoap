@@ -281,20 +281,28 @@ QCoapOption QCoapInternalRequest::blockOption(QCoapOption::OptionName name, uint
     Q_ASSERT((blockSize & (blockSize - 1)) == 0); // is a power of two
     Q_ASSERT(!(blockSize >> 11)); // blockSize <= 1024
 
-    // Set the Block2Option option to get the new block
-    // size = (2^(SZX + 4))
-    quint32 block2Data = (blockNumber << 4) | static_cast<quint32>(log2(blockSize) - 4);
-    if (static_cast<int>((blockNumber * blockSize) + blockSize) < d->fullPayload.length())
-        block2Data |= 8; // Set the "more" flag to 1
+    // NUM field
+    quint32 optionData = (blockNumber << 4);
 
-    QByteArray block2Value;
-    if (block2Data > 0xFFFF)
-        block2Value.append(static_cast<char>(block2Data >> 16));
-    if (block2Data > 0xFF)
-        block2Value.append(static_cast<char>((block2Data >> 8) & 0xFF));
-    block2Value.append(static_cast<char>(block2Data & 0xFF));
+    // SZX field = log2(blockSize) - 4)
+    optionData |= (blockSize >> 7)
+                  ? ((blockSize >> 10) ? 6 : (3 + (blockSize >> 8)))
+                  : (blockSize >> 5);
 
-    return QCoapOption(name, block2Value);
+    // M field set when more data is available to send
+    if (name == QCoapOption::Block1
+            && static_cast<int>((blockNumber * blockSize) + blockSize) < d->fullPayload.length()) {
+        optionData |= 8;
+    }
+
+    QByteArray optionValue;
+    if (optionData > 0xFFFF)
+        optionValue.append(static_cast<char>(optionData >> 16));
+    if (optionData > 0xFF)
+        optionValue.append(static_cast<char>((optionData >> 8) & 0xFF));
+    optionValue.append(static_cast<char>(optionData & 0xFF));
+
+    return QCoapOption(name, optionValue);
 }
 
 /*!
