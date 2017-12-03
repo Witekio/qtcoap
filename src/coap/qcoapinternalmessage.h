@@ -61,6 +61,9 @@ public:
 
 protected:
     explicit QCoapInternalMessage(QCoapInternalMessagePrivate &dd, QObject *parent = nullptr);
+
+    void setFromDescriptiveBlockOption(const QCoapOption &option);
+
     Q_DECLARE_PRIVATE(QCoapInternalMessage)
 };
 

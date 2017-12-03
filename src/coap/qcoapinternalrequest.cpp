@@ -337,23 +337,10 @@ QByteArray QCoapInternalRequest::generateToken()
 */
 void QCoapInternalRequest::addOption(const QCoapOption &option)
 {
-    Q_D(QCoapInternalRequest);
-    //! TODO Cover with tests
-    // If it is a BLOCK option, we need to know the block number
-    if (option.name() == QCoapOption::Block1) {
-        quint32 blockNumber = 0;
-        quint8 *optionData = reinterpret_cast<quint8 *>(option.value().data());
-        quint8 lastByte = optionData[option.length() - 1];
+    if (option.name() == QCoapOption::Block1)
+        setFromDescriptiveBlockOption(option);
 
-        for (int i = 0; i < option.length() - 1; ++i)
-            blockNumber = (blockNumber << 8) | optionData[i];
-        blockNumber = (blockNumber << 4) | (lastByte >> 4);
-        d->currentBlockNumber = blockNumber;
-        d->hasNextBlock = ((lastByte & 0x8) == 0x8);
-        d->blockSize = static_cast<uint>(1u << ((lastByte & 0x7) + 4));
-    }
-
-    d->message.addOption(option);
+    QCoapInternalMessage::addOption(option);
 }
 
 /*!

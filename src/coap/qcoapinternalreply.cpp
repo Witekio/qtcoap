@@ -167,32 +167,13 @@ void QCoapInternalReply::appendData(const QByteArray &data)
 /*!
     \internal
     Adds the given CoAP \a option and sets block parameters if needed.
-
-    For block-wise transfer, the size of the block is expressed by a power
-    of two. See
-    \l{https://tools.ietf.org/html/rfc7959#section-2.2}{'Structure of a Block Option'}
-    in RFC 7959 for more information.
 */
 void QCoapInternalReply::addOption(const QCoapOption &option)
 {
-    Q_D(QCoapInternalReply);
-    // If it is a BLOCK option, we need to know the block number
-    if (option.name() == QCoapOption::Block2) {
-        //! TODO Cover with tests
-        const quint8 *optionData = reinterpret_cast<const quint8 *>(option.value().data());
-        const quint8 lastByte = optionData[option.length() - 1];
-        quint32 blockNumber = 0;
+    if (option.name() == QCoapOption::Block2)
+        setFromDescriptiveBlockOption(option);
 
-        for (int i = 0; i < option.length() - 1; ++i)
-            blockNumber = (blockNumber << 8) | optionData[i];
-
-        blockNumber = (blockNumber << 4) | (lastByte >> 4);
-        d->currentBlockNumber = blockNumber;
-        d->hasNextBlock = ((lastByte & 0x8) == 0x8);
-        d->blockSize = static_cast<uint>(1u << ((lastByte & 0x7) + 4));
-    }
-
-    d->message.addOption(option);
+    QCoapInternalMessage::addOption(option);
 }
 
 /*!
