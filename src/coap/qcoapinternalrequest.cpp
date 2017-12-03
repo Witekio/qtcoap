@@ -84,6 +84,16 @@ QCoapInternalRequest::QCoapInternalRequest(const QCoapRequest &request, QObject 
 
 /*!
     \internal
+    Returns \c true if the request is considered valid.
+*/
+bool QCoapInternalRequest::isValid() const
+{
+    Q_D(const QCoapInternalRequest);
+    return isUrlValid(d->targetUri) && d->method != QtCoap::Empty;
+}
+
+/*!
+    \internal
     Initialize parameters to transform the QCoapInternalRequest into an
     acknowledgement message with the message id \a messageId and the given
     \a token.

@@ -192,4 +192,28 @@ uint QCoapInternalMessage::blockSize() const
     return d->blockSize;
 }
 
+/*!
+    \internal
+
+    Returns \c true if the message is considered valid.
+
+    \sa isUrlValid()
+*/
+bool QCoapInternalMessage::isValid() const
+{
+    return true;
+}
+
+/*!
+    \internal
+
+    Returns \c true if URL is considered valid.
+
+    \sa QCoapRequest::isUrlValid()
+*/
+bool QCoapInternalMessage::isUrlValid(const QUrl &url)
+{
+    return QCoapRequest::isUrlValid(url);
+}
+
 QT_END_NAMESPACE

@@ -67,11 +67,12 @@ void QCoapProtocol::sendRequest(QPointer<QCoapReply> reply, QCoapConnection *con
 {
     Q_D(QCoapProtocol);
 
-    if (reply.isNull())
+    if (reply.isNull() || !reply->request().isValid())
         return;
 
     // Generate unique token and message id
     QCoapInternalRequest *internalRequest = new QCoapInternalRequest(reply->request(), this);
+
     if (internalRequest->message()->messageId() == 0) {
         do {
             internalRequest->generateMessageId();

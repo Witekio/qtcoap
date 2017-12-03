@@ -61,6 +61,8 @@ public:
     explicit QCoapInternalRequest(QObject *parent = nullptr);
     explicit QCoapInternalRequest(const QCoapRequest &request, QObject *parent = nullptr);
 
+    bool isValid() const Q_DECL_OVERRIDE;
+
     void initForAcknowledgement(quint16 messageId, const QByteArray &token);
     void initForReset(quint16 messageId);
 

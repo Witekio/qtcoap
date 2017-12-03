@@ -232,6 +232,14 @@ QCoapRequest &QCoapRequest::operator=(const QCoapRequest &other)
 }
 
 /*!
+    Returns \c true if the request is valid, \c false otherwise.
+*/
+bool QCoapRequest::isValid() const
+{
+    return isUrlValid(url()) && method() != QtCoap::Empty;
+}
+
+/*!
     Returns true if the \a url is a valid CoAP URL.
 */
 bool QCoapRequest::isUrlValid(const QUrl &url)

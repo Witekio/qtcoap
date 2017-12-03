@@ -62,6 +62,7 @@ public:
     void setMethod(QtCoap::Method method);
     void enableObserve();
 
+    bool isValid() const;
     static bool isUrlValid(const QUrl &url);
 
 private:
