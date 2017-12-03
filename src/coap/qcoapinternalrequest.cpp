@@ -244,7 +244,7 @@ void QCoapInternalRequest::setRequestToAskBlock(uint blockNumber, uint blockSize
 
     //! TODO Cover this in tests
     Q_ASSERT((blockSize & (blockSize - 1)) == 0); // is a power of two
-    Q_ASSERT(!(blockSize >> 10)); // blockSize < 1024
+    Q_ASSERT(!(blockSize >> 11)); // blockSize <= 1024
 
     // Set the Block2Option option to get the new block
     // blockSize = (2^(SZX + 4))
@@ -276,7 +276,7 @@ void QCoapInternalRequest::setRequestToSendBlock(uint blockNumber, uint blockSiz
 
     //! TODO Cover this in tests
     Q_ASSERT((blockSize & (blockSize - 1)) == 0); // is a power of two
-    Q_ASSERT(!(blockSize >> 10)); // blockSize < 1024
+    Q_ASSERT(!(blockSize >> 11)); // blockSize <= 1024
 
     d->message.setPayload(d->fullPayload.mid(blockNumber * blockSize, blockSize));
 
