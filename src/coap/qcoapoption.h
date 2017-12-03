@@ -79,6 +79,7 @@ protected:
 };
 
 Q_DECLARE_METATYPE(QCoapOption::OptionName)
+Q_DECLARE_METATYPE(QCoapOption)
 
 QT_END_NAMESPACE
 

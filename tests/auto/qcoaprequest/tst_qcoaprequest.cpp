@@ -167,6 +167,26 @@ void tst_QCoapRequest::internalRequestToFrame_data()
         << "5401dc504647f09bb474657374ff"
         << "Some payload";
 
+    QTest::newRow("request_domain")
+        << QUrl("coap://domain.com:5683/test")
+        << QtCoap::Get
+        << QCoapRequest::NonConfirmable
+        << quint16(56400)
+        << QByteArray::fromHex("4647f09b")
+        << "5401dc504647f09b3a646f6d61696e2e"
+           "636f6d8474657374ff"
+        << "Some payload";
+
+    // TODO: Not passing yet, see QCoapInternalRequest::addUriHostOption
+    /*QTest::newRow("request_ipv6")
+        << QUrl("coap://[::ffff:ac11:3]:5683/test")
+        << QtCoap::Get
+        << QCoapRequest::NonConfirmable
+        << quint16(56400)
+        << QByteArray::fromHex("4647f09b")
+        << "5401dc504647f09bb474657374ff"
+        << "Some payload";*/
+
     QTest::newRow("request_without_payload")
         << QUrl("coap://172.17.0.3:5683/test")
         << QtCoap::Get
@@ -246,34 +266,58 @@ void tst_QCoapRequest::internalRequestToFrame()
 
 void tst_QCoapRequest::parseUri_data()
 {
+    qRegisterMetaType<QVector<QCoapOption>>();
     QTest::addColumn<QUrl>("uri");
     QTest::addColumn<QUrl>("proxyUri");
-    QTest::addColumn<int>("optionsNumber");
+    QTest::addColumn<QVector<QCoapOption>>("options");
 
-    QTest::newRow("uri1") << QUrl("coap://vs0.inf.ethz.ch:5683/test/path1/?rd=25&nd=4")
-                          << QUrl()
-                          << 5;
-    QTest::newRow("uri2") << QUrl("coap://172.17.0.3/test/path1/?rd=25&nd=4")
-                          << QUrl()
-                          << 4;
-    QTest::newRow("uri3") << QUrl("coap://172.17.0.3:5684/test/path1")
-                          << QUrl()
-                          << 3;
-    QTest::newRow("uri4") << QUrl("coap://vs0.inf.ethz.ch:5683/test/path1/?rd=25&nd=4")
-                          << QUrl("coap://172.17.0.32/test")
-                          << 2;
+    QTest::newRow("port_path")
+                        << QUrl("coap://172.17.0.3:5684/test/path1")
+                        << QUrl()
+                        << QVector<QCoapOption>({
+                            QCoapOption(QCoapOption::UriPort, "5684"),
+                            QCoapOption(QCoapOption::UriPath, "test"),
+                            QCoapOption(QCoapOption::UriPath, "path1") });
+
+    QTest::newRow("path_query")
+                        << QUrl("coap://172.17.0.3/test/path1/?rd=25&nd=4")
+                        << QUrl()
+                        << QVector<QCoapOption>({
+                            QCoapOption(QCoapOption::UriPath, "test"),
+                            QCoapOption(QCoapOption::UriPath, "path1"),
+                            QCoapOption(QCoapOption::UriQuery, "rd=25"),
+                            QCoapOption(QCoapOption::UriQuery, "nd=4") });
+
+    QTest::newRow("host_path_query")
+                        << QUrl("coap://vs0.inf.ethz.ch:5683/test/path1/?rd=25&nd=4")
+                        << QUrl()
+                        << QVector<QCoapOption>({
+                            QCoapOption(QCoapOption::UriHost, "vs0.inf.ethz.ch"),
+                            QCoapOption(QCoapOption::UriPath, "test"),
+                            QCoapOption(QCoapOption::UriPath, "path1"),
+                            QCoapOption(QCoapOption::UriQuery, "rd=25"),
+                            QCoapOption(QCoapOption::UriQuery, "nd=4") });
+
+    QTest::newRow("proxy_url")
+                        << QUrl("coap://vs0.inf.ethz.ch:5683/test/path1/?rd=25&nd=4")
+                        << QUrl("coap://172.17.0.32/test:5684/othertest/path")
+                        << QVector<QCoapOption>({
+                            QCoapOption(QCoapOption::ProxyUri, "coap://172.17.0.32/test:5684/othertest/path") });
 }
 
 void tst_QCoapRequest::parseUri()
 {
     QFETCH(QUrl, uri);
     QFETCH(QUrl, proxyUri);
-    QFETCH(int, optionsNumber);
+    QFETCH(QVector<QCoapOption>, options);
 
     QCoapRequest request(uri, QCoapMessage::NonConfirmable, proxyUri);
     QCoapInternalRequest internalRequest(request);
 
-    QCOMPARE(internalRequest.message()->optionCount(), optionsNumber);
+    for (QCoapOption opt : options)
+        QVERIFY2(internalRequest.message()->optionList().contains(opt), "Missing option");
+
+    QCOMPARE(options.count(), internalRequest.message()->optionCount());
 }
 
 QTEST_APPLESS_MAIN(tst_QCoapRequest)

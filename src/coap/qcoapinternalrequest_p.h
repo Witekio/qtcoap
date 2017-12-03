@@ -72,7 +72,7 @@ public:
 
     using QCoapInternalMessage::addOption;
     void addOption(const QCoapOption &option);
-    void addUriOptions(const QUrl &uri, const QUrl &proxyUri = QUrl());
+    bool addUriOptions(QUrl uri, const QUrl &proxyUri = QUrl());
 
     QUrl targetUri() const;
     QtCoap::Method method() const;
@@ -93,6 +93,9 @@ public:
 
 Q_SIGNALS:
     void timeout(QCoapInternalRequest*);
+
+protected:
+    void addUriHostOption(const QUrl& uri);
 
 private:
     Q_DECLARE_PRIVATE(QCoapInternalRequest)

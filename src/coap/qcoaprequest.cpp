@@ -237,7 +237,8 @@ QCoapRequest &QCoapRequest::operator=(const QCoapRequest &other)
 bool QCoapRequest::isUrlValid(const QUrl &url)
 {
     return (url.isValid() && !url.isLocalFile() && !url.isRelative()
-            && url.scheme() == QLatin1String("coap"));
+            && url.scheme() == QLatin1String("coap")
+            && !url.hasFragment());
 }
 
 /*!
