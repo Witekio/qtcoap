@@ -101,7 +101,7 @@ void QCoapProtocol::sendRequest(QPointer<QCoapReply> reply, QCoapConnection *con
     }
 
     if (internalRequest->message()->type() == QCoapMessage::Confirmable) {
-        internalRequest->setTimeout(QRandomGenerator::bounded(d->ackTimeout, static_cast<uint>(d->ackTimeout * d->ackRandomFactor)));
+        internalRequest->setTimeout(QtCoap::randomGenerator.bounded(d->ackTimeout, static_cast<uint>(d->ackTimeout * d->ackRandomFactor)));
         connect(internalRequest, SIGNAL(timeout(QCoapInternalRequest*)),
                 this, SLOT(resendRequest(QCoapInternalRequest*)));
     }

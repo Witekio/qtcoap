@@ -29,6 +29,7 @@
 
 #include <QtCoap/qcoapglobal.h>
 #include <QtCore/qobject.h>
+#include <QtCore/qrandom.h>
 
 #ifndef QCOAPNAMESPACE_H
 #define QCOAPNAMESPACE_H
@@ -87,6 +88,8 @@ public:
         Other
     };
     Q_ENUM(Method)
+
+    static QRandomGenerator randomGenerator;
 };
 
 Q_DECLARE_METATYPE(QtCoap::Method)

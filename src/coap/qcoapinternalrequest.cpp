@@ -312,7 +312,8 @@ QCoapOption QCoapInternalRequest::blockOption(QCoapOption::OptionName name, uint
 quint16 QCoapInternalRequest::generateMessageId()
 {
     Q_D(QCoapInternalRequest);
-    quint16 id = static_cast<quint16>(QRandomGenerator::bounded(0x10000));
+
+    quint16 id = static_cast<quint16>(QtCoap::randomGenerator.bounded(0x10000));
     d->message.setMessageId(id);
     return id;
 }
@@ -325,12 +326,12 @@ QByteArray QCoapInternalRequest::generateToken()
 {
     Q_D(QCoapInternalRequest);
 
-    quint8 length = static_cast<quint8>(QRandomGenerator::bounded(1, 8));
+    quint8 length = static_cast<quint8>(QtCoap::randomGenerator.bounded(1, 8));
 
     QByteArray token(length, 0);
     quint8 *tokenData = reinterpret_cast<quint8 *>(token.data());
     for (int i = 0; i < token.size(); ++i)
-        tokenData[i] = static_cast<quint8>(QRandomGenerator::bounded(256));
+        tokenData[i] = static_cast<quint8>(QtCoap::randomGenerator.bounded(256));
 
     d->message.setToken(token);
     return token;

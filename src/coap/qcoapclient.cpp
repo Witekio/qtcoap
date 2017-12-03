@@ -30,10 +30,13 @@
 #include "qcoapclient_p.h"
 #include "qcoapreply.h"
 #include "qcoapdiscoveryreply.h"
+#include "qcoapnamespace.h"
 #include <QtCore/qurl.h>
 #include <QtNetwork/qudpsocket.h>
 
 QT_BEGIN_NAMESPACE
+
+QRandomGenerator QtCoap::randomGenerator;
 
 QCoapClientPrivate::QCoapClientPrivate() :
     protocol(new QCoapProtocol),
