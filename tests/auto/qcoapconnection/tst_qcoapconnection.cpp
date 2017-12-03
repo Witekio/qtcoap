@@ -99,10 +99,8 @@ void tst_QCoapConnection::sendRequest_data()
         << "coap://"
         << "172.17.0.3" << "/test" << quint16(5683)
         << QtCoap::Get << "5445"
-        << "61626364c0211eff547970653a203120"
-           "284e4f4e290a436f64653a2031202847"
-           "4554290a4d49443a2032343830360a54"
-           "6f6b656e3a203631363236333634";
+        << "61626364c0211eff547970653a203120284e4f4e290a436f64653a2031202847"
+           "4554290a4d49443a2032343830360a546f6b656e3a203631363236333634";
 
     QTest::newRow("simple_put_request")
         << "coap://"
@@ -120,8 +118,7 @@ void tst_QCoapConnection::sendRequest_data()
         << quint16(5683)
         << QtCoap::Post
         << "5441"
-        << "61626364896c6f636174696f6e31096c"
-           "6f636174696f6e32096c6f636174696f"
+        << "61626364896c6f636174696f6e31096c6f636174696f6e32096c6f636174696f"
            "6e33";
 
     QTest::newRow("simple_delete_request")

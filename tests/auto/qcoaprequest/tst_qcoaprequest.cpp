@@ -173,8 +173,7 @@ void tst_QCoapRequest::internalRequestToFrame_data()
         << QCoapRequest::NonConfirmable
         << quint16(56400)
         << QByteArray::fromHex("4647f09b")
-        << "5401dc504647f09b3a646f6d61696e2e"
-           "636f6d8474657374ff"
+        << "5401dc504647f09b3a646f6d61696e2e636f6d8474657374ff"
         << "Some payload";
 
     // TODO: Not passing yet, see QCoapInternalRequest::addUriHostOption
@@ -220,8 +219,7 @@ void tst_QCoapRequest::internalRequestToFrame_data()
         << QCoapRequest::NonConfirmable
         << quint16(56400)
         << QByteArray::fromHex("4647f09b")
-        << "5401dc504647f09bb474657374036f75"
-           "69"
+        << "5401dc504647f09bb474657374036f7569"
         << "";
 
     QTest::newRow("request_with_big_option_number")
@@ -230,8 +228,7 @@ void tst_QCoapRequest::internalRequestToFrame_data()
         << QCoapRequest::NonConfirmable
         << quint16(56400)
         << QByteArray::fromHex("4647f09b")
-        << "5401dc504647f09bb474657374dd240d"
-           "6162636465666768696a6b6c6d6e6f70"
+        << "5401dc504647f09bb474657374dd240d6162636465666768696a6b6c6d6e6f70"
            "7172737475767778797aff"
         << "Some payload";
 }
