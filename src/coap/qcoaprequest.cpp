@@ -65,11 +65,10 @@ void QCoapRequestPrivate::setUrl(const QUrl &url)
     }
 
     QUrl finalizedUrl = url;
-    if (url.isRelative()) {
+    if (url.isRelative())
         finalizedUrl = url.toString().prepend(QLatin1String("coap://"));
-    } else if (url.scheme().isEmpty()) {
+    else if (url.scheme().isEmpty())
         finalizedUrl.setScheme(QLatin1String("coap"));
-    }
 
     if (url.port() == -1)
         finalizedUrl.setPort(5683);
