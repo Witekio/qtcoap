@@ -129,6 +129,9 @@ void QCoapInternalMessage::setFromDescriptiveBlockOption(const QCoapOption &opti
     d->currentBlockNumber = blockNumber;
     d->hasNextBlock = ((lastByte & 0x8) == 0x8);
     d->blockSize = static_cast<uint>(1u << ((lastByte & 0x7) + 4));
+
+    if (d->blockSize > 1024)
+        qWarning() << "QtCoap: Received a block size larger than 1024, something may be wrong.";
 }
 
 /*!
