@@ -439,7 +439,7 @@ void QCoapClient::enableMulticastLoopbackOption()
 #if 0
 //! Disabled until fully supported
 /*!
-    Sets the protocol used by the client. Allows to use a custom protocol.
+    Sets the protocol used by the client. Allows use of a custom protocol.
 */
 void QCoapClient::setProtocol(QCoapProtocol *protocol)
 {
