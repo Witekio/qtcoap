@@ -5,7 +5,7 @@
 **
 ** This file is part of the QtCoap module.
 **
-** $QT_BEGIN_LICENSE:GPL3$
+** $QT_BEGIN_LICENSE:GPL$
 ** Commercial License Usage
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
@@ -14,21 +14,14 @@
 ** and conditions see http://www.qt.io/terms-conditions. For further
 ** information use the contact form at http://www.qt.io/contact-us.
 **
-** GNU Lesser General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 3 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPLv3 included in the
-** packaging of this file. Please review the following information to
-** ensure the GNU Lesser General Public License version 3 requirements
-** will be met: https://www.gnu.org/licenses/lgpl.html.
-**
 ** GNU General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU
-** General Public License version 2.0 or later as published by the Free
-** Software Foundation and appearing in the file LICENSE.GPL included in
-** the packaging of this file. Please review the following information to
-** ensure the GNU General Public License version 2.0 requirements will be
-** met: http://www.gnu.org/licenses/gpl-2.0.html.
+** General Public License version 3 or (at your option) any later version
+** approved by the KDE Free Qt Foundation. The licenses are as published by
+** the Free Software Foundation and appearing in the file LICENSE.GPL3
+** included in the packaging of this file. Please review the following
+** information to ensure the GNU General Public License requirements will
+** be met: https://www.gnu.org/licenses/gpl-3.0.html.
 **
 ** $QT_END_LICENSE$
 **
@@ -74,11 +67,12 @@ void QCoapProtocol::sendRequest(QPointer<QCoapReply> reply, QCoapConnection *con
 {
     Q_D(QCoapProtocol);
 
-    if (reply.isNull())
+    if (reply.isNull() || !reply->request().isValid())
         return;
 
     // Generate unique token and message id
     QCoapInternalRequest *internalRequest = new QCoapInternalRequest(reply->request(), this);
+
     if (internalRequest->message()->messageId() == 0) {
         do {
             internalRequest->generateMessageId();
@@ -107,7 +101,7 @@ void QCoapProtocol::sendRequest(QPointer<QCoapReply> reply, QCoapConnection *con
     }
 
     if (internalRequest->message()->type() == QCoapMessage::Confirmable) {
-        internalRequest->setTimeout(QRandomGenerator::bounded(d->ackTimeout, static_cast<uint>(d->ackTimeout * d->ackRandomFactor)));
+        internalRequest->setTimeout(QtCoap::randomGenerator.bounded(d->ackTimeout, static_cast<uint>(d->ackTimeout * d->ackRandomFactor)));
         connect(internalRequest, SIGNAL(timeout(QCoapInternalRequest*)),
                 this, SLOT(resendRequest(QCoapInternalRequest*)));
     }
@@ -209,7 +203,7 @@ void QCoapProtocolPrivate::handleFrame(const QByteArray &frame)
         request->removeOption(QCoapOption::Observe);
         sendReset(request);
     } else if (internalReplyMessage->type() == QCoapMessage::Confirmable) {
-        sendAcknowledgement(request);
+        sendAcknowledgment(request);
     }
 
     // Check if it is a blockwise request
@@ -252,9 +246,8 @@ QCoapInternalRequest *QCoapProtocolPrivate::findInternalRequestByToken(const QBy
 QCoapInternalRequest *QCoapProtocolPrivate::findInternalRequestByReply(const QCoapReply *reply)
 {
     for (InternalMessageMap::iterator it = internalReplies.begin(); it != internalReplies.end(); ++it) {
-        if (it.value().userReply == reply) {
+        if (it.value().userReply == reply)
             return const_cast<QCoapInternalRequest*>(it.key());
-        }
     }
 
     return nullptr;
@@ -300,7 +293,7 @@ void QCoapProtocolPrivate::onLastBlock(QCoapInternalRequest *request)
         return;
 
     QCoapInternalReply *finalReply(replies.last());
-    if (finalReply->message()->type() == QCoapMessage::Acknowledgement
+    if (finalReply->message()->type() == QCoapMessage::Acknowledgment
             && finalReply->statusCode() == QtCoap::Invalid)
         return;
 
@@ -363,13 +356,13 @@ void QCoapProtocolPrivate::onNextBlock(QCoapInternalRequest *request,
     Sends an internal request acknowledging the given \a request, reusing its
     URI and connection.
 */
-void QCoapProtocolPrivate::sendAcknowledgement(QCoapInternalRequest *request)
+void QCoapProtocolPrivate::sendAcknowledgment(QCoapInternalRequest *request)
 {
     QCoapInternalRequest ackRequest;
     QCoapInternalReply *internalReply = internalReplies[request].replies.last();
 
     ackRequest.setTargetUri(request->targetUri());
-    ackRequest.initForAcknowledgement(internalReply->message()->messageId(),
+    ackRequest.initForAcknowledgment(internalReply->message()->messageId(),
                                      internalReply->message()->token());
     ackRequest.setConnection(request->connection());
     sendRequest(&ackRequest);
@@ -400,7 +393,7 @@ void QCoapProtocolPrivate::sendReset(QCoapInternalRequest *request)
     Finds the internal request associated with \a reply and tells it to stop
     observing.
 */
-void QCoapProtocol::cancelObserve(QPointer<const QCoapReply> reply)
+void QCoapProtocol::cancelObserve(QPointer<QCoapReply> reply)
 {
     if (!reply)
         return;
@@ -478,11 +471,9 @@ QList<QCoapResource> QCoapProtocol::resourcesFromCoreLinkList(const QByteArray &
             else if (parameter.startsWith("if="))
                 resource.setInterface(parameterString.mid(3).remove(quote));
             else if (parameter.startsWith("sz="))
-                resource.setMaximumSize(parameterString.mid(3).remove(quote)
-                                                              .toInt());
+                resource.setMaximumSize(parameterString.mid(3).remove(quote).toInt());
             else if (parameter.startsWith("ct="))
-                resource.setContentFormat(parameterString.mid(3).remove(quote)
-                                                                .toUInt());
+                resource.setContentFormat(parameterString.mid(3).remove(quote).toUInt());
             else if (parameter == "obs")
                 resource.setObservable(true);
         }
@@ -591,7 +582,7 @@ uint QCoapProtocol::maxRetransmitSpan() const
 
     It is the maximum time from the first transmission of a Confirmable
     message to the time when the sender gives up on receiving an
-    acknowledgement or reset.
+    acknowledgment or reset.
 */
 uint QCoapProtocol::maxRetransmitWait() const
 {
@@ -658,7 +649,7 @@ void QCoapProtocol::setMaxRetransmit(uint maxRetransmit)
 */
 void QCoapProtocol::setBlockSize(quint16 blockSize)
 {
-    // A size of 0 invites the server chose the block size.
+    // A size of 0 invites the server to chose the block size.
     Q_D(QCoapProtocol);
     d->blockSize = blockSize;
 }

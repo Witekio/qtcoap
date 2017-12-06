@@ -5,7 +5,7 @@
 **
 ** This file is part of the QtCoap module.
 **
-** $QT_BEGIN_LICENSE:GPL3$
+** $QT_BEGIN_LICENSE:GPL$
 ** Commercial License Usage
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
@@ -14,21 +14,14 @@
 ** and conditions see http://www.qt.io/terms-conditions. For further
 ** information use the contact form at http://www.qt.io/contact-us.
 **
-** GNU Lesser General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 3 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPLv3 included in the
-** packaging of this file. Please review the following information to
-** ensure the GNU Lesser General Public License version 3 requirements
-** will be met: https://www.gnu.org/licenses/lgpl.html.
-**
 ** GNU General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU
-** General Public License version 2.0 or later as published by the Free
-** Software Foundation and appearing in the file LICENSE.GPL included in
-** the packaging of this file. Please review the following information to
-** ensure the GNU General Public License version 2.0 requirements will be
-** met: http://www.gnu.org/licenses/gpl-2.0.html.
+** General Public License version 3 or (at your option) any later version
+** approved by the KDE Free Qt Foundation. The licenses are as published by
+** the Free Software Foundation and appearing in the file LICENSE.GPL3
+** included in the packaging of this file. Please review the following
+** information to ensure the GNU General Public License requirements will
+** be met: https://www.gnu.org/licenses/gpl-3.0.html.
 **
 ** $QT_END_LICENSE$
 **
@@ -175,9 +168,8 @@ qint64 QCoapReply::readData(char *data, qint64 maxSize)
         return qint64(0);
 
     // Ensure memcpy is compatible with a qint64 length.
-    // Tested against "sizeof(qint64) - 1" to account for the sign bit
     // FIXME Isn't it going to be a problem on ARM based platforms?
-    Q_STATIC_ASSERT(sizeof(size_t) >= sizeof(qint64) - 1);
+    Q_STATIC_ASSERT(sizeof(size_t) >= sizeof(qint64));
     memcpy(data, payload.constData() + pos(), static_cast<size_t>(len));
 
     return len;
@@ -264,12 +256,12 @@ QUrl QCoapReply::url() const
 }
 
 /*!
-    Returns the operation of the associated request.
+    Returns the method of the associated request.
 */
-QtCoap::Operation QCoapReply::operation() const
+QtCoap::Method QCoapReply::method() const
 {
     Q_D(const QCoapReply);
-    return d->request.operation();
+    return d->request.method();
 }
 
 /*!
@@ -349,7 +341,7 @@ void QCoapReply::updateFromInternalReply(const QCoapInternalReply &internalReply
 }
 
 /*!
-    Aborts the operation immediately and emits the
+    Aborts the request immediately and emits the
     \l{QCoapReply::aborted(QCoapReply*)}{aborted(QCoapReply*)} signal
     if the request was not finished before.
 */

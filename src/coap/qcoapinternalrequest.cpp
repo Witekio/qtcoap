@@ -5,7 +5,7 @@
 **
 ** This file is part of the QtCoap module.
 **
-** $QT_BEGIN_LICENSE:GPL3$
+** $QT_BEGIN_LICENSE:GPL$
 ** Commercial License Usage
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
@@ -14,21 +14,14 @@
 ** and conditions see http://www.qt.io/terms-conditions. For further
 ** information use the contact form at http://www.qt.io/contact-us.
 **
-** GNU Lesser General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 3 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPLv3 included in the
-** packaging of this file. Please review the following information to
-** ensure the GNU Lesser General Public License version 3 requirements
-** will be met: https://www.gnu.org/licenses/lgpl.html.
-**
 ** GNU General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU
-** General Public License version 2.0 or later as published by the Free
-** Software Foundation and appearing in the file LICENSE.GPL included in
-** the packaging of this file. Please review the following information to
-** ensure the GNU General Public License version 2.0 requirements will be
-** met: http://www.gnu.org/licenses/gpl-2.0.html.
+** General Public License version 3 or (at your option) any later version
+** approved by the KDE Free Qt Foundation. The licenses are as published by
+** the Free Software Foundation and appearing in the file LICENSE.GPL3
+** included in the packaging of this file. Please review the following
+** information to ensure the GNU General Public License requirements will
+** be met: https://www.gnu.org/licenses/gpl-3.0.html.
 **
 ** $QT_END_LICENSE$
 **
@@ -36,6 +29,7 @@
 
 #include <QtCore/qmath.h>
 #include <QtCore/qrandom.h>
+#include <QtCore/qregularexpression.h>
 #include "qcoapinternalrequest_p.h"
 #include "qcoaprequest.h"
 
@@ -79,10 +73,10 @@ QCoapInternalRequest::QCoapInternalRequest(const QCoapRequest &request, QObject 
     d->message.setType(request.type());
     d->message.setMessageId(request.messageId());
     d->message.setToken(request.token());
-    foreach (const QCoapOption &option, request.optionList())
+    for (const QCoapOption &option : request.options())
         d->message.addOption(option);
     d->message.setPayload(request.payload());
-    d->operation = request.operation();
+    d->method = request.method();
     d->fullPayload = request.payload();
 
     addUriOptions(request.url(), request.proxyUrl());
@@ -90,16 +84,26 @@ QCoapInternalRequest::QCoapInternalRequest(const QCoapRequest &request, QObject 
 
 /*!
     \internal
+    Returns \c true if the request is considered valid.
+*/
+bool QCoapInternalRequest::isValid() const
+{
+    Q_D(const QCoapInternalRequest);
+    return isUrlValid(d->targetUri) && d->method != QtCoap::Empty;
+}
+
+/*!
+    \internal
     Initialize parameters to transform the QCoapInternalRequest into an
-    acknowledgement message with the message id \a messageId and the given
+    acknowledgment message with the message id \a messageId and the given
     \a token.
 */
-void QCoapInternalRequest::initForAcknowledgement(quint16 messageId, const QByteArray &token)
+void QCoapInternalRequest::initForAcknowledgment(quint16 messageId, const QByteArray &token)
 {
     Q_D(QCoapInternalRequest);
 
-    setOperation(QtCoap::Empty);
-    d->message.setType(QCoapMessage::Acknowledgement);
+    setMethod(QtCoap::Empty);
+    d->message.setType(QCoapMessage::Acknowledgment);
     d->message.setMessageId(messageId);
     d->message.setToken(token);
     d->message.setPayload(QByteArray());
@@ -111,13 +115,13 @@ void QCoapInternalRequest::initForAcknowledgement(quint16 messageId, const QByte
     Initialize parameters to transform the QCoapInternalRequest into a
     Reset message (RST) with the message id \a messageId.
 
-    A Reset message should be empty, and contain the \a messageId.
+    A Reset message should contain only the \a messageId.
 */
 void QCoapInternalRequest::initForReset(quint16 messageId)
 {
     Q_D(QCoapInternalRequest);
 
-    setOperation(QtCoap::Empty);
+    setMethod(QtCoap::Empty);
     d->message.setType(QCoapMessage::Reset);
     d->message.setMessageId(messageId);
     d->message.setToken(QByteArray());
@@ -153,7 +157,7 @@ QByteArray QCoapInternalRequest::toQByteArray() const
     pdu.append(static_cast<char>((d->message.version()   << 6)              // CoAP version
                                | (d->message.type()      << 4)              // Message type
                                |  d->message.token().length()));            // Token Length
-    pdu.append(static_cast<char>( d->operation                 & 0xFF));    // Operation type
+    pdu.append(static_cast<char>( d->method                    & 0xFF));    // Method type
     pdu.append(static_cast<char>((d->message.messageId() >> 8) & 0xFF));    // Message ID
     pdu.append(static_cast<char>( d->message.messageId()       & 0xFF));
 
@@ -161,16 +165,16 @@ QByteArray QCoapInternalRequest::toQByteArray() const
     pdu.append(d->message.token());
 
     // Insert Options
-    if (!d->message.optionList().isEmpty()) {
+    if (!d->message.options().isEmpty()) {
         // Sort options by ascending order
-        QList<QCoapOption> optionList = d->message.optionList();
-        std::sort(optionList.begin(), optionList.end(),
+        QVector<QCoapOption> options = d->message.options();
+        std::sort(options.begin(), options.end(),
             [](const QCoapOption &a, const QCoapOption &b) -> bool {
-                return (a.name() < b.name());
+                return a.name() < b.name();
         });
 
         quint8 lastOptionNumber = 0;
-        for (const QCoapOption &option : qAsConst(optionList)) {
+        for (const QCoapOption &option : qAsConst(options)) {
             quint8 optionPdu;
 
             quint16 optionDelta = static_cast<quint16>(option.name()) - lastOptionNumber;
@@ -230,33 +234,17 @@ QByteArray QCoapInternalRequest::toQByteArray() const
     Initializes block parameters and creates the options needed to ask the
     block with the number \a blockNumber and with a size of \a blockSize.
 
-    The \a blockSize should range from 16 to 1024 and be a power of 2,
-    computed as 2^(SZX + 4), with SZX ranging from 0 to 6. For more details,
-    refer to the \l{https://tools.ietf.org/html/rfc7959#section-2.2}{RFC 7959}.
+    \sa blockOption()
 */
 void QCoapInternalRequest::setRequestToAskBlock(uint blockNumber, uint blockSize)
 {
     Q_D(QCoapInternalRequest);
 
-    //! TODO Cover this in tests
-    Q_ASSERT((blockSize & (blockSize - 1)) == 0); // is a power of two
-    Q_ASSERT(!(blockSize >> 10)); // blockSize < 1024
-
-    // Set the Block2Option option to get the new block
-    // blockSize = (2^(SZX + 4))
-    quint32 block2Data = (blockNumber << 4) | static_cast<quint32>(log2(blockSize) - 4);
-    QByteArray block2Value;
-    if (block2Data > 0xFFFF)
-        block2Value.append(static_cast<char>(block2Data >> 16));
-    if (block2Data > 0xFF)
-        block2Value.append(static_cast<char>((block2Data >> 8) & 0xFF));
-    block2Value.append(static_cast<char>(block2Data & 0xFF));
-
-    d->message.removeOption(QCoapOption::Block2);
-    d->message.removeOption(QCoapOption::Block1);
-    addOption(QCoapOption::Block2, block2Value);
-
     d->message.setMessageId(d->message.messageId() + 1);
+    d->message.removeOption(QCoapOption::Block1);
+    d->message.removeOption(QCoapOption::Block2);
+
+    addOption(blockOption(QCoapOption::Block2, blockNumber, blockSize));
 }
 
 /*!
@@ -264,35 +252,57 @@ void QCoapInternalRequest::setRequestToAskBlock(uint blockNumber, uint blockSize
     Initialize blocks parameters and creates the options needed to send the block with
     the number \a blockNumber and with a size of \a blockSize.
 
-    \sa setRequestToAskBlock()
+    \sa setRequestToAskBlock(), blockOption()
 */
 void QCoapInternalRequest::setRequestToSendBlock(uint blockNumber, uint blockSize)
 {
     Q_D(QCoapInternalRequest);
 
+    d->message.setMessageId(d->message.messageId() + 1);
+    d->message.setPayload(d->fullPayload.mid(blockNumber * blockSize, blockSize));
+    d->message.removeOption(QCoapOption::Block1);
+
+    addOption(blockOption(QCoapOption::Block1, blockNumber, blockSize));
+}
+
+/*!
+    \internal
+    Builds and returns a Block option.
+
+    The \a blockSize should range from 16 to 1024 and be a power of 2,
+    computed as 2^(SZX + 4), with SZX ranging from 0 to 6. For more details,
+    refer to the \l{https://tools.ietf.org/html/rfc7959#section-2.2}{RFC 7959}.
+*/
+QCoapOption QCoapInternalRequest::blockOption(QCoapOption::OptionName name, uint blockNumber, uint blockSize) const
+{
+    Q_D(const QCoapInternalRequest);
+
     //! TODO Cover this in tests
     Q_ASSERT((blockSize & (blockSize - 1)) == 0); // is a power of two
-    Q_ASSERT(!(blockSize >> 10)); // blockSize < 1024
+    Q_ASSERT(!(blockSize >> 11)); // blockSize <= 1024
 
-    d->message.setPayload(d->fullPayload.mid(blockNumber * blockSize, blockSize));
+    // NUM field
+    quint32 optionData = (blockNumber << 4);
 
-    // Set the Block2Option option to get the new block
-    // size = (2^(SZX + 4))
-    quint32 block2Data = (blockNumber << 4) | static_cast<quint32>(log2(blockSize)-4);
-    if (static_cast<int>((blockNumber * blockSize) + blockSize) < d->fullPayload.length())
-        block2Data |= 8; // Set the "more" flag to 1
+    // SZX field = log2(blockSize) - 4)
+    optionData |= (blockSize >> 7)
+                  ? ((blockSize >> 10) ? 6 : (3 + (blockSize >> 8)))
+                  : (blockSize >> 5);
 
-    QByteArray block2Value;
-    if (block2Data > 0xFFFF)
-        block2Value.append(static_cast<char>(block2Data >> 16));
-    if (block2Data > 0xFF)
-        block2Value.append(static_cast<char>((block2Data >> 8) & 0xFF));
-    block2Value.append(static_cast<char>(block2Data & 0xFF));
+    // M field set when more data is available to send
+    if (name == QCoapOption::Block1
+            && static_cast<int>((blockNumber * blockSize) + blockSize) < d->fullPayload.length()) {
+        optionData |= 8;
+    }
 
-    d->message.removeOption(QCoapOption::Block1);
-    addOption(QCoapOption::Block1, block2Value);
+    QByteArray optionValue;
+    if (optionData > 0xFFFF)
+        optionValue.append(static_cast<char>(optionData >> 16));
+    if (optionData > 0xFF)
+        optionValue.append(static_cast<char>((optionData >> 8) & 0xFF));
+    optionValue.append(static_cast<char>(optionData & 0xFF));
 
-    d->message.setMessageId(d->message.messageId() + 1);
+    return QCoapOption(name, optionValue);
 }
 
 /*!
@@ -302,7 +312,8 @@ void QCoapInternalRequest::setRequestToSendBlock(uint blockNumber, uint blockSiz
 quint16 QCoapInternalRequest::generateMessageId()
 {
     Q_D(QCoapInternalRequest);
-    quint16 id = static_cast<quint16>(QRandomGenerator::bounded(0x10000));
+
+    quint16 id = static_cast<quint16>(QtCoap::randomGenerator.bounded(0x10000));
     d->message.setMessageId(id);
     return id;
 }
@@ -315,13 +326,12 @@ QByteArray QCoapInternalRequest::generateToken()
 {
     Q_D(QCoapInternalRequest);
 
-    QByteArray token("");
-    quint8 length = static_cast<quint8>(QRandomGenerator::bounded(1, 8));
-    token.resize(length);
+    quint8 length = static_cast<quint8>(QtCoap::randomGenerator.bounded(1, 8));
 
+    QByteArray token(length, 0);
     quint8 *tokenData = reinterpret_cast<quint8 *>(token.data());
     for (int i = 0; i < token.size(); ++i)
-        tokenData[i] = static_cast<quint8>(QRandomGenerator::bounded(256));
+        tokenData[i] = static_cast<quint8>(QtCoap::randomGenerator.bounded(256));
 
     d->message.setToken(token);
     return token;
@@ -333,70 +343,77 @@ QByteArray QCoapInternalRequest::generateToken()
 */
 void QCoapInternalRequest::addOption(const QCoapOption &option)
 {
-    Q_D(QCoapInternalRequest);
-    //! TODO Cover with tests
-    // If it is a BLOCK option, we need to know the block number
-    if (option.name() == QCoapOption::Block1) {
-        quint32 blockNumber = 0;
-        quint8 *optionData = reinterpret_cast<quint8 *>(option.value().data());
-        quint8 lastByte = optionData[option.length() - 1];
+    if (option.name() == QCoapOption::Block1)
+        setFromDescriptiveBlockOption(option);
 
-        for (int i = 0; i < option.length() - 1; ++i)
-            blockNumber = (blockNumber << 8) | optionData[i];
-        blockNumber = (blockNumber << 4) | (lastByte >> 4);
-        d->currentBlockNumber = blockNumber;
-        d->hasNextBlock = ((lastByte & 0x8) == 0x8);
-        d->blockSize = static_cast<uint>(1u << ((lastByte & 0x7) + 4));
-    }
-
-    d->message.addOption(option);
+    QCoapInternalMessage::addOption(option);
 }
 
 /*!
     \internal
     Adds the CoAP options related to the target and proxy with the given \a uri
-    and \a proxyUri.
+    and \a proxyUri. Returns \c true upon success, \c false if an error
+    occurred.
+
+    Numbers refer to step numbers from CoAP
+    \l{RFC 7252}{https://tools.ietf.org/html/rfc7252#section-6.4}.
 */
-void QCoapInternalRequest::addUriOptions(const QUrl &uri, const QUrl &proxyUri)
+bool QCoapInternalRequest::addUriOptions(QUrl uri, const QUrl &proxyUri)
 {
     Q_D(QCoapInternalRequest);
+    // Set to an invalid state
+    d->targetUri = QUrl();
 
-    QUrl mainUri;
-    if (proxyUri.isEmpty()) {
-        mainUri = uri;
-    } else {
-        // Add proxy options
-        mainUri = proxyUri;
-        addOption(QCoapOption::ProxyUri, uri.toString().toUtf8());
+    // When using a proxy uri, we SHOULD NOT incude Uri-Host/Port/Path/Query
+    // options.
+    if (!proxyUri.isEmpty()) {
+        if (!isUrlValid(proxyUri))
+            return false;
+
+        addOption(QCoapOption::ProxyUri, proxyUri.toString().toUtf8());
+        d->targetUri = proxyUri;
+        return true;
     }
 
-    QRegExp ipv4Regex(QLatin1String("^([0-9]{1,3}.){3}([0-9]{1,3})$"));
-    QString host = mainUri.host();
-    if (!ipv4Regex.exactMatch(host))
-        addOption(QCoapOption::UriHost, host.toUtf8());
+    // 1/3/4. Fails if URL is relative, has no 'coap' scheme or has a fragment
+    if (!isUrlValid(uri))
+        return false;
 
-    // Convert port into QCoapOption if it is not the default port
-    int port = mainUri.port();
-    if (port > 0 && port != 5683)
-        addOption(QCoapOption::UriPort, QByteArray::number(port));
+    // 2. TODO Ensure encoding matches CoAP standard (= no % in options)
 
-    // Convert path into QCoapOptions
-    QString path = mainUri.path();
+    // 5. Add Uri-Host option if not a plain IP
+    QCoapOption uriHost = uriHostOption(uri);
+    if (uriHost.isValid())
+        addOption(uriHost);
+
+    // 6. Set default port
+    if (uri.port() == -1)
+        uri.setPort(5683);
+
+    // 7. Add port to options if it is not the default port
+    //! FIXME There is probably a port encoding error here, as value seem
+    //! too big by standard, and stored as a string
+    if (uri.port() != 5683)
+        addOption(QCoapOption::UriPort, QByteArray::number(uri.port()));
+
+    // 8. Add path segments to options
+    QString path = uri.path();
     const auto listPath = path.splitRef('/');
     for (const QStringRef &pathPart : listPath) {
         if (!pathPart.isEmpty())
             addOption(QCoapOption::UriPath, pathPart.toUtf8());
     }
 
-    // Convert query into QCoapOptions
-    QString query = mainUri.query();
+    // 9. Add queries to options
+    QString query = uri.query();
     const auto listQuery = query.splitRef('&');
     for (const QStringRef &query : listQuery) {
         if (!query.isEmpty())
             addOption(QCoapOption::UriQuery, query.toUtf8());
     }
 
-    d->targetUri = mainUri;
+    d->targetUri = uri;
+    return true;
 }
 
 /*!
@@ -465,14 +482,14 @@ QCoapConnection *QCoapInternalRequest::connection() const
 
 /*!
     \internal
-    Returns the operation type of the request.
+    Returns the method of the request.
 
-    \sa setOperation()
+    \sa setMethod()
 */
-QtCoap::Operation QCoapInternalRequest::operation() const
+QtCoap::Method QCoapInternalRequest::method() const
 {
     Q_D(const QCoapInternalRequest);
-    return d->operation;
+    return d->method;
 }
 
 /*!
@@ -499,14 +516,14 @@ uint QCoapInternalRequest::retransmissionCounter() const
 
 /*!
     \internal
-    Sets the operation type of the request to the given \a operation.
+    Sets the method of the request to the given \a method.
 
-    \sa operation()
+    \sa method()
 */
-void QCoapInternalRequest::setOperation(QtCoap::Operation operation)
+void QCoapInternalRequest::setMethod(QtCoap::Method method)
 {
     Q_D(QCoapInternalRequest);
-    d->operation = operation;
+    d->method = method;
 }
 
 /*!
@@ -569,6 +586,23 @@ bool QCoapInternalRequest::operator<(const QCoapInternalRequest &other) const
     const QCoapInternalRequestPrivate *d_other = other.d_func();
 
     return (d->message.messageId() < d_other->message.messageId());
+}
+
+/*!
+    \internal
+    Decode the \a uri provided and returns a QCoapOption.
+*/
+QCoapOption QCoapInternalRequest::uriHostOption(const QUrl &uri) const
+{
+    //! TODO Should also check for IPv6
+    QRegularExpression ipv4Regex(QLatin1String("^([0-9]{1,3}.){3}([0-9]{1,3})$"));
+    QString host = uri.host();
+
+    // No need for Uri-Host option
+    if (ipv4Regex.match(host).hasMatch())
+        return QCoapOption();
+
+    return QCoapOption(QCoapOption::UriHost, host.toUtf8());
 }
 
 QT_END_NAMESPACE

@@ -5,7 +5,7 @@
 **
 ** This file is part of the QtCoap module.
 **
-** $QT_BEGIN_LICENSE:GPL3$
+** $QT_BEGIN_LICENSE:GPL$
 ** Commercial License Usage
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
@@ -14,21 +14,14 @@
 ** and conditions see http://www.qt.io/terms-conditions. For further
 ** information use the contact form at http://www.qt.io/contact-us.
 **
-** GNU Lesser General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 3 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPLv3 included in the
-** packaging of this file. Please review the following information to
-** ensure the GNU Lesser General Public License version 3 requirements
-** will be met: https://www.gnu.org/licenses/lgpl.html.
-**
 ** GNU General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU
-** General Public License version 2.0 or later as published by the Free
-** Software Foundation and appearing in the file LICENSE.GPL included in
-** the packaging of this file. Please review the following information to
-** ensure the GNU General Public License version 2.0 requirements will be
-** met: http://www.gnu.org/licenses/gpl-2.0.html.
+** General Public License version 3 or (at your option) any later version
+** approved by the KDE Free Qt Foundation. The licenses are as published by
+** the Free Software Foundation and appearing in the file LICENSE.GPL3
+** included in the packaging of this file. Please review the following
+** information to ensure the GNU General Public License requirements will
+** be met: https://www.gnu.org/licenses/gpl-3.0.html.
 **
 ** $QT_END_LICENSE$
 **
@@ -55,21 +48,22 @@ public:
                  MessageType type = NonConfirmable,
                  const QUrl &proxyUrl = QUrl());
     QCoapRequest(const QCoapRequest &other,
-                 QtCoap::Operation op = QtCoap::Empty);
+                 QtCoap::Method method = QtCoap::Empty);
     ~QCoapRequest();
 
     QCoapRequest &operator=(const QCoapRequest &other);
 
     QUrl url() const;
     QUrl proxyUrl() const;
-    QtCoap::Operation operation() const;
+    QtCoap::Method method() const;
     bool observe() const;
     void setUrl(const QUrl &url);
     void setProxyUrl(const QUrl &proxyUrl);
-    void setOperation(QtCoap::Operation operation);
+    void setMethod(QtCoap::Method method);
     void enableObserve();
 
-    static bool isUrlValid(const QUrl& url);
+    bool isValid() const;
+    static bool isUrlValid(const QUrl &url);
 
 private:
     //! For QSharedDataPointer

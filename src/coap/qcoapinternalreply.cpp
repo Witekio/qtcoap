@@ -5,7 +5,7 @@
 **
 ** This file is part of the QtCoap module.
 **
-** $QT_BEGIN_LICENSE:GPL3$
+** $QT_BEGIN_LICENSE:GPL$
 ** Commercial License Usage
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
@@ -14,21 +14,14 @@
 ** and conditions see http://www.qt.io/terms-conditions. For further
 ** information use the contact form at http://www.qt.io/contact-us.
 **
-** GNU Lesser General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 3 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPLv3 included in the
-** packaging of this file. Please review the following information to
-** ensure the GNU Lesser General Public License version 3 requirements
-** will be met: https://www.gnu.org/licenses/lgpl.html.
-**
 ** GNU General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU
-** General Public License version 2.0 or later as published by the Free
-** Software Foundation and appearing in the file LICENSE.GPL included in
-** the packaging of this file. Please review the following information to
-** ensure the GNU General Public License version 2.0 requirements will be
-** met: http://www.gnu.org/licenses/gpl-2.0.html.
+** General Public License version 3 or (at your option) any later version
+** approved by the KDE Free Qt Foundation. The licenses are as published by
+** the Free Software Foundation and appearing in the file LICENSE.GPL3
+** included in the packaging of this file. Please review the following
+** information to ensure the GNU General Public License requirements will
+** be met: https://www.gnu.org/licenses/gpl-3.0.html.
 **
 ** $QT_END_LICENSE$
 **
@@ -174,29 +167,13 @@ void QCoapInternalReply::appendData(const QByteArray &data)
 /*!
     \internal
     Adds the given CoAP \a option and sets block parameters if needed.
-
-    For block-wise transfer, the size of the block is expressed in power
-    of two. See
-    \l{https://tools.ietf.org/html/rfc7959#section-2.2}{'Structure of a Block Option'}
-    of the RFC 7959 for more information.
 */
 void QCoapInternalReply::addOption(const QCoapOption &option)
 {
-    Q_D(QCoapInternalReply);
-    // If it is a BLOCK option, we need to know the block number
-    if (option.name() == QCoapOption::Block2) {
-        //! TODO Cover with tests
-        quint32 blockNumber = 0;
-        quint8 *optionData = reinterpret_cast<quint8 *>(option.value().data());
-        for (int i = 0; i < option.length() - 1; ++i)
-            blockNumber = (blockNumber << 8) | optionData[i];
-        blockNumber = (blockNumber << 4) | ((optionData[option.length()-1]) >> 4);
-        d->currentBlockNumber = blockNumber;
-        d->hasNextBlock = ((optionData[option.length()-1] & 0x8) == 0x8);
-        d->blockSize = static_cast<uint>(1u << ((optionData[option.length()-1] & 0x7) + 4));
-    }
+    if (option.name() == QCoapOption::Block2)
+        setFromDescriptiveBlockOption(option);
 
-    d->message.addOption(option);
+    QCoapInternalMessage::addOption(option);
 }
 
 /*!
@@ -208,17 +185,18 @@ int QCoapInternalReply::wantNextBlock()
 {
     Q_D(QCoapInternalReply);
 
-    QCoapOption option = d->message.findOptionByName(QCoapOption::Block1);
-    if (option.name() != QCoapOption::Invalid) {
-        quint8 *optionData = reinterpret_cast<quint8 *>(option.value().data());
+    QCoapOption option = d->message.option(QCoapOption::Block1);
+    if (option.isValid()) {
+        const quint8 *optionData = reinterpret_cast<const quint8 *>(option.value().data());
+        const quint8 lastByte = optionData[option.length() - 1];
 
-        bool hasNextBlock = ((optionData[option.length()-1] & 0x8) == 0x8);
+        bool hasNextBlock = ((lastByte & 0x8) == 0x8);
 
         if (hasNextBlock) {
             quint32 blockNumber = 0;
             for (int i = 0; i < option.length() - 1; ++i)
                 blockNumber = (blockNumber << 8) | optionData[i];
-            blockNumber = (blockNumber << 4) | ((optionData[option.length()-1]) >> 4);
+            blockNumber = (blockNumber << 4) | (lastByte >> 4);
             return static_cast<int>(blockNumber) + 1;
         }
     }

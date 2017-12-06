@@ -5,7 +5,7 @@
 **
 ** This file is part of the QtCoap module.
 **
-** $QT_BEGIN_LICENSE:GPL3$
+** $QT_BEGIN_LICENSE:GPL$
 ** Commercial License Usage
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
@@ -14,21 +14,14 @@
 ** and conditions see http://www.qt.io/terms-conditions. For further
 ** information use the contact form at http://www.qt.io/contact-us.
 **
-** GNU Lesser General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 3 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPLv3 included in the
-** packaging of this file. Please review the following information to
-** ensure the GNU Lesser General Public License version 3 requirements
-** will be met: https://www.gnu.org/licenses/lgpl.html.
-**
 ** GNU General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU
-** General Public License version 2.0 or later as published by the Free
-** Software Foundation and appearing in the file LICENSE.GPL included in
-** the packaging of this file. Please review the following information to
-** ensure the GNU General Public License version 2.0 requirements will be
-** met: http://www.gnu.org/licenses/gpl-2.0.html.
+** General Public License version 3 or (at your option) any later version
+** approved by the KDE Free Qt Foundation. The licenses are as published by
+** the Free Software Foundation and appearing in the file LICENSE.GPL3
+** included in the packaging of this file. Please review the following
+** information to ensure the GNU General Public License requirements will
+** be met: https://www.gnu.org/licenses/gpl-3.0.html.
 **
 ** $QT_END_LICENSE$
 **
@@ -52,10 +45,10 @@ class tst_QCoapClient : public QObject
 private Q_SLOTS:
     void incorrectUrls_data();
     void incorrectUrls();
-    void operations_data();
-    void operations();
-    void separateOperation_data();
-    void separateOperation();
+    void methods_data();
+    void methods();
+    void separateMethod_data();
+    void separateMethod();
     void socketError();
     void timeout();
     void abort();
@@ -168,17 +161,17 @@ void tst_QCoapClient::incorrectUrls()
     else if (qstrcmp(QTest::currentDataTag(), "discover") == 0)
         reply.reset(client.discover(url));
     else {
-        QString error = QLatin1Literal("Unrecognized operation '") + QTest::currentDataTag() + "'";
+        QString error = QLatin1Literal("Unrecognized method '") + QTest::currentDataTag() + "'";
         QFAIL(qPrintable(error));
     }
 
     QVERIFY2(reply.isNull(), "Request did not fail as expected.");
 }
 
-void tst_QCoapClient::operations_data()
+void tst_QCoapClient::methods_data()
 {
     QTest::addColumn<QUrl>("url");
-    QTest::addColumn<QtCoap::Operation>("operation");
+    QTest::addColumn<QtCoap::Method>("method");
 
     QTest::newRow("get_no_op") << QUrl("coap://172.17.0.3:5683/test") << QtCoap::Empty;
     QTest::newRow("get") << QUrl("coap://172.17.0.3:5683/test") << QtCoap::Get;
@@ -196,16 +189,16 @@ void tst_QCoapClient::operations_data()
     QTest::newRow("delete_incorrect_op") << QUrl("coap://172.17.0.3:5683/test") << QtCoap::Get;
 }
 
-void tst_QCoapClient::operations()
+void tst_QCoapClient::methods()
 {
     QFETCH(QUrl, url);
-    QFETCH(QtCoap::Operation, operation);
+    QFETCH(QtCoap::Method, method);
 
     QCoapClient client;
 
     QCoapRequest request(url);
-    if (operation != QtCoap::Empty)
-        request.setOperation(operation);
+    if (method != QtCoap::Empty)
+        request.setMethod(method);
 
     QSignalSpy spyClientFinished(&client, SIGNAL(finished(QCoapReply*)));
 
@@ -219,7 +212,7 @@ void tst_QCoapClient::operations()
     else if (qstrncmp(QTest::currentDataTag(), "delete", 6) == 0)
         reply.reset(client.deleteResource(request));
     else {
-        QString error = QLatin1Literal("Unrecognized operation '") + QTest::currentDataTag() + "'";
+        QString error = QLatin1Literal("Unrecognized method '") + QTest::currentDataTag() + "'";
         QFAIL(qPrintable(error));
     }
 
@@ -244,20 +237,20 @@ void tst_QCoapClient::operations()
             QVERIFY(replyData.isEmpty());
             QCOMPARE(reply->statusCode(), QtCoap::Deleted);
         } else {
-            QString error = QLatin1Literal("Unrecognized operation '") + QTest::currentDataTag() + "'";
+            QString error = QLatin1Literal("Unrecognized method '") + QTest::currentDataTag() + "'";
             QFAIL(qPrintable(error));
         }
     }
 }
 
-void tst_QCoapClient::separateOperation_data()
+void tst_QCoapClient::separateMethod_data()
 {
     QTest::addColumn<QUrl>("url");
 
     QTest::newRow("get") << QUrl("coap://172.17.0.3:5683/separate");
 }
 
-void tst_QCoapClient::separateOperation()
+void tst_QCoapClient::separateMethod()
 {
     QFETCH(QUrl, url);
 

@@ -5,7 +5,7 @@
 **
 ** This file is part of the QtCoap module.
 **
-** $QT_BEGIN_LICENSE:GPL3$
+** $QT_BEGIN_LICENSE:GPL$
 ** Commercial License Usage
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
@@ -14,21 +14,14 @@
 ** and conditions see http://www.qt.io/terms-conditions. For further
 ** information use the contact form at http://www.qt.io/contact-us.
 **
-** GNU Lesser General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 3 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPLv3 included in the
-** packaging of this file. Please review the following information to
-** ensure the GNU Lesser General Public License version 3 requirements
-** will be met: https://www.gnu.org/licenses/lgpl.html.
-**
 ** GNU General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU
-** General Public License version 2.0 or later as published by the Free
-** Software Foundation and appearing in the file LICENSE.GPL included in
-** the packaging of this file. Please review the following information to
-** ensure the GNU General Public License version 2.0 requirements will be
-** met: http://www.gnu.org/licenses/gpl-2.0.html.
+** General Public License version 3 or (at your option) any later version
+** approved by the KDE Free Qt Foundation. The licenses are as published by
+** the Free Software Foundation and appearing in the file LICENSE.GPL3
+** included in the packaging of this file. Please review the following
+** information to ensure the GNU General Public License requirements will
+** be met: https://www.gnu.org/licenses/gpl-3.0.html.
 **
 ** $QT_END_LICENSE$
 **
@@ -38,7 +31,8 @@
 
 QT_BEGIN_NAMESPACE
 
-QCoapMessagePrivate::QCoapMessagePrivate()
+QCoapMessagePrivate::QCoapMessagePrivate(QCoapMessage::MessageType _type) :
+    type(_type)
 {
 }
 
@@ -77,7 +71,7 @@ QCoapMessagePrivate::~QCoapMessagePrivate()
     \value NonConfirmableCoapMessage    A Non-Confirmable message. The
                                         destination endpoint does not need to
                                         acknowledge the message.
-    \value AcknowledgementCoapMessage   An Acknowledgement message. A message
+    \value AcknowledgmentCoapMessage    An Acknowledgment message. A message
                                         sent or received in reply to a
                                         Confirmable message.
     \value ResetCoapMessage             A Reset message. A message sent
@@ -166,21 +160,6 @@ void QCoapMessage::removeOption(QCoapOption::OptionName name)
 }
 
 /*!
-    Finds and returns the option with the given \a name.
-    If there is no such option, returns an Invalid CoapOption with an empty value.
-*/
-QCoapOption QCoapMessage::findOptionByName(QCoapOption::OptionName name)
-{
-    Q_D(const QCoapMessage);
-    for (const QCoapOption &option : d->options) {
-        if (option.name() == name)
-            return option;
-    }
-
-    return QCoapOption();
-}
-
-/*!
     Removes all options.
 */
 void QCoapMessage::removeAllOptions()
@@ -263,9 +242,42 @@ QCoapOption QCoapMessage::option(int index) const
 }
 
 /*!
+    Finds and returns the option with the given \a name.
+    If there is no such option, returns an Invalid CoapOption with an empty value.
+*/
+QCoapOption QCoapMessage::option(QCoapOption::OptionName name) const
+{
+    Q_D(const QCoapMessage);
+
+    auto it = findOption(name);
+    return it != d->options.end() ? *it : QCoapOption();
+}
+
+/*!
+    Finds and returns the option with the given \a name.
+    If there is no such option, returns an Invalid CoapOption with an empty value.
+*/
+QVector<QCoapOption>::const_iterator QCoapMessage::findOption(QCoapOption::OptionName name) const
+{
+    Q_D(const QCoapMessage);
+    return std::find_if(d->options.begin(), d->options.end(), [name](const QCoapOption& option) {
+        return option.name() == name;
+    });
+}
+
+/*!
+    Returns \c true if option is present at least once.
+*/
+bool QCoapMessage::hasOption(QCoapOption::OptionName name) const
+{
+    Q_D(const QCoapMessage);
+    return findOption(name) != d->options.end();
+}
+
+/*!
     Returns the list of options.
 */
-const QList<QCoapOption>& QCoapMessage::optionList() const
+const QVector<QCoapOption> &QCoapMessage::options() const
 {
     Q_D(const QCoapMessage);
     return d->options;

@@ -5,7 +5,7 @@
 **
 ** This file is part of the QtCoap module.
 **
-** $QT_BEGIN_LICENSE:GPL3$
+** $QT_BEGIN_LICENSE:GPL$
 ** Commercial License Usage
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
@@ -14,21 +14,14 @@
 ** and conditions see http://www.qt.io/terms-conditions. For further
 ** information use the contact form at http://www.qt.io/contact-us.
 **
-** GNU Lesser General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 3 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPLv3 included in the
-** packaging of this file. Please review the following information to
-** ensure the GNU Lesser General Public License version 3 requirements
-** will be met: https://www.gnu.org/licenses/lgpl.html.
-**
 ** GNU General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU
-** General Public License version 2.0 or later as published by the Free
-** Software Foundation and appearing in the file LICENSE.GPL included in
-** the packaging of this file. Please review the following information to
-** ensure the GNU General Public License version 2.0 requirements will be
-** met: http://www.gnu.org/licenses/gpl-2.0.html.
+** General Public License version 3 or (at your option) any later version
+** approved by the KDE Free Qt Foundation. The licenses are as published by
+** the Free Software Foundation and appearing in the file LICENSE.GPL3
+** included in the packaging of this file. Please review the following
+** information to ensure the GNU General Public License requirements will
+** be met: https://www.gnu.org/licenses/gpl-3.0.html.
 **
 ** $QT_END_LICENSE$
 **
@@ -68,7 +61,9 @@ public:
     explicit QCoapInternalRequest(QObject *parent = nullptr);
     explicit QCoapInternalRequest(const QCoapRequest &request, QObject *parent = nullptr);
 
-    void initForAcknowledgement(quint16 messageId, const QByteArray &token);
+    bool isValid() const Q_DECL_OVERRIDE;
+
+    void initForAcknowledgment(quint16 messageId, const QByteArray &token);
     void initForReset(quint16 messageId);
 
     QByteArray toQByteArray() const;
@@ -78,15 +73,15 @@ public:
     void setRequestToSendBlock(uint blockNumber, uint blockSize);
 
     using QCoapInternalMessage::addOption;
-    void addOption(const QCoapOption &option);
-    void addUriOptions(const QUrl &uri, const QUrl &proxyUri = QUrl());
+    void addOption(const QCoapOption &option) Q_DECL_OVERRIDE;
+    bool addUriOptions(QUrl uri, const QUrl &proxyUri = QUrl());
 
     QUrl targetUri() const;
-    QtCoap::Operation operation() const;
+    QtCoap::Method method() const;
     bool cancelObserve() const;
     QCoapConnection *connection() const;
     uint retransmissionCounter() const;
-    void setOperation(QtCoap::Operation operation);
+    void setMethod(QtCoap::Method method);
     void setConnection(QCoapConnection *connection);
     void setCancelObserve(bool cancelObserve);
 
@@ -101,6 +96,10 @@ public:
 Q_SIGNALS:
     void timeout(QCoapInternalRequest*);
 
+protected:
+    QCoapOption uriHostOption(const QUrl& uri) const;
+    QCoapOption blockOption(QCoapOption::OptionName name, uint blockNumber, uint blockSize) const;
+
 private:
     Q_DECLARE_PRIVATE(QCoapInternalRequest)
     Q_PRIVATE_SLOT(d_func(), void _q_timeout())
@@ -112,7 +111,7 @@ public:
     QCoapInternalRequestPrivate() = default;
 
     QUrl targetUri;
-    QtCoap::Operation operation = QtCoap::Empty;
+    QtCoap::Method method = QtCoap::Empty;
     QCoapConnection *connection = nullptr;
     QByteArray fullPayload;
     bool cancelObserve = false;

@@ -5,7 +5,7 @@
 **
 ** This file is part of the QtCoap module.
 **
-** $QT_BEGIN_LICENSE:GPL3$
+** $QT_BEGIN_LICENSE:GPL$
 ** Commercial License Usage
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
@@ -14,21 +14,14 @@
 ** and conditions see http://www.qt.io/terms-conditions. For further
 ** information use the contact form at http://www.qt.io/contact-us.
 **
-** GNU Lesser General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 3 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPLv3 included in the
-** packaging of this file. Please review the following information to
-** ensure the GNU Lesser General Public License version 3 requirements
-** will be met: https://www.gnu.org/licenses/lgpl.html.
-**
 ** GNU General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU
-** General Public License version 2.0 or later as published by the Free
-** Software Foundation and appearing in the file LICENSE.GPL included in
-** the packaging of this file. Please review the following information to
-** ensure the GNU General Public License version 2.0 requirements will be
-** met: http://www.gnu.org/licenses/gpl-2.0.html.
+** General Public License version 3 or (at your option) any later version
+** approved by the KDE Free Qt Foundation. The licenses are as published by
+** the Free Software Foundation and appearing in the file LICENSE.GPL3
+** included in the packaging of this file. Please review the following
+** information to ensure the GNU General Public License requirements will
+** be met: https://www.gnu.org/licenses/gpl-3.0.html.
 **
 ** $QT_END_LICENSE$
 **
@@ -52,8 +45,8 @@ private Q_SLOTS:
     void ctor();
     void setUrl_data();
     void setUrl();
-    void setOperation_data();
-    void setOperation();
+    void setMethod_data();
+    void setMethod();
     void copyAndDetach();
     void internalRequestToFrame_data();
     void internalRequestToFrame();
@@ -83,8 +76,8 @@ void tst_QCoapRequest::setUrl_data()
     QTest::addColumn<QUrl>("expectedUrl");
 
     QTest::newRow("empty") << QUrl() << QUrl();
-    QTest::newRow("coap") << QUrl("coap://vs0.inf.ethz.ch:5683/test") << QUrl("coap://vs0.inf.ethz.ch:5683/test");
-    QTest::newRow("other_port") << QUrl("coap://vs0.inf.ethz.ch:8888/test") << QUrl("coap://vs0.inf.ethz.ch:8888/test");
+    QTest::newRow("coap") << QUrl("coap://10.11.12.13:5683/test") << QUrl("coap://10.11.12.13:5683/test");
+    QTest::newRow("other_port") << QUrl("coap://10.11.12.13:8888/test") << QUrl("coap://10.11.12.13:8888/test");
     QTest::newRow("no_port") << QUrl("coap://vs0.inf.ethz.ch/test") << QUrl("coap://vs0.inf.ethz.ch:5683/test");
     QTest::newRow("no_scheme_no_port") << QUrl("vs0.inf.ethz.ch/test") << QUrl("coap://vs0.inf.ethz.ch:5683/test");
     QTest::newRow("incorrect_scheme") << QUrl("http://vs0.inf.ethz.ch:5683/test") << QUrl();
@@ -101,9 +94,9 @@ void tst_QCoapRequest::setUrl()
     QCOMPARE(request.url(), expectedUrl);
 }
 
-void tst_QCoapRequest::setOperation_data()
+void tst_QCoapRequest::setMethod_data()
 {
-    QTest::addColumn<QtCoap::Operation>("operation");
+    QTest::addColumn<QtCoap::Method>("method");
 
     QTest::newRow("get") << QtCoap::Get;
     QTest::newRow("put") << QtCoap::Put;
@@ -112,13 +105,13 @@ void tst_QCoapRequest::setOperation_data()
     QTest::newRow("other") << QtCoap::Other;
 }
 
-void tst_QCoapRequest::setOperation()
+void tst_QCoapRequest::setMethod()
 {
-    QFETCH(QtCoap::Operation, operation);
+    QFETCH(QtCoap::Method, method);
 
     QCoapRequest request;
-    request.setOperation(operation);
-    QCOMPARE(request.operation(), operation);
+    request.setMethod(method);
+    QCOMPARE(request.method(), method);
 }
 
 void tst_QCoapRequest::copyAndDetach()
@@ -127,9 +120,9 @@ void tst_QCoapRequest::copyAndDetach()
     a.setMessageId(3);
     a.setPayload("payload");
     a.setToken("token");
-    a.setType(QCoapMessage::Acknowledgement);
+    a.setType(QCoapMessage::Acknowledgment);
     a.setVersion(5);
-    a.setOperation(QtCoap::Delete);
+    a.setMethod(QtCoap::Delete);
     QUrl testUrl("coap://url:500/resource");
     a.setUrl(testUrl);
     QUrl testProxyUrl("test://proxyurl");
@@ -140,12 +133,12 @@ void tst_QCoapRequest::copyAndDetach()
     QVERIFY2(b.messageId() == 3, "Message not copied correctly");
     QVERIFY2(b.payload() == "payload", "Message not copied correctly");
     QVERIFY2(b.token() == "token", "Message not copied correctly");
-    QVERIFY2(b.type() == QCoapMessage::Acknowledgement, "Message not copied correctly");
+    QVERIFY2(b.type() == QCoapMessage::Acknowledgment, "Message not copied correctly");
     QVERIFY2(b.version() == 5, "Message not copied correctly");
 
     // Test the QCoapRequest copy
     QCoapRequest c(a);
-    QVERIFY2(c.operation() == QtCoap::Delete, "Request not copied correctly");
+    QVERIFY2(c.method() == QtCoap::Delete, "Request not copied correctly");
     QVERIFY2(c.url() == testUrl, "Request not copied correctly");
     QVERIFY2(c.proxyUrl() == testProxyUrl, "Request not copied correctly");
 
@@ -158,7 +151,7 @@ void tst_QCoapRequest::copyAndDetach()
 void tst_QCoapRequest::internalRequestToFrame_data()
 {
     QTest::addColumn<QUrl>("url");
-    QTest::addColumn<QtCoap::Operation>("operation");
+    QTest::addColumn<QtCoap::Method>("method");
     QTest::addColumn<QCoapMessage::MessageType>("type");
     QTest::addColumn<quint16>("messageId");
     QTest::addColumn<QByteArray>("token");
@@ -173,6 +166,25 @@ void tst_QCoapRequest::internalRequestToFrame_data()
         << QByteArray::fromHex("4647f09b")
         << "5401dc504647f09bb474657374ff"
         << "Some payload";
+
+    QTest::newRow("request_domain")
+        << QUrl("coap://domain.com:5683/test")
+        << QtCoap::Get
+        << QCoapRequest::NonConfirmable
+        << quint16(56400)
+        << QByteArray::fromHex("4647f09b")
+        << "5401dc504647f09b3a646f6d61696e2e636f6d8474657374ff"
+        << "Some payload";
+
+    // TODO: Not passing yet, see QCoapInternalRequest::addUriHostOption
+    /*QTest::newRow("request_ipv6")
+        << QUrl("coap://[::ffff:ac11:3]:5683/test")
+        << QtCoap::Get
+        << QCoapRequest::NonConfirmable
+        << quint16(56400)
+        << QByteArray::fromHex("4647f09b")
+        << "5401dc504647f09bb474657374ff"
+        << "Some payload";*/
 
     QTest::newRow("request_without_payload")
         << QUrl("coap://172.17.0.3:5683/test")
@@ -207,8 +219,7 @@ void tst_QCoapRequest::internalRequestToFrame_data()
         << QCoapRequest::NonConfirmable
         << quint16(56400)
         << QByteArray::fromHex("4647f09b")
-        << "5401dc504647f09bb474657374036f75"
-           "69"
+        << "5401dc504647f09bb474657374036f7569"
         << "";
 
     QTest::newRow("request_with_big_option_number")
@@ -217,8 +228,7 @@ void tst_QCoapRequest::internalRequestToFrame_data()
         << QCoapRequest::NonConfirmable
         << quint16(56400)
         << QByteArray::fromHex("4647f09b")
-        << "5401dc504647f09bb474657374dd240d"
-           "6162636465666768696a6b6c6d6e6f70"
+        << "5401dc504647f09bb474657374dd240d6162636465666768696a6b6c6d6e6f70"
            "7172737475767778797aff"
         << "Some payload";
 }
@@ -226,7 +236,7 @@ void tst_QCoapRequest::internalRequestToFrame_data()
 void tst_QCoapRequest::internalRequestToFrame()
 {
     QFETCH(QUrl, url);
-    QFETCH(QtCoap::Operation, operation);
+    QFETCH(QtCoap::Method, method);
     QFETCH(QCoapMessage::MessageType, type);
     QFETCH(quint16, messageId);
     QFETCH(QByteArray, token);
@@ -235,7 +245,7 @@ void tst_QCoapRequest::internalRequestToFrame()
 
     QCoapRequest request(url);
     request.setType(type);
-    request.setOperation(operation);
+    request.setMethod(method);
     request.setPayload(pduPayload.toUtf8());
     request.setMessageId(messageId);
     request.setToken(token);
@@ -253,34 +263,58 @@ void tst_QCoapRequest::internalRequestToFrame()
 
 void tst_QCoapRequest::parseUri_data()
 {
+    qRegisterMetaType<QVector<QCoapOption>>();
     QTest::addColumn<QUrl>("uri");
     QTest::addColumn<QUrl>("proxyUri");
-    QTest::addColumn<int>("optionsNumber");
+    QTest::addColumn<QVector<QCoapOption>>("options");
 
-    QTest::newRow("uri1") << QUrl("coap://vs0.inf.ethz.ch:5683/test/path1/?rd=25&nd=4")
-                          << QUrl()
-                          << 5;
-    QTest::newRow("uri2") << QUrl("coap://172.17.0.3/test/path1/?rd=25&nd=4")
-                          << QUrl()
-                          << 4;
-    QTest::newRow("uri3") << QUrl("coap://172.17.0.3:5684/test/path1")
-                          << QUrl()
-                          << 3;
-    QTest::newRow("uri4") << QUrl("coap://vs0.inf.ethz.ch:5683/test/path1/?rd=25&nd=4")
-                          << QUrl("coap://172.17.0.32/test")
-                          << 2;
+    QTest::newRow("port_path")
+                        << QUrl("coap://172.17.0.3:5684/test/path1")
+                        << QUrl()
+                        << QVector<QCoapOption>({
+                            QCoapOption(QCoapOption::UriPort, "5684"),
+                            QCoapOption(QCoapOption::UriPath, "test"),
+                            QCoapOption(QCoapOption::UriPath, "path1") });
+
+    QTest::newRow("path_query")
+                        << QUrl("coap://172.17.0.3/test/path1/?rd=25&nd=4")
+                        << QUrl()
+                        << QVector<QCoapOption>({
+                            QCoapOption(QCoapOption::UriPath, "test"),
+                            QCoapOption(QCoapOption::UriPath, "path1"),
+                            QCoapOption(QCoapOption::UriQuery, "rd=25"),
+                            QCoapOption(QCoapOption::UriQuery, "nd=4") });
+
+    QTest::newRow("host_path_query")
+                        << QUrl("coap://vs0.inf.ethz.ch:5683/test/path1/?rd=25&nd=4")
+                        << QUrl()
+                        << QVector<QCoapOption>({
+                            QCoapOption(QCoapOption::UriHost, "vs0.inf.ethz.ch"),
+                            QCoapOption(QCoapOption::UriPath, "test"),
+                            QCoapOption(QCoapOption::UriPath, "path1"),
+                            QCoapOption(QCoapOption::UriQuery, "rd=25"),
+                            QCoapOption(QCoapOption::UriQuery, "nd=4") });
+
+    QTest::newRow("proxy_url")
+                        << QUrl("coap://vs0.inf.ethz.ch:5683/test/path1/?rd=25&nd=4")
+                        << QUrl("coap://172.17.0.32/test:5684/othertest/path")
+                        << QVector<QCoapOption>({
+                            QCoapOption(QCoapOption::ProxyUri, "coap://172.17.0.32/test:5684/othertest/path") });
 }
 
 void tst_QCoapRequest::parseUri()
 {
     QFETCH(QUrl, uri);
     QFETCH(QUrl, proxyUri);
-    QFETCH(int, optionsNumber);
+    QFETCH(QVector<QCoapOption>, options);
 
     QCoapRequest request(uri, QCoapMessage::NonConfirmable, proxyUri);
     QCoapInternalRequest internalRequest(request);
 
-    QCOMPARE(internalRequest.message()->optionCount(), optionsNumber);
+    for (QCoapOption opt : options)
+        QVERIFY2(internalRequest.message()->options().contains(opt), "Missing option");
+
+    QCOMPARE(options.count(), internalRequest.message()->optionCount());
 }
 
 QTEST_APPLESS_MAIN(tst_QCoapRequest)

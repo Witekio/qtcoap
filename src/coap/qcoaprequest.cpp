@@ -5,7 +5,7 @@
 **
 ** This file is part of the QtCoap module.
 **
-** $QT_BEGIN_LICENSE:GPL3$
+** $QT_BEGIN_LICENSE:GPL$
 ** Commercial License Usage
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
@@ -14,21 +14,14 @@
 ** and conditions see http://www.qt.io/terms-conditions. For further
 ** information use the contact form at http://www.qt.io/contact-us.
 **
-** GNU Lesser General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 3 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPLv3 included in the
-** packaging of this file. Please review the following information to
-** ensure the GNU Lesser General Public License version 3 requirements
-** will be met: https://www.gnu.org/licenses/lgpl.html.
-**
 ** GNU General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU
-** General Public License version 2.0 or later as published by the Free
-** Software Foundation and appearing in the file LICENSE.GPL included in
-** the packaging of this file. Please review the following information to
-** ensure the GNU General Public License version 2.0 requirements will be
-** met: http://www.gnu.org/licenses/gpl-2.0.html.
+** General Public License version 3 or (at your option) any later version
+** approved by the KDE Free Qt Foundation. The licenses are as published by
+** the Free Software Foundation and appearing in the file LICENSE.GPL3
+** included in the packaging of this file. Please review the following
+** information to ensure the GNU General Public License requirements will
+** be met: https://www.gnu.org/licenses/gpl-3.0.html.
 **
 ** $QT_END_LICENSE$
 **
@@ -40,10 +33,10 @@
 
 QT_BEGIN_NAMESPACE
 
-QCoapRequestPrivate::QCoapRequestPrivate(const QUrl &url, QCoapMessage::MessageType _type, const QUrl &proxyUrl) :
+QCoapRequestPrivate::QCoapRequestPrivate(const QUrl &url, QCoapMessage::MessageType type, const QUrl &proxyUrl) :
+    QCoapMessagePrivate(type),
     proxyUri(proxyUrl)
 {
-    type = _type;
     setUrl(url);
 }
 
@@ -58,7 +51,7 @@ QCoapRequestPrivate::~QCoapRequestPrivate()
 */
 void QCoapRequestPrivate::setUrl(const QUrl &url)
 {
-    // Print no warning when resetting URL
+    // Print no warning when clearing URL
     if (url.isEmpty()) {
         uri = url;
         return;
@@ -72,14 +65,14 @@ void QCoapRequestPrivate::setUrl(const QUrl &url)
     }
 
     QUrl finalizedUrl = url;
-    if (finalizedUrl.isRelative())
+    if (url.isRelative()) {
         finalizedUrl = url.toString().prepend(QLatin1String("coap://"));
-    else if (finalizedUrl.scheme().isEmpty())
+    } else if (url.scheme().isEmpty()) {
         finalizedUrl.setScheme(QLatin1String("coap"));
-
-    if (finalizedUrl.port() == -1) {
-        finalizedUrl.setPort(5683);
     }
+
+    if (url.port() == -1)
+        finalizedUrl.setPort(5683);
 
     if (!QCoapRequest::isUrlValid(finalizedUrl)) {
         qWarning() << "QCoapRequest: Invalid CoAP url" << finalizedUrl.toString();
@@ -112,21 +105,20 @@ void QCoapRequestPrivate::setUrl(const QUrl &url)
 QCoapRequest::QCoapRequest(const QUrl &url, MessageType type, const QUrl &proxyUrl) :
     QCoapMessage(*new QCoapRequestPrivate(url, type, proxyUrl))
 {
-    qsrand(static_cast<uint>(QTime::currentTime().msec())); // to generate message ids and tokens
 }
 
 /*!
     Constructs a copy of the \a other QCoapRequest. Optionally allows to
-    overwrite the QCoapRequest::Operation of the request with the \a op
+    overwrite the QtCoap::Method of the request with the \a method
     argument.
 */
-QCoapRequest::QCoapRequest(const QCoapRequest &other, QtCoap::Operation op) :
+QCoapRequest::QCoapRequest(const QCoapRequest &other, QtCoap::Method method) :
     //! No private data sharing, as QCoapRequestPrivate!=QCoapMessagePrivate
     //! and the d_ptr is a QSharedDataPointer<QCoapMessagePrivate>
     QCoapMessage(* new QCoapRequestPrivate(*other.d_func()))
 {
-    if (op != QtCoap::Empty)
-        setOperation(op);
+    if (method != QtCoap::Empty)
+        setMethod(method);
 }
 
 /*!
@@ -160,14 +152,14 @@ QUrl QCoapRequest::proxyUrl() const
 }
 
 /*!
-    Returns the operation of the request.
+    Returns the method of the request.
 
-    \sa setOperation()
+    \sa setMethod()
 */
-QtCoap::Operation QCoapRequest::operation() const
+QtCoap::Method QCoapRequest::method() const
 {
     Q_D(const QCoapRequest);
-    return d->operation;
+    return d->method;
 }
 
 /*!
@@ -207,14 +199,14 @@ void QCoapRequest::setProxyUrl(const QUrl &proxyUrl)
 }
 
 /*!
-    Sets the operation of the request to the given \a operation.
+    Sets the method of the request to the given \a method.
 
-    \sa operation()
+    \sa method()
 */
-void QCoapRequest::setOperation(QtCoap::Operation operation)
+void QCoapRequest::setMethod(QtCoap::Method method)
 {
     Q_D(QCoapRequest);
-    d->operation = operation;
+    d->method = method;
 }
 
 /*!
@@ -240,12 +232,21 @@ QCoapRequest &QCoapRequest::operator=(const QCoapRequest &other)
 }
 
 /*!
-    Returns true if the \a url is valid a CoAP URL.
+    Returns \c true if the request is valid, \c false otherwise.
 */
-bool QCoapRequest::isUrlValid(const QUrl& url)
+bool QCoapRequest::isValid() const
 {
-    return (url.isValid() && !url.isLocalFile() && !url.isLocalFile()
-            && url.scheme() == QLatin1String("coap"));
+    return isUrlValid(url()) && method() != QtCoap::Empty;
+}
+
+/*!
+    Returns true if the \a url is a valid CoAP URL.
+*/
+bool QCoapRequest::isUrlValid(const QUrl &url)
+{
+    return (url.isValid() && !url.isLocalFile() && !url.isRelative()
+            && url.scheme() == QLatin1String("coap")
+            && !url.hasFragment());
 }
 
 /*!

@@ -5,7 +5,7 @@
 **
 ** This file is part of the QtCoap module.
 **
-** $QT_BEGIN_LICENSE:GPL3$
+** $QT_BEGIN_LICENSE:GPL$
 ** Commercial License Usage
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
@@ -14,21 +14,14 @@
 ** and conditions see http://www.qt.io/terms-conditions. For further
 ** information use the contact form at http://www.qt.io/contact-us.
 **
-** GNU Lesser General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 3 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPLv3 included in the
-** packaging of this file. Please review the following information to
-** ensure the GNU Lesser General Public License version 3 requirements
-** will be met: https://www.gnu.org/licenses/lgpl.html.
-**
 ** GNU General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU
-** General Public License version 2.0 or later as published by the Free
-** Software Foundation and appearing in the file LICENSE.GPL included in
-** the packaging of this file. Please review the following information to
-** ensure the GNU General Public License version 2.0 requirements will be
-** met: http://www.gnu.org/licenses/gpl-2.0.html.
+** General Public License version 3 or (at your option) any later version
+** approved by the KDE Free Qt Foundation. The licenses are as published by
+** the Free Software Foundation and appearing in the file LICENSE.GPL3
+** included in the packaging of this file. Please review the following
+** information to ensure the GNU General Public License requirements will
+** be met: https://www.gnu.org/licenses/gpl-3.0.html.
 **
 ** $QT_END_LICENSE$
 **
@@ -37,10 +30,13 @@
 #include "qcoapclient_p.h"
 #include "qcoapreply.h"
 #include "qcoapdiscoveryreply.h"
+#include "qcoapnamespace.h"
 #include <QtCore/qurl.h>
 #include <QtNetwork/qudpsocket.h>
 
 QT_BEGIN_NAMESPACE
+
+QRandomGenerator QtCoap::randomGenerator;
 
 QCoapClientPrivate::QCoapClientPrivate() :
     protocol(new QCoapProtocol),
@@ -68,7 +64,7 @@ QCoapClientPrivate::~QCoapClientPrivate()
 
     \reentrant
 
-    The QCoapClient class contains signals that gets triggered when the
+    The QCoapClient class contains signals that get triggered when the
     reply of a sent request has arrived.
 
     The application can use a QCoapClient to send requests over a CoAP
@@ -127,15 +123,17 @@ QCoapClient::QCoapClient(QObject *parent) :
     QObject(* new QCoapClientPrivate, parent)
 {
     Q_D(QCoapClient);
+
+    qRegisterMetaType<QCoapReply*>();
+    qRegisterMetaType<QPointer<QCoapReply>>();
+    qRegisterMetaType<QPointer<QCoapDiscoveryReply>>();
+    qRegisterMetaType<QCoapConnection*>();
+    qRegisterMetaType<QCoapReply::NetworkError>();
+
     connect(d->connection, SIGNAL(readyRead(const QByteArray&)),
             d->protocol, SLOT(messageReceived(const QByteArray&)));
     connect(d->protocol, &QCoapProtocol::finished,
             this, &QCoapClient::finished);
-    qRegisterMetaType<QPointer<QCoapReply>>();
-    qRegisterMetaType<QCoapReply*>();
-    qRegisterMetaType<QPointer<QCoapDiscoveryReply>>();
-    qRegisterMetaType<QCoapConnection*>();
-    qRegisterMetaType<QCoapReply::NetworkError>();
 }
 
 /*!
@@ -150,28 +148,28 @@ QCoapClient::~QCoapClient()
 }
 
 /*!
-    Posts a GET request to \a target and returns a new
-    QCoapReply object.
+    Sends \a request using the GET method and returns a new QCoapReply object.
 
     \sa post(), put(), deleteResource(), observe(), discover()
 */
-QCoapReply *QCoapClient::get(const QCoapRequest &target)
+QCoapReply *QCoapClient::get(const QCoapRequest &request)
 {
     Q_D(QCoapClient);
 
-    if (target.operation() != QtCoap::Empty
-            && target.operation() != QtCoap::Get)
-        qWarning("QCoapClient::get: Only 'Get' operation is "
-                 "compatible with 'get' method, operation value ignored.");
+    if (request.method() != QtCoap::Empty
+            && request.method() != QtCoap::Get) {
+        qWarning("QCoapClient::get: Overriding method specified on request:"
+                 "using 'Get' instead.");
+    }
 
-    QCoapRequest copyRequest(target, QtCoap::Get);
+    QCoapRequest copyRequest(request, QtCoap::Get);
 
     return d->sendRequest(copyRequest);
 }
 
 /*!
-    Posts a PUT request sending the contents of the \a data byte array to the
-    target \a request and returns a new QCoapReply object.
+    Sends \a request using the PUT method and returns a new QCoapReply object.
+    Uses \a data as the payload for this request.
 
     \sa get(), post(), deleteResource(), observe(), discover()
 */
@@ -179,10 +177,10 @@ QCoapReply *QCoapClient::put(const QCoapRequest &request, const QByteArray &data
 {
     Q_D(QCoapClient);
 
-    if (request.operation() != QtCoap::Empty
-            && request.operation() != QtCoap::Put)
-        qWarning("QCoapClient::put: Only 'Put' operation is "
-                 "compatible with 'put' method, operation value ignored.");
+    if (request.method() != QtCoap::Empty
+            && request.method() != QtCoap::Put)
+        qWarning("QCoapClient::put: Overriding method specified on request:"
+                 "using 'Put' instead.");
 
     QCoapRequest copyRequest(request, QtCoap::Put);
     copyRequest.setPayload(data);
@@ -193,8 +191,9 @@ QCoapReply *QCoapClient::put(const QCoapRequest &request, const QByteArray &data
 /*!
     \overload
 
-    Posts a PUT request sending the contents of the \a data device to the
-    target \a request. A null device is treated as an empty content.
+    Sends \a request using the PUT method and returns a new QCoapReply object.
+    Uses \a device content as the payload for this request. A null device is
+    treated as empty content.
 
     \note The device has to be open and readable before calling this function.
 
@@ -215,10 +214,10 @@ QCoapReply *QCoapClient::post(const QCoapRequest &request, const QByteArray &dat
 {
     Q_D(QCoapClient);
 
-    if (request.operation() != QtCoap::Empty
-            && request.operation() != QtCoap::Post)
-        qWarning("QCoapClient::post: Only 'Post' operation is "
-                 "compatible with 'post' method, operation value ignored.");
+    if (request.method() != QtCoap::Empty
+            && request.method() != QtCoap::Post)
+        qWarning("QCoapClient::post: Overriding method specified on request:"
+                 "using 'Post' instead.");
 
     QCoapRequest copyRequest(request, QtCoap::Post);
     copyRequest.setPayload(data);
@@ -253,10 +252,10 @@ QCoapReply *QCoapClient::deleteResource(const QCoapRequest &request)
 {
     Q_D(QCoapClient);
 
-    if (request.operation() != QtCoap::Empty
-            && request.operation() != QtCoap::Delete)
-        qWarning("QCoapClient::deleteResource: Only 'Delete' operation is "
-                 "compatible with 'deleteResource' method, operation value ignored.");
+    if (request.method() != QtCoap::Empty
+            && request.method() != QtCoap::Delete)
+        qWarning("QCoapClient::deleteResource: Overriding method specified on request:"
+                 "using 'Delete' instead.");
 
     QCoapRequest copyRequest(request, QtCoap::Delete);
 
@@ -286,7 +285,7 @@ QCoapDiscoveryReply *QCoapClient::discover(const QUrl &url, const QString &disco
     discoveryUrl.setPath(url.path() + discoveryPath);
 
     QCoapRequest request(discoveryUrl);
-    request.setOperation(QtCoap::Get);
+    request.setMethod(QtCoap::Get);
 
     return d->sendDiscovery(request);
 }
@@ -301,10 +300,10 @@ QCoapDiscoveryReply *QCoapClient::discover(const QUrl &url, const QString &disco
 */
 QCoapReply *QCoapClient::observe(const QCoapRequest &request)
 {
-    if (request.operation() != QtCoap::Empty
-            && request.operation() != QtCoap::Get)
-        qWarning("QCoapClient::deleteResource: Only 'Get' operation is "
-                 "compatible with observation, operation value ignored.");
+    if (request.method() != QtCoap::Empty
+            && request.method() != QtCoap::Get)
+        qWarning("QCoapClient::observe: Overriding method specified on request:"
+                 "using 'Get' instead.");
 
     QCoapRequest copyRequest(request, QtCoap::Get);
     copyRequest.enableObserve();
@@ -320,11 +319,11 @@ QCoapReply *QCoapClient::observe(const QCoapRequest &request)
 
     \sa observe()
 */
-void QCoapClient::cancelObserve(const QCoapReply *notifiedReply)
+void QCoapClient::cancelObserve(QCoapReply *notifiedReply)
 {
     Q_D(QCoapClient);
     QMetaObject::invokeMethod(d->protocol, "cancelObserve",
-                              Q_ARG(QPointer<const QCoapReply>, notifiedReply));
+                              Q_ARG(QPointer<QCoapReply>, notifiedReply));
 }
 
 /*!
@@ -436,8 +435,7 @@ void QCoapClient::enableMulticastLoopbackOption()
 #if 0
 //! Disabled until fully supported
 /*!
-    Sets the protocol used by the client. Allows developers to create and make
-    use of their own protocol
+    Sets the protocol used by the client. Allows to use a custom protocol.
 */
 void QCoapClient::setProtocol(QCoapProtocol *protocol)
 {

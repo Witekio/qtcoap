@@ -5,7 +5,7 @@
 **
 ** This file is part of the QtCoap module.
 **
-** $QT_BEGIN_LICENSE:GPL3$
+** $QT_BEGIN_LICENSE:GPL$
 ** Commercial License Usage
 ** Licensees holding valid commercial Qt licenses may use this file in
 ** accordance with the commercial license agreement provided with the
@@ -14,21 +14,14 @@
 ** and conditions see http://www.qt.io/terms-conditions. For further
 ** information use the contact form at http://www.qt.io/contact-us.
 **
-** GNU Lesser General Public License Usage
-** Alternatively, this file may be used under the terms of the GNU Lesser
-** General Public License version 3 as published by the Free Software
-** Foundation and appearing in the file LICENSE.LGPLv3 included in the
-** packaging of this file. Please review the following information to
-** ensure the GNU Lesser General Public License version 3 requirements
-** will be met: https://www.gnu.org/licenses/lgpl.html.
-**
 ** GNU General Public License Usage
 ** Alternatively, this file may be used under the terms of the GNU
-** General Public License version 2.0 or later as published by the Free
-** Software Foundation and appearing in the file LICENSE.GPL included in
-** the packaging of this file. Please review the following information to
-** ensure the GNU General Public License version 2.0 requirements will be
-** met: http://www.gnu.org/licenses/gpl-2.0.html.
+** General Public License version 3 or (at your option) any later version
+** approved by the KDE Free Qt Foundation. The licenses are as published by
+** the Free Software Foundation and appearing in the file LICENSE.GPL3
+** included in the packaging of this file. Please review the following
+** information to ensure the GNU General Public License requirements will
+** be met: https://www.gnu.org/licenses/gpl-3.0.html.
 **
 ** $QT_END_LICENSE$
 **
@@ -98,7 +91,7 @@ void tst_QCoapConnection::sendRequest_data()
     QTest::addColumn<QString>("host");
     QTest::addColumn<QString>("path");
     QTest::addColumn<quint16>("port");
-    QTest::addColumn<QtCoap::Operation>("operation");
+    QTest::addColumn<QtCoap::Method>("method");
     QTest::addColumn<QString>("dataHexaHeader");
     QTest::addColumn<QString>("dataHexaPayload");
 
@@ -106,10 +99,8 @@ void tst_QCoapConnection::sendRequest_data()
         << "coap://"
         << "172.17.0.3" << "/test" << quint16(5683)
         << QtCoap::Get << "5445"
-        << "61626364c0211eff547970653a203120"
-           "284e4f4e290a436f64653a2031202847"
-           "4554290a4d49443a2032343830360a54"
-           "6f6b656e3a203631363236333634";
+        << "61626364c0211eff547970653a203120284e4f4e290a436f64653a2031202847"
+           "4554290a4d49443a2032343830360a546f6b656e3a203631363236333634";
 
     QTest::newRow("simple_put_request")
         << "coap://"
@@ -127,8 +118,7 @@ void tst_QCoapConnection::sendRequest_data()
         << quint16(5683)
         << QtCoap::Post
         << "5441"
-        << "61626364896c6f636174696f6e31096c"
-           "6f636174696f6e32096c6f636174696f"
+        << "61626364896c6f636174696f6e31096c6f636174696f6e32096c6f636174696f"
            "6e33";
 
     QTest::newRow("simple_delete_request")
@@ -147,7 +137,7 @@ void tst_QCoapConnection::sendRequest()
     QFETCH(QString, host);
     QFETCH(QString, path);
     QFETCH(quint16, port);
-    QFETCH(QtCoap::Operation, operation);
+    QFETCH(QtCoap::Method, method);
     QFETCH(QString, dataHexaHeader);
     QFETCH(QString, dataHexaPayload);
 
@@ -159,7 +149,7 @@ void tst_QCoapConnection::sendRequest()
     QCoapRequest request(protocol + host + path);
     request.setMessageId(24806);
     request.setToken(QByteArray("abcd"));
-    request.setOperation(operation);
+    request.setMethod(method);
     QVERIFY(connection.socket() != nullptr);
     QCoapInternalRequest internalRequest(request);
     connection.sendRequest(internalRequest.toQByteArray(), host, port);
