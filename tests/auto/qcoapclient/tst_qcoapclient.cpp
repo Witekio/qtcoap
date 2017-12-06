@@ -126,7 +126,7 @@ public:
 
 public slots:
     void onError(QCoapReply::NetworkError error) {
-        qWarning() << "Network error" << error << "occured";
+        qWarning() << "Network error" << error << "occurred";
     }
 };
 
@@ -351,7 +351,7 @@ void tst_QCoapClient::multipleRequests()
 
     QScopedPointer<QCoapReply> replyGet1(client.get(QCoapRequest(url)));
     QScopedPointer<QCoapReply> replyGet2(client.get(QCoapRequest(url)));
-    QScopedPointer<QCoapReply> replyGet3(client.get(QCoapRequest(url)));    
+    QScopedPointer<QCoapReply> replyGet3(client.get(QCoapRequest(url)));
     QScopedPointer<QCoapReply> replyGet4(client.get(QCoapRequest(url)));
 
     QVERIFY2(!replyGet1.isNull(), "Request failed unexpectedly");
