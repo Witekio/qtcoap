@@ -190,7 +190,7 @@ void tst_QCoapReply::updateReply()
     QCoapReplyForTests reply;
     QCoapInternalReply internalReply;
     internalReply.message()->setPayload(data.toUtf8());
-    QSignalSpy spyReplyFinished(&reply, SIGNAL(finished()));
+    QSignalSpy spyReplyFinished(&reply, SIGNAL(finished(QCoapReply*)));
 
     reply.updateFromInternalReplyForTests(internalReply);
 

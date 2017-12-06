@@ -72,6 +72,7 @@ void QCoapProtocol::sendRequest(QPointer<QCoapReply> reply, QCoapConnection *con
 
     // Generate unique token and message id
     QCoapInternalRequest *internalRequest = new QCoapInternalRequest(reply->request(), this);
+    connect(reply, SIGNAL(finished(QCoapReply*)), this, SIGNAL(finished(QCoapReply*)));
 
     if (internalRequest->message()->messageId() == 0) {
         do {
@@ -325,10 +326,8 @@ void QCoapProtocolPrivate::onLastBlock(QCoapInternalRequest *request)
     else
         internalReplies[request].replies.clear();
 
-    if (!userReply.isNull() && !userReply->isAborted()) {
+    if (!userReply.isNull() && !userReply->isAborted())
         userReply->updateFromInternalReply(*finalReply);
-        emit q->finished(userReply);
-    }
 }
 
 /*!
@@ -448,9 +447,9 @@ void QCoapProtocolPrivate::onAbortedRequest(const QCoapReply *reply)
     Decodes the QByteArray \a data to a list of QCoapResource objects.
     The \a data byte array is a frame returned by a discovery request.
 */
-QList<QCoapResource> QCoapProtocol::resourcesFromCoreLinkList(const QByteArray &data)
+QVector<QCoapResource> QCoapProtocol::resourcesFromCoreLinkList(const QByteArray &data)
 {
-    QList<QCoapResource> resourceList;
+    QVector<QCoapResource> resourceList;
 
     QLatin1String quote = QLatin1String("\"");
     const QList<QByteArray> links = data.split(',');

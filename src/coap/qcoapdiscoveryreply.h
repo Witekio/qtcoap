@@ -43,7 +43,10 @@ class Q_COAP_EXPORT QCoapDiscoveryReply : public QCoapReply
 public:
     explicit QCoapDiscoveryReply(QObject *parent = nullptr);
 
-    QList<QCoapResource> resourceList() const;
+    QVector<QCoapResource> resources() const;
+
+Q_SIGNALS:
+    void discovered(QVector<QCoapResource> resources, QCoapDiscoveryReply *reply);
 
 private:
     void updateFromInternalReply(const QCoapInternalReply &internalReply) Q_DECL_OVERRIDE;

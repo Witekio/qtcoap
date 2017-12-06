@@ -336,7 +336,7 @@ void QCoapReply::updateFromInternalReply(const QCoapInternalReply &internalReply
         if (d->request.observe())
             emit notified(internalReplyMessage->payload());
 
-        emit finished();
+        emit finished(this);
     }
 }
 

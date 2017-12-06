@@ -51,7 +51,7 @@ QT_BEGIN_NAMESPACE
 class Q_AUTOTEST_EXPORT QCoapDiscoveryReplyPrivate : public QCoapReplyPrivate
 {
 public:
-    QList<QCoapResource> resources;
+    QVector<QCoapResource> resources;
 };
 
 QT_END_NAMESPACE

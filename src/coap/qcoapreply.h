@@ -87,10 +87,10 @@ public:
     void setRequest(const QCoapRequest &request);
 
 Q_SIGNALS:
-    void finished();
+    void finished(QCoapReply *reply);
     void notified(const QByteArray &payload);
     void error(QCoapReply::NetworkError error);
-    void aborted(QCoapReply*);
+    void aborted(QCoapReply *reply);
 
 protected Q_SLOTS:
     void connectionError(QAbstractSocket::SocketError error);

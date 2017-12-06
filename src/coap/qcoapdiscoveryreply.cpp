@@ -39,7 +39,10 @@ QT_BEGIN_NAMESPACE
 
     \reentrant
 
-    This class is used for discovery requests.
+    This class is used for discovery requests, and emits the discovered()
+    signal if and when resources are discovered. When using a multicast
+    address for discovery, the discovered() signal will be emitted once
+    for each response received.
 
     \sa QCoapClient, QCoapRequest, QCoapReply, QCoapResource
 */
@@ -50,13 +53,12 @@ QT_BEGIN_NAMESPACE
 QCoapDiscoveryReply::QCoapDiscoveryReply(QObject *parent) :
     QCoapReply (* new QCoapDiscoveryReplyPrivate, parent)
 {
-
 }
 
 /*!
     Returns the list of resources.
 */
-QList<QCoapResource> QCoapDiscoveryReply::resourceList() const
+QVector<QCoapResource> QCoapDiscoveryReply::resources() const
 {
     Q_D(const QCoapDiscoveryReply);
     return d->resources;
@@ -83,12 +85,15 @@ void QCoapDiscoveryReply::updateFromInternalReply(const QCoapInternalReply &inte
         d->isFinished = true;
         d->isRunning = false;
 
-        if (d->status >= QtCoap::BadRequest)
+        if (d->status >= QtCoap::BadRequest) {
             replyError(d->status);
-        else
-            d->resources = QCoapProtocol::resourcesFromCoreLinkList(internalReplyMessage->payload());
+        } else {
+            auto res = QCoapProtocol::resourcesFromCoreLinkList(internalReplyMessage->payload());
+            emit discovered(res, this);
+            d->resources.push_back(res);
+        }
 
-        emit finished();
+        emit finished(this);
     }
 }
 

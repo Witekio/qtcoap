@@ -60,7 +60,7 @@ public:
     void setMaxRetransmit(uint maxRetransmit);
     void setBlockSize(quint16 blockSize);
 
-    static QList<QCoapResource> resourcesFromCoreLinkList(const QByteArray &data);
+    static QVector<QCoapResource> resourcesFromCoreLinkList(const QByteArray &data);
 
 Q_SIGNALS:
     void finished(QCoapReply*);
