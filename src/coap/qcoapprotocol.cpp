@@ -283,8 +283,6 @@ QCoapInternalRequest *QCoapProtocolPrivate::findInternalRequestByMessageId(quint
 */
 void QCoapProtocolPrivate::onLastBlock(QCoapInternalRequest *request)
 {
-    Q_Q(QCoapProtocol);
-
     if (!internalReplies.contains(request))
         return;
 

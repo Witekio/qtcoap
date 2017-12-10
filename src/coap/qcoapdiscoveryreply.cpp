@@ -89,8 +89,8 @@ void QCoapDiscoveryReply::updateFromInternalReply(const QCoapInternalReply &inte
             replyError(d->status);
         } else {
             auto res = QCoapProtocol::resourcesFromCoreLinkList(internalReplyMessage->payload());
+            d->resources.append(res);
             emit discovered(res, this);
-            d->resources.push_back(res);
         }
 
         emit finished(this);

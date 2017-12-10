@@ -40,6 +40,8 @@ QT_BEGIN_NAMESPACE
 class QCoapDiscoveryReplyPrivate;
 class Q_COAP_EXPORT QCoapDiscoveryReply : public QCoapReply
 {
+    Q_OBJECT
+
 public:
     explicit QCoapDiscoveryReply(QObject *parent = nullptr);
 
