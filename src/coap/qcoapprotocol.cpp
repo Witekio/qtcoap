@@ -214,9 +214,9 @@ void QCoapProtocolPrivate::handleFrame(const QByteArray &frame)
         request->setRequestToSendBlock(static_cast<uint>(nextBlockWanted), blockSize);
         sendRequest(request);
     } else if (internalReply->hasNextBlock()) {
-        onNextBlock(request, internalReply->currentBlockNumber(), internalReply->blockSize());
+        onBlockReceived(request, internalReply->currentBlockNumber(), internalReply->blockSize());
     } else {
-        onLastBlock(request);
+        onLastMessageReceived(request);
     }
 }
 
@@ -280,7 +280,7 @@ QCoapInternalRequest *QCoapProtocolPrivate::findInternalRequestByMessageId(quint
     associated QCoapReply and emits the
     \l{QCoapProtocol::finished(QCoapReply*)}{finished(QCoapReply*)} signal.
 */
-void QCoapProtocolPrivate::onLastBlock(QCoapInternalRequest *request)
+void QCoapProtocolPrivate::onLastMessageReceived(QCoapInternalRequest *request)
 {
     if (!request || !internalReplies.contains(request))
         return;
@@ -348,7 +348,7 @@ void QCoapProtocolPrivate::onLastBlock(QCoapInternalRequest *request)
     that follow \a currentBlockNumber with a size of \a blockSize
     and sends this new request.
 */
-void QCoapProtocolPrivate::onNextBlock(QCoapInternalRequest *request,
+void QCoapProtocolPrivate::onBlockReceived(QCoapInternalRequest *request,
                                        uint currentBlockNumber,
                                        uint blockSize)
 {

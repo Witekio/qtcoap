@@ -62,8 +62,8 @@ public:
     QCoapProtocolPrivate() = default;
 
     void handleFrame(const QByteArray &frame);
-    void onLastBlock(QCoapInternalRequest *request);
-    void onNextBlock(QCoapInternalRequest *request, uint currentBlockNumber, uint blockSize);
+    void onBlockReceived(QCoapInternalRequest *request, uint currentBlockNumber, uint blockSize);
+    void onLastMessageReceived(QCoapInternalRequest *request);
     void sendAcknowledgment(QCoapInternalRequest *request);
     void sendReset(QCoapInternalRequest *request);
     QByteArray encode(QCoapInternalRequest *request);
