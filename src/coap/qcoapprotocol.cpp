@@ -89,7 +89,7 @@ void QCoapProtocol::sendRequest(QPointer<QCoapReply> reply, QCoapConnection *con
 
     // If this request does not already exist we add it to the map
     if (!reply.isNull() && !d->findInternalRequestByToken(internalRequest->message()->token())) {
-        InternalMessagePair pair = { reply, QVector<QCoapInternalReply*>() };
+        InternalMessagePair pair = { reply, QVector<QSharedPointer<QCoapInternalReply> >() };
         d->internalReplies[internalRequest] = pair;
         reply->setIsRunning(true);
     }
@@ -196,7 +196,8 @@ void QCoapProtocolPrivate::handleFrame(const QByteArray &frame)
     }
 
     request->stopTransmission();
-    internalReplies[request].replies.push_back(internalReply);
+    internalReplies[request].replies.push_back(
+                QSharedPointer<QCoapInternalReply>(internalReply));
 
     // Reply when the server asks for an ACK
     if (request->isObserveCancelled()) {
@@ -284,7 +285,7 @@ void QCoapProtocolPrivate::onLastBlock(QCoapInternalRequest *request)
     if (!request || !internalReplies.contains(request))
         return;
 
-    QVector<QCoapInternalReply*> replies = internalReplies[request].replies;
+    auto replies = internalReplies[request].replies;
     QPointer<QCoapReply> userReply = internalReplies[request].userReply;
 
     //! FIXME: Change QPointer<QCoapReply> into something independent from
@@ -292,27 +293,27 @@ void QCoapProtocolPrivate::onLastBlock(QCoapInternalRequest *request)
     if (replies.isEmpty() || userReply.isNull()) {
         internalReplies.remove(request);
         delete request;
-        qDeleteAll(replies);
         return;
     }
 
-    QCoapInternalReply *finalInternalReply(replies.last());
+    auto finalInternalReply = replies.last();
+    // Ignore Invalid answers
     if (finalInternalReply->message()->type() == QCoapMessage::Acknowledgment
             && finalInternalReply->statusCode() == QtCoap::Invalid) {
-        delete internalReplies[request].replies.takeLast();
+        internalReplies[request].replies.takeLast();
         return;
     }
 
-    // If multiple blocks : append data from all blocks to the final reply
+    // Merge payloads for blockwise transfers
     if (replies.size() > 1) {
         std::stable_sort(std::begin(replies), std::end(replies),
-            [](QCoapInternalReply *a, QCoapInternalReply *b) -> bool {
+            [](auto a, auto b) -> bool {
                 return (a->currentBlockNumber() < b->currentBlockNumber());
         });
 
         QByteArray finalPayload;
         int lastBlockNumber = -1;
-        for (QCoapInternalReply *reply : qAsConst(replies)) {
+        for (auto reply : qAsConst(replies)) {
             int currentBlock = static_cast<int>(reply->currentBlockNumber());
             QByteArray replyPayload = reply->message()->payload();
             if (replyPayload.isEmpty() || currentBlock <= lastBlockNumber)
@@ -335,8 +336,6 @@ void QCoapProtocolPrivate::onLastBlock(QCoapInternalRequest *request)
     } else {
         internalReplies[request].replies.clear();
     }
-
-    qDeleteAll(replies);
 }
 
 /*!
@@ -367,9 +366,9 @@ void QCoapProtocolPrivate::onNextBlock(QCoapInternalRequest *request,
 void QCoapProtocolPrivate::sendAcknowledgment(QCoapInternalRequest *request)
 {
     QCoapInternalRequest ackRequest;
-    QCoapInternalReply *internalReply = internalReplies[request].replies.last();
-
     ackRequest.setTargetUri(request->targetUri());
+
+    auto internalReply = internalReplies[request].replies.last();
     ackRequest.initForAcknowledgment(internalReply->message()->messageId(),
                                      internalReply->message()->token());
     ackRequest.setConnection(request->connection());
@@ -387,9 +386,9 @@ void QCoapProtocolPrivate::sendAcknowledgment(QCoapInternalRequest *request)
 void QCoapProtocolPrivate::sendReset(QCoapInternalRequest *request)
 {
     QCoapInternalRequest resetRequest;
-    QCoapInternalReply *internalReply = internalReplies[request].replies.last();
-
     resetRequest.setTargetUri(request->targetUri());
+
+    auto internalReply = internalReplies[request].replies.last();
     resetRequest.initForReset(internalReply->message()->messageId());
     resetRequest.setConnection(request->connection());
     sendRequest(&resetRequest);

@@ -51,7 +51,7 @@ QT_BEGIN_NAMESPACE
 
 struct InternalMessagePair {
     QPointer<QCoapReply> userReply;
-    QVector<QCoapInternalReply*> replies;
+    QVector<QSharedPointer<QCoapInternalReply> > replies;
 };
 
 typedef QMap<QCoapInternalRequest*, InternalMessagePair> InternalMessageMap;
