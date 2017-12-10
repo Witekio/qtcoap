@@ -57,7 +57,7 @@ public:
     uint blockSize() const;
 
     virtual bool isValid() const;
-    static bool isUrlValid(const QUrl& url);
+    static bool isUrlValid(const QUrl &url);
 
 protected:
     explicit QCoapInternalMessage(QCoapInternalMessagePrivate &dd, QObject *parent = nullptr);
