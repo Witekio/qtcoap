@@ -326,7 +326,7 @@ void QCoapProtocolPrivate::onLastMessageReceived(QCoapInternalRequest *request)
         finalInternalReply->message()->setPayload(finalPayload);
     }
 
-    if (!userReply.isNull() && !userReply->isAborted())
+    if (!userReply.isNull())
         userReply->updateFromInternalReply(*finalInternalReply);
 
     // Remove request and replies. Keep the request only for Observe.
