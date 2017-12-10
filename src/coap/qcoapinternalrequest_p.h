@@ -78,7 +78,7 @@ public:
 
     QUrl targetUri() const;
     QtCoap::Method method() const;
-    bool cancelObserve() const;
+    bool isObserveCancelled() const;
     QCoapConnection *connection() const;
     uint retransmissionCounter() const;
     void setMethod(QtCoap::Method method);
@@ -114,7 +114,7 @@ public:
     QtCoap::Method method = QtCoap::Empty;
     QCoapConnection *connection = nullptr;
     QByteArray fullPayload;
-    bool cancelObserve = false;
+    bool observeCancelled = false;
 
     int timeout = 0;
     uint retransmissionCounter = 0;

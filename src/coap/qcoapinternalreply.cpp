@@ -181,7 +181,7 @@ void QCoapInternalReply::addOption(const QCoapOption &option)
     Returns the number of the next block if it is not the last block.
     If it is the last block, it returns -1.
 */
-int QCoapInternalReply::wantNextBlock()
+int QCoapInternalReply::nextBlockWanted()
 {
     Q_D(QCoapInternalReply);
 

@@ -333,7 +333,7 @@ void QCoapReply::updateFromInternalReply(const QCoapInternalReply &internalReply
         if (d->status >= QtCoap::BadRequest)
             replyError(d->status);
 
-        if (d->request.observe())
+        if (d->request.isObserved())
             emit notified(internalReplyMessage->payload());
 
         emit finished(this);

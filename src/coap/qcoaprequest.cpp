@@ -166,10 +166,10 @@ QtCoap::Method QCoapRequest::method() const
 
     \sa enableObserve()
 */
-bool QCoapRequest::observe() const
+bool QCoapRequest::isObserved() const
 {
     Q_D(const QCoapRequest);
-    return d->observe;
+    return d->observed;
 }
 
 /*!
@@ -211,12 +211,12 @@ void QCoapRequest::setMethod(QtCoap::Method method)
 /*!
     Sets the observe to true to make an observe request.
 
-    \sa observe()
+    \sa isObserved()
 */
 void QCoapRequest::enableObserve()
 {
     Q_D(QCoapRequest);
-    d->observe = true;
+    d->observed = true;
 
     addOption(QCoapOption::Observe);
 }

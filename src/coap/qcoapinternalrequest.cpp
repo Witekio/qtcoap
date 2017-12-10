@@ -498,10 +498,10 @@ QtCoap::Method QCoapInternalRequest::method() const
 
     \sa setCancelObserve()
 */
-bool QCoapInternalRequest::cancelObserve() const
+bool QCoapInternalRequest::isObserveCancelled() const
 {
     Q_D(const QCoapInternalRequest);
-    return d->cancelObserve;
+    return d->observeCancelled;
 }
 
 /*!
@@ -540,14 +540,14 @@ void QCoapInternalRequest::setConnection(QCoapConnection *connection)
 
 /*!
     \internal
-    Sets the cancel observe parameter to the given \a cancelObserve value.
+    Sets the cancel observe parameter to the given \a isObserveCancelled value.
 
-    \sa cancelObserve()
+    \sa isObserveCancelled()
 */
 void QCoapInternalRequest::setCancelObserve(bool cancelObserve)
 {
     Q_D(QCoapInternalRequest);
-    d->cancelObserve = cancelObserve;
+    d->observeCancelled = cancelObserve;
 }
 
 /*!

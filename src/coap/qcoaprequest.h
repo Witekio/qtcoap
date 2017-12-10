@@ -56,7 +56,7 @@ public:
     QUrl url() const;
     QUrl proxyUrl() const;
     QtCoap::Method method() const;
-    bool observe() const;
+    bool isObserved() const;
     void setUrl(const QUrl &url);
     void setProxyUrl(const QUrl &proxyUrl);
     void setMethod(QtCoap::Method method);

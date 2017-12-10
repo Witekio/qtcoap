@@ -89,7 +89,7 @@ void QCoapProtocol::sendRequest(QPointer<QCoapReply> reply, QCoapConnection *con
 
     // If this request does not already exist we add it to the map
     if (!reply.isNull() && !d->findInternalRequestByToken(internalRequest->message()->token())) {
-        InternalMessagePair pair = { reply, QList<QCoapInternalReply*>() };
+        InternalMessagePair pair = { reply, QVector<QCoapInternalReply*>() };
         d->internalReplies[internalRequest] = pair;
         reply->setIsRunning(true);
     }
@@ -199,7 +199,7 @@ void QCoapProtocolPrivate::handleFrame(const QByteArray &frame)
     internalReplies[request].replies.push_back(internalReply);
 
     // Reply when the server asks for an ACK
-    if (request->cancelObserve()) {
+    if (request->isObserveCancelled()) {
         // Remove option to ensure that it will stop
         request->removeOption(QCoapOption::Observe);
         sendReset(request);
@@ -207,15 +207,13 @@ void QCoapProtocolPrivate::handleFrame(const QByteArray &frame)
         sendAcknowledgment(request);
     }
 
-    // Check if it is a blockwise request
-    int nextBlockWanted = internalReply->wantNextBlock();
-
     // Ask/Send next block or process the final reply
-    if (internalReply->hasNextBlock()) {
-        onNextBlock(request, internalReply->currentBlockNumber(), internalReply->blockSize());
-    } else if (nextBlockWanted >= 0) {
+    int nextBlockWanted = internalReply->nextBlockWanted();
+    if (nextBlockWanted >= 0) {
         request->setRequestToSendBlock(static_cast<uint>(nextBlockWanted), blockSize);
         sendRequest(request);
+    } else if (internalReply->hasNextBlock()) {
+        onNextBlock(request, internalReply->currentBlockNumber(), internalReply->blockSize());
     } else {
         onLastBlock(request);
     }
@@ -278,23 +276,32 @@ QCoapInternalRequest *QCoapProtocolPrivate::findInternalRequestByMessageId(quint
     Handles what to do when we received the last block of a reply.
 
     Merges all blocks, removes the request from the map, updates the
-    associated QCoapReply and emits a
+    associated QCoapReply and emits the
     \l{QCoapProtocol::finished(QCoapReply*)}{finished(QCoapReply*)} signal.
 */
 void QCoapProtocolPrivate::onLastBlock(QCoapInternalRequest *request)
 {
-    if (!internalReplies.contains(request))
+    if (!request || !internalReplies.contains(request))
         return;
 
-    QList<QCoapInternalReply*> replies = internalReplies[request].replies;
+    QVector<QCoapInternalReply*> replies = internalReplies[request].replies;
     QPointer<QCoapReply> userReply = internalReplies[request].userReply;
-    if (replies.isEmpty() || userReply.isNull())
-        return;
 
-    QCoapInternalReply *finalReply(replies.last());
-    if (finalReply->message()->type() == QCoapMessage::Acknowledgment
-            && finalReply->statusCode() == QtCoap::Invalid)
+    //! FIXME: Change QPointer<QCoapReply> into something independent from
+    //! User. QSharedPointer(s)?
+    if (replies.isEmpty() || userReply.isNull()) {
+        internalReplies.remove(request);
+        delete request;
+        qDeleteAll(replies);
         return;
+    }
+
+    QCoapInternalReply *finalInternalReply(replies.last());
+    if (finalInternalReply->message()->type() == QCoapMessage::Acknowledgment
+            && finalInternalReply->statusCode() == QtCoap::Invalid) {
+        delete internalReplies[request].replies.takeLast();
+        return;
+    }
 
     // If multiple blocks : append data from all blocks to the final reply
     if (replies.size() > 1) {
@@ -315,17 +322,21 @@ void QCoapProtocolPrivate::onLastBlock(QCoapInternalRequest *request)
             lastBlockNumber = currentBlock;
         }
 
-        finalReply->message()->setPayload(finalPayload);
+        finalInternalReply->message()->setPayload(finalPayload);
     }
 
-    // Remove the request or the replies
-    if ((!userReply.isNull() && !userReply->request().observe()) || request->cancelObserve())
-        internalReplies.remove(request);
-    else
-        internalReplies[request].replies.clear();
-
     if (!userReply.isNull() && !userReply->isAborted())
-        userReply->updateFromInternalReply(*finalReply);
+        userReply->updateFromInternalReply(*finalInternalReply);
+
+    // Remove request and replies. Keep the request only for Observe.
+    if (userReply.isNull() || !userReply->request().isObserved() || request->isObserveCancelled()) {
+        internalReplies.remove(request);
+        delete request;
+    } else {
+        internalReplies[request].replies.clear();
+    }
+
+    qDeleteAll(replies);
 }
 
 /*!

@@ -58,7 +58,7 @@ public:
 
     static QCoapInternalReply fromQByteArray(const QByteArray &reply);
     void appendData(const QByteArray &data);
-    int wantNextBlock();
+    int nextBlockWanted();
 
     using QCoapInternalMessage::addOption;
     void addOption(const QCoapOption &option);

@@ -31,8 +31,7 @@
 #define QCOAPPROTOCOL_P_H
 
 #include <QtCoap/qcoapprotocol.h>
-#include <QtCore/qlist.h>
-#include <QtCore/qpair.h>
+#include <QtCore/qvector.h>
 #include <QtCore/qqueue.h>
 #include <QtCore/qpointer.h>
 #include <private/qobject_p.h>
@@ -52,7 +51,7 @@ QT_BEGIN_NAMESPACE
 
 struct InternalMessagePair {
     QPointer<QCoapReply> userReply;
-    QList<QCoapInternalReply*> replies;
+    QVector<QCoapInternalReply*> replies;
 };
 
 typedef QMap<QCoapInternalRequest*, InternalMessagePair> InternalMessageMap;
