@@ -341,8 +341,7 @@ QCoapReply *QCoapClientPrivate::sendRequest(QCoapRequest &request)
     Q_Q(QCoapClient);
 
     // Prepare the reply
-    QCoapReply *reply = new QCoapReply(q);
-    reply->setRequest(request);
+    QCoapReply *reply = new QCoapReply(request, q);
 
     if (!send(reply)) {
         delete reply;
@@ -363,8 +362,7 @@ QCoapDiscoveryReply *QCoapClientPrivate::sendDiscovery(QCoapRequest &request)
     Q_Q(QCoapClient);
 
     // Prepare the reply
-    QCoapDiscoveryReply *reply = new QCoapDiscoveryReply(q);
-    reply->setRequest(request);
+    QCoapDiscoveryReply *reply = new QCoapDiscoveryReply(request, q);
 
     if (!send(reply)) {
         delete reply;

@@ -50,9 +50,9 @@ QT_BEGIN_NAMESPACE
 class Q_AUTOTEST_EXPORT QCoapReplyPrivate : public QIODevicePrivate
 {
 public:
-    QCoapReplyPrivate() = default;
+    QCoapReplyPrivate(const QCoapRequest &request);
 
-    QCoapRequest request;
+    const QCoapRequest request;
     QCoapMessage message;
     QtCoap::StatusCode status = QtCoap::Invalid;
     QCoapReply::NetworkError error = QCoapReply::NoError;

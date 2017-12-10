@@ -32,6 +32,11 @@
 
 QT_BEGIN_NAMESPACE
 
+QCoapDiscoveryReplyPrivate::QCoapDiscoveryReplyPrivate(const QCoapRequest &request) :
+    QCoapReplyPrivate (request)
+{
+}
+
 /*!
     \class QCoapDiscoveryReply
     \brief A QCoapDiscoveryReply object is a QCoapReply that stores also a
@@ -50,8 +55,8 @@ QT_BEGIN_NAMESPACE
 /*!
     Constructs a new QCoapDiscoveryReply and sets \a parent as parent object.
 */
-QCoapDiscoveryReply::QCoapDiscoveryReply(QObject *parent) :
-    QCoapReply (* new QCoapDiscoveryReplyPrivate, parent)
+QCoapDiscoveryReply::QCoapDiscoveryReply(const QCoapRequest &request, QObject *parent) :
+    QCoapReply (* new QCoapDiscoveryReplyPrivate(request), parent)
 {
 }
 

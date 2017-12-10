@@ -43,7 +43,7 @@ class Q_COAP_EXPORT QCoapDiscoveryReply : public QCoapReply
     Q_OBJECT
 
 public:
-    explicit QCoapDiscoveryReply(QObject *parent = nullptr);
+    explicit QCoapDiscoveryReply(const QCoapRequest &request, QObject *parent = nullptr);
 
     QVector<QCoapResource> resources() const;
 

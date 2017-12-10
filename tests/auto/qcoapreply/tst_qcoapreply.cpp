@@ -171,6 +171,10 @@ void tst_QCoapReply::parseReplyPdu()
 class QCoapReplyForTests : public QCoapReply
 {
 public:
+    QCoapReplyForTests(const QCoapRequest &req) : QCoapReply (req)
+    {
+    }
+
     void updateFromInternalReplyForTests(const QCoapInternalReply &internal) {
         updateFromInternalReply(internal);
     }
@@ -187,7 +191,7 @@ void tst_QCoapReply::updateReply()
 {
     QFETCH(QString, data);
 
-    QCoapReplyForTests reply;
+    QCoapReplyForTests reply((QCoapRequest()));
     QCoapInternalReply internalReply;
     internalReply.message()->setPayload(data.toUtf8());
     QSignalSpy spyReplyFinished(&reply, SIGNAL(finished(QCoapReply*)));

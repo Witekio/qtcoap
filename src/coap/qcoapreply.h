@@ -72,7 +72,7 @@ public:
     };
     Q_ENUM(NetworkError)
 
-    explicit QCoapReply(QObject *parent = nullptr);
+    explicit QCoapReply(const QCoapRequest &request, QObject *parent = nullptr);
     ~QCoapReply();
 
     QtCoap::StatusCode statusCode() const;
@@ -84,7 +84,6 @@ public:
     bool isRunning() const;
     bool isFinished() const;
     bool isAborted() const;
-    void setRequest(const QCoapRequest &request);
 
 Q_SIGNALS:
     void finished(QCoapReply *reply);

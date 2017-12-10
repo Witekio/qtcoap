@@ -34,6 +34,15 @@
 QT_BEGIN_NAMESPACE
 
 /*!
+    \class QCoapReplyPrivate
+    \brief Class's constructor
+*/
+QCoapReplyPrivate::QCoapReplyPrivate(const QCoapRequest &req) :
+    request(req)
+{
+}
+
+/*!
     \class QCoapReply
     \brief The QCoapReply class holds the data of a CoAP reply.
 
@@ -126,8 +135,8 @@ QT_BEGIN_NAMESPACE
 /*!
     Constructs a QCoapReply object and sets \a parent as the parent object.
 */
-QCoapReply::QCoapReply(QObject *parent) :
-    QCoapReply(* new QCoapReplyPrivate, parent)
+QCoapReply::QCoapReply(const QCoapRequest &request, QObject *parent) :
+    QCoapReply(* new QCoapReplyPrivate(request), parent)
 {
 }
 
@@ -271,17 +280,6 @@ QCoapReply::NetworkError QCoapReply::errorReceived() const
 {
     Q_D(const QCoapReply);
     return d->error;
-}
-
-/*!
-    Sets the request associated with this QCoapReply to the given \a request.
-
-    \sa request()
-*/
-void QCoapReply::setRequest(const QCoapRequest &request)
-{
-    Q_D(QCoapReply);
-    d->request = request;
 }
 
 /*!
