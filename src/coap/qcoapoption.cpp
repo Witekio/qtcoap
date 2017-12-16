@@ -83,8 +83,27 @@ QCoapOption::QCoapOption(OptionName name,
                          const QByteArray &value) :
     d_ptr(new QCoapOptionPrivate)
 {
-    d_ptr->name = name;
+    Q_D(QCoapOption);
+    d->name = name;
     setValue(value);
+}
+
+/*!
+    Constructs a QCoapOption object by copy from an \a other QCoapOption.
+
+    \sa isValid()
+ */
+QCoapOption::QCoapOption(const QCoapOption &other) :
+    d_ptr(new QCoapOptionPrivate(*other.d_ptr))
+{
+}
+
+/*!
+    Destroys QCoapOption object.
+ */
+QCoapOption::~QCoapOption()
+{
+    delete d_ptr;
 }
 
 /*!
@@ -92,7 +111,8 @@ QCoapOption::QCoapOption(OptionName name,
  */
 QByteArray QCoapOption::value() const
 {
-    return d_ptr->value;
+    Q_D(const QCoapOption);
+    return d->value;
 }
 
 /*!
@@ -100,7 +120,8 @@ QByteArray QCoapOption::value() const
  */
 int QCoapOption::length() const
 {
-    return d_ptr->value.length();
+    Q_D(const QCoapOption);
+    return d->value.length();
 }
 
 /*!
@@ -108,7 +129,8 @@ int QCoapOption::length() const
  */
 QCoapOption::OptionName QCoapOption::name() const
 {
-    return d_ptr->name;
+    Q_D(const QCoapOption);
+    return d->name;
 }
 
 /*!
@@ -116,7 +138,8 @@ QCoapOption::OptionName QCoapOption::name() const
  */
 bool QCoapOption::isValid() const
 {
-    return d_ptr->name != QCoapOption::Invalid;
+    Q_D(const QCoapOption);
+    return d->name != QCoapOption::Invalid;
 }
 
 /*!
@@ -124,8 +147,9 @@ bool QCoapOption::isValid() const
  */
 bool QCoapOption::operator==(const QCoapOption &other) const
 {
-    return (d_ptr->name == other.d_ptr->name
-            && d_ptr->value == other.d_ptr->value);
+    Q_D(const QCoapOption);
+    return (d->name == other.d_ptr->name
+            && d->value == other.d_ptr->value);
 }
 
 /*!
@@ -141,6 +165,7 @@ bool QCoapOption::operator!=(const QCoapOption &other) const
  */
 void QCoapOption::setValue(const QByteArray &value)
 {
+    Q_D(QCoapOption);
     bool oversized = false;
 
     // Check for value maximum size, according to section 5.10 of RFC 7252
@@ -194,9 +219,9 @@ void QCoapOption::setValue(const QByteArray &value)
     }
 
     if (oversized)
-        qWarning() << "QCoapOption::setValue: value is probably too big for option" << d_ptr->name;
+        qWarning() << "QCoapOption::setValue: value is probably too big for option" << d->name;
 
-    d_ptr->value = value;
+    d->value = value;
 }
 
 QT_END_NAMESPACE

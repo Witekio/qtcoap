@@ -64,6 +64,8 @@ public:
     };
 
     QCoapOption(OptionName name = Invalid, const QByteArray &value = QByteArray());
+    QCoapOption(const QCoapOption &other);
+    ~QCoapOption();
 
     QByteArray value() const;
     int length() const;
@@ -76,7 +78,16 @@ public:
 protected:
     void setValue(const QByteArray &value);
 
+private:
     QCoapOptionPrivate *d_ptr;
+
+    // Q_DECLARE_PRIVATE equivalent for shared data pointers
+    inline QCoapOptionPrivate* d_func() {
+        return d_ptr;
+    }
+    inline const QCoapOptionPrivate* d_func() const {
+        return d_ptr;
+    }
 };
 
 Q_DECLARE_METATYPE(QCoapOption::OptionName)
