@@ -51,7 +51,6 @@ void tst_QCoapReply::parseReplyPdu_data()
     QTest::addColumn<quint16>("messageId");
     QTest::addColumn<QByteArray>("token");
     QTest::addColumn<quint8>("tokenLength");
-    QTest::addColumn<int>("optionsListLength");
     QTest::addColumn<QList<QCoapOption::OptionName>>("optionsNames");
     QTest::addColumn<QList<quint8>>("optionsLengths");
     QTest::addColumn<QList<QByteArray>>("optionsValues");
@@ -73,7 +72,6 @@ void tst_QCoapReply::parseReplyPdu_data()
         << quint16(64463)
         << QByteArray("4647f09b")
         << quint8(4)
-        << 2
         << optionsNamesReply
         << optionsLengthsReply
         << optionsValuesReply
@@ -88,7 +86,6 @@ void tst_QCoapReply::parseReplyPdu_data()
         << quint16(64463)
         << QByteArray("4647f09b")
         << quint8(4)
-        << 0
         << QList<QCoapOption::OptionName>()
         << QList<quint8>()
         << QList<QByteArray>()
@@ -102,7 +99,6 @@ void tst_QCoapReply::parseReplyPdu_data()
         << quint16(64463)
         << QByteArray("4647f09b")
         << quint8(4)
-        << 2
         << optionsNamesReply
         << optionsLengthsReply
         << optionsValuesReply
@@ -115,7 +111,6 @@ void tst_QCoapReply::parseReplyPdu_data()
         << quint16(64463)
         << QByteArray("4647f09b")
         << quint8(4)
-        << 0
         << QList<QCoapOption::OptionName>()
         << QList<quint8>()
         << QList<QByteArray>()
@@ -128,7 +123,6 @@ void tst_QCoapReply::parseReplyPdu_data()
         << quint16(64463)
         << QByteArray("4647f09b")
         << quint8(4)
-        << 1
         << bigOptionsNamesReply
         << bigOptionsLengthsReply
         << bigOptionsValuesReply
@@ -144,7 +138,6 @@ void tst_QCoapReply::parseReplyPdu()
     QFETCH(quint16, messageId);
     QFETCH(QByteArray, token);
     QFETCH(quint8, tokenLength);
-    QFETCH(int, optionsListLength);
     QFETCH(QList<QCoapOption::OptionName>, optionsNames);
     QFETCH(QList<quint8>, optionsLengths);
     QFETCH(QList<QByteArray>, optionsValues);
@@ -158,8 +151,8 @@ void tst_QCoapReply::parseReplyPdu()
     QCOMPARE(reply.statusCode(), statusCode);
     QCOMPARE(reply.message()->messageId(), messageId);
     QCOMPARE(reply.message()->token().toHex(), token);
-    QCOMPARE(reply.message()->optionCount(), optionsListLength);
-    for (int i = 0; i < optionsListLength; ++i) {
+    QCOMPARE(reply.message()->optionCount(), optionsNames.count());
+    for (int i = 0; i < reply.message()->optionCount(); ++i) {
         QCoapOption option = reply.message()->option(i);
         QCOMPARE(option.name(), optionsNames.at(i));
         QCOMPARE(option.length(), optionsLengths.at(i));

@@ -99,11 +99,47 @@ QCoapOption::QCoapOption(const QCoapOption &other) :
 }
 
 /*!
+    QCoapOption move constructor.
+ */
+QCoapOption::QCoapOption(QCoapOption &&other) :
+    d_ptr(other.d_ptr)
+{
+    other.d_ptr = nullptr;
+}
+
+/*!
     Destroys QCoapOption object.
  */
 QCoapOption::~QCoapOption()
 {
     delete d_ptr;
+}
+
+/*!
+    Assignment operator.
+ */
+QCoapOption &QCoapOption::operator=(const QCoapOption &other)
+{
+    d_ptr->name = other.d_ptr->name;
+    d_ptr->value = other.d_ptr->value;
+    return *this;
+}
+
+/*!
+    Move assignment operator.
+ */
+QCoapOption &QCoapOption::operator=(QCoapOption &&other)
+{
+    swap(other);
+    return *this;
+}
+
+/*!
+    Swap object with another.
+ */
+void QCoapOption::swap(QCoapOption &other)
+{
+    qSwap(d_ptr, other.d_ptr);
 }
 
 /*!

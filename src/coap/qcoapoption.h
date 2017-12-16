@@ -65,7 +65,12 @@ public:
 
     QCoapOption(OptionName name = Invalid, const QByteArray &value = QByteArray());
     QCoapOption(const QCoapOption &other);
+    QCoapOption(QCoapOption &&other);
     ~QCoapOption();
+
+    QCoapOption &operator=(const QCoapOption &other);
+    QCoapOption &operator=(QCoapOption &&other) Q_DECL_NOTHROW;
+    void swap(QCoapOption &other) Q_DECL_NOTHROW;
 
     QByteArray value() const;
     int length() const;
