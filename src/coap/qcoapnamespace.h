@@ -89,6 +89,8 @@ public:
     };
     Q_ENUM(Method)
 
+    static bool isError(StatusCode code) { return code >= 0x80; }
+
     static QRandomGenerator randomGenerator;
 };
 

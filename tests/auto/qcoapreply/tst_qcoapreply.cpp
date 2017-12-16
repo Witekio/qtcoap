@@ -171,12 +171,10 @@ void tst_QCoapReply::parseReplyPdu()
 class QCoapReplyForTests : public QCoapReply
 {
 public:
-    QCoapReplyForTests(const QCoapRequest &req) : QCoapReply (req)
-    {
-    }
+    QCoapReplyForTests(const QCoapRequest &req) : QCoapReply (req) {}
 
-    void updateFromInternalReplyForTests(const QCoapInternalReply &internal) {
-        updateFromInternalReply(internal);
+    void updateFromInternalReplyForTests(const QCoapInternalReply *internal) {
+        onReplyReceived(internal);
     }
 };
 
@@ -196,7 +194,7 @@ void tst_QCoapReply::updateReply()
     internalReply.message()->setPayload(data.toUtf8());
     QSignalSpy spyReplyFinished(&reply, SIGNAL(finished(QCoapReply*)));
 
-    reply.updateFromInternalReplyForTests(internalReply);
+    reply.updateFromInternalReplyForTests(&internalReply);
 
     QTRY_COMPARE_WITH_TIMEOUT(spyReplyFinished.count(), 1, 1000);
     QCOMPARE(reply.readAll(), data.toUtf8());

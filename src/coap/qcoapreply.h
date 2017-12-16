@@ -106,7 +106,7 @@ protected:
 
     void setIsRunning(bool isRunning);
     void setError(NetworkError error);
-    virtual void updateFromInternalReply(const QCoapInternalReply &internalReply);
+    virtual void onReplyReceived(const QCoapInternalReply *internalReply);
     qint64 readData(char *data, qint64 maxSize) Q_DECL_OVERRIDE;
     qint64 writeData(const char *data, qint64 maxSize) Q_DECL_OVERRIDE;
 

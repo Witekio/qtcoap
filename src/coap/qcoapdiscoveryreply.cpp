@@ -75,31 +75,27 @@ QVector<QCoapResource> QCoapDiscoveryReply::resources() const
     Updates the QCoapDiscoveryReply object, its message and list of resources
     with data of the internal reply \a internalReply.
 */
-void QCoapDiscoveryReply::updateFromInternalReply(const QCoapInternalReply &internalReply)
+void QCoapDiscoveryReply::onReplyReceived(const QCoapInternalReply *internalReply)
 {
     Q_D(QCoapDiscoveryReply);
 
-    if (!d->isAborted) {
-        const QCoapMessage *internalReplyMessage = internalReply.message();
+    if (!internalReply || isFinished())
+        return;
 
-        d->message.setPayload(internalReplyMessage->payload());
-        d->message.setType(internalReplyMessage->type());
-        d->message.setVersion(internalReplyMessage->version());
-        d->status = internalReply.statusCode();
+    d->message = *internalReply->message();
+    d->status = internalReply->statusCode();
+    d->isFinished = true;
+    d->isRunning = false;
 
-        d->isFinished = true;
-        d->isRunning = false;
-
-        if (d->status >= QtCoap::BadRequest) {
-            replyError(d->status);
-        } else {
-            auto res = QCoapProtocol::resourcesFromCoreLinkList(internalReplyMessage->payload());
-            d->resources.append(res);
-            emit discovered(res, this);
-        }
-
-        emit finished(this);
+    if (QtCoap::isError(d->status)) {
+        replyError(d->status);
+    } else {
+        auto res = QCoapProtocol::resourcesFromCoreLinkList(d->message.payload());
+        d->resources.append(res);
+        emit discovered(res, this);
     }
+
+    emit finished(this);
 }
 
 QT_END_NAMESPACE

@@ -327,7 +327,7 @@ void QCoapProtocolPrivate::onLastMessageReceived(QCoapInternalRequest *request)
     }
 
     if (!userReply.isNull())
-        userReply->updateFromInternalReply(*finalInternalReply);
+        userReply->onReplyReceived(finalInternalReply.data());
 
     // Remove request and replies. Keep the request only for Observe.
     if (userReply.isNull() || !userReply->request().isObserved() || request->isObserveCancelled()) {

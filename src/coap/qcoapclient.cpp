@@ -90,10 +90,6 @@ QCoapClientPrivate::~QCoapClientPrivate()
 
     And the observation can be cancelled with:
     \code
-        client->cancelObserve(request);
-    \endcode
-    or
-    \code
         client->cancelObserve(reply);
     \endcode
 

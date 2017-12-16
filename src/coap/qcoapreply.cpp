@@ -94,9 +94,13 @@ QCoapReplyPrivate::QCoapReplyPrivate(const QCoapRequest &req) :
 /*!
     \fn void QCoapReply::finished()
 
-    This signal is emitted whenever the reply is finished.
+    This signal is emitted whenever the reply is finished. When a resource is
+    observed, only the \l{QCoapReply::notified()}{notified()} will be emitted.
 
-    \sa QCoapClient::finished(), isFinished(), notified()
+    \note Aborted replies send the \l{QCoapReply::aborted()}{aborted()} signal
+    only.
+
+    \sa QCoapClient::finished(), isFinished(), notified(), aborted()
 */
 
 /*!
@@ -234,7 +238,7 @@ QCoapRequest QCoapReply::request() const
 bool QCoapReply::isFinished() const
 {
     Q_D(const QCoapReply);
-    return d->isFinished;
+    return d->isFinished || d->isAborted;
 }
 
 /*!
@@ -243,7 +247,7 @@ bool QCoapReply::isFinished() const
 bool QCoapReply::isRunning() const
 {
     Q_D(const QCoapReply);
-    return d->isRunning;
+    return d->isRunning && !isFinished();
 }
 
 /*!
@@ -314,26 +318,28 @@ void QCoapReply::setError(NetworkError newError)
     Updates the QCoapReply object and its message with data of the internal
     reply \a internalReply, unless this QCoapReply object has been aborted.
 */
-void QCoapReply::updateFromInternalReply(const QCoapInternalReply &internalReply)
+void QCoapReply::onReplyReceived(const QCoapInternalReply *internalReply)
 {
     Q_D(QCoapReply);
 
-    if (!d->isAborted) {
-        const QCoapMessage *internalReplyMessage = internalReply.message();
+    if (!internalReply || isFinished())
+        return;
 
-        d->message.setPayload(internalReplyMessage->payload());
-        d->message.setType(internalReplyMessage->type());
-        d->message.setVersion(internalReplyMessage->version());
-        d->status = internalReply.statusCode();
+    d->message = *internalReply->message();
+    d->status = internalReply->statusCode();
+
+    if (!d->request.isObserved()) {
         d->isFinished = true;
         d->isRunning = false;
+    }
 
-        if (d->status >= QtCoap::BadRequest)
-            replyError(d->status);
+    if (QtCoap::isError(d->status))
+        replyError(d->status);
 
-        if (d->request.isObserved())
-            emit notified(internalReplyMessage->payload());
-
+    if (d->request.isObserved()) {
+        if (!QtCoap::isError(d->status))
+            emit notified(d->message.payload());
+    } else {
         emit finished(this);
     }
 }
@@ -346,7 +352,14 @@ void QCoapReply::updateFromInternalReply(const QCoapInternalReply &internalReply
 void QCoapReply::abortRequest()
 {
     Q_D(QCoapReply);
+
+    if (isFinished())
+        return;
+
     d->isAborted = true;
+    d->isFinished = true;
+    d->isRunning = false;
+
     if (!isFinished())
         emit aborted(this);
 }
