@@ -127,7 +127,7 @@ QCoapClient::QCoapClient(QObject *parent) :
     qRegisterMetaType<QCoapReply::NetworkError>();
 
     connect(d->connection, SIGNAL(readyRead(const QByteArray&)),
-            d->protocol, SLOT(messageReceived(const QByteArray&)));
+            d->protocol, SLOT(onMessageReceived(const QByteArray&)));
     connect(d->protocol, &QCoapProtocol::finished,
             this, &QCoapClient::finished);
 }

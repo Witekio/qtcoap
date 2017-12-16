@@ -318,7 +318,7 @@ void QCoapReply::setError(NetworkError newError)
     Updates the QCoapReply object and its message with data of the internal
     reply \a internalReply, unless this QCoapReply object has been aborted.
 */
-void QCoapReply::onReplyReceived(const QCoapInternalReply *internalReply)
+void QCoapReply::onReplyReceived (const QCoapInternalReply *internalReply)
 {
     Q_D(QCoapReply);
 

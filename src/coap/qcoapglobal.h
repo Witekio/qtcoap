@@ -34,6 +34,8 @@
 
 QT_BEGIN_NAMESPACE
 
+typedef QByteArray QCoapToken;
+
 #ifndef QT_STATIC
 #  ifdef QT_BUILD_COAP_LIB
 #    define Q_COAP_EXPORT Q_AUTOTEST_EXPORT

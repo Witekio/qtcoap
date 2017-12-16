@@ -68,7 +68,7 @@ public:
 
     QByteArray toQByteArray() const;
     quint16 generateMessageId();
-    QByteArray generateToken();
+    QCoapToken generateToken();
     void setRequestToAskBlock(uint blockNumber, uint blockSize);
     void setRequestToSendBlock(uint blockNumber, uint blockSize);
 
@@ -76,6 +76,7 @@ public:
     void addOption(const QCoapOption &option) Q_DECL_OVERRIDE;
     bool addUriOptions(QUrl uri, const QUrl &proxyUri = QUrl());
 
+    QCoapToken token() const;
     QUrl targetUri() const;
     QtCoap::Method method() const;
     bool isObserveCancelled() const;
@@ -89,9 +90,6 @@ public:
     void setTimeout(uint timeout);
     void beginTransmission();
     void stopTransmission();
-
-    // To support use as keys in QMap
-    bool operator<(const QCoapInternalRequest &other) const;
 
 Q_SIGNALS:
     void timeout(QCoapInternalRequest*);

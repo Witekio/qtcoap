@@ -73,7 +73,7 @@ private:
     Q_DECLARE_PRIVATE(QCoapProtocol)
     Q_PRIVATE_SLOT(d_func(), void resendRequest(QCoapInternalRequest*))
     Q_PRIVATE_SLOT(d_func(), void sendRequest(QCoapInternalRequest*))
-    Q_PRIVATE_SLOT(d_func(), void messageReceived(const QByteArray&))
+    Q_PRIVATE_SLOT(d_func(), void onMessageReceived(const QByteArray&))
     Q_PRIVATE_SLOT(d_func(), void onAbortedRequest(QCoapReply *reply))
 };
 

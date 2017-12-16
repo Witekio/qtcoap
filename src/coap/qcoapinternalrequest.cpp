@@ -322,7 +322,7 @@ quint16 QCoapInternalRequest::generateMessageId()
     \internal
     Generates a new token.
 */
-QByteArray QCoapInternalRequest::generateToken()
+QCoapToken QCoapInternalRequest::generateToken()
 {
     Q_D(QCoapInternalRequest);
 
@@ -414,6 +414,15 @@ bool QCoapInternalRequest::addUriOptions(QUrl uri, const QUrl &proxyUri)
 
     d->targetUri = uri;
     return true;
+}
+
+/*!
+    \internal
+    Returns the token of the request.
+*/
+QCoapToken QCoapInternalRequest::token() const
+{
+    return message()->token();
 }
 
 /*!
@@ -572,20 +581,7 @@ void QCoapInternalRequest::setTargetUri(QUrl targetUri)
 void QCoapInternalRequest::setTimeout(uint timeout)
 {
     Q_D(QCoapInternalRequest);
-    d->timeout = timeout;
-}
-
-/*!
-    \internal
-    Returns true if this QCoapInternalRequest has a lower message id than
-    \a other has.
-*/
-bool QCoapInternalRequest::operator<(const QCoapInternalRequest &other) const
-{
-    Q_D(const QCoapInternalRequest);
-    const QCoapInternalRequestPrivate *d_other = other.d_func();
-
-    return (d->message.messageId() < d_other->message.messageId());
+    d->timeout = static_cast<int>(timeout);
 }
 
 /*!
