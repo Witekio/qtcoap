@@ -138,7 +138,7 @@ QCoapClient::QCoapClient(QCoapProtocol *protocol, QCoapConnection *connection, Q
     qRegisterMetaType<QCoapToken>("QCoapToken");
 
     connect(d->connection, SIGNAL(readyRead(const QByteArray&)),
-            d->protocol, SLOT(onMessageReceived(const QByteArray&)));
+            d->protocol, SLOT(onFrameReceived(const QByteArray&)));
     connect(d->protocol, &QCoapProtocol::finished,
             this, &QCoapClient::finished);
 }

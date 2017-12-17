@@ -498,11 +498,9 @@ void tst_QCoapClient::blockwiseReply()
     Helper helper;
     connect(reply.data(), SIGNAL(error(QCoapReply::NetworkError)), &helper, SLOT(onError(QCoapReply::NetworkError)));
 
-    QTRY_COMPARE_WITH_TIMEOUT(spyReplyFinished.count(), 1, 30000);
     QCOMPARE(spyReplyError.count(), 0);
-
-    QByteArray dataReply = reply->readAll();
-    QCOMPARE(dataReply, replyData);
+    QTRY_COMPARE_WITH_TIMEOUT(spyReplyFinished.count(), 1, 30000);
+    QCOMPARE(reply->readAll(), replyData);
 }
 
 void tst_QCoapClient::blockwiseRequest_data()

@@ -175,35 +175,14 @@ void QCoapProtocolPrivate::resendRequest(QCoapInternalRequest *request)
     \internal
     \class QCoapProtocolPrivate
 
-    Handles what to do when a new message is received.
-
-    Here, it puts the frame \a frameReply into a queue and runs the function
-    that handles the frames if it is the first in the queue.
+    Decode and process the given \a frame after reception.
 */
-void QCoapProtocolPrivate::onMessageReceived(const QByteArray &frameReply)
+void QCoapProtocolPrivate::onFrameReceived(const QByteArray &frame)
 {
-    frameQueue.enqueue(frameReply);
+    Q_Q(const QCoapProtocol);
+    Q_ASSERT(QThread::currentThread() == q->thread());
 
-    if (frameQueue.size() == 1) {
-        do {
-            handleFrame(frameQueue.head());
-            frameQueue.dequeue();
-            // Continue until queue is empty
-            // TODO I don't think this is possible anymore, possible
-            // code simplification.
-        } while (frameQueue.size() > 0);
-    }
-}
-
-/*!
-    \internal
-    \class QCoapProtocolPrivate
-
-    Handles the given \a frame and takes the next.
-*/
-void QCoapProtocolPrivate::handleFrame(const QByteArray &frame)
-{
-    auto internalReply = QSharedPointer<QCoapInternalReply>(decode(frame));
+    QSharedPointer<QCoapInternalReply> internalReply(decode(frame));
     const QCoapMessage *internalReplyMessage = internalReply->message();
 
     QCoapInternalRequest *request = nullptr;

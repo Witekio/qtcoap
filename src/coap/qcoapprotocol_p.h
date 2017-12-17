@@ -65,11 +65,10 @@ public:
     quint16 generateUniqueMessageId() const;
     QCoapToken generateUniqueToken() const;
 
-    void handleFrame(const QByteArray &frame);
     QByteArray encode(QCoapInternalRequest *request);
+    void onFrameReceived(const QByteArray &frame);
     QCoapInternalReply *decode(const QByteArray &message);
     void onBlockReceived(QCoapInternalRequest *request, uint currentBlockNumber, uint blockSize);
-    void onMessageReceived(const QByteArray &frameReply);
     void onLastMessageReceived(QCoapInternalRequest *request);
     void onRequestAborted(const QCoapToken &token);
 
@@ -96,7 +95,6 @@ public:
     bool forgetExchangeReplies(const QCoapToken &token);
 
     CoapExchangeMap exchangeMap;
-    QQueue<QByteArray> frameQueue;
     quint16 blockSize = 0;
 
     uint ackTimeout = 2000;
