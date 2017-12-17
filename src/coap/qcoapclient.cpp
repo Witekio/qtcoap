@@ -43,9 +43,9 @@ QCoapClientPrivate::QCoapClientPrivate(QCoapProtocol *protocol, QCoapConnection 
     connection(connection),
     workerThread(new QThread)
 {
-    workerThread->start();
     protocol->moveToThread(workerThread);
     connection->moveToThread(workerThread);
+    workerThread->start();
 }
 
 QCoapClientPrivate::~QCoapClientPrivate()
