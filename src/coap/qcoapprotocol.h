@@ -46,6 +46,7 @@ class Q_COAP_EXPORT QCoapProtocol : public QObject
     Q_OBJECT
 public:
     explicit QCoapProtocol(QObject *parent = nullptr);
+    ~QCoapProtocol();
 
     uint ackTimeout() const;
     double ackRandomFactor() const;
@@ -54,6 +55,9 @@ public:
     uint maxRetransmitSpan() const;
     uint maxRetransmitWait() const;
     static constexpr uint maxLatency();
+
+    uint minTimeout() const;
+    uint maxTimeout() const;
 
     void setAckTimeout(uint ackTimeout);
     void setAckRandomFactor(double ackRandomFactor);
@@ -74,7 +78,7 @@ private:
     Q_PRIVATE_SLOT(d_func(), void resendRequest(QCoapInternalRequest*))
     Q_PRIVATE_SLOT(d_func(), void sendRequest(QCoapInternalRequest*))
     Q_PRIVATE_SLOT(d_func(), void onMessageReceived(const QByteArray&))
-    Q_PRIVATE_SLOT(d_func(), void onAbortedRequest(QCoapReply *reply))
+    Q_PRIVATE_SLOT(d_func(), void onRequestAborted(const QCoapToken&))
 };
 
 QT_END_NAMESPACE

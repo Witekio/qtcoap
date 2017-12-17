@@ -53,7 +53,7 @@ QT_BEGIN_NAMESPACE
 class Q_AUTOTEST_EXPORT QCoapClientPrivate : public QObjectPrivate
 {
 public:
-    QCoapClientPrivate();
+    QCoapClientPrivate(QCoapProtocol *protocol, QCoapConnection *connection);
     ~QCoapClientPrivate();
 
     QCoapProtocol *protocol;

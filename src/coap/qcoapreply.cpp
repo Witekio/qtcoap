@@ -127,11 +127,13 @@ QCoapReplyPrivate::QCoapReplyPrivate(const QCoapRequest &req) :
 */
 
 /*!
-    \fn void QCoapReply::aborted(QCoapReply *reply);
+    \fn void QCoapReply::aborted(const QCoapToken &token);
 
     This signal is emitted when the request is aborted or the reply is deleted.
+    Given the QCoapReply may have been deleted at that point, you should not
+    rely on the sender() object to be still valid.
 
-    Its \a reply parameter is the reply object related to the aborted request.
+    Its \a token parameter is the token of the exchange that have been aborted.
 
     \sa finished(), error()
 */
@@ -291,10 +293,12 @@ QCoapReply::NetworkError QCoapReply::errorReceived() const
 
     \sa isRunning()
 */
-void QCoapReply::setIsRunning(bool isRunning)
+void QCoapReply::setRunning(const QCoapToken &token, QCoapMessageId messageId)
 {
     Q_D(QCoapReply);
-    d->isRunning = isRunning;
+    d->request.setToken(token);
+    d->request.setMessageId(messageId);
+    d->isRunning = true;
 }
 
 /*!
@@ -346,8 +350,8 @@ void QCoapReply::onReplyReceived (const QCoapInternalReply *internalReply)
 
 /*!
     Aborts the request immediately and emits the
-    \l{QCoapReply::aborted(QCoapReply*)}{aborted(QCoapReply*)} signal
-    if the request was not finished before.
+    \l{QCoapReply::aborted(const QCoapToken &token)}{aborted(const QCoapToken &token)}
+    signal if the request was not finished.
 */
 void QCoapReply::abortRequest()
 {
@@ -359,9 +363,7 @@ void QCoapReply::abortRequest()
     d->isAborted = true;
     d->isFinished = true;
     d->isRunning = false;
-
-    if (!isFinished())
-        emit aborted(this);
+    emit aborted(request().token());
 }
 
 /*!

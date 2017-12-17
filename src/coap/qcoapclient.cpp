@@ -38,9 +38,9 @@ QT_BEGIN_NAMESPACE
 
 QRandomGenerator QtCoap::randomGenerator;
 
-QCoapClientPrivate::QCoapClientPrivate() :
-    protocol(new QCoapProtocol),
-    connection(new QCoapConnection),
+QCoapClientPrivate::QCoapClientPrivate(QCoapProtocol *protocol, QCoapConnection *connection) :
+    protocol(protocol),
+    connection(connection),
     workerThread(new QThread)
 {
     workerThread->start();
@@ -116,7 +116,16 @@ QCoapClientPrivate::~QCoapClientPrivate()
     Constructs a QCoapClient object and sets \a parent as the parent object.
 */
 QCoapClient::QCoapClient(QObject *parent) :
-    QObject(* new QCoapClientPrivate, parent)
+    QCoapClient(new QCoapProtocol, new QCoapConnection, parent)
+{
+}
+
+/*!
+    Base constructor, taking the \a protocol, \a connection, and \a parent
+    as arguments.
+*/
+QCoapClient::QCoapClient(QCoapProtocol *protocol, QCoapConnection *connection, QObject *parent) :
+    QObject(* new QCoapClientPrivate(protocol, connection), parent)
 {
     Q_D(QCoapClient);
 
@@ -125,6 +134,8 @@ QCoapClient::QCoapClient(QObject *parent) :
     qRegisterMetaType<QPointer<QCoapDiscoveryReply>>();
     qRegisterMetaType<QCoapConnection*>();
     qRegisterMetaType<QCoapReply::NetworkError>();
+    // Requires a name, as this is a typedef
+    qRegisterMetaType<QCoapToken>("QCoapToken");
 
     connect(d->connection, SIGNAL(readyRead(const QByteArray&)),
             d->protocol, SLOT(onMessageReceived(const QByteArray&)));
@@ -382,10 +393,8 @@ bool QCoapClientPrivate::send(QCoapReply *reply)
         return false;
     }
 
-    // DirectConnection is used to process the signal before the QCoapReply is
-    // deleted, as aborted() is emitted in ~QCoapReply
-    q->connect(reply, SIGNAL(aborted(QCoapReply*)),
-               protocol, SLOT(onAbortedRequest(QCoapReply*)), Qt::DirectConnection);
+    q->connect(reply, SIGNAL(aborted(const QCoapToken&)),
+               protocol, SLOT(onRequestAborted(const QCoapToken&)));
     q->connect(connection, SIGNAL(error(QAbstractSocket::SocketError)),
                reply, SLOT(connectionError(QAbstractSocket::SocketError)));
 
@@ -407,6 +416,7 @@ void QCoapClient::setBlockSize(quint16 blockSize)
     if ((blockSize & (blockSize - 1)) != 0)
         return;
 
+    // FIXME: Done from the wrong thread
     d->protocol->setBlockSize(blockSize);
 }
 
@@ -416,6 +426,7 @@ void QCoapClient::setBlockSize(quint16 blockSize)
 void QCoapClient::setMulticastTtlOption(int ttlValue)
 {
     Q_D(QCoapClient);
+    // FIXME: Done from the wrong thread
     QUdpSocket *udpSocket = d->connection->socket();
     udpSocket->setSocketOption(QAbstractSocket::MulticastTtlOption, ttlValue);
 }
@@ -426,6 +437,7 @@ void QCoapClient::setMulticastTtlOption(int ttlValue)
 void QCoapClient::enableMulticastLoopbackOption()
 {
     Q_D(QCoapClient);
+    // FIXME: Done from the wrong thread
     QUdpSocket *udpSocket = d->connection->socket();
     udpSocket->setSocketOption(QAbstractSocket::MulticastLoopbackOption, 1);
 }
@@ -438,6 +450,7 @@ void QCoapClient::enableMulticastLoopbackOption()
 void QCoapClient::setProtocol(QCoapProtocol *protocol)
 {
     Q_D(QCoapClient);
+    // FIXME: Protocol running on incorrect thread
     d->protocol = protocol;
 }
 #endif

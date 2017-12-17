@@ -28,6 +28,7 @@
 ****************************************************************************/
 
 #include <QtCore/qrandom.h>
+#include <QtCore/qthread.h>
 #include "qcoapprotocol_p.h"
 #include "qcoapinternalrequest_p.h"
 #include "qcoapinternalreply_p.h"
@@ -58,6 +59,17 @@ QCoapProtocol::QCoapProtocol(QObject *parent) :
     qRegisterMetaType<QCoapInternalRequest*>();
 }
 
+QCoapProtocol::~QCoapProtocol()
+{
+    Q_D(QCoapProtocol);
+
+    // Delete requests manually to avoid double deletion from QObject parenting
+    // and QSharedPointer.
+    for (auto it = d->exchangeMap.begin(); it != d->exchangeMap.end(); ++it) {
+        it->request.clear();
+    }
+}
+
 /*!
     Creates and sets up a new QCoapInternalRequest related to the request
     associated to the \a reply. The request will then be sent to the server
@@ -66,14 +78,14 @@ QCoapProtocol::QCoapProtocol(QObject *parent) :
 void QCoapProtocol::sendRequest(QPointer<QCoapReply> reply, QCoapConnection *connection)
 {
     Q_D(QCoapProtocol);
+    Q_ASSERT(QThread::currentThread() == thread());
 
     if (reply.isNull() || !reply->request().isValid())
         return;
 
-    // Generate unique token and message id
-    QCoapInternalRequest *internalRequest = new QCoapInternalRequest(reply->request(), this);
+    QSharedPointer<QCoapInternalRequest> internalRequest = QSharedPointer<QCoapInternalRequest>::create(reply->request(), this);
     QCoapMessage *requestMessage = internalRequest->message();
-    connect(reply, SIGNAL(finished(QCoapReply*)), this, SIGNAL(finished(QCoapReply*)));
+    connect(reply, &QCoapReply::finished, this, &QCoapProtocol::finished);
 
     // Find a unique Message Id
     if (requestMessage->messageId() == 0) {
@@ -92,7 +104,7 @@ void QCoapProtocol::sendRequest(QPointer<QCoapReply> reply, QCoapConnection *con
     internalRequest->setConnection(connection);
 
     d->registerExchange(requestMessage->token(), reply, internalRequest);
-    reply->setIsRunning(true);
+    reply->setRunning(requestMessage->token(), requestMessage->messageId());
 
     // If the user specified a size for blockwise request/replies
     if (d->blockSize > 0) {
@@ -102,13 +114,14 @@ void QCoapProtocol::sendRequest(QPointer<QCoapReply> reply, QCoapConnection *con
     }
 
     if (requestMessage->type() == QCoapMessage::Confirmable) {
-        internalRequest->setTimeout(QtCoap::randomGenerator.bounded(d->ackTimeout, static_cast<uint>(d->ackTimeout * d->ackRandomFactor)));
-        connect(internalRequest, SIGNAL(timeout(QCoapInternalRequest*)),
+        internalRequest->setTimeout(
+                    QtCoap::randomGenerator.bounded(minTimeout(), maxTimeout()));
+        connect(internalRequest.data(), SIGNAL(timeout(QCoapInternalRequest*)),
                 this, SLOT(resendRequest(QCoapInternalRequest*)));
     }
 
     QMetaObject::invokeMethod(this, "sendRequest",
-                              Q_ARG(QCoapInternalRequest*, internalRequest));
+                              Q_ARG(QCoapInternalRequest*, internalRequest.data()));
 }
 
 /*!
@@ -119,10 +132,43 @@ void QCoapProtocol::sendRequest(QPointer<QCoapReply> reply, QCoapConnection *con
 */
 void QCoapProtocolPrivate::sendRequest(QCoapInternalRequest *request)
 {
+    Q_Q(const QCoapProtocol);
+    Q_ASSERT(QThread::currentThread() == q->thread());
+
+    if (!request || !request->connection()) {
+        qWarning() << "QtCoap: Request null or not bound to any connection: aborted.";
+        return;
+    }
+
     request->beginTransmission();
     QByteArray requestFrame = encode(request);
     QUrl uri = request->targetUri();
     request->connection()->sendRequest(requestFrame, uri.host(), uri.port());
+}
+
+/*!
+    \internal
+    \class QCoapProtocolPrivate
+
+    This slot is used to send again the given \a request after a timeout or
+    aborts the request and transfers a timeout error to the reply.
+*/
+void QCoapProtocolPrivate::resendRequest(QCoapInternalRequest *request)
+{
+    Q_Q(const QCoapProtocol);
+    Q_ASSERT(QThread::currentThread() == q->thread());
+
+    // In case of retransmission, check if it is not the last try
+    if (request->message()->type() == QCoapMessage::Confirmable
+        && isRequestRegistered(request)) {
+        if (request->retransmissionCounter() < maxRetransmit) {
+            sendRequest(request);
+        } else {
+            QCoapReply *reply = userReplyForToken(request->token());
+            reply->setError(QCoapReply::TimeOutError);
+            reply->abortRequest();
+        }
+    }
 }
 
 /*!
@@ -153,36 +199,14 @@ void QCoapProtocolPrivate::onMessageReceived(const QByteArray &frameReply)
     \internal
     \class QCoapProtocolPrivate
 
-    This slot is used to send again the given \a request after a timeout or
-    aborts the request and transfers a timeout error to the reply.
-*/
-void QCoapProtocolPrivate::resendRequest(QCoapInternalRequest *request)
-{
-    // In case of retransmission, check if it is not the last try
-    if (request->message()->type() == QCoapMessage::Confirmable
-        && isRequestRegistered(request)) {
-        if (request->retransmissionCounter() < maxRetransmit) {
-            sendRequest(request);
-        } else {
-            QCoapReply *reply = userReplyForToken(request->token());
-            reply->setError(QCoapReply::TimeOutError);
-            reply->abortRequest();
-        }
-    }
-}
-
-/*!
-    \internal
-    \class QCoapProtocolPrivate
-
     Handles the given \a frame and takes the next.
 */
 void QCoapProtocolPrivate::handleFrame(const QByteArray &frame)
 {
-    QCoapInternalReply *internalReply = decode(frame);
-    QCoapInternalRequest *request = nullptr;
+    auto internalReply = QSharedPointer<QCoapInternalReply>(decode(frame));
     const QCoapMessage *internalReplyMessage = internalReply->message();
 
+    QCoapInternalRequest *request = nullptr;
     if (!internalReplyMessage->token().isEmpty())
         request = requestForToken(internalReplyMessage->token());
 
@@ -191,7 +215,6 @@ void QCoapProtocolPrivate::handleFrame(const QByteArray &frame)
 
         // No matching request found, drop the frame.
         if (!request) {
-            delete internalReply;
             return;
         }
     }
@@ -405,6 +428,9 @@ void QCoapProtocolPrivate::onBlockReceived(QCoapInternalRequest *request,
 */
 void QCoapProtocolPrivate::sendAcknowledgment(QCoapInternalRequest *request)
 {
+    Q_Q(const QCoapProtocol);
+    Q_ASSERT(QThread::currentThread() == q->thread());
+
     QCoapInternalRequest ackRequest;
     ackRequest.setTargetUri(request->targetUri());
 
@@ -425,6 +451,9 @@ void QCoapProtocolPrivate::sendAcknowledgment(QCoapInternalRequest *request)
 */
 void QCoapProtocolPrivate::sendReset(QCoapInternalRequest *request)
 {
+    Q_Q(const QCoapProtocol);
+    Q_ASSERT(QThread::currentThread() == q->thread());
+
     QCoapInternalRequest resetRequest;
     resetRequest.setTargetUri(request->targetUri());
 
@@ -466,7 +495,8 @@ QByteArray QCoapProtocolPrivate::encode(QCoapInternalRequest *request)
     \internal
     \class QCoapProtocolPrivate
 
-    Decodes the QByteArray \a message to a QCoapInternalReply object.
+    Decodes the QByteArray \a message and returns a new unmanaged
+    QCoapInternalReply object.
 */
 QCoapInternalReply *QCoapProtocolPrivate::decode(const QByteArray &message)
 {
@@ -478,13 +508,13 @@ QCoapInternalReply *QCoapProtocolPrivate::decode(const QByteArray &message)
     \internal
     \class QCoapProtocolPrivate
 
-    Aborts the request corresponding to the given \a reply. This is triggered
+    Aborts the request corresponding to the given \a reply. It is triggered
     by the destruction of the QCoapReply object or a call to
     QCoapReply::abortRequest().
 */
-void QCoapProtocolPrivate::onAbortedRequest(const QCoapReply *reply)
+void QCoapProtocolPrivate::onRequestAborted(const QCoapToken &token)
 {
-    QCoapInternalRequest *request = findRequestByUserReply(reply);
+    QCoapInternalRequest *request = requestForToken(token);
     if (!request)
         return;
 
@@ -540,10 +570,9 @@ QVector<QCoapResource> QCoapProtocol::resourcesFromCoreLinkList(const QByteArray
     Registers a new CoAP exchange using \a token.
 */
 void QCoapProtocolPrivate::registerExchange(const QCoapToken &token, QCoapReply *reply,
-                                            QCoapInternalRequest *request)
+                                            QSharedPointer<QCoapInternalRequest> request)
 {
-    CoapExchangeData data = { reply,
-                              QSharedPointer<QCoapInternalRequest>(request),
+    CoapExchangeData data = { reply, request,
                               QVector<QSharedPointer<QCoapInternalReply> >() };
 
     exchangeMap.insert(token, data);
@@ -556,12 +585,12 @@ void QCoapProtocolPrivate::registerExchange(const QCoapToken &token, QCoapReply 
     Adds \a reply to the list of replies of the exchange identified by
     \a token.
 */
-bool QCoapProtocolPrivate::addReply(const QCoapToken &token, QCoapInternalReply *reply)
+bool QCoapProtocolPrivate::addReply(const QCoapToken &token, QSharedPointer<QCoapInternalReply> reply)
 {
-    if (!isTokenRegistered(token) || reply == nullptr)
+    if (!isTokenRegistered(token) || !reply)
         return false;
 
-    exchangeMap[token].replies.push_back(QSharedPointer<QCoapInternalReply>(reply));
+    exchangeMap[token].replies.push_back(reply);
     return true;
 }
 
@@ -723,6 +752,27 @@ constexpr uint QCoapProtocol::maxLatency()
 }
 
 /*!
+    Returns the minimum duration for messages timeout. The timeout is defined
+    as a random value between minTimeout() and maxTimeout().
+
+    \sa minTimeout(), setAckTimeout()
+*/
+uint QCoapProtocol::minTimeout() const {
+    Q_D(const QCoapProtocol);
+    return d->ackTimeout;
+}
+
+/*!
+    Returns the maximum duration for messages timeout.
+
+    \sa maxTimeout(), setAckTimeout(), setAckRandomFactor()
+*/
+uint QCoapProtocol::maxTimeout() const {
+    Q_D(const QCoapProtocol);
+    return static_cast<uint>(d->ackTimeout * d->ackRandomFactor);
+}
+
+/*!
     Sets the ACK_TIMEOUT value to \a ackTimeout in milliseconds. This value
     defauts to 2000 ms.
 
@@ -730,7 +780,7 @@ constexpr uint QCoapProtocol::maxLatency()
     reliable transmissions is a random value between ackTimeout() and
     ackTimeout() * ackRandomFactor().
 
-    \sa ackTimeout(), setAckRandomFactor()
+    \sa ackTimeout(), setAckRandomFactor(), minTimeout(), maxTimeout()
 */
 void QCoapProtocol::setAckTimeout(uint ackTimeout)
 {

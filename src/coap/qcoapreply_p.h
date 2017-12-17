@@ -52,7 +52,7 @@ class Q_AUTOTEST_EXPORT QCoapReplyPrivate : public QIODevicePrivate
 public:
     QCoapReplyPrivate(const QCoapRequest &request);
 
-    const QCoapRequest request;
+    QCoapRequest request;
     QCoapMessage message;
     QtCoap::StatusCode status = QtCoap::Invalid;
     QCoapReply::NetworkError error = QCoapReply::NoError;

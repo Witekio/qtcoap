@@ -71,7 +71,7 @@ public:
     void onBlockReceived(QCoapInternalRequest *request, uint currentBlockNumber, uint blockSize);
     void onMessageReceived(const QByteArray &frameReply);
     void onLastMessageReceived(QCoapInternalRequest *request);
-    void onAbortedRequest(const QCoapReply *reply);
+    void onRequestAborted(const QCoapToken &token);
 
     void sendAcknowledgment(QCoapInternalRequest *request);
     void sendReset(QCoapInternalRequest *request);
@@ -90,8 +90,8 @@ public:
     QCoapInternalRequest *findRequestByUserReply(const QCoapReply *reply);
 
     void registerExchange(const QCoapToken &token, QCoapReply *reply,
-                          QCoapInternalRequest *request);
-    bool addReply(const QCoapToken &token, QCoapInternalReply *reply);
+                          QSharedPointer<QCoapInternalRequest> request);
+    bool addReply(const QCoapToken &token, QSharedPointer<QCoapInternalReply> reply);
     bool forgetExchange(const QCoapToken &token);
     bool forgetExchangeReplies(const QCoapToken &token);
 

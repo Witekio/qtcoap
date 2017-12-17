@@ -41,6 +41,7 @@ class QCoapReply;
 class QCoapDiscoveryReply;
 class QCoapRequest;
 class QCoapProtocol;
+class QCoapConnection;
 
 class QCoapClientPrivate;
 class Q_COAP_EXPORT QCoapClient : public QObject
@@ -78,6 +79,8 @@ Q_SIGNALS:
     void finished(QCoapReply *);
 
 protected:
+    explicit QCoapClient(QCoapProtocol *protocol, QCoapConnection *connection, QObject *parent = nullptr);
+
     Q_DECLARE_PRIVATE(QCoapClient)
 };
 

@@ -89,7 +89,7 @@ Q_SIGNALS:
     void finished(QCoapReply *reply);
     void notified(const QByteArray &payload);
     void error(QCoapReply::NetworkError error);
-    void aborted(QCoapReply *reply);
+    void aborted(const QCoapToken &token);
 
 protected Q_SLOTS:
     void connectionError(QAbstractSocket::SocketError error);
@@ -104,7 +104,7 @@ protected:
 
     explicit QCoapReply(QCoapReplyPrivate &dd, QObject *parent = nullptr);
 
-    void setIsRunning(bool isRunning);
+    void setRunning(const QCoapToken &token, QCoapMessageId messageId);
     void setError(NetworkError error);
     virtual void onReplyReceived(const QCoapInternalReply *internalReply);
     qint64 readData(char *data, qint64 maxSize) Q_DECL_OVERRIDE;

@@ -42,6 +42,8 @@ private Q_SLOTS:
     void parseReplyPdu();
     void updateReply_data();
     void updateReply();
+    void requestData();
+    void abortRequest();
 };
 
 void tst_QCoapReply::parseReplyPdu_data()
@@ -166,6 +168,9 @@ class QCoapReplyForTests : public QCoapReply
 public:
     QCoapReplyForTests(const QCoapRequest &req) : QCoapReply (req) {}
 
+    void setRunning(const QCoapToken &token, QCoapMessageId messageId) {
+        QCoapReply::setRunning(token, messageId);
+    }
     void updateFromInternalReplyForTests(const QCoapInternalReply *internal) {
         onReplyReceived(internal);
     }
@@ -191,6 +196,29 @@ void tst_QCoapReply::updateReply()
 
     QTRY_COMPARE_WITH_TIMEOUT(spyReplyFinished.count(), 1, 1000);
     QCOMPARE(reply.readAll(), data.toUtf8());
+}
+
+void tst_QCoapReply::requestData()
+{
+    QCoapReplyForTests reply((QCoapRequest()));
+    reply.setRunning("token", 543);
+
+    QCOMPARE(reply.request().token(), QByteArray("token"));
+    QCOMPARE(reply.request().messageId(), 543);
+}
+
+void tst_QCoapReply::abortRequest()
+{
+    QCoapReplyForTests reply((QCoapRequest()));
+    reply.setRunning("token", 543);
+
+    QSignalSpy spyAborted(&reply, &QCoapReply::aborted);
+    reply.abortRequest();
+
+    spyAborted.wait(1000);
+    QCOMPARE(spyAborted.count(), 1);
+    QList<QVariant> arguments = spyAborted.takeFirst();
+    QVERIFY(arguments.at(0).toByteArray() == "token");
 }
 
 QTEST_MAIN(tst_QCoapReply)
