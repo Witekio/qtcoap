@@ -446,13 +446,16 @@ void QCoapProtocolPrivate::sendReset(QCoapInternalRequest *request)
 */
 void QCoapProtocol::cancelObserve(QPointer<QCoapReply> reply)
 {
-    if (!reply)
+    Q_D(QCoapProtocol);
+
+    if (!reply || !reply->request().isObserved())
         return;
 
-    Q_D(QCoapProtocol);
+    reply->setObserveCancelled();
+
     QCoapInternalRequest *copyRequest = d->findRequestByUserReply(reply);
     if (copyRequest)
-        copyRequest->setCancelObserve(true);
+        copyRequest->setObserveCancelled();
 }
 
 /*!

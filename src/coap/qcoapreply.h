@@ -85,6 +85,9 @@ public:
     bool isFinished() const;
     bool isAborted() const;
 
+public Q_SLOTS:
+    void abortRequest();
+
 Q_SIGNALS:
     void finished(QCoapReply *reply);
     void notified(const QByteArray &payload);
@@ -95,9 +98,6 @@ protected Q_SLOTS:
     void connectionError(QAbstractSocket::SocketError error);
     void replyError(QtCoap::StatusCode statusCode);
 
-public Q_SLOTS:
-    void abortRequest();
-
 protected:
     friend class QCoapProtocol;
     friend class QCoapProtocolPrivate;
@@ -106,6 +106,7 @@ protected:
 
     void setRunning(const QCoapToken &token, QCoapMessageId messageId);
     void setError(NetworkError error);
+    void setObserveCancelled();
     virtual void onReplyReceived(const QCoapInternalReply *internalReply);
     qint64 readData(char *data, qint64 maxSize) Q_DECL_OVERRIDE;
     qint64 writeData(const char *data, qint64 maxSize) Q_DECL_OVERRIDE;

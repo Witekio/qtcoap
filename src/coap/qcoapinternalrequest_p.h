@@ -84,7 +84,7 @@ public:
     uint retransmissionCounter() const;
     void setMethod(QtCoap::Method method);
     void setConnection(QCoapConnection *connection);
-    void setCancelObserve(bool cancelObserve);
+    void setObserveCancelled();
 
     void setTargetUri(QUrl targetUri);
     void setTimeout(uint timeout);

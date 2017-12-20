@@ -641,7 +641,11 @@ void tst_QCoapClient::observe()
     }
 
     client.cancelObserve(reply.data());
-    QTRY_COMPARE_WITH_TIMEOUT(spyReplyNotified.count(), 4, 42000);
+    QEventLoop eventLoop;
+    QTimer::singleShot(10000, &eventLoop, &QEventLoop::quit);
+    eventLoop.exec();
+
+    QCOMPARE(spyReplyNotified.count(), 3);
     for (QList<QVariant> receivedSignals : qAsConst(spyReplyNotified)) {
 #if 0
         qDebug() << receivedSignals.first().toByteArray();

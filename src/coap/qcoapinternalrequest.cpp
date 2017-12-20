@@ -549,14 +549,14 @@ void QCoapInternalRequest::setConnection(QCoapConnection *connection)
 
 /*!
     \internal
-    Sets the cancel observe parameter to the given \a isObserveCancelled value.
+    Set the observe request as cancelled.
 
     \sa isObserveCancelled()
 */
-void QCoapInternalRequest::setCancelObserve(bool cancelObserve)
+void QCoapInternalRequest::setObserveCancelled()
 {
     Q_D(QCoapInternalRequest);
-    d->observeCancelled = cancelObserve;
+    d->observeCancelled = true;
 }
 
 /*!

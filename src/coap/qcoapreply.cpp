@@ -319,6 +319,24 @@ void QCoapReply::setError(NetworkError newError)
 /*!
     \internal
 
+    Sets the reply as finished.
+*/
+void QCoapReply::setObserveCancelled()
+{
+    Q_D(QCoapReply);
+
+    bool alreadyFinished = isFinished();
+
+    d->isFinished = true;
+    d->isRunning = false;
+
+    if (!alreadyFinished)
+        emit finished(this);
+}
+
+/*!
+    \internal
+
     Updates the QCoapReply object and its message with data of the internal
     reply \a internalReply, unless this QCoapReply object has been aborted.
 */
