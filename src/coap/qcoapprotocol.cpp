@@ -195,7 +195,7 @@ void QCoapProtocolPrivate::onFrameReceived(const QByteArray &frame)
     }
 
     request->stopTransmission();
-    addReply(internalReplyMessage->token(), internalReply);
+    addReply(request->token(), internalReply);
 
     // Reply when the server asks for an ACK
     if (request->isObserveCancelled()) {
