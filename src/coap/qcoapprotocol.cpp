@@ -117,8 +117,7 @@ void QCoapProtocol::sendRequest(QPointer<QCoapReply> reply, QCoapConnection *con
                 this, SLOT(resendRequest(QCoapInternalRequest*)));
     }
 
-    QMetaObject::invokeMethod(this, "sendRequest",
-                              Q_ARG(QCoapInternalRequest*, internalRequest.data()));
+    d->sendRequest(internalRequest.data());
 }
 
 /*!
