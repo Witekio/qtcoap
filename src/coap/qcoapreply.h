@@ -46,31 +46,6 @@ class Q_COAP_EXPORT QCoapReply : public QIODevice
 {
     Q_OBJECT
 public:
-    enum NetworkError {
-        NoError,
-        HostNotFoundError,
-        BadRequestError,
-        AddressInUseError,
-        TimeOutError,
-        UnauthorizedError,
-        BadOptionError,
-        ForbiddenError,
-        NotFoundError,
-        MethodNotAllowedError,
-        NotAcceptableError,
-        RequestEntityIncompleteError,
-        PreconditionFailedError,
-        RequestEntityTooLargeError,
-        UnsupportedContentFormatError,
-        InternalServerErrorError,
-        NotImplementedError,
-        BadGatewayError,
-        ServiceUnavailableError,
-        GatewayTimeoutError,
-        ProxyingNotSupportedError,
-        UnknownError
-    };
-    Q_ENUM(NetworkError)
 
     explicit QCoapReply(const QCoapRequest &request, QObject *parent = nullptr);
     ~QCoapReply();
@@ -80,7 +55,7 @@ public:
     QCoapRequest request() const;
     QUrl url() const;
     QtCoap::Method method() const;
-    NetworkError errorReceived() const;
+    QtCoap::Error errorReceived() const;
     bool isRunning() const;
     bool isFinished() const;
     bool isAborted() const;
@@ -90,13 +65,13 @@ public Q_SLOTS:
 
 Q_SIGNALS:
     void finished(QCoapReply *reply);
-    void notified(const QByteArray &payload);
-    void error(QCoapReply::NetworkError error);
+    void notified(QCoapReply *reply, const QCoapMessage &message);
+    void error(QCoapReply *reply, QtCoap::Error error);
     void aborted(const QCoapToken &token);
 
 protected Q_SLOTS:
-    void connectionError(QAbstractSocket::SocketError error);
-    void replyError(QtCoap::StatusCode statusCode);
+    void setError(QtCoap::StatusCode statusCode);
+    void setError(QtCoap::Error error);
 
 protected:
     friend class QCoapProtocol;
@@ -105,9 +80,10 @@ protected:
     explicit QCoapReply(QCoapReplyPrivate &dd, QObject *parent = nullptr);
 
     void setRunning(const QCoapToken &token, QCoapMessageId messageId);
-    void setError(NetworkError error);
     void setObserveCancelled();
-    virtual void onReplyReceived(const QCoapInternalReply *internalReply);
+    virtual void setContent(const QCoapInternalReply *internalReply);
+    virtual void setNotified(const QCoapInternalReply *internalReply);
+    void setFinished(QtCoap::Error error = QtCoap::NoError);
     qint64 readData(char *data, qint64 maxSize) Q_DECL_OVERRIDE;
     qint64 writeData(const char *data, qint64 maxSize) Q_DECL_OVERRIDE;
 

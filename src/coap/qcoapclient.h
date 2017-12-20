@@ -32,6 +32,7 @@
 
 #include <QtCore/qglobal.h>
 #include <QtCoap/qcoapglobal.h>
+#include <QtCoap/qcoapnamespace.h>
 #include <QtCore/qobject.h>
 #include <QtCore/qiodevice.h>
 
@@ -77,6 +78,7 @@ public:
 
 Q_SIGNALS:
     void finished(QCoapReply *);
+    void error(QtCoap::Error error);
 
 protected:
     explicit QCoapClient(QCoapProtocol *protocol, QCoapConnection *connection, QObject *parent = nullptr);

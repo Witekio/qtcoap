@@ -73,6 +73,32 @@ public:
     };
     Q_ENUM(StatusCode)
 
+    enum Error {
+        NoError,
+        HostNotFoundError,
+        BadRequestError,
+        AddressInUseError,
+        TimeOutError,
+        UnauthorizedError,
+        BadOptionError,
+        ForbiddenError,
+        NotFoundError,
+        MethodNotAllowedError,
+        NotAcceptableError,
+        RequestEntityIncompleteError,
+        PreconditionFailedError,
+        RequestEntityTooLargeError,
+        UnsupportedContentFormatError,
+        InternalServerErrorError,
+        NotImplementedError,
+        BadGatewayError,
+        ServiceUnavailableError,
+        GatewayTimeoutError,
+        ProxyingNotSupportedError,
+        UnknownError
+    };
+    Q_ENUM(Error)
+
     enum Method {
         Invalid,
         Get,
@@ -91,6 +117,7 @@ public:
     Q_ENUM(Method)
 
     static bool isError(StatusCode code) { return code >= 0x80; }
+    static Error statusCodeError(StatusCode code);
 
     static QRandomGenerator randomGenerator;
 };

@@ -430,7 +430,7 @@ QCoapToken QCoapInternalRequest::token() const
     Increments the retransmission counter, updates the timeout and
     starts a timer.
 */
-void QCoapInternalRequest::beginTransmission()
+void QCoapInternalRequest::startTransmission()
 {
     Q_D(QCoapInternalRequest);
 

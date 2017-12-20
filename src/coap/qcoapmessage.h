@@ -96,6 +96,7 @@ protected:
 };
 
 Q_DECLARE_SHARED(QCoapMessage)
+Q_DECLARE_METATYPE(QCoapMessage)
 Q_DECLARE_METATYPE(QCoapMessage::MessageType)
 
 QT_END_NAMESPACE

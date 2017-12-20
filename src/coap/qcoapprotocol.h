@@ -35,6 +35,7 @@
 #include <QtCoap/qcoapreply.h>
 #include <QtCoap/qcoapresource.h>
 #include <QtCore/qobject.h>
+#include <QtNetwork/qudpsocket.h>
 
 QT_BEGIN_NAMESPACE
 
@@ -68,6 +69,7 @@ public:
 
 Q_SIGNALS:
     void finished(QCoapReply*);
+    void error(QtCoap::Error error);
 
 public Q_SLOTS:
     void sendRequest(QPointer<QCoapReply> reply, QCoapConnection *connection);
@@ -79,6 +81,7 @@ private:
     Q_PRIVATE_SLOT(d_func(), void sendRequest(QCoapInternalRequest*))
     Q_PRIVATE_SLOT(d_func(), void onFrameReceived(const QByteArray&))
     Q_PRIVATE_SLOT(d_func(), void onRequestAborted(const QCoapToken&))
+    Q_PRIVATE_SLOT(d_func(), void onConnectionError(QAbstractSocket::SocketError))
 };
 
 QT_END_NAMESPACE

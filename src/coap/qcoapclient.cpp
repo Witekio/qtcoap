@@ -58,6 +58,57 @@ QCoapClientPrivate::~QCoapClientPrivate()
 }
 
 /*!
+    \class QtCoap
+
+    Returns the QtCoap::Error corresponding to the \a code passed to this
+    method.
+*/
+QtCoap::Error QtCoap::statusCodeError(QtCoap::StatusCode code)
+{
+    if (!isError(code))
+        return QtCoap::NoError;
+
+    switch (code) {
+    case QtCoap::BadRequest:
+        return BadRequestError;
+    case QtCoap::Unauthorized:
+        return UnauthorizedError;
+    case QtCoap::BadOption:
+        return BadOptionError;
+    case QtCoap::Forbidden:
+        return ForbiddenError;
+    case QtCoap::NotFound:
+        return NotFoundError;
+    case QtCoap::MethodNotAllowed:
+        return MethodNotAllowedError;
+    case QtCoap::NotAcceptable:
+        return NotAcceptableError;
+    case QtCoap::RequestEntityIncomplete:
+        return RequestEntityIncompleteError;
+    case QtCoap::PreconditionFailed:
+        return PreconditionFailedError;
+    case QtCoap::RequestEntityTooLarge:
+        return RequestEntityTooLargeError;
+    case QtCoap::UnsupportedContentFormat:
+        return UnsupportedContentFormatError;
+    case QtCoap::InternalServerError:
+        return InternalServerErrorError;
+    case QtCoap::NotImplemented:
+        return NotImplementedError;
+    case QtCoap::BadGateway:
+        return BadGatewayError;
+    case QtCoap::ServiceUnavailable:
+        return ServiceUnavailableError;
+    case QtCoap::GatewayTimeout:
+        return GatewayTimeoutError;
+    case QtCoap::ProxyingNotSupported:
+        return ProxyingNotSupportedError;
+    default:
+        return UnknownError;
+    }
+}
+
+/*!
     \class QCoapClient
     \brief The QCoapClient class allows the application to
     send CoAP requests and receive replies.
@@ -130,17 +181,23 @@ QCoapClient::QCoapClient(QCoapProtocol *protocol, QCoapConnection *connection, Q
     Q_D(QCoapClient);
 
     qRegisterMetaType<QCoapReply*>();
+    qRegisterMetaType<QCoapMessage>();
     qRegisterMetaType<QPointer<QCoapReply>>();
     qRegisterMetaType<QPointer<QCoapDiscoveryReply>>();
     qRegisterMetaType<QCoapConnection*>();
-    qRegisterMetaType<QCoapReply::NetworkError>();
+    qRegisterMetaType<QtCoap::Error>();
     // Requires a name, as this is a typedef
     qRegisterMetaType<QCoapToken>("QCoapToken");
 
     connect(d->connection, SIGNAL(readyRead(const QByteArray&)),
             d->protocol, SLOT(onFrameReceived(const QByteArray&)));
+    connect(d->connection, SIGNAL(error(QAbstractSocket::SocketError)),
+            d->protocol, SLOT(onConnectionError(QAbstractSocket::SocketError)));
+
     connect(d->protocol, &QCoapProtocol::finished,
             this, &QCoapClient::finished);
+    connect(d->protocol, &QCoapProtocol::error,
+            this, &QCoapClient::error);
 }
 
 /*!
@@ -395,8 +452,6 @@ bool QCoapClientPrivate::send(QCoapReply *reply)
 
     q->connect(reply, SIGNAL(aborted(const QCoapToken&)),
                protocol, SLOT(onRequestAborted(const QCoapToken&)));
-    q->connect(connection, SIGNAL(error(QAbstractSocket::SocketError)),
-               reply, SLOT(connectionError(QAbstractSocket::SocketError)));
 
     QMetaObject::invokeMethod(protocol, "sendRequest",
                               Q_ARG(QPointer<QCoapReply>, QPointer<QCoapReply>(reply)),

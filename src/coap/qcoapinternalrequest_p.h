@@ -88,7 +88,7 @@ public:
 
     void setTargetUri(QUrl targetUri);
     void setTimeout(uint timeout);
-    void beginTransmission();
+    void startTransmission();
     void stopTransmission();
 
 Q_SIGNALS:

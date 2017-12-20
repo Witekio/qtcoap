@@ -75,7 +75,7 @@ QVector<QCoapResource> QCoapDiscoveryReply::resources() const
     Updates the QCoapDiscoveryReply object, its message and list of resources
     with data of the internal reply \a internalReply.
 */
-void QCoapDiscoveryReply::onReplyReceived(const QCoapInternalReply *internalReply)
+void QCoapDiscoveryReply::setContent(const QCoapInternalReply *internalReply)
 {
     Q_D(QCoapDiscoveryReply);
 
@@ -84,18 +84,14 @@ void QCoapDiscoveryReply::onReplyReceived(const QCoapInternalReply *internalRepl
 
     d->message = *internalReply->message();
     d->status = internalReply->statusCode();
-    d->isFinished = true;
-    d->isRunning = false;
 
-    if (QtCoap::isError(d->status)) {
-        replyError(d->status);
+    if (QtCoap::isError(internalReply->statusCode())) {
+        setError(internalReply->statusCode());
     } else {
         auto res = QCoapProtocol::resourcesFromCoreLinkList(d->message.payload());
         d->resources.append(res);
         emit discovered(res, this);
     }
-
-    emit finished(this);
 }
 
 QT_END_NAMESPACE

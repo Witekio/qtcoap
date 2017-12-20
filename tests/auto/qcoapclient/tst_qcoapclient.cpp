@@ -121,7 +121,7 @@ public:
     Helper() {}
 
 public slots:
-    void onError(QCoapReply::NetworkError error) {
+    void onError(QCoapReply*, QtCoap::Error error) {
         qWarning() << "Network error" << error << "occurred";
     }
 };
@@ -380,11 +380,11 @@ void tst_QCoapClient::socketError()
     QVERIFY2(socket, "Socket not properly created with connection");
     QSignalSpy spySocketError(socket, SIGNAL(error(QAbstractSocket::SocketError)));
     QScopedPointer<QCoapReply> reply(client.get(QCoapRequest(url)));
-    QSignalSpy spyReplyError(reply.data(), SIGNAL(error(QCoapReply::NetworkError)));
+    QSignalSpy spyClientError(&client, &QCoapClient::error);
 
     QTRY_COMPARE_WITH_TIMEOUT(spySocketError.count(), 1, 10000);
-    QTRY_COMPARE_WITH_TIMEOUT(spyReplyError.count(), 1, 10000);
-    QCOMPARE(spyReplyError.first().first(), QCoapReply::AddressInUseError);
+    QTRY_COMPARE_WITH_TIMEOUT(spyClientError.count(), 1, 1000);
+    QCOMPARE(spyClientError.first().first(), QtCoap::AddressInUseError);
 }
 
 void tst_QCoapClient::timeout()
@@ -393,18 +393,22 @@ void tst_QCoapClient::timeout()
     // Trigger a network timeout
     client.protocol()->setAckTimeout(2000);
     client.protocol()->setAckRandomFactor(1);
-    client.protocol()->setMaxRetransmit(4);
+    client.protocol()->setMaxRetransmit(2);
     QUrl url = QUrl("coap://172.99.99.99:5683/"); // Need an url that return nothing
 
     QScopedPointer<QCoapReply> reply(client.get(QCoapRequest(url, QCoapMessage::Confirmable)));
-    QSignalSpy spyReplyError(reply.data(), SIGNAL(error(QCoapReply::NetworkError)));
+    QSignalSpy spyReplyError(reply.data(), &QCoapReply::error);
+    QSignalSpy spyReplyAborted(reply.data(), &QCoapReply::aborted);
+    QSignalSpy spyReplyFinished(reply.data(), &QCoapReply::finished);
 
     QEventLoop eventLoop;
     QTimer::singleShot(client.protocol()->maxRetransmitWait() - 2000, &eventLoop, &QEventLoop::quit);
     eventLoop.exec();
 
     QTRY_COMPARE_WITH_TIMEOUT(spyReplyError.count(), 1, 5000);
-    QCOMPARE(spyReplyError.first().first(), QCoapReply::TimeOutError);
+    QCOMPARE(spyReplyError.first().at(1), QtCoap::TimeOutError);
+    QTRY_COMPARE_WITH_TIMEOUT(spyReplyFinished.count(), 1, 100);
+    QTRY_COMPARE_WITH_TIMEOUT(spyReplyAborted.count(), 0, 100);
 }
 
 void tst_QCoapClient::abort()
@@ -413,16 +417,19 @@ void tst_QCoapClient::abort()
     QUrl url = QUrl("coap://172.17.0.3:5683/large");
 
     QScopedPointer<QCoapReply> reply(client.get(QCoapRequest(url)));
-    QSignalSpy spyReplyFinished(reply.data(), SIGNAL(finished(QCoapReply*)));
-    QSignalSpy spyReplyAborted(reply.data(), SIGNAL(aborted(QCoapToken)));
+    QSignalSpy spyReplyFinished(reply.data(), &QCoapReply::finished);
+    QSignalSpy spyReplyAborted(reply.data(), &QCoapReply::aborted);
+    QSignalSpy spyReplyError(reply.data(), &QCoapReply::error);
+
     reply->abortRequest();
 
     QEventLoop eventLoop;
-    QTimer::singleShot(2000, &eventLoop, &QEventLoop::quit);
+    QTimer::singleShot(1000, &eventLoop, &QEventLoop::quit);
     eventLoop.exec();
 
-    QCOMPARE(spyReplyFinished.count(), 0);
     QCOMPARE(spyReplyAborted.count(), 1);
+    QCOMPARE(spyReplyFinished.count(), 1);
+    QCOMPARE(spyReplyError.count(), 0);
 }
 
 void tst_QCoapClient::blockwiseReply_data()
@@ -487,10 +494,10 @@ void tst_QCoapClient::blockwiseReply()
 
     request.setType(type);
     QScopedPointer<QCoapReply> reply(client.get(request));
-    QSignalSpy spyReplyFinished(reply.data(), SIGNAL(finished(QCoapReply*)));
-    QSignalSpy spyReplyError(reply.data(), SIGNAL(error(QCoapReply::NetworkError)));
+    QSignalSpy spyReplyFinished(reply.data(), &QCoapReply::finished);
+    QSignalSpy spyReplyError(reply.data(), &QCoapReply::error);
     Helper helper;
-    connect(reply.data(), SIGNAL(error(QCoapReply::NetworkError)), &helper, SLOT(onError(QCoapReply::NetworkError)));
+    connect(reply.data(), &QCoapReply::error, &helper, &Helper::onError);
 
     QCOMPARE(spyReplyError.count(), 0);
     QTRY_COMPARE_WITH_TIMEOUT(spyReplyFinished.count(), 1, 30000);
@@ -622,7 +629,7 @@ void tst_QCoapClient::observe()
 
     request.setType(type);
     QScopedPointer<QCoapReply> reply(client.observe(request));
-    QSignalSpy spyReplyNotified(reply.data(), SIGNAL(notified(const QByteArray&)));
+    QSignalSpy spyReplyNotified(reply.data(), &QCoapReply::notified);
 
     QTRY_COMPARE_WITH_TIMEOUT(spyReplyNotified.count(), 3, 30000);
     for (QList<QVariant> receivedSignals : qAsConst(spyReplyNotified)) {

@@ -136,7 +136,7 @@ void QCoapProtocolPrivate::sendRequest(QCoapInternalRequest *request)
         return;
     }
 
-    request->beginTransmission();
+    request->startTransmission();
     QByteArray requestFrame = encode(request);
     QUrl uri = request->targetUri();
     request->connection()->sendRequest(requestFrame, uri.host(), uri.port());
@@ -154,19 +154,55 @@ void QCoapProtocolPrivate::onRequestTimeout(QCoapInternalRequest *request)
     Q_Q(const QCoapProtocol);
     Q_ASSERT(QThread::currentThread() == q->thread());
 
+    // Nothing expected if message is not confirmable
+    if (request->message()->type() != QCoapMessage::Confirmable
+        || !isRequestRegistered(request)) {
+        return;
+    }
+
     // In case of retransmission, check if it is not the last try
-    if (request->message()->type() == QCoapMessage::Confirmable
-        && isRequestRegistered(request)) {
-        if (request->retransmissionCounter() < maxRetransmit) {
-            sendRequest(request);
-        } else {
-            QCoapReply *reply = userReplyForToken(request->token());
-            reply->setError(QCoapReply::TimeOutError);
-            reply->abortRequest();
-        }
+    if (request->retransmissionCounter() < maxRetransmit) {
+        sendRequest(request);
+    } else {
+        onRequestError(request, QtCoap::TimeOutError);
     }
 }
 
+/*!
+    \internal
+    \class QCoapProtocolPrivate
+
+    Method triggered when a request fails.
+*/
+void QCoapProtocolPrivate::onRequestError(QCoapInternalRequest *request, QCoapInternalReply *reply)
+{
+    QtCoap::Error error = QtCoap::statusCodeError(reply->statusCode());
+    onRequestError(request, error, reply);
+}
+
+/*!
+    \internal
+    \class QCoapProtocolPrivate
+
+    Method triggered when a request fails.
+*/
+void QCoapProtocolPrivate::onRequestError(QCoapInternalRequest *request, QtCoap::Error error,
+                                          QCoapInternalReply *reply)
+{
+    Q_ASSERT(request);
+    QCoapReply *userReply = userReplyForToken(request->token());
+
+    if (userReply) {
+        if (reply)
+            userReply->setContent(reply);
+        else
+            userReply->setError(error);
+
+        userReply->setFinished();
+    }
+
+    forgetExchange(request);
+}
 /*!
     \internal
     \class QCoapProtocolPrivate
@@ -178,8 +214,8 @@ void QCoapProtocolPrivate::onFrameReceived(const QByteArray &frame)
     Q_Q(const QCoapProtocol);
     Q_ASSERT(QThread::currentThread() == q->thread());
 
-    QSharedPointer<QCoapInternalReply> internalReply(decode(frame));
-    const QCoapMessage *internalReplyMessage = internalReply->message();
+    QSharedPointer<QCoapInternalReply> reply(decode(frame));
+    const QCoapMessage *internalReplyMessage = reply->message();
 
     QCoapInternalRequest *request = nullptr;
     if (!internalReplyMessage->token().isEmpty())
@@ -195,7 +231,12 @@ void QCoapProtocolPrivate::onFrameReceived(const QByteArray &frame)
     }
 
     request->stopTransmission();
-    addReply(request->token(), internalReply);
+    addReply(request->token(), reply);
+
+    if (QtCoap::isError(reply->statusCode())) {
+        onRequestError(request, reply.data());
+        return;
+    }
 
     // Reply when the server asks for an ACK
     if (request->isObserveCancelled()) {
@@ -207,12 +248,12 @@ void QCoapProtocolPrivate::onFrameReceived(const QByteArray &frame)
     }
 
     // Ask/Send next block or process the final reply
-    int nextBlockWanted = internalReply->nextBlockWanted();
+    int nextBlockWanted = reply->nextBlockWanted();
     if (nextBlockWanted >= 0) {
         request->setRequestToSendBlock(static_cast<uint>(nextBlockWanted), blockSize);
         sendRequest(request);
-    } else if (internalReply->hasNextBlock()) {
-        onBlockReceived(request, internalReply->currentBlockNumber(), internalReply->blockSize());
+    } else if (reply->hasNextBlock()) {
+        onBlockReceived(request, reply->currentBlockNumber(), reply->blockSize());
     } else {
         onLastMessageReceived(request);
     }
@@ -322,23 +363,25 @@ QCoapInternalRequest *QCoapProtocolPrivate::findRequestByMessageId(quint16 messa
 */
 void QCoapProtocolPrivate::onLastMessageReceived(QCoapInternalRequest *request)
 {
-    if (!request || !isRequestRegistered(request))
+    Q_ASSERT(request);
+    if (!request ||!isRequestRegistered(request))
         return;
 
     auto replies = repliesForToken(request->token());
-    QPointer<QCoapReply> userReply = userReplyForToken(request->token());
+    Q_ASSERT(!replies.isEmpty());
 
     //! FIXME: Change QPointer<QCoapReply> into something independent from
     //! User. QSharedPointer(s)?
-    if (replies.isEmpty() || userReply.isNull()) {
-        forgetExchange(request->token());
+    QPointer<QCoapReply> userReply = userReplyForToken(request->token());//!
+    if (userReply.isNull() || replies.isEmpty()) {
+        forgetExchange(request);
         return;
     }
 
-    auto finalInternalReply = replies.last();
+    auto lastReply = replies.last();
     // Ignore empty ACK messages
-    if (finalInternalReply->message()->type() == QCoapMessage::Acknowledgment
-            && finalInternalReply->statusCode() == QtCoap::EmptyMessage) {
+    if (lastReply->message()->type() == QCoapMessage::Acknowledgment
+            && lastReply->statusCode() == QtCoap::EmptyMessage) {
         exchangeMap[request->token()].replies.takeLast();
         return;
     }
@@ -362,17 +405,21 @@ void QCoapProtocolPrivate::onLastMessageReceived(QCoapInternalRequest *request)
             lastBlockNumber = currentBlock;
         }
 
-        finalInternalReply->message()->setPayload(finalPayload);
+        lastReply->message()->setPayload(finalPayload);
     }
 
-    if (!userReply.isNull())
-        userReply->onReplyReceived(finalInternalReply.data());
-
-    // Remove request and replies. Keep the request only for Observe.
-    if (userReply.isNull() || !userReply->request().isObserved() || request->isObserveCancelled()) {
-        forgetExchange(request->token());
+    // Forward the answer
+    if (userReply.isNull()) {
+        forgetExchange(request);
     } else {
-        forgetExchangeReplies(request->token());
+        if (userReply->request().isObserved()) {
+            userReply->setNotified(lastReply.data());
+            forgetExchangeReplies(request->token());
+        } else {
+            userReply->setContent(lastReply.data());
+            userReply->setFinished();
+            forgetExchange(request);
+        }
     }
 }
 
@@ -497,7 +544,33 @@ void QCoapProtocolPrivate::onRequestAborted(const QCoapToken &token)
         return;
 
     request->stopTransmission();
-    forgetExchange(request->token());
+    forgetExchange(request);
+}
+
+/*!
+    \internal
+    \class QCoapProtocolPrivate
+
+    Triggered when an error occurs in the QCoapConnection.
+*/
+void QCoapProtocolPrivate::onConnectionError(QAbstractSocket::SocketError socketError)
+{
+    Q_Q(QCoapProtocol);
+
+    QtCoap::Error coapError;
+    switch (socketError) {
+    case QAbstractSocket::HostNotFoundError :
+        coapError = QtCoap::HostNotFoundError;
+        break;
+    case QAbstractSocket::AddressInUseError :
+        coapError = QtCoap::AddressInUseError;
+        break;
+    default:
+        coapError = QtCoap::UnknownError;
+        break;
+    }
+
+    emit q->error(coapError);
 }
 
 /*!
@@ -585,6 +658,19 @@ bool QCoapProtocolPrivate::addReply(const QCoapToken &token, QSharedPointer<QCoa
 bool QCoapProtocolPrivate::forgetExchange(const QCoapToken &token)
 {
     return (exchangeMap.remove(token) > 0);
+}
+
+/*!
+    \internal
+    \class QCoapProtocolPrivate
+
+    Remove the exchange using a request.
+
+    \sa forgetExchange(const QCoapToken &)
+*/
+bool QCoapProtocolPrivate::forgetExchange(const QCoapInternalRequest *request)
+{
+    return forgetExchange(request->token());
 }
 
 /*!
