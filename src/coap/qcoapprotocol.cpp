@@ -114,7 +114,7 @@ void QCoapProtocol::sendRequest(QPointer<QCoapReply> reply, QCoapConnection *con
         internalRequest->setTimeout(
                     QtCoap::randomGenerator.bounded(minTimeout(), maxTimeout()));
         connect(internalRequest.data(), SIGNAL(timeout(QCoapInternalRequest*)),
-                this, SLOT(resendRequest(QCoapInternalRequest*)));
+                this, SLOT(onRequestTimeout(QCoapInternalRequest*)));
     }
 
     d->sendRequest(internalRequest.data());
@@ -149,7 +149,7 @@ void QCoapProtocolPrivate::sendRequest(QCoapInternalRequest *request)
     This slot is used to send again the given \a request after a timeout or
     aborts the request and transfers a timeout error to the reply.
 */
-void QCoapProtocolPrivate::resendRequest(QCoapInternalRequest *request)
+void QCoapProtocolPrivate::onRequestTimeout(QCoapInternalRequest *request)
 {
     Q_Q(const QCoapProtocol);
     Q_ASSERT(QThread::currentThread() == q->thread());

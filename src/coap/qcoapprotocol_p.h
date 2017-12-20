@@ -75,7 +75,7 @@ public:
     void sendAcknowledgment(QCoapInternalRequest *request);
     void sendReset(QCoapInternalRequest *request);
     void sendRequest(QCoapInternalRequest *request);
-    void resendRequest(QCoapInternalRequest *request);
+    void onRequestTimeout(QCoapInternalRequest *request);
 
     bool isMessageIdRegistered(quint16 id);
     bool isTokenRegistered(const QCoapToken &token);
