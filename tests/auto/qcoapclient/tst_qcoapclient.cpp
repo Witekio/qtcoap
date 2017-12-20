@@ -47,12 +47,10 @@ private Q_SLOTS:
     void incorrectUrls();
     void methods_data();
     void methods();
-    void separateMethod_data();
     void separateMethod();
     void socketError();
     void timeout();
     void abort();
-    void removeReply_data();
     void removeReply();
     void requestWithQIODevice_data();
     void requestWithQIODevice();
@@ -241,19 +239,10 @@ void tst_QCoapClient::methods()
     }
 }
 
-void tst_QCoapClient::separateMethod_data()
-{
-    QTest::addColumn<QUrl>("url");
-
-    QTest::newRow("get") << QUrl("coap://172.17.0.3:5683/separate");
-}
-
 void tst_QCoapClient::separateMethod()
 {
-    QFETCH(QUrl, url);
-
     QCoapClient client;
-    QCoapRequest request(url);
+    QCoapRequest request(QUrl("coap://172.17.0.3:5683/separate"));
 
     QScopedPointer<QCoapReply> reply(client.get(request));
 
@@ -267,31 +256,26 @@ void tst_QCoapClient::separateMethod()
     QCOMPARE(reply->statusCode(), QtCoap::Content);
 }
 
-void tst_QCoapClient::removeReply_data()
-{
-    QTest::addColumn<QUrl>("url");
-
-    QTest::newRow("get") << QUrl("coap://172.17.0.3:5683/test");
-}
-
 void tst_QCoapClient::removeReply()
 {
-    QFETCH(QUrl, url);
-
     QCoapClient client;
-    QCoapRequest request(url);
+    QCoapRequest request(QUrl("coap://172.17.0.3:5683/test"));
 
     QCoapReply *reply = client.get(request);
     QVERIFY2(reply != nullptr, "Request failed unexpectedly");
-    QSignalSpy spyReplyFinished(reply, SIGNAL(finished(QCoapReply*)));
 
     // Simulate user deletion the reply, and reset memory to ease any "crash"
     reply->~QCoapReply();
     memset(reply, 0, sizeof(QCoapReply));
     reply = nullptr;
 
-    QThread::sleep(2);
-    QCOMPARE(spyReplyFinished.count(), 0);
+    QEventLoop eventLoop;
+    QTimer::singleShot(2000, &eventLoop, &QEventLoop::quit);
+    try {
+        eventLoop.exec();
+    } catch (...) {
+        QFAIL("Exception occured after destroying the QCoapReply");
+    }
 }
 
 void tst_QCoapClient::requestWithQIODevice_data()
@@ -408,14 +392,18 @@ void tst_QCoapClient::timeout()
     QCoapClientForTests client;
     // Trigger a network timeout
     client.protocol()->setAckTimeout(2000);
-    client.protocol()->setAckRandomFactor(2);
-    client.protocol()->setMaxRetransmit(3);
+    client.protocol()->setAckRandomFactor(1);
+    client.protocol()->setMaxRetransmit(4);
     QUrl url = QUrl("coap://172.99.99.99:5683/"); // Need an url that return nothing
 
     QScopedPointer<QCoapReply> reply(client.get(QCoapRequest(url, QCoapMessage::Confirmable)));
     QSignalSpy spyReplyError(reply.data(), SIGNAL(error(QCoapReply::NetworkError)));
 
-    QTRY_COMPARE_WITH_TIMEOUT(spyReplyError.count(), 1, client.protocol()->maxRetransmitWait() + 1000);
+    QEventLoop eventLoop;
+    QTimer::singleShot(client.protocol()->maxRetransmitWait() - 2000, &eventLoop, &QEventLoop::quit);
+    eventLoop.exec();
+
+    QTRY_COMPARE_WITH_TIMEOUT(spyReplyError.count(), 1, 5000);
     QCOMPARE(spyReplyError.first().first(), QCoapReply::TimeOutError);
 }
 
@@ -425,11 +413,16 @@ void tst_QCoapClient::abort()
     QUrl url = QUrl("coap://172.17.0.3:5683/large");
 
     QScopedPointer<QCoapReply> reply(client.get(QCoapRequest(url)));
-    QSignalSpy spyReplyGet1Finished(reply.data(), SIGNAL(finished(QCoapReply*)));
+    QSignalSpy spyReplyFinished(reply.data(), SIGNAL(finished(QCoapReply*)));
+    QSignalSpy spyReplyAborted(reply.data(), SIGNAL(aborted(QCoapToken)));
     reply->abortRequest();
 
-    QThread::sleep(1);
-    QCOMPARE(spyReplyGet1Finished.count(), 0);
+    QEventLoop eventLoop;
+    QTimer::singleShot(2000, &eventLoop, &QEventLoop::quit);
+    eventLoop.exec();
+
+    QCOMPARE(spyReplyFinished.count(), 0);
+    QCOMPARE(spyReplyAborted.count(), 1);
 }
 
 void tst_QCoapClient::blockwiseReply_data()
