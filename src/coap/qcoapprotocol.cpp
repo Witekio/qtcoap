@@ -63,11 +63,8 @@ QCoapProtocol::~QCoapProtocol()
 {
     Q_D(QCoapProtocol);
 
-    // Delete requests manually to avoid double deletion from QObject parenting
-    // and QSharedPointer.
-    for (auto it = d->exchangeMap.begin(); it != d->exchangeMap.end(); ++it) {
-        it->request.clear();
-    }
+    // Clear table to avoid double deletion from QObject parenting and QSharedPointer.
+    d->exchangeMap.clear();
 }
 
 /*!
