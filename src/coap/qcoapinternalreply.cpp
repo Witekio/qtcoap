@@ -33,7 +33,7 @@
 QT_BEGIN_NAMESPACE
 
 QCoapInternalReplyPrivate::QCoapInternalReplyPrivate():
-    statusCode(QtCoap::Invalid)
+    statusCode(QtCoap::InvalidCode)
 {
 }
 
@@ -78,8 +78,8 @@ QCoapInternalReply::QCoapInternalReply(const QCoapInternalReply &other, QObject 
     For more details, refer to section
     \l{https://tools.ietf.org/html/rfc7252#section-3}{'Message format' of RFC 7252}.
 */
-//! 0                   1                   2                   3
-//! 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+//!  0                   1                   2                   3
+//!  0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
 //! +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //! |Ver| T |  TKL  |      Code     |          Message ID           |
 //! +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+

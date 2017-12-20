@@ -171,18 +171,18 @@ void tst_QCoapClient::methods_data()
     QTest::addColumn<QUrl>("url");
     QTest::addColumn<QtCoap::Method>("method");
 
-    QTest::newRow("get_no_op") << QUrl("coap://172.17.0.3:5683/test") << QtCoap::Empty;
+    QTest::newRow("get_no_op") << QUrl("coap://172.17.0.3:5683/test") << QtCoap::Invalid;
     QTest::newRow("get") << QUrl("coap://172.17.0.3:5683/test") << QtCoap::Get;
     QTest::newRow("get_incorrect_op") << QUrl("coap://172.17.0.3:5683/test") << QtCoap::Put;
     QTest::newRow("get_no_port") << QUrl("coap://172.17.0.3/test") << QtCoap::Get;
     QTest::newRow("get_no_scheme_no_port") << QUrl("172.17.0.3/test") << QtCoap::Get;
-    QTest::newRow("post_no_op") << QUrl("coap://172.17.0.3:5683/test") << QtCoap::Empty;
+    QTest::newRow("post_no_op") << QUrl("coap://172.17.0.3:5683/test") << QtCoap::Invalid;
     QTest::newRow("post") << QUrl("coap://172.17.0.3:5683/test") << QtCoap::Post;
     QTest::newRow("post_incorrect_op") << QUrl("coap://172.17.0.3:5683/test") << QtCoap::Delete;
-    QTest::newRow("put_no_op") << QUrl("coap://172.17.0.3:5683/test") << QtCoap::Empty;
+    QTest::newRow("put_no_op") << QUrl("coap://172.17.0.3:5683/test") << QtCoap::Invalid;
     QTest::newRow("put") << QUrl("coap://172.17.0.3:5683/test") << QtCoap::Put;
     QTest::newRow("put_incorrect_op") << QUrl("coap://172.17.0.3:5683/test") << QtCoap::Post;
-    QTest::newRow("delete_no_op") << QUrl("coap://172.17.0.3:5683/test") << QtCoap::Empty;
+    QTest::newRow("delete_no_op") << QUrl("coap://172.17.0.3:5683/test") << QtCoap::Invalid;
     QTest::newRow("delete") << QUrl("coap://172.17.0.3:5683/test") << QtCoap::Delete;
     QTest::newRow("delete_incorrect_op") << QUrl("coap://172.17.0.3:5683/test") << QtCoap::Get;
 }
@@ -195,7 +195,7 @@ void tst_QCoapClient::methods()
     QCoapClient client;
 
     QCoapRequest request(url);
-    if (method != QtCoap::Empty)
+    if (method != QtCoap::Invalid)
         request.setMethod(method);
 
     QSignalSpy spyClientFinished(&client, SIGNAL(finished(QCoapReply*)));

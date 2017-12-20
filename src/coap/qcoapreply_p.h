@@ -54,7 +54,7 @@ public:
 
     QCoapRequest request;
     QCoapMessage message;
-    QtCoap::StatusCode status = QtCoap::Invalid;
+    QtCoap::StatusCode status = QtCoap::InvalidCode;
     QCoapReply::NetworkError error = QCoapReply::NoError;
     bool isRunning = false;
     bool isFinished = false;

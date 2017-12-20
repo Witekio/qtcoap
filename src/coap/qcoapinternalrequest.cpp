@@ -89,7 +89,7 @@ QCoapInternalRequest::QCoapInternalRequest(const QCoapRequest &request, QObject 
 bool QCoapInternalRequest::isValid() const
 {
     Q_D(const QCoapInternalRequest);
-    return isUrlValid(d->targetUri) && d->method != QtCoap::Empty;
+    return isUrlValid(d->targetUri) && d->method != QtCoap::Invalid;
 }
 
 /*!
@@ -102,7 +102,7 @@ void QCoapInternalRequest::initForAcknowledgment(quint16 messageId, const QByteA
 {
     Q_D(QCoapInternalRequest);
 
-    setMethod(QtCoap::Empty);
+    setMethod(QtCoap::Invalid);
     d->message.setType(QCoapMessage::Acknowledgment);
     d->message.setMessageId(messageId);
     d->message.setToken(token);
@@ -121,7 +121,7 @@ void QCoapInternalRequest::initForReset(quint16 messageId)
 {
     Q_D(QCoapInternalRequest);
 
-    setMethod(QtCoap::Empty);
+    setMethod(QtCoap::Invalid);
     d->message.setType(QCoapMessage::Reset);
     d->message.setMessageId(messageId);
     d->message.setToken(QByteArray());

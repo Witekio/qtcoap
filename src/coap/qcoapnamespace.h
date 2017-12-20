@@ -45,7 +45,7 @@ private:
 
 public:
     enum StatusCode {
-        Invalid = 0x00,
+        EmptyMessage = 0x00,
         Created = 0x41, // 2.01
         Deleted = 0x42, // 2.02
         Valid   = 0x43, // 2.03
@@ -68,12 +68,13 @@ public:
         BadGateway = 0xA2, // 5.02
         ServiceUnavailable = 0xA3, // 5.03
         GatewayTimeout = 0xA4, // 5.04
-        ProxyingNotSupported = 0xA5 // 5.05
+        ProxyingNotSupported = 0xA5, // 5.05
+        InvalidCode = 0xFF
     };
     Q_ENUM(StatusCode)
 
     enum Method {
-        Empty,
+        Invalid,
         Get,
         Post,
         Put,

@@ -109,7 +109,7 @@ public:
     QCoapInternalRequestPrivate() = default;
 
     QUrl targetUri;
-    QtCoap::Method method = QtCoap::Empty;
+    QtCoap::Method method = QtCoap::Invalid;
     QCoapConnection *connection = nullptr;
     QByteArray fullPayload;
     bool observeCancelled = false;

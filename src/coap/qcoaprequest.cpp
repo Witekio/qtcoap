@@ -116,7 +116,7 @@ QCoapRequest::QCoapRequest(const QCoapRequest &other, QtCoap::Method method) :
     //! and the d_ptr is a QSharedDataPointer<QCoapMessagePrivate>
     QCoapMessage(* new QCoapRequestPrivate(*other.d_func()))
 {
-    if (method != QtCoap::Empty)
+    if (method != QtCoap::Invalid)
         setMethod(method);
 }
 
@@ -235,7 +235,7 @@ QCoapRequest &QCoapRequest::operator=(const QCoapRequest &other)
 */
 bool QCoapRequest::isValid() const
 {
-    return isUrlValid(url()) && method() != QtCoap::Empty;
+    return isUrlValid(url()) && method() != QtCoap::Invalid;
 }
 
 /*!

@@ -340,9 +340,9 @@ void QCoapProtocolPrivate::onLastMessageReceived(QCoapInternalRequest *request)
     }
 
     auto finalInternalReply = replies.last();
-    // Ignore Invalid answers
+    // Ignore empty ACK messages
     if (finalInternalReply->message()->type() == QCoapMessage::Acknowledgment
-            && finalInternalReply->statusCode() == QtCoap::Invalid) {
+            && finalInternalReply->statusCode() == QtCoap::EmptyMessage) {
         exchangeMap[request->token()].replies.takeLast();
         return;
     }
@@ -566,8 +566,10 @@ void QCoapProtocolPrivate::registerExchange(const QCoapToken &token, QCoapReply 
 */
 bool QCoapProtocolPrivate::addReply(const QCoapToken &token, QSharedPointer<QCoapInternalReply> reply)
 {
-    if (!isTokenRegistered(token) || !reply)
+    if (!isTokenRegistered(token) || !reply) {
+        qWarning() << "QtCoap: Reply token '" << token << "' not registered, or reply is null.";
         return false;
+    }
 
     exchangeMap[token].replies.push_back(reply);
     return true;

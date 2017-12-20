@@ -48,7 +48,7 @@ public:
                  MessageType type = NonConfirmable,
                  const QUrl &proxyUrl = QUrl());
     QCoapRequest(const QCoapRequest &other,
-                 QtCoap::Method method = QtCoap::Empty);
+                 QtCoap::Method method = QtCoap::Invalid);
     ~QCoapRequest();
 
     QCoapRequest &operator=(const QCoapRequest &other);
