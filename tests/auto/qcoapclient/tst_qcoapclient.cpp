@@ -285,8 +285,9 @@ void tst_QCoapClient::removeReply()
     QVERIFY2(reply != nullptr, "Request failed unexpectedly");
     QSignalSpy spyReplyFinished(reply, SIGNAL(finished(QCoapReply*)));
 
-    // User deletes the reply
-    delete reply;
+    // Simulate user deletion the reply, and reset memory to ease any "crash"
+    reply->~QCoapReply();
+    memset(reply, 0, sizeof(QCoapReply));
     reply = nullptr;
 
     QThread::sleep(2);
