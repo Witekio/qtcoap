@@ -232,6 +232,20 @@ QCoapReply *QCoapClient::get(const QCoapRequest &request)
 }
 
 /*!
+    \overload
+
+    Sends request to \a url using the GET method and returns a new QCoapReply
+    object.
+
+    \sa post(), put(), deleteResource(), observe(), discover()
+*/
+QCoapReply *QCoapClient::get(const QUrl& url)
+{
+    QCoapRequest request(url);
+    return get(request);
+}
+
+/*!
     Sends \a request using the PUT method and returns a new QCoapReply object.
     Uses \a data as the payload for this request.
 
@@ -270,8 +284,21 @@ QCoapReply *QCoapClient::put(const QCoapRequest &request, QIODevice *device)
 }
 
 /*!
-    Posts a POST request sending the contents of the \a data byte array to the
-    target \a request and returns a new QCoapReply object.
+    \overload
+
+    Sends request to \a url using the PUT method and returns a new QCoapReply
+    object. Uses \a data as the payload for this request.
+
+    \sa get(), post(), deleteResource(), observe(), discover()
+*/
+QCoapReply *QCoapClient::put(const QUrl &url, const QByteArray &data)
+{
+     return put(QCoapRequest(url), data);
+}
+
+/*!
+    Posts a POST request sending the contents of the \a data QByteArray for the
+    \a request, and returns a new QCoapReply object.
 
     \sa get(), put(), deleteResource(), observe(), discover()
 */
@@ -310,6 +337,19 @@ QCoapReply *QCoapClient::post(const QCoapRequest &request, QIODevice *device)
 }
 
 /*!
+    \overload
+
+    Sends a POST request to the target \a url with the \a data QByteArray,
+    and returns a new QCoapReply object.
+
+    \sa get(), put(), deleteResource(), observe(), discover()
+*/
+QCoapReply *QCoapClient::post(const QUrl &url, const QByteArray &data)
+{
+    return post(QCoapRequest(url), data);
+}
+
+/*!
     Sends a DELETE request to the target of \a request.
 
     \sa get(), put(), post(), observe(), discover()
@@ -327,6 +367,18 @@ QCoapReply *QCoapClient::deleteResource(const QCoapRequest &request)
     QCoapRequest copyRequest(request, QtCoap::Delete);
 
     return d->sendRequest(copyRequest);
+}
+
+/*!
+    \overload
+
+    Sends a DELETE request to the target \a url.
+
+    \sa get(), put(), post(), observe(), discover()
+ */
+QCoapReply *QCoapClient::deleteResource(const QUrl &url)
+{
+    return deleteResource(QCoapRequest(url));
 }
 
 //! TODO discover should probably use a signal different from
@@ -377,6 +429,21 @@ QCoapReply *QCoapClient::observe(const QCoapRequest &request)
     copyRequest.enableObserve();
 
     return get(copyRequest);
+}
+
+/*!
+    \overload
+
+    Sends a request to observe the target \a url and returns
+    a new QCoapReply object which emits the
+    \l{QCoapReply::notified(const QByteArray&)}{notified(const QByteArray&)}
+    signal whenever a new notification arrives.
+
+    \sa cancelObserve(), get(), post(), put(), deleteResource(), discover()
+*/
+QCoapReply *QCoapClient::observe(const QUrl &url)
+{
+    return observe(QCoapRequest(url));
 }
 
 /*!

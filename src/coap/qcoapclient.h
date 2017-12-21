@@ -53,12 +53,17 @@ public:
     ~QCoapClient();
 
     QCoapReply *get(const QCoapRequest &request);
+    QCoapReply *get(const QUrl &url);
     QCoapReply *put(const QCoapRequest &request, const QByteArray &data = QByteArray());
     QCoapReply *put(const QCoapRequest &request, QIODevice *device);
+    QCoapReply *put(const QUrl &url, const QByteArray &data = QByteArray());
     QCoapReply *post(const QCoapRequest &request, const QByteArray &data = QByteArray());
     QCoapReply *post(const QCoapRequest &request, QIODevice *device);
+    QCoapReply *post(const QUrl &url, const QByteArray &data = QByteArray());
     QCoapReply *deleteResource(const QCoapRequest &request);
+    QCoapReply *deleteResource(const QUrl &url);
     QCoapReply *observe(const QCoapRequest &request);
+    QCoapReply *observe(const QUrl &request);
     void cancelObserve(QCoapReply *notifiedReply);
 
 #if 0
