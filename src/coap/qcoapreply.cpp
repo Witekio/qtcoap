@@ -51,77 +51,49 @@ QCoapReplyPrivate::QCoapReplyPrivate(const QCoapRequest &req) :
     The QCoapReply contains data related to a request sent with the
     QCoapClient.
 
-    The \l{QCoapReply::finished()}{finished()} signal is emitted when
-    the response is fully received and when request fails.
+    The \l{QCoapReply::finished(QCoapReply*)}{finished(QCoapReply*)} signal is
+    emitted when the response is fully received and when request fails.
 
-    The \l{QCoapReply::notified(const QByteArray&)}
-    {notified(const QByteArray&)} signal is emitted when a resource sends
-    a notification in response of an observe request.
+    For Observe requests specifically, the
+    \l{QCoapReply::notified(QCoapReply*, const QByteArray&)}{notified(QCoapReply*, const QByteArray&)}
+    signal is emitted whenever a notification is received.
 
     \sa QCoapClient, QCoapRequest, QCoapDiscoveryReply
 */
 
-//! TODO Document all enum values
 /*!
-    \enum QtCoap::Error
+    \fn void QCoapReply::finished(QCoapReply* reply)
 
-    Indicates all possible error conditions found during the
-    processing of the request.
+    This signal is emitted whenever the corresponding request finished,
+    either successfully or not. When a resource is observed, this signal will
+    be emitted only once, in the same conditions.
 
-    \value NoError                  No error condition.
-
-    \value HostNotFoundError        The remote host name was not
-                                    found.
-
-    \value BadRequestError          The request was not recognized.
-
-    \value AddressInUseError        The address is already in use.
-
-    \value TimeOutError             The response did not arrive in time.
-
-    \value UnknownError             An unknown error was detected.
-
-    \sa error()
-*/
-/*!
-    \enum QtCoap::StatusCode
-
-    This enum maps the status code of the CoAP protocol, as defined in
-    the 'response' section of the
-    \l{https://tools.ietf.org/html/rfc7252#section-5.2}{RFC 7252}
-*/
-
-/*!
-    \fn void QCoapReply::finished()
-
-    This signal is emitted whenever the reply is finished. When a resource is
-    observed, only the \l{QCoapReply::notified()}{notified()} will be emitted.
-
-    \note Aborted replies send the \l{QCoapReply::aborted()}{aborted()} signal
-    only.
+    The \a reply parameter is the QCoapReply itself for convenience.
 
     \sa QCoapClient::finished(), isFinished(), notified(), aborted()
 */
 
 /*!
-    \fn void QCoapReply::notified(const QByteArray &payload)
+    \fn void QCoapReply::notified(QCoapReply* reply, const QCoapMessage &message)
 
-    This signal is emitted whenever a notification is received from a resource
-    for an observe request.
+    This signal is emitted whenever a notification is received from an observed
+    resource.
 
-    Its \a payload parameter is a QByteArray containing the payload of the
-    notification.
+    Its \a message parameter is a QCoapMessage containing the payload and the
+    message details. The \a reply parameter is the QCoapReply itself for
+    convenience.
 
     \sa QCoapClient::finished(), isFinished(), finished(), notified()
 */
 
 /*!
-    \fn void QCoapReply::error(QCoapReply::QCoapNetworkError error)
+    \fn void QCoapReply::error(QCoapReply* reply, QtCoap::Error error)
 
-    This signal is emitted whenever an error is sent by the socket or the code
-    received into the reply is an error code.
+    This signal is emitted whenever an error occurs and is followed by the
+    finished() signal.
 
-    Its \a error parameter is the error received.
+    Its \a reply parameters is the QCoapReply itself for convenience, and
+    the \a error parameter is the error received.
 
     \sa finished(), aborted()
 */

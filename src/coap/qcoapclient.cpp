@@ -57,6 +57,35 @@ QCoapClientPrivate::~QCoapClientPrivate()
     delete connection;
 }
 
+//! TODO Document all enum values
+/*!
+    \enum QtCoap::Error
+
+    Indicates all possible error conditions found during the
+    processing of the request.
+
+    \value NoError                  No error condition.
+
+    \value HostNotFoundError        The remote host name was not
+                                    found.
+
+    \value BadRequestError          The request was not recognized.
+
+    \value AddressInUseError        The address is already in use.
+
+    \value TimeOutError             The response did not arrive in time.
+
+    \value UnknownError             An unknown error was detected.
+
+    \sa error()
+*/
+/*!
+    \enum QtCoap::StatusCode
+
+    This enum maps the status code of the CoAP protocol, as defined in
+    the 'response' section of the
+    \l{https://tools.ietf.org/html/rfc7252#section-5.2}{RFC 7252}
+*/
 /*!
     \class QtCoap
 
@@ -160,7 +189,7 @@ QtCoap::Error QtCoap::statusCodeError(QtCoap::StatusCode code)
     whenever a CoAP reply is finished. The \a reply parameter will contain a
     pointer to the reply that has just finished.
 
-    \sa QCoapReply::finished(), QCoapReply::error(QCoapReply::QCoapNetworkError)
+    \sa QCoapReply::finished(), QCoapReply::error()
 */
 
 /*!
