@@ -107,6 +107,14 @@ QCoapRequest::QCoapRequest(const QUrl &url, MessageType type, const QUrl &proxyU
 }
 
 /*!
+    Constructs a QCoapRequest from a string literal
+*/
+QCoapRequest::QCoapRequest(const char *url, MessageType type) :
+    QCoapMessage(*new QCoapRequestPrivate(QUrl(QString::fromUtf8(url)), type))
+{
+}
+
+/*!
     Constructs a copy of the \a other QCoapRequest. Optionally allows to
     overwrite the QtCoap::Method of the request with the \a method
     argument.
