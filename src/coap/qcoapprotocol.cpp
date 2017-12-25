@@ -777,13 +777,13 @@ quint16 QCoapProtocol::blockSize() const
 }
 
 /*!
-    Returns the MAX_RETRANSMIT_SPAN in milliseconds, as defined in
+    Returns the MAX_TRANSMIT_SPAN in milliseconds, as defined in
     \l{https://tools.ietf.org/search/rfc7252#section-4.8.2}{RFC 7252}.
 
     It is the maximum time from the first transmission of a Confirmable
     message to its last retransmission.
 */
-uint QCoapProtocol::maxRetransmitSpan() const
+uint QCoapProtocol::maxTransmitSpan() const
 {
     if (maxRetransmit() == 0)
         return 0;
@@ -792,16 +792,16 @@ uint QCoapProtocol::maxRetransmitSpan() const
 }
 
 /*!
-    Returns the MAX_RETRANSMIT_WAIT in milliseconds, as defined in
+    Returns the MAX_TRANSMIT_WAIT in milliseconds, as defined in
     \l{https://tools.ietf.org/search/rfc7252#section-4.8.2}{RFC 7252}.
 
     It is the maximum time from the first transmission of a Confirmable
     message to the time when the sender gives up on receiving an
     acknowledgment or reset.
 */
-uint QCoapProtocol::maxRetransmitWait() const
+uint QCoapProtocol::maxTransmitWait() const
 {
-    return static_cast<uint>(ackTimeout() * (1u << (maxRetransmit() + 1)) * ackRandomFactor());
+    return static_cast<uint>(ackTimeout() * ((1u << (maxRetransmit() + 1)) - 1) * ackRandomFactor());
 }
 
 /*!

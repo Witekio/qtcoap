@@ -115,7 +115,7 @@ public:
     bool observeCancelled = false;
 
     int timeout = 0;
-    uint retransmissionCounter = 0;
+    uint retransmissionCounter = -1;
     QTimer *timer = nullptr;
 
     void _q_timeout();

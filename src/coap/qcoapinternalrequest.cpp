@@ -434,10 +434,11 @@ void QCoapInternalRequest::startTransmission()
 {
     Q_D(QCoapInternalRequest);
 
+    // Starts at -1
+    d->retransmissionCounter++;
     if (d->retransmissionCounter > 0)
         d->timeout *= 2;
 
-    d->retransmissionCounter++;
     if (d->timeout > 0)
         d->timer->start(d->timeout);
 }
