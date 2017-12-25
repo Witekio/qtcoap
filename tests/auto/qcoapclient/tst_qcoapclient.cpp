@@ -38,6 +38,10 @@
 #include <private/qcoapclient_p.h>
 #include <private/qcoapconnection_p.h>
 
+#include "../coapnetworksettings.h"
+
+using namespace QtCoapNetworkSettings;
+
 class tst_QCoapClient : public QObject
 {
     Q_OBJECT
@@ -131,11 +135,11 @@ void tst_QCoapClient::incorrectUrls_data()
     QWARN("Expect warnings here...");
     QTest::addColumn<QUrl>("url");
 
-    QTest::newRow("get") << QUrl("wrong://172.17.0.3:5683/test");
-    QTest::newRow("post") << QUrl("wrong://172.17.0.3:5683/test");
-    QTest::newRow("put") << QUrl("wrong://172.17.0.3:5683/test");
-    QTest::newRow("delete") << QUrl("wrong://172.17.0.3:5683/test");
-    QTest::newRow("discover") << QUrl("wrong://172.17.0.3:5683/test");
+    QTest::newRow("get")        << QUrl("wrong://10.20.30.40:5683/test");
+    QTest::newRow("post")       << QUrl("wrong://10.20.30.40:5683/test");
+    QTest::newRow("put")        << QUrl("wrong://10.20.30.40:5683/test");
+    QTest::newRow("delete")     << QUrl("wrong://10.20.30.40:5683/test");
+    QTest::newRow("discover")   << QUrl("wrong://10.20.30.40:5683/test");
 }
 
 void tst_QCoapClient::incorrectUrls()
@@ -168,20 +172,20 @@ void tst_QCoapClient::methods_data()
     QTest::addColumn<QUrl>("url");
     QTest::addColumn<QtCoap::Method>("method");
 
-    QTest::newRow("get_no_op") << QUrl("coap://172.17.0.3:5683/test") << QtCoap::Invalid;
-    QTest::newRow("get") << QUrl("coap://172.17.0.3:5683/test") << QtCoap::Get;
-    QTest::newRow("get_incorrect_op") << QUrl("coap://172.17.0.3:5683/test") << QtCoap::Put;
-    QTest::newRow("get_no_port") << QUrl("coap://172.17.0.3/test") << QtCoap::Get;
-    QTest::newRow("get_no_scheme_no_port") << QUrl("172.17.0.3/test") << QtCoap::Get;
-    QTest::newRow("post_no_op") << QUrl("coap://172.17.0.3:5683/test") << QtCoap::Invalid;
-    QTest::newRow("post") << QUrl("coap://172.17.0.3:5683/test") << QtCoap::Post;
-    QTest::newRow("post_incorrect_op") << QUrl("coap://172.17.0.3:5683/test") << QtCoap::Delete;
-    QTest::newRow("put_no_op") << QUrl("coap://172.17.0.3:5683/test") << QtCoap::Invalid;
-    QTest::newRow("put") << QUrl("coap://172.17.0.3:5683/test") << QtCoap::Put;
-    QTest::newRow("put_incorrect_op") << QUrl("coap://172.17.0.3:5683/test") << QtCoap::Post;
-    QTest::newRow("delete_no_op") << QUrl("coap://172.17.0.3:5683/test") << QtCoap::Invalid;
-    QTest::newRow("delete") << QUrl("coap://172.17.0.3:5683/test") << QtCoap::Delete;
-    QTest::newRow("delete_incorrect_op") << QUrl("coap://172.17.0.3:5683/test") << QtCoap::Get;
+    QTest::newRow("get_no_op")              << QUrl(testServerResource()) << QtCoap::Invalid;
+    QTest::newRow("get")                    << QUrl(testServerResource()) << QtCoap::Get;
+    QTest::newRow("get_incorrect_op")       << QUrl(testServerResource()) << QtCoap::Put;
+    QTest::newRow("get_no_port")            << QUrl("coap://" + testServerHost() + "/test") << QtCoap::Get;
+    QTest::newRow("get_no_scheme_no_port")  << QUrl(testServerHost() + "/test") << QtCoap::Get;
+    QTest::newRow("post_no_op")             << QUrl(testServerResource()) << QtCoap::Invalid;
+    QTest::newRow("post")                   << QUrl(testServerResource()) << QtCoap::Post;
+    QTest::newRow("post_incorrect_op")      << QUrl(testServerResource()) << QtCoap::Delete;
+    QTest::newRow("put_no_op")              << QUrl(testServerResource()) << QtCoap::Invalid;
+    QTest::newRow("put")                    << QUrl(testServerResource()) << QtCoap::Put;
+    QTest::newRow("put_incorrect_op")       << QUrl(testServerResource()) << QtCoap::Post;
+    QTest::newRow("delete_no_op")           << QUrl(testServerResource()) << QtCoap::Invalid;
+    QTest::newRow("delete")                 << QUrl(testServerResource()) << QtCoap::Delete;
+    QTest::newRow("delete_incorrect_op")    << QUrl(testServerResource()) << QtCoap::Get;
 }
 
 void tst_QCoapClient::methods()
@@ -241,7 +245,7 @@ void tst_QCoapClient::methods()
 void tst_QCoapClient::separateMethod()
 {
     QCoapClient client;
-    QScopedPointer<QCoapReply> reply(client.get(QUrl("coap://172.17.0.3:5683/separate")));
+    QScopedPointer<QCoapReply> reply(client.get(QUrl(testServerUrl() + "/separate")));
 
     QVERIFY2(!reply.isNull(), "Request failed unexpectedly");
     QSignalSpy spyReplyFinished(reply.data(), SIGNAL(finished(QCoapReply*)));
@@ -256,7 +260,7 @@ void tst_QCoapClient::separateMethod()
 void tst_QCoapClient::removeReply()
 {
     QCoapClient client;
-    QCoapReply *reply = client.get(QUrl("coap://172.17.0.3:5683/test"));
+    QCoapReply *reply = client.get(QUrl(testServerResource()));
     QVERIFY2(reply != nullptr, "Request failed unexpectedly");
 
     try {
@@ -277,8 +281,8 @@ void tst_QCoapClient::requestWithQIODevice_data()
 {
     QTest::addColumn<QUrl>("url");
 
-    QTest::newRow("post") << QUrl("coap://172.17.0.3:5683/test");
-    QTest::newRow("put") << QUrl("coap://172.17.0.3:5683/test");
+    QTest::newRow("post") << QUrl(testServerResource());
+    QTest::newRow("put") << QUrl(testServerResource());
 }
 
 void tst_QCoapClient::requestWithQIODevice()
@@ -316,7 +320,7 @@ void tst_QCoapClient::requestWithQIODevice()
 void tst_QCoapClient::multipleRequests()
 {
     QCoapClient client;
-    QUrl url = QUrl("coap://172.17.0.3:5683/test");
+    QUrl url = QUrl(testServerResource());
     QSignalSpy spyClientFinished(&client, SIGNAL(finished(QCoapReply*)));
 
     QScopedPointer<QCoapReply> replyGet1(client.get(url));
@@ -361,7 +365,7 @@ void tst_QCoapClient::multipleRequests()
 void tst_QCoapClient::socketError()
 {
     QCoapClientForSocketErrorTests client;
-    QUrl url = QUrl("coap://172.17.0.3:5683/test");
+    QUrl url = QUrl(testServerResource());
 
     QUdpSocket *socket = client.connection()->socket();
     QVERIFY2(socket, "Socket not properly created with connection");
@@ -393,7 +397,7 @@ void tst_QCoapClient::timeout()
     client.protocol()->setAckTimeout(timeout);
     client.protocol()->setAckRandomFactor(1);
     client.protocol()->setMaxRetransmit(maxRetransmit);
-    QUrl url = QUrl("coap://172.99.99.99:5683/"); // Need an url that return nothing
+    QUrl url = QUrl("coap://99.99.99.99:5683/"); // Need an url that return nothing
 
     QElapsedTimer timeoutTimer;
     timeoutTimer.start();
@@ -423,7 +427,7 @@ void tst_QCoapClient::timeout()
 void tst_QCoapClient::abort()
 {
     QCoapClient client;
-    QUrl url = QUrl("coap://172.17.0.3:5683/large");
+    QUrl url = QUrl(testServerUrl() + "/large");
 
     QScopedPointer<QCoapReply> reply(client.get(url));
     QSignalSpy spyReplyFinished(reply.data(), &QCoapReply::finished);
@@ -469,22 +473,22 @@ void tst_QCoapClient::blockwiseReply_data()
     data.append("|               [each line contains 64 bytes]                 |\n");
     data.append("\\-------------------------------------------------------------/\n");
 
-    QTest::newRow("get_large") << QUrl("coap://172.17.0.3:5683/large")
+    QTest::newRow("get_large") << QUrl(testServerUrl() + "/large")
                                << QCoapMessage::NonConfirmable
                                << data;
-    QTest::newRow("get_large_separate") << QUrl("coap://172.17.0.3:5683/large-separate")
+    QTest::newRow("get_large_separate") << QUrl(testServerUrl() + "/large-separate")
                                << QCoapMessage::NonConfirmable
                                << data;
-    QTest::newRow("get_large_confirmable") << QUrl("coap://172.17.0.3:5683/large")
+    QTest::newRow("get_large_confirmable") << QUrl(testServerUrl() + "/large")
                                << QCoapMessage::Confirmable
                                << data;
-    QTest::newRow("get_large_separate_confirmable") << QUrl("coap://172.17.0.3:5683/large-separate")
+    QTest::newRow("get_large_separate_confirmable") << QUrl(testServerUrl() + "/large-separate")
                                << QCoapMessage::Confirmable
                                << data;
-    QTest::newRow("get_large_16bits") << QUrl("coap://172.17.0.3:5683/large")
+    QTest::newRow("get_large_16bits") << QUrl(testServerUrl() + "/large")
                                << QCoapMessage::NonConfirmable
                                << data;
-    QTest::newRow("get_large_16bits_confirmable") << QUrl("coap://172.17.0.3:5683/large")
+    QTest::newRow("get_large_16bits_confirmable") << QUrl(testServerUrl() + "/large")
                                << QCoapMessage::Confirmable
                                << data;
 }
@@ -526,12 +530,12 @@ void tst_QCoapClient::blockwiseRequest_data()
     for (int i = 3; i-- > 0; )
         data.append(alphabet);
 
-    QTest::newRow("large_post_empty_reply") << QUrl("coap://172.17.0.3:5683/query")
+    QTest::newRow("large_post_empty_reply") << QUrl(testServerUrl() + "/query")
                                << QCoapMessage::NonConfirmable
                                << data
                                << QtCoap::MethodNotAllowed
                                << QByteArray();
-    QTest::newRow("large_post_large_reply") << QUrl("coap://172.17.0.3:5683/large-post")
+    QTest::newRow("large_post_large_reply") << QUrl(testServerUrl() + "/large-post")
                                << QCoapMessage::NonConfirmable
                                << data
                                << QtCoap::Changed
@@ -569,7 +573,7 @@ void tst_QCoapClient::discover_data()
     QTest::addColumn<int>("resourceNumber");
 
     // Californium test server exposes 29 resources
-    QTest::newRow("discover") << QUrl("coap://172.17.0.3:5683/")
+    QTest::newRow("discover") << QUrl(testServerUrl())
                               << 29;
 }
 
@@ -596,35 +600,35 @@ void tst_QCoapClient::observe_data()
     QTest::addColumn<QCoapMessage::MessageType>("type");
 
     QTest::newRow("observe")
-        << QUrl("coap://172.17.0.3:5683/obs")
+        << QUrl(testServerUrl() + "/obs")
         << QCoapMessage::NonConfirmable;
 
     QTest::newRow("observe_confirmable")
-        << QUrl("coap://172.17.0.3:5683/obs")
+        << QUrl(testServerUrl() + "/obs")
         << QCoapMessage::Confirmable;
 
     QTest::newRow("observe_receive")
-        << QUrl("coap://172.17.0.3:5683/obs-non")
+        << QUrl(testServerUrl() + "/obs-non")
         << QCoapMessage::NonConfirmable;
 
     QTest::newRow("observe_receive_confirmable")
-        << QUrl("coap://172.17.0.3:5683/obs-non")
+        << QUrl(testServerUrl() + "/obs-non")
         << QCoapMessage::Confirmable;
 
     QTest::newRow("observe_large")
-        << QUrl("coap://172.17.0.3:5683/obs-large")
+        << QUrl(testServerUrl() + "/obs-large")
         << QCoapMessage::NonConfirmable;
 
     QTest::newRow("observe_large_confirmable")
-        << QUrl("coap://172.17.0.3:5683/obs-large")
+        << QUrl(testServerUrl() + "/obs-large")
         << QCoapMessage::Confirmable;
 
     QTest::newRow("observe_pumping")
-        << QUrl("coap://172.17.0.3:5683/obs-pumping")
+        << QUrl(testServerUrl() + "/obs-pumping")
         << QCoapMessage::NonConfirmable;
 
     QTest::newRow("observe_pumping_confirmable")
-        << QUrl("coap://172.17.0.3:5683/obs-pumping")
+        << QUrl(testServerUrl() + "/obs-pumping")
         << QCoapMessage::Confirmable;
 }
 
