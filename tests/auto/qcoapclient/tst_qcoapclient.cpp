@@ -217,8 +217,8 @@ void tst_QCoapClient::methods()
 
     QVERIFY2(!reply.isNull(), "Request failed unexpectedly");
     QSignalSpy spyReplyFinished(reply.data(), SIGNAL(finished(QCoapReply*)));
-    QTRY_COMPARE_WITH_TIMEOUT(spyReplyFinished.count(), 1, 5000);
-    QTRY_COMPARE_WITH_TIMEOUT(spyClientFinished.count(), 1, 5000);
+    QTRY_COMPARE(spyReplyFinished.count(), 1);
+    QTRY_COMPARE(spyClientFinished.count(), 1);
 
     QByteArray replyData;
     if (!reply.isNull()) {
@@ -249,7 +249,7 @@ void tst_QCoapClient::separateMethod()
 
     QVERIFY2(!reply.isNull(), "Request failed unexpectedly");
     QSignalSpy spyReplyFinished(reply.data(), SIGNAL(finished(QCoapReply*)));
-    QTRY_COMPARE_WITH_TIMEOUT(spyReplyFinished.count(), 1, 5000);
+    QTRY_COMPARE(spyReplyFinished.count(), 1);
 
     QByteArray replyData = reply->readAll();
 
@@ -304,7 +304,7 @@ void tst_QCoapClient::requestWithQIODevice()
 
     QVERIFY2(!reply.isNull(), "Request failed unexpectedly");
     QSignalSpy spyReplyFinished(reply.data(), SIGNAL(finished(QCoapReply*)));
-    QTRY_COMPARE_WITH_TIMEOUT(spyReplyFinished.count(), 1, 5000);
+    QTRY_COMPARE(spyReplyFinished.count(), 1);
 
     QByteArray replyData = reply->readAll();
 
@@ -338,11 +338,11 @@ void tst_QCoapClient::multipleRequests()
     QSignalSpy spyReplyGet3Finished(replyGet3.data(), SIGNAL(finished(QCoapReply*)));
     QSignalSpy spyReplyGet4Finished(replyGet4.data(), SIGNAL(finished(QCoapReply*)));
 
-    QTRY_COMPARE_WITH_TIMEOUT(spyReplyGet1Finished.count(), 1, 5000);
-    QTRY_COMPARE_WITH_TIMEOUT(spyReplyGet2Finished.count(), 1, 5000);
-    QTRY_COMPARE_WITH_TIMEOUT(spyReplyGet3Finished.count(), 1, 5000);
-    QTRY_COMPARE_WITH_TIMEOUT(spyReplyGet4Finished.count(), 1, 5000);
-    QTRY_COMPARE_WITH_TIMEOUT(spyClientFinished.count(), 4, 5000);
+    QTRY_COMPARE(spyReplyGet1Finished.count(), 1);
+    QTRY_COMPARE(spyReplyGet2Finished.count(), 1);
+    QTRY_COMPARE(spyReplyGet3Finished.count(), 1);
+    QTRY_COMPARE(spyReplyGet4Finished.count(), 1);
+    QTRY_COMPARE(spyClientFinished.count(), 4);
 
     QByteArray replyData1 = replyGet1->readAll();
     QByteArray replyData2 = replyGet2->readAll();

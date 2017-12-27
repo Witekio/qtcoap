@@ -83,8 +83,8 @@ void tst_QCoapConnection::connectToHost()
 
     connection.bindSocketForTest();
 
-    QTRY_COMPARE_WITH_TIMEOUT(spySocketStateChanged.count(), 1, 5000);
-    QTRY_COMPARE_WITH_TIMEOUT(spyConnectionBound.count(), 1, 5000);
+    QTRY_COMPARE(spySocketStateChanged.count(), 1);
+    QTRY_COMPARE(spyConnectionBound.count(), 1);
     QCOMPARE(connection.state(), QCoapConnection::Bound);
 }
 
@@ -160,8 +160,8 @@ void tst_QCoapConnection::sendRequest()
     QCoapInternalRequest internalRequest(request);
     connection.sendRequest(internalRequest.toQByteArray(), host, port);
 
-    QTRY_COMPARE_WITH_TIMEOUT(spySocketReadyRead.count(), 1, 5000);
-    QTRY_COMPARE_WITH_TIMEOUT(spyConnectionReadyRead.count(), 1, 5000);
+    QTRY_COMPARE(spySocketReadyRead.count(), 1);
+    QTRY_COMPARE(spyConnectionReadyRead.count(), 1);
 
     QByteArray reply = spyConnectionReadyRead.first().first().toByteArray();
 
