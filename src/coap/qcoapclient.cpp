@@ -215,8 +215,10 @@ QCoapClient::QCoapClient(QCoapProtocol *protocol, QCoapConnection *connection, Q
     qRegisterMetaType<QPointer<QCoapDiscoveryReply>>();
     qRegisterMetaType<QCoapConnection*>();
     qRegisterMetaType<QtCoap::Error>();
+    qRegisterMetaType<QtCoap::StatusCode>();
     // Requires a name, as this is a typedef
     qRegisterMetaType<QCoapToken>("QCoapToken");
+    qRegisterMetaType<QCoapMessageId>("QCoapMessageId");
 
     connect(d->connection, SIGNAL(readyRead(const QByteArray&)),
             d->protocol, SLOT(onFrameReceived(const QByteArray&)));

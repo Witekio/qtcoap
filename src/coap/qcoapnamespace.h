@@ -122,6 +122,8 @@ public:
     static QRandomGenerator randomGenerator;
 };
 
+Q_DECLARE_METATYPE(QtCoap::StatusCode)
+Q_DECLARE_METATYPE(QtCoap::Error)
 Q_DECLARE_METATYPE(QtCoap::Method)
 
 QT_END_NAMESPACE
