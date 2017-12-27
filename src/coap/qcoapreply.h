@@ -34,13 +34,10 @@
 #include <QtCoap/qcoaprequest.h>
 #include <QtCoap/qcoapglobal.h>
 #include <QtCoap/qcoapnamespace.h>
-#include <QtCore/qbytearray.h>
 #include <QtCore/qiodevice.h>
-#include <QtCore/qsharedpointer.h>
 
 QT_BEGIN_NAMESPACE
 
-class QCoapInternalReply;
 class QCoapReplyPrivate;
 class Q_COAP_EXPORT QCoapReply : public QIODevice
 {
