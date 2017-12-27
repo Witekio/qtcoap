@@ -434,7 +434,7 @@ void QCoapInternalRequest::startTransmission()
 {
     Q_D(QCoapInternalRequest);
 
-    // Starts at -1
+    // Should starts at -1
     d->retransmissionCounter++;
     if (d->retransmissionCounter > 0)
         d->timeout *= 2;
@@ -450,9 +450,7 @@ void QCoapInternalRequest::startTransmission()
 void QCoapInternalRequest::stopTransmission()
 {
     Q_D(QCoapInternalRequest);
-    d->retransmissionCounter = 0;
     d->timer->stop();
-    d->timer->setInterval(0);
 }
 
 /*!
