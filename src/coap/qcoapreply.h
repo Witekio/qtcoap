@@ -38,6 +38,7 @@
 
 QT_BEGIN_NAMESPACE
 
+class QCoapInternalReply;
 class QCoapReplyPrivate;
 class Q_COAP_EXPORT QCoapReply : public QIODevice
 {
