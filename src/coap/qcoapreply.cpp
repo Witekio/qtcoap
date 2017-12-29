@@ -43,6 +43,119 @@ QCoapReplyPrivate::QCoapReplyPrivate(const QCoapRequest &req) :
 }
 
 /*!
+    \internal
+    Sets the isRunning parameter to the given \a isRunning value.
+
+    \sa isRunning()
+*/
+void QCoapReplyPrivate::_q_setRunning(const QCoapToken &token, QCoapMessageId messageId)
+{
+    request.setToken(token);
+    request.setMessageId(messageId);
+    isRunning = true;
+}
+
+/*!
+    \internal
+
+    Sets the reply as finished.
+*/
+void QCoapReplyPrivate::_q_setObserveCancelled()
+{
+    Q_Q(QCoapReply);
+
+    bool alreadyFinished = q->isFinished();
+
+    isFinished = true;
+    isRunning = false;
+
+    if (!alreadyFinished)
+        emit q->finished(q);
+}
+
+/*!
+    \internal
+
+    Updates the QCoapReply object and its message with data of the internal
+    reply \a internalReply, unless this QCoapReply object has been aborted.
+*/
+void QCoapReplyPrivate::_q_setContent(const QCoapMessage &msg, QtCoap::StatusCode status)
+{
+    message = msg;
+    statusCode = status;
+
+    if (QtCoap::isError(statusCode))
+        _q_setError(statusCode);
+}
+
+/*!
+    \internal
+
+    Updates the QCoapReply object and its message with data of the internal
+    reply \a internalReply, unless this QCoapReply object has been aborted.
+*/
+void QCoapReplyPrivate::_q_setNotified(const QCoapMessage &msg, QtCoap::StatusCode status)
+{
+    Q_Q(QCoapReply);
+
+    if (q->isFinished())
+        return;
+
+    message = msg;
+    statusCode = status;
+
+    emit q->notified(q, message);
+}
+
+/*!
+    \internal
+
+    Sets the reply as finished, sending the finished() signal.
+*/
+void QCoapReplyPrivate::_q_setFinished(QtCoap::Error newError)
+{
+    Q_Q(QCoapReply);
+
+    if (q->isFinished())
+        return;
+
+    isFinished = true;
+    isRunning = false;
+
+    if (newError != QtCoap::NoError)
+        _q_setError(newError);
+
+    emit q->finished(q);
+}
+
+/*!
+    \internal
+
+    Sets the error of the reply.
+
+    \sa errorReceived()
+*/
+void QCoapReplyPrivate::_q_setError(QtCoap::Error newError)
+{
+    Q_Q(QCoapReply);
+    if (error == newError)
+        return;
+
+    error = newError;
+    emit q->error(q, error);
+}
+
+/*!
+    \internal
+
+    Sets the error of the reply.
+*/
+void QCoapReplyPrivate::_q_setError(QtCoap::StatusCode statusCode)
+{
+    _q_setError(QtCoap::statusCodeError(statusCode));
+}
+
+/*!
     \class QCoapReply
     \brief The QCoapReply class holds the data of a CoAP reply.
 
@@ -181,7 +294,7 @@ qint64 QCoapReply::writeData(const char *data, qint64 maxSize)
 QtCoap::StatusCode QCoapReply::statusCode() const
 {
     Q_D(const QCoapReply);
-    return d->status;
+    return d->statusCode;
 }
 
 /*!
@@ -261,124 +374,6 @@ QtCoap::Error QCoapReply::errorReceived() const
 }
 
 /*!
-    Sets the isRunning parameter to the given \a isRunning value.
-
-    \sa isRunning()
-*/
-void QCoapReply::setRunning(const QCoapToken &token, QCoapMessageId messageId)
-{
-    Q_D(QCoapReply);
-    d->request.setToken(token);
-    d->request.setMessageId(messageId);
-    d->isRunning = true;
-}
-
-/*!
-    \internal
-
-    Sets the error of the reply.
-
-    \sa errorReceived()
-*/
-void QCoapReply::setError(QtCoap::Error newError)
-{
-    Q_D(QCoapReply);
-    if (d->error == newError)
-        return;
-
-    d->error = newError;
-    emit error(this, d->error);
-}
-
-/*!
-    \internal
-
-    Sets the error of the reply.
-*/
-void QCoapReply::setError(QtCoap::StatusCode statusCode)
-{
-    setError(QtCoap::statusCodeError(statusCode));
-}
-
-/*!
-    \internal
-
-    Sets the reply as finished.
-*/
-void QCoapReply::setObserveCancelled()
-{
-    Q_D(QCoapReply);
-
-    bool alreadyFinished = isFinished();
-
-    d->isFinished = true;
-    d->isRunning = false;
-
-    if (!alreadyFinished)
-        emit finished(this);
-}
-
-/*!
-    \internal
-
-    Updates the QCoapReply object and its message with data of the internal
-    reply \a internalReply, unless this QCoapReply object has been aborted.
-*/
-void QCoapReply::setContent(const QCoapInternalReply *internalReply)
-{
-    Q_D(QCoapReply);
-
-    if (!internalReply)
-        return;
-
-    d->message = *internalReply->message();
-    d->status = internalReply->statusCode();
-
-    if (QtCoap::isError(d->status))
-        setError(d->status);
-}
-
-/*!
-    \internal
-
-    Sets the reply as finished, sending the finished() signal.
-*/
-void QCoapReply::setFinished(QtCoap::Error newError)
-{
-    Q_D(QCoapReply);
-
-    if (isFinished())
-        return;
-
-    d->isFinished = true;
-    d->isRunning = false;
-
-    if (newError != QtCoap::NoError)
-        setError(newError);
-
-    emit finished(this);
-}
-
-/*!
-    \internal
-
-    Updates the QCoapReply object and its message with data of the internal
-    reply \a internalReply, unless this QCoapReply object has been aborted.
-*/
-void QCoapReply::setNotified(const QCoapInternalReply *internalReply)
-{
-    Q_D(QCoapReply);
-
-    if (!internalReply || isFinished())
-        return;
-
-    d->message = *internalReply->message();
-    d->status = internalReply->statusCode();
-
-    emit notified(this, d->message);
-}
-
-/*!
     Aborts the request immediately and emits the
     \l{QCoapReply::aborted(const QCoapToken &token)}{aborted(const QCoapToken &token)}
     signal if the request was not finished.
@@ -398,3 +393,5 @@ void QCoapReply::abortRequest()
 }
 
 QT_END_NAMESPACE
+
+#include "moc_qcoapreply.cpp"

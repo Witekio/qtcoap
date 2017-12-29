@@ -51,7 +51,6 @@ Q_SIGNALS:
     void discovered(QVector<QCoapResource> resources, QCoapDiscoveryReply *reply);
 
 private:
-    void setContent(const QCoapInternalReply *internalReply) Q_DECL_OVERRIDE;
     Q_DECLARE_PRIVATE(QCoapDiscoveryReply)
 };
 

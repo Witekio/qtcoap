@@ -67,25 +67,23 @@ Q_SIGNALS:
     void error(QCoapReply *reply, QtCoap::Error error);
     void aborted(const QCoapToken &token);
 
-protected Q_SLOTS:
-    void setError(QtCoap::StatusCode statusCode);
-    void setError(QtCoap::Error error);
-
 protected:
     friend class QCoapProtocol;
     friend class QCoapProtocolPrivate;
 
     explicit QCoapReply(QCoapReplyPrivate &dd, QObject *parent = nullptr);
 
-    void setRunning(const QCoapToken &token, QCoapMessageId messageId);
-    void setObserveCancelled();
-    virtual void setContent(const QCoapInternalReply *internalReply);
-    virtual void setNotified(const QCoapInternalReply *internalReply);
-    void setFinished(QtCoap::Error error = QtCoap::NoError);
     qint64 readData(char *data, qint64 maxSize) Q_DECL_OVERRIDE;
     qint64 writeData(const char *data, qint64 maxSize) Q_DECL_OVERRIDE;
 
     Q_DECLARE_PRIVATE(QCoapReply)
+    Q_PRIVATE_SLOT(d_func(), void _q_setRunning(const QCoapToken &, QCoapMessageId))
+    Q_PRIVATE_SLOT(d_func(), void _q_setContent(const QCoapMessage &, QtCoap::StatusCode))
+    Q_PRIVATE_SLOT(d_func(), void _q_setNotified(const QCoapMessage &, QtCoap::StatusCode))
+    Q_PRIVATE_SLOT(d_func(), void _q_setObserveCancelled())
+    Q_PRIVATE_SLOT(d_func(), void _q_setFinished(QtCoap::Error))
+    Q_PRIVATE_SLOT(d_func(), void _q_setError(QtCoap::StatusCode))
+    Q_PRIVATE_SLOT(d_func(), void _q_setError(QtCoap::Error))
 };
 
 QT_END_NAMESPACE

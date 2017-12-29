@@ -163,17 +163,20 @@ void tst_QCoapReply::parseReplyPdu()
     QCOMPARE(reply.message()->payload(), payload);
 }
 
+#include <private/qcoapreply_p.h>
 class QCoapReplyForTests : public QCoapReply
 {
 public:
     QCoapReplyForTests(const QCoapRequest &req) : QCoapReply (req) {}
 
     void setRunning(const QCoapToken &token, QCoapMessageId messageId) {
-        QCoapReply::setRunning(token, messageId);
+        Q_D(QCoapReply);
+        d->_q_setRunning(token, messageId);
     }
     void setContentAndFinished(const QCoapInternalReply *internal) {
-        setContent(internal);
-        setFinished();
+        Q_D(QCoapReply);
+        d->_q_setContent(*internal->message(), internal->statusCode());
+        d->_q_setFinished();
     }
 };
 

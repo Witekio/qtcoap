@@ -38,6 +38,31 @@ QCoapDiscoveryReplyPrivate::QCoapDiscoveryReplyPrivate(const QCoapRequest &reque
 }
 
 /*!
+    \internal
+
+    Updates the QCoapDiscoveryReply object, its message and list of resources
+    with data of the internal reply \a internalReply.
+*/
+void QCoapDiscoveryReplyPrivate::_q_setContent(const QCoapMessage &msg, QtCoap::StatusCode status)
+{
+    Q_Q(QCoapDiscoveryReply);
+
+    if (q->isFinished())
+        return;
+
+    message = msg;
+    statusCode = status;
+
+    if (QtCoap::isError(statusCode)) {
+        _q_setError(statusCode);
+    } else {
+        auto res = QCoapProtocol::resourcesFromCoreLinkList(message.payload());
+        resources.append(res);
+        emit q->discovered(res, q);
+    }
+}
+
+/*!
     \class QCoapDiscoveryReply
     \brief A QCoapDiscoveryReply object is a QCoapReply that stores also a
     list of QCoapResources.
@@ -67,31 +92,6 @@ QVector<QCoapResource> QCoapDiscoveryReply::resources() const
 {
     Q_D(const QCoapDiscoveryReply);
     return d->resources;
-}
-
-/*!
-    \internal
-
-    Updates the QCoapDiscoveryReply object, its message and list of resources
-    with data of the internal reply \a internalReply.
-*/
-void QCoapDiscoveryReply::setContent(const QCoapInternalReply *internalReply)
-{
-    Q_D(QCoapDiscoveryReply);
-
-    if (!internalReply || isFinished())
-        return;
-
-    d->message = *internalReply->message();
-    d->status = internalReply->statusCode();
-
-    if (QtCoap::isError(internalReply->statusCode())) {
-        setError(internalReply->statusCode());
-    } else {
-        auto res = QCoapProtocol::resourcesFromCoreLinkList(d->message.payload());
-        d->resources.append(res);
-        emit discovered(res, this);
-    }
 }
 
 QT_END_NAMESPACE

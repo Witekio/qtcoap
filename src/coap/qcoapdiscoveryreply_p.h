@@ -53,6 +53,8 @@ class Q_AUTOTEST_EXPORT QCoapDiscoveryReplyPrivate : public QCoapReplyPrivate
 public:
     QCoapDiscoveryReplyPrivate(const QCoapRequest &request);
 
+    void _q_setContent(const QCoapMessage &, QtCoap::StatusCode) Q_DECL_OVERRIDE;
+
     QVector<QCoapResource> resources;
 
     Q_DECLARE_PUBLIC(QCoapDiscoveryReply)

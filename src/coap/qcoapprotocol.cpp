@@ -101,7 +101,10 @@ void QCoapProtocol::sendRequest(QPointer<QCoapReply> reply, QCoapConnection *con
     internalRequest->setConnection(connection);
 
     d->registerExchange(requestMessage->token(), reply, internalRequest);
-    reply->setRunning(requestMessage->token(), requestMessage->messageId());
+    QMetaObject::invokeMethod(reply, "_q_setRunning", Qt::QueuedConnection,
+                              Q_ARG(QCoapToken, requestMessage->token()),
+                              Q_ARG(QCoapMessageId, requestMessage->messageId()));
+    //reply->setRunning(requestMessage->token(), requestMessage->messageId());
 
     // If the user specified a size for blockwise request/replies
     if (d->blockSize > 0) {
@@ -190,15 +193,21 @@ void QCoapProtocolPrivate::onRequestError(QCoapInternalRequest *request, QtCoap:
                                           QCoapInternalReply *reply)
 {
     Q_ASSERT(request);
-    QCoapReply *userReply = userReplyForToken(request->token());
+    auto userReply = userReplyForToken(request->token());
 
-    if (userReply) {
-        if (reply)
-            userReply->setContent(reply);
-        else
-            userReply->setError(error);
+    if (!userReply.isNull()) {
+        // Set error from content, or error enum
+        if (reply) {
+            QMetaObject::invokeMethod(userReply.data(), "_q_setContent", Qt::QueuedConnection,
+                                      Q_ARG(QCoapMessage, *reply->message()),
+                                      Q_ARG(QtCoap::StatusCode, reply->statusCode()));
+        } else {
+            QMetaObject::invokeMethod(userReply.data(), "_q_setError", Qt::QueuedConnection,
+                                      Q_ARG(QtCoap::Error, error));
+        }
 
-        userReply->setFinished();
+        QMetaObject::invokeMethod(userReply.data(), "_q_setFinished", Qt::QueuedConnection,
+                                  Q_ARG(QtCoap::Error, QtCoap::NoError));
     }
 
     forgetExchange(request);
@@ -413,11 +422,16 @@ void QCoapProtocolPrivate::onLastMessageReceived(QCoapInternalRequest *request)
         forgetExchange(request);
     } else {
         if (userReply->request().isObserved()) {
-            userReply->setNotified(lastReply.data());
+            QMetaObject::invokeMethod(userReply, "_q_setNotified", Qt::QueuedConnection,
+                    Q_ARG(QCoapMessage, *lastReply->message()),
+                    Q_ARG(QtCoap::StatusCode, lastReply->statusCode()));
             forgetExchangeReplies(request->token());
         } else {
-            userReply->setContent(lastReply.data());
-            userReply->setFinished();
+            QMetaObject::invokeMethod(userReply, "_q_setContent", Qt::QueuedConnection,
+                    Q_ARG(QCoapMessage, *lastReply->message()),
+                    Q_ARG(QtCoap::StatusCode, lastReply->statusCode()));
+            QMetaObject::invokeMethod(userReply, "_q_setFinished", Qt::QueuedConnection,
+                    Q_ARG(QtCoap::Error, QtCoap::NoError));
             forgetExchange(request);
         }
     }
@@ -495,12 +509,12 @@ void QCoapProtocol::cancelObserve(QPointer<QCoapReply> reply)
 {
     Q_D(QCoapProtocol);
 
-    if (!reply || !reply->request().isObserved())
+    if (!reply.isNull() || !reply->request().isObserved())
         return;
 
-    reply->setObserveCancelled();
+    QMetaObject::invokeMethod(reply, "_q_setObserveCancelled", Qt::QueuedConnection);
 
-    QCoapInternalRequest *copyRequest = d->findRequestByUserReply(reply);
+    QCoapInternalRequest *copyRequest = d->requestForToken(reply->request().token());
     if (copyRequest)
         copyRequest->setObserveCancelled();
 }
