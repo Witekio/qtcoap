@@ -224,14 +224,14 @@ void QCoapProtocolPrivate::onFrameReceived(const QByteArray &frame)
     Q_ASSERT(QThread::currentThread() == q->thread());
 
     QSharedPointer<QCoapInternalReply> reply(decode(frame));
-    const QCoapMessage *internalReplyMessage = reply->message();
+    const QCoapMessage *messageReceived = reply->message();
 
     QCoapInternalRequest *request = nullptr;
-    if (!internalReplyMessage->token().isEmpty())
-        request = requestForToken(internalReplyMessage->token());
+    if (!messageReceived->token().isEmpty())
+        request = requestForToken(messageReceived->token());
 
     if (!request) {
-        request = findRequestByMessageId(internalReplyMessage->messageId());
+        request = findRequestByMessageId(messageReceived->messageId());
 
         // No matching request found, drop the frame.
         if (!request) {
@@ -252,7 +252,7 @@ void QCoapProtocolPrivate::onFrameReceived(const QByteArray &frame)
         // Remove option to ensure that it will stop
         request->removeOption(QCoapOption::Observe);
         sendReset(request);
-    } else if (internalReplyMessage->type() == QCoapMessage::Confirmable) {
+    } else if (messageReceived->type() == QCoapMessage::Confirmable) {
         sendAcknowledgment(request);
     }
 
@@ -382,7 +382,8 @@ void QCoapProtocolPrivate::onLastMessageReceived(QCoapInternalRequest *request)
     //! FIXME: Change QPointer<QCoapReply> into something independent from
     //! User. QSharedPointer(s)?
     QPointer<QCoapReply> userReply = userReplyForToken(request->token());//!
-    if (userReply.isNull() || replies.isEmpty()) {
+    if (userReply.isNull() || replies.isEmpty()
+        || (userReply->request().isObserved() && request->isObserveCancelled())) {
         forgetExchange(request);
         return;
     }
@@ -418,23 +419,18 @@ void QCoapProtocolPrivate::onLastMessageReceived(QCoapInternalRequest *request)
     }
 
     // Forward the answer
-    if (userReply.isNull()
-        || (userReply->request().isObserved() && request->isObserveCancelled())) {
-        forgetExchange(request);
+    if (userReply->request().isObserved()) {
+        QMetaObject::invokeMethod(userReply, "_q_setNotified", Qt::QueuedConnection,
+                Q_ARG(QCoapMessage, *lastReply->message()),
+                Q_ARG(QtCoap::StatusCode, lastReply->statusCode()));
+        forgetExchangeReplies(request->token());
     } else {
-        if (userReply->request().isObserved()) {
-            QMetaObject::invokeMethod(userReply, "_q_setNotified", Qt::QueuedConnection,
-                    Q_ARG(QCoapMessage, *lastReply->message()),
-                    Q_ARG(QtCoap::StatusCode, lastReply->statusCode()));
-            forgetExchangeReplies(request->token());
-        } else {
-            QMetaObject::invokeMethod(userReply, "_q_setContent", Qt::QueuedConnection,
-                    Q_ARG(QCoapMessage, *lastReply->message()),
-                    Q_ARG(QtCoap::StatusCode, lastReply->statusCode()));
-            QMetaObject::invokeMethod(userReply, "_q_setFinished", Qt::QueuedConnection,
-                    Q_ARG(QtCoap::Error, QtCoap::NoError));
-            forgetExchange(request);
-        }
+        QMetaObject::invokeMethod(userReply, "_q_setContent", Qt::QueuedConnection,
+                Q_ARG(QCoapMessage, *lastReply->message()),
+                Q_ARG(QtCoap::StatusCode, lastReply->statusCode()));
+        QMetaObject::invokeMethod(userReply, "_q_setFinished", Qt::QueuedConnection,
+                Q_ARG(QtCoap::Error, QtCoap::NoError));
+        forgetExchange(request);
     }
 }
 
@@ -501,10 +497,10 @@ void QCoapProtocolPrivate::sendReset(QCoapInternalRequest *request)
 }
 
 /*!
-    Handles what to do when the user want to stop observing a resource.
+    Cancels resource observation. The QCoapReply::notified() signal will not
+    be emitted after cancellation.
 
-    Finds the internal request associated with \a reply and tells it to stop
-    observing.
+    A Reset (RST) message will be sent at the reception of the next mesage.
 */
 void QCoapProtocol::cancelObserve(QPointer<QCoapReply> reply)
 {
