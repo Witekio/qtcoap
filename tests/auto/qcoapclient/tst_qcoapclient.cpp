@@ -409,14 +409,14 @@ void tst_QCoapClient::timeout()
     // Check timeout upper limit
     int transmissions = maxRetransmit+1;
     QTRY_COMPARE_WITH_TIMEOUT(spyReplyError.count(), 1, client.protocol()->maxTransmitWait()
-                                                        + 100 * transmissions);
+                                                        + 200 * transmissions);
 
     // Check timeout lower limit
     qint64 elapsedTime = timeoutTimer.elapsed();
     QString errorMessage = QString("Timeout was triggered after %1ms, while expecting about %2ms")
                                    .arg(QString::number(elapsedTime),
                                         QString::number(client.protocol()->maxTransmitWait()));
-    QVERIFY2(elapsedTime > client.protocol()->maxTransmitWait() - 100 * transmissions,
+    QVERIFY2(elapsedTime > client.protocol()->maxTransmitWait() - 200 * transmissions,
              qPrintable(errorMessage));
 
     QCOMPARE(spyReplyError.first().at(1), QtCoap::TimeOutError);
@@ -641,7 +641,8 @@ void tst_QCoapClient::observe()
     QCoapRequest request(url);
 
     request.setType(type);
-    QScopedPointer<QCoapReply> reply(client.observe(request));
+    QSharedPointer<QCoapReply> reply(client.observe(request),
+                                     &QObject::deleteLater);
     QSignalSpy spyReplyNotified(reply.data(), &QCoapReply::notified);
 
     QTRY_COMPARE_WITH_TIMEOUT(spyReplyNotified.count(), 3, 30000);
@@ -659,13 +660,6 @@ void tst_QCoapClient::observe()
     eventLoop.exec();
 
     QCOMPARE(spyReplyNotified.count(), 3);
-    for (QList<QVariant> receivedSignals : qAsConst(spyReplyNotified)) {
-#if 0
-        qDebug() << receivedSignals.first().toByteArray();
-#else
-        Q_UNUSED(receivedSignals)
-#endif
-    }
 }
 
 QTEST_MAIN(tst_QCoapClient)
