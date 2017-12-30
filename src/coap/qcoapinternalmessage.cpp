@@ -148,6 +148,18 @@ void QCoapInternalMessage::addOption(QCoapOption::OptionName name, const QByteAr
 
 /*!
     \internal
+    \overload
+
+    Adds the CoAP option with the given \a name and \a value.
+*/
+void QCoapInternalMessage::addOption(QCoapOption::OptionName name, quint32 value)
+{
+    QCoapOption option(name, value);
+    addOption(option);
+}
+
+/*!
+    \internal
 
     Adds the given CoAP \a option.
 */

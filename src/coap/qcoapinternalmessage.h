@@ -46,6 +46,7 @@ public:
     virtual ~QCoapInternalMessage() {}
 
     void addOption(QCoapOption::OptionName name, const QByteArray &value);
+    void addOption(QCoapOption::OptionName name, quint32 value);
     virtual void addOption(const QCoapOption &option);
     void removeOption(QCoapOption::OptionName name);
 

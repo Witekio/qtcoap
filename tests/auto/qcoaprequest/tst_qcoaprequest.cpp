@@ -269,10 +269,10 @@ void tst_QCoapRequest::parseUri_data()
     QTest::addColumn<QVector<QCoapOption>>("options");
 
     QTest::newRow("port_path")
-                        << QUrl("coap://10.20.30.40:5684/test/path1")
+                        << QUrl("coap://10.20.30.40:1234/test/path1")
                         << QUrl()
                         << QVector<QCoapOption>({
-                            QCoapOption(QCoapOption::UriPort, "5684"),
+                            QCoapOption(QCoapOption::UriPort, 1234),
                             QCoapOption(QCoapOption::UriPath, "test"),
                             QCoapOption(QCoapOption::UriPath, "path1") });
 

@@ -394,7 +394,7 @@ bool QCoapInternalRequest::addUriOptions(QUrl uri, const QUrl &proxyUri)
     //! FIXME There is probably a port encoding error here, as value seem
     //! too big by standard, and stored as a string
     if (uri.port() != 5683)
-        addOption(QCoapOption::UriPort, QByteArray::number(uri.port()));
+        addOption(QCoapOption::UriPort, uri.port());
 
     // 8. Add path segments to options
     QString path = uri.path();
