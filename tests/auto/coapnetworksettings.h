@@ -36,7 +36,14 @@
     This namespace provides URL and settings used in QtCoap tests.
 
     Tests require a Californium plugtest server, accessible with
-    "coap-plugtest-server" host name.
+    "coap-plugtest-server" host name. You create such server with Docker and
+    the following command line:
+    \code
+        docker run -d --rm -p 5683:5683/udp aleravat/coap-test-server:latest
+    \endcode
+
+    For more details, see
+    \l{https://github.com/Pixep/coap-testserver-docker}{https://github.com/Pixep/coap-testserver-docker}.
 */
 namespace QtCoapNetworkSettings {
     QString testServerHostName() {
