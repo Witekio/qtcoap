@@ -645,15 +645,15 @@ void tst_QCoapClient::observe()
     QSignalSpy spyReplyNotified(reply.data(), &QCoapReply::notified);
 
     QTRY_COMPARE_WITH_TIMEOUT(spyReplyNotified.count(), 3, 30000);
+    client.cancelObserve(reply.data());
+
     for (QList<QVariant> receivedSignals : qAsConst(spyReplyNotified)) {
-#if 0
-        qDebug() << receivedSignals.first().toByteArray();
-#else
-        Q_UNUSED(receivedSignals)
-#endif
+        QRegularExpression regexp(QStringLiteral("..:..:.."));
+        QByteArray payload = receivedSignals.at(1).value<QCoapMessage>().payload();
+        QString error = QString("Invalid payload for 'notified' signal: %1").arg(QString(payload));
+        QVERIFY2(regexp.match(payload).hasMatch(), qPrintable(error));
     }
 
-    client.cancelObserve(reply.data());
     QEventLoop eventLoop;
     QTimer::singleShot(10000, &eventLoop, &QEventLoop::quit);
     eventLoop.exec();
