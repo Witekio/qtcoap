@@ -79,8 +79,21 @@ QT_BEGIN_NAMESPACE
 
     \sa isValid()
  */
-QCoapOption::QCoapOption(OptionName name,
-                         const QByteArray &value) :
+QCoapOption::QCoapOption(OptionName name, const QByteArray &value) :
+    d_ptr(new QCoapOptionPrivate)
+{
+    Q_D(QCoapOption);
+    d->name = name;
+    setValue(value);
+}
+
+/*!
+    Constructs a QCoapOption object with the given \a name
+    and the unsigned integer \a value.
+
+    \sa isValid()
+ */
+QCoapOption::QCoapOption(OptionName name, quint32 value) :
     d_ptr(new QCoapOptionPrivate)
 {
     Q_D(QCoapOption);
@@ -152,6 +165,20 @@ QByteArray QCoapOption::value() const
 }
 
 /*!
+    Returns the integer value of the option.
+ */
+quint32 QCoapOption::valueToInt() const
+{
+    Q_D(const QCoapOption);
+
+    quint32 intValue = 0;
+    for (int i = 0; i < d->value.length(); i++)
+        intValue |= static_cast<quint8>(d->value.at(i)) << (8 * i);
+
+    return intValue;
+}
+
+/*!
     Returns the length of the value of the option.
  */
 int QCoapOption::length() const
@@ -197,7 +224,7 @@ bool QCoapOption::operator!=(const QCoapOption &other) const
 }
 
 /*!
-    Sets the value for the option
+    Sets the value for the option.
  */
 void QCoapOption::setValue(const QByteArray &value)
 {
@@ -258,6 +285,18 @@ void QCoapOption::setValue(const QByteArray &value)
         qWarning() << "QCoapOption::setValue: value is probably too big for option" << d->name;
 
     d->value = value;
+}
+
+/*!
+    Sets an integer value for the option.
+ */
+void QCoapOption::setValue(quint32 value)
+{
+    QByteArray data;
+    for (int i = 0; i < 4 && (value >> (8 * i) > 0); i++)
+        data.append(static_cast<quint8>((value >> (8 * i)) & 0xFF));
+
+    setValue(data);
 }
 
 QT_END_NAMESPACE
