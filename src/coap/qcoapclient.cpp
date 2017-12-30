@@ -489,7 +489,7 @@ void QCoapClient::cancelObserve(QCoapReply *notifiedReply)
 {
     Q_D(QCoapClient);
     QMetaObject::invokeMethod(d->protocol, "cancelObserve",
-                              Q_ARG(QPointer<QCoapReply>, notifiedReply));
+                              Q_ARG(QPointer<QCoapReply>, QPointer<QCoapReply>(notifiedReply)));
 }
 
 /*!

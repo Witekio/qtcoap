@@ -418,7 +418,8 @@ void QCoapProtocolPrivate::onLastMessageReceived(QCoapInternalRequest *request)
     }
 
     // Forward the answer
-    if (userReply.isNull()) {
+    if (userReply.isNull()
+        || (userReply->request().isObserved() && request->isObserveCancelled())) {
         forgetExchange(request);
     } else {
         if (userReply->request().isObserved()) {
@@ -509,14 +510,14 @@ void QCoapProtocol::cancelObserve(QPointer<QCoapReply> reply)
 {
     Q_D(QCoapProtocol);
 
-    if (!reply.isNull() || !reply->request().isObserved())
+    if (reply.isNull() || !reply->request().isObserved())
         return;
-
-    QMetaObject::invokeMethod(reply, "_q_setObserveCancelled", Qt::QueuedConnection);
 
     QCoapInternalRequest *copyRequest = d->requestForToken(reply->request().token());
     if (copyRequest)
         copyRequest->setObserveCancelled();
+
+    QMetaObject::invokeMethod(reply, "_q_setObserveCancelled", Qt::QueuedConnection);
 }
 
 /*!
