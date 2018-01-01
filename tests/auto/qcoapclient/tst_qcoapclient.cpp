@@ -657,11 +657,7 @@ void tst_QCoapClient::observe()
         QVERIFY2(regexp.match(payload).hasMatch(), qPrintable(error));
     }
 
-    QEventLoop eventLoop;
-    QTimer::singleShot(10000, &eventLoop, &QEventLoop::quit);
-    eventLoop.exec();
-
-    QCOMPARE(spyReplyNotified.count(), 3);
+    QVERIFY2(!spyReplyNotified.wait(7000), "'Notify' signal received after cancelling observe");
 }
 
 QTEST_MAIN(tst_QCoapClient)
