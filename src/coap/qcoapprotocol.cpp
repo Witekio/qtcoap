@@ -192,7 +192,9 @@ void QCoapProtocolPrivate::onRequestError(QCoapInternalRequest *request, QCoapIn
 void QCoapProtocolPrivate::onRequestError(QCoapInternalRequest *request, QtCoap::Error error,
                                           QCoapInternalReply *reply)
 {
+    Q_Q(QCoapProtocol);
     Q_ASSERT(request);
+
     auto userReply = userReplyForToken(request->token());
 
     if (!userReply.isNull()) {
@@ -211,6 +213,7 @@ void QCoapProtocolPrivate::onRequestError(QCoapInternalRequest *request, QtCoap:
     }
 
     forgetExchange(request);
+    emit q->error(userReply.data(), error);
 }
 /*!
     \internal
@@ -581,7 +584,7 @@ void QCoapProtocolPrivate::onConnectionError(QAbstractSocket::SocketError socket
         break;
     }
 
-    emit q->error(coapError);
+    emit q->error(nullptr, coapError);
 }
 
 /*!

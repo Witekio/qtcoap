@@ -375,7 +375,7 @@ void tst_QCoapClient::socketError()
 
     QTRY_COMPARE_WITH_TIMEOUT(spySocketError.count(), 1, 10000);
     QTRY_COMPARE_WITH_TIMEOUT(spyClientError.count(), 1, 1000);
-    QCOMPARE(spyClientError.first().first(), QtCoap::AddressInUseError);
+    QCOMPARE(spyClientError.first().at(1), QtCoap::AddressInUseError);
 }
 void tst_QCoapClient::timeout_data()
 {
@@ -402,6 +402,7 @@ void tst_QCoapClient::timeout()
     QElapsedTimer timeoutTimer;
     timeoutTimer.start();
     QScopedPointer<QCoapReply> reply(client.get(QCoapRequest(url, QCoapMessage::Confirmable)));
+    QSignalSpy spyClientError(&client, &QCoapClient::error);
     QSignalSpy spyReplyError(reply.data(), &QCoapReply::error);
     QSignalSpy spyReplyAborted(reply.data(), &QCoapReply::aborted);
     QSignalSpy spyReplyFinished(reply.data(), &QCoapReply::finished);
@@ -422,6 +423,7 @@ void tst_QCoapClient::timeout()
     QCOMPARE(spyReplyError.first().at(1), QtCoap::TimeOutError);
     QCOMPARE(spyReplyFinished.count(), 1);
     QCOMPARE(spyReplyAborted.count(), 0);
+    QCOMPARE(spyClientError.count(), 1);
 }
 
 void tst_QCoapClient::abort()

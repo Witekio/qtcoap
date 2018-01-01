@@ -68,8 +68,8 @@ public:
     static QVector<QCoapResource> resourcesFromCoreLinkList(const QByteArray &data);
 
 Q_SIGNALS:
-    void finished(QCoapReply*);
-    void error(QtCoap::Error error);
+    void finished(QCoapReply *reply);
+    void error(QCoapReply *reply, QtCoap::Error error);
 
 public Q_SLOTS:
     void sendRequest(QPointer<QCoapReply> reply, QCoapConnection *connection);

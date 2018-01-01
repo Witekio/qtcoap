@@ -82,8 +82,8 @@ public:
 #endif
 
 Q_SIGNALS:
-    void finished(QCoapReply *);
-    void error(QtCoap::Error error);
+    void finished(QCoapReply *reply);
+    void error(QCoapReply *reply, QtCoap::Error error);
 
 protected:
     explicit QCoapClient(QCoapProtocol *protocol, QCoapConnection *connection, QObject *parent = nullptr);
