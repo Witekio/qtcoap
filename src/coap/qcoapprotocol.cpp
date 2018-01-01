@@ -511,9 +511,15 @@ void QCoapProtocol::cancelObserve(QPointer<QCoapReply> reply)
         return;
 
     QCoapInternalRequest *copyRequest = d->requestForToken(reply->request().token());
-    if (copyRequest)
-        copyRequest->setObserveCancelled();
+    if (copyRequest) {
+        // Stop here if already cancelled
+        if (copyRequest->isObserveCancelled())
+            return;
 
+        copyRequest->setObserveCancelled();
+    }
+
+    // Set as cancelled even if request is not tracked anymore
     QMetaObject::invokeMethod(reply, "_q_setObserveCancelled", Qt::QueuedConnection);
 }
 
