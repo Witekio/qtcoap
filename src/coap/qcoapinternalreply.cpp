@@ -171,6 +171,16 @@ void QCoapInternalReply::addOption(const QCoapOption &option)
 
 /*!
     \internal
+    Sets the sender address.
+*/
+void QCoapInternalReply::setSenderAddress(const QHostAddress &address)
+{
+    Q_D(QCoapInternalReply);
+    d->senderAddress = address;
+}
+
+/*!
+    \internal
     Returns the number of the next block if it is not the last block.
     If it is the last block, it returns -1.
 */
@@ -205,6 +215,16 @@ QtCoap::StatusCode QCoapInternalReply::statusCode() const
 {
     Q_D(const QCoapInternalReply);
     return d->statusCode;
+}
+
+/*!
+    \internal
+    Returns the host address from which the reply was received.
+*/
+QHostAddress QCoapInternalReply::senderAddress() const
+{
+    Q_D(const QCoapInternalReply);
+    return d->senderAddress;
 }
 
 QT_END_NAMESPACE

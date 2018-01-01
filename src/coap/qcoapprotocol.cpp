@@ -226,7 +226,7 @@ void QCoapProtocolPrivate::onFrameReceived(const QNetworkDatagram &frame)
     Q_Q(const QCoapProtocol);
     Q_ASSERT(QThread::currentThread() == q->thread());
 
-    QSharedPointer<QCoapInternalReply> reply(decode(frame.data()));
+    QSharedPointer<QCoapInternalReply> reply(decode(frame));
     const QCoapMessage *messageReceived = reply->message();
 
     QCoapInternalRequest *request = nullptr;
@@ -550,10 +550,13 @@ QByteArray QCoapProtocolPrivate::encode(QCoapInternalRequest *request)
     Decodes the QByteArray \a message and returns a new unmanaged
     QCoapInternalReply object.
 */
-QCoapInternalReply *QCoapProtocolPrivate::decode(const QByteArray &message)
+QCoapInternalReply *QCoapProtocolPrivate::decode(const QNetworkDatagram &frame)
 {
     Q_Q(QCoapProtocol);
-    return new QCoapInternalReply(QCoapInternalReply::fromQByteArray(message), q);
+    QCoapInternalReply *reply = new QCoapInternalReply(QCoapInternalReply::fromQByteArray(frame.data()), q);
+    reply->setSenderAddress(frame.senderAddress());
+
+    return reply;
 }
 
 /*!

@@ -67,7 +67,7 @@ public:
 
     QByteArray encode(QCoapInternalRequest *request);
     void onFrameReceived(const QNetworkDatagram &frame);
-    QCoapInternalReply *decode(const QByteArray &message);
+    QCoapInternalReply *decode(const QNetworkDatagram &frame);
 
     void sendAcknowledgment(QCoapInternalRequest *request);
     void sendReset(QCoapInternalRequest *request);

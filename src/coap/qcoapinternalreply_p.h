@@ -34,6 +34,7 @@
 #include <QtCoap/qcoapnamespace.h>
 #include <QtCoap/qcoapinternalmessage.h>
 #include <private/qcoapinternalmessage_p.h>
+#include <QtNetwork/qhostaddress.h>
 
 //
 //  W A R N I N G
@@ -62,8 +63,10 @@ public:
 
     using QCoapInternalMessage::addOption;
     void addOption(const QCoapOption &option);
+    void setSenderAddress(const QHostAddress &address);
 
     QtCoap::StatusCode statusCode() const;
+    QHostAddress senderAddress() const;
 
 private:
     Q_DECLARE_PRIVATE(QCoapInternalReply)
@@ -74,7 +77,8 @@ class Q_AUTOTEST_EXPORT QCoapInternalReplyPrivate : public QCoapInternalMessageP
 public:
     QCoapInternalReplyPrivate() = default;
 
-    QtCoap::StatusCode statusCode;
+    QtCoap::StatusCode statusCode = QtCoap::InvalidCode;
+    QHostAddress senderAddress;
 };
 
 Q_DECLARE_METATYPE(QCoapInternalReply)
