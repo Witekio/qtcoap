@@ -551,7 +551,7 @@ bool QCoapClientPrivate::send(QCoapReply *reply)
     q->connect(reply, SIGNAL(aborted(const QCoapToken&)),
                protocol, SLOT(onRequestAborted(const QCoapToken&)));
 
-    QMetaObject::invokeMethod(protocol, "sendRequest",
+    QMetaObject::invokeMethod(protocol, "sendRequest", Qt::QueuedConnection,
                               Q_ARG(QPointer<QCoapReply>, QPointer<QCoapReply>(reply)),
                               Q_ARG(QCoapConnection*, connection));
 
