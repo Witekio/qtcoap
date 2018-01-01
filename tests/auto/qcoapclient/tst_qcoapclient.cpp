@@ -646,9 +646,13 @@ void tst_QCoapClient::observe()
     QSharedPointer<QCoapReply> reply(client.observe(request),
                                      &QObject::deleteLater);
     QSignalSpy spyReplyNotified(reply.data(), &QCoapReply::notified);
+    QSignalSpy spyReplyFinished(reply.data(), &QCoapReply::finished);
 
     QTRY_COMPARE_WITH_TIMEOUT(spyReplyNotified.count(), 3, 30000);
     client.cancelObserve(reply.data());
+
+    QVERIFY2(!spyReplyNotified.wait(7000), "'Notify' signal received after cancelling observe");
+    QCOMPARE(spyReplyFinished.count(), 1);
 
     for (QList<QVariant> receivedSignals : qAsConst(spyReplyNotified)) {
         QRegularExpression regexp(QStringLiteral("..:..:.."));
@@ -657,7 +661,7 @@ void tst_QCoapClient::observe()
         QVERIFY2(regexp.match(payload).hasMatch(), qPrintable(error));
     }
 
-    QVERIFY2(!spyReplyNotified.wait(7000), "'Notify' signal received after cancelling observe");
+
 }
 
 QTEST_MAIN(tst_QCoapClient)
