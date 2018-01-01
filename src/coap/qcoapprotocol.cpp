@@ -104,7 +104,6 @@ void QCoapProtocol::sendRequest(QPointer<QCoapReply> reply, QCoapConnection *con
     QMetaObject::invokeMethod(reply, "_q_setRunning", Qt::QueuedConnection,
                               Q_ARG(QCoapToken, requestMessage->token()),
                               Q_ARG(QCoapMessageId, requestMessage->messageId()));
-    //reply->setRunning(requestMessage->token(), requestMessage->messageId());
 
     // If the user specified a size for blockwise request/replies
     if (d->blockSize > 0) {
@@ -114,11 +113,14 @@ void QCoapProtocol::sendRequest(QPointer<QCoapReply> reply, QCoapConnection *con
     }
 
     if (requestMessage->type() == QCoapMessage::Confirmable) {
-        internalRequest->setTimeout(
-                    QtCoap::randomGenerator.bounded(minTimeout(), maxTimeout()));
-        connect(internalRequest.data(), SIGNAL(timeout(QCoapInternalRequest*)),
-                this, SLOT(onRequestTimeout(QCoapInternalRequest*)));
+        internalRequest->setTimeout(QtCoap::randomGenerator.bounded(minTimeout(),
+                                                                    maxTimeout()));
+    } else {
+        internalRequest->setTimeout(maxTimeout());
     }
+
+    connect(internalRequest.data(), SIGNAL(timeout(QCoapInternalRequest*)),
+            this, SLOT(onRequestTimeout(QCoapInternalRequest*)));
 
     d->sendRequest(internalRequest.data());
 }
@@ -157,17 +159,14 @@ void QCoapProtocolPrivate::onRequestTimeout(QCoapInternalRequest *request)
     Q_Q(const QCoapProtocol);
     Q_ASSERT(QThread::currentThread() == q->thread());
 
-    // Nothing expected if message is not confirmable
-    if (request->message()->type() != QCoapMessage::Confirmable
-        || !isRequestRegistered(request)) {
+    if (!isRequestRegistered(request))
         return;
-    }
 
-    // In case of retransmission, check if it is not the last try
-    if (request->retransmissionCounter() < maxRetransmit) {
-        sendRequest(request);
-    } else {
+    if (request->message()->type() != QCoapMessage::Confirmable
+            || request->retransmissionCounter() >= maxRetransmit) {
         onRequestError(request, QtCoap::TimeOutError);
+    } else {
+        sendRequest(request);
     }
 }
 
