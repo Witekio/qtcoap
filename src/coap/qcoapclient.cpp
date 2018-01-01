@@ -186,10 +186,20 @@ QtCoap::Error QtCoap::statusCodeError(QtCoap::StatusCode code)
     \fn void QCoapClient::finished(QCoapReply *reply)
 
     This signal is emitted along with the \l{QCoapReply::finished()} signal
-    whenever a CoAP reply is finished. The \a reply parameter will contain a
-    pointer to the reply that has just finished.
+    whenever a CoAP reply is finished, after either a success or an error.
+    The \a reply parameter will contain a pointer to the reply that has just
+    finished.
 
-    \sa QCoapReply::finished(), QCoapReply::error()
+    \sa error(), QCoapReply::finished(), QCoapReply::error()
+*/
+
+/*!
+    \fn void QCoapClient::error(QCoapReply *reply, QtCoap::Error error)
+
+    This signal is emitted whenever an error occurs. The \a reply parameter
+    can be null if the error is not related to a specific QCoapReply.
+
+    \sa finished(), QCoapReply::error(), QCoapReply::finished()
 */
 
 /*!
