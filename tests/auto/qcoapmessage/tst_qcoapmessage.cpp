@@ -121,6 +121,16 @@ void tst_QCoapMessage::removeOption()
     //! TODO with one and more than one identical options
 }
 
+void tst_QCoapMessage::urlOptions()
+{
+    //! TODO Test the following from the RFC:
+    // For example, the following three URIs are equivalent and cause the
+    // same options and option values to appear in the CoAP messages:
+    // coap://example.com:5683/~sensors/temp.xml
+    // coap://EXAMPLE.com/%7Esensors/temp.xml
+    // coap://EXAMPLE.com:/%7esensors/temp.xml
+}
+
 QTEST_APPLESS_MAIN(tst_QCoapMessage)
 
 #include "tst_qcoapmessage.moc"
