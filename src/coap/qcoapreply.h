@@ -79,7 +79,7 @@ protected:
     Q_DECLARE_PRIVATE(QCoapReply)
     Q_PRIVATE_SLOT(d_func(), void _q_setRunning(const QCoapToken &, QCoapMessageId))
     Q_PRIVATE_SLOT(d_func(), void _q_setContent(const QCoapMessage &, QtCoap::StatusCode))
-    Q_PRIVATE_SLOT(d_func(), void _q_setNotified(const QCoapMessage &, QtCoap::StatusCode))
+    Q_PRIVATE_SLOT(d_func(), void _q_setNotified())
     Q_PRIVATE_SLOT(d_func(), void _q_setObserveCancelled())
     Q_PRIVATE_SLOT(d_func(), void _q_setFinished(QtCoap::Error))
     Q_PRIVATE_SLOT(d_func(), void _q_setError(QtCoap::StatusCode))

@@ -421,15 +421,14 @@ void QCoapProtocolPrivate::onLastMessageReceived(QCoapInternalRequest *request)
     }
 
     // Forward the answer
+    QMetaObject::invokeMethod(userReply, "_q_setContent", Qt::QueuedConnection,
+            Q_ARG(QCoapMessage, *lastReply->message()),
+            Q_ARG(QtCoap::StatusCode, lastReply->statusCode()));
+
     if (userReply->request().isObserved()) {
-        QMetaObject::invokeMethod(userReply, "_q_setNotified", Qt::QueuedConnection,
-                Q_ARG(QCoapMessage, *lastReply->message()),
-                Q_ARG(QtCoap::StatusCode, lastReply->statusCode()));
+        QMetaObject::invokeMethod(userReply, "_q_setNotified", Qt::QueuedConnection);
         forgetExchangeReplies(request->token());
     } else {
-        QMetaObject::invokeMethod(userReply, "_q_setContent", Qt::QueuedConnection,
-                Q_ARG(QCoapMessage, *lastReply->message()),
-                Q_ARG(QtCoap::StatusCode, lastReply->statusCode()));
         QMetaObject::invokeMethod(userReply, "_q_setFinished", Qt::QueuedConnection,
                 Q_ARG(QtCoap::Error, QtCoap::NoError));
         forgetExchange(request);

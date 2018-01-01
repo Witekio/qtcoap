@@ -83,6 +83,7 @@ void QCoapReplyPrivate::_q_setContent(const QCoapMessage &msg, QtCoap::StatusCod
 {
     message = msg;
     statusCode = status;
+    seekBuffer(0);
 
     if (QtCoap::isError(statusCode))
         _q_setError(statusCode);
@@ -94,17 +95,12 @@ void QCoapReplyPrivate::_q_setContent(const QCoapMessage &msg, QtCoap::StatusCod
     Updates the QCoapReply object and its message with data of the internal
     reply \a internalReply, unless this QCoapReply object has been aborted.
 */
-void QCoapReplyPrivate::_q_setNotified(const QCoapMessage &msg, QtCoap::StatusCode status)
+void QCoapReplyPrivate::_q_setNotified()
 {
     Q_Q(QCoapReply);
 
-    if (q->isFinished())
-        return;
-
-    message = msg;
-    statusCode = status;
-
-    emit q->notified(q, message);
+    if (!q->isFinished())
+        emit q->notified(q, message);
 }
 
 /*!
