@@ -58,7 +58,7 @@ public:
 Q_SIGNALS:
     void bound();
     void error(QAbstractSocket::SocketError);
-    void readyRead(const QByteArray &frame);
+    void readyRead(const QNetworkDatagram &datagram);
 
 protected:
     explicit QCoapConnection(QCoapConnectionPrivate &dd, QObject *parent = nullptr);

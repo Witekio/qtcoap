@@ -230,8 +230,8 @@ QCoapClient::QCoapClient(QCoapProtocol *protocol, QCoapConnection *connection, Q
     qRegisterMetaType<QCoapToken>("QCoapToken");
     qRegisterMetaType<QCoapMessageId>("QCoapMessageId");
 
-    connect(d->connection, SIGNAL(readyRead(const QByteArray&)),
-            d->protocol, SLOT(onFrameReceived(const QByteArray&)));
+    connect(d->connection, SIGNAL(readyRead(const QNetworkDatagram&)),
+            d->protocol, SLOT(onFrameReceived(const QNetworkDatagram&)));
     connect(d->connection, SIGNAL(error(QAbstractSocket::SocketError)),
             d->protocol, SLOT(onConnectionError(QAbstractSocket::SocketError)));
 

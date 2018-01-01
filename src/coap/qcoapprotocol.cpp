@@ -29,6 +29,7 @@
 
 #include <QtCore/qrandom.h>
 #include <QtCore/qthread.h>
+#include <QtNetwork/qnetworkdatagram.h>
 #include "qcoapprotocol_p.h"
 #include "qcoapinternalrequest_p.h"
 #include "qcoapinternalreply_p.h"
@@ -220,12 +221,12 @@ void QCoapProtocolPrivate::onRequestError(QCoapInternalRequest *request, QtCoap:
 
     Decode and process the given \a frame after reception.
 */
-void QCoapProtocolPrivate::onFrameReceived(const QByteArray &frame)
+void QCoapProtocolPrivate::onFrameReceived(const QNetworkDatagram &frame)
 {
     Q_Q(const QCoapProtocol);
     Q_ASSERT(QThread::currentThread() == q->thread());
 
-    QSharedPointer<QCoapInternalReply> reply(decode(frame));
+    QSharedPointer<QCoapInternalReply> reply(decode(frame.data()));
     const QCoapMessage *messageReceived = reply->message();
 
     QCoapInternalRequest *request = nullptr;
@@ -239,6 +240,14 @@ void QCoapProtocolPrivate::onFrameReceived(const QByteArray &frame)
         if (!request) {
             return;
         }
+    }
+
+    //! TODO IPv6 not supported, as operator "!=" does not exist
+    QHostAddress originalTarget(request->targetUri().host());
+    if (!originalTarget.isMulticast() && originalTarget.toIPv4Address() != frame.senderAddress().toIPv4Address()) {
+        qDebug() << "QtCoap: Answer received from incorrect host ("
+                 << frame.senderAddress() << "instead of" << originalTarget << ")";
+        return;
     }
 
     request->stopTransmission();

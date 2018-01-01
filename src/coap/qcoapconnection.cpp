@@ -198,8 +198,8 @@ void QCoapConnectionPrivate::_q_socketReadyRead()
         socket()->open(socket()->openMode() | QIODevice::ReadOnly);
 
     while (socket()->hasPendingDatagrams()) {
-        QByteArray data = socket()->receiveDatagram().data();
-        emit q->readyRead(data);
+        QNetworkDatagram datagram = socket()->receiveDatagram();
+        emit q->readyRead(datagram);
     }
 }
 
