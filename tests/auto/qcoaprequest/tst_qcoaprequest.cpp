@@ -47,6 +47,7 @@ private Q_SLOTS:
     void setUrl();
     void setMethod_data();
     void setMethod();
+    void enableObserve();
     void copyAndDetach();
     void internalRequestToFrame_data();
     void internalRequestToFrame();
@@ -112,6 +113,16 @@ void tst_QCoapRequest::setMethod()
     QCoapRequest request;
     request.setMethod(method);
     QCOMPARE(request.method(), method);
+}
+
+void tst_QCoapRequest::enableObserve()
+{
+    QCoapRequest request;
+
+    QVERIFY(request.isObserve() == false);
+    request.enableObserve();
+
+    QVERIFY(request.isObserve() == true);
 }
 
 void tst_QCoapRequest::copyAndDetach()

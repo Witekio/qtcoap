@@ -383,9 +383,9 @@ void QCoapProtocolPrivate::onLastMessageReceived(QCoapInternalRequest *request)
 
     //! FIXME: Change QPointer<QCoapReply> into something independent from
     //! User. QSharedPointer(s)?
-    QPointer<QCoapReply> userReply = userReplyForToken(request->token());//!
+    QPointer<QCoapReply> userReply = userReplyForToken(request->token());
     if (userReply.isNull() || replies.isEmpty()
-        || (userReply->request().isObserved() && request->isObserveCancelled())) {
+            || (request->isObserve() && request->isObserveCancelled())) {
         forgetExchange(request);
         return;
     }
@@ -425,7 +425,7 @@ void QCoapProtocolPrivate::onLastMessageReceived(QCoapInternalRequest *request)
             Q_ARG(QCoapMessage, *lastReply->message()),
             Q_ARG(QtCoap::StatusCode, lastReply->statusCode()));
 
-    if (userReply->request().isObserved()) {
+    if (request->isObserve()) {
         QMetaObject::invokeMethod(userReply, "_q_setNotified", Qt::QueuedConnection);
         forgetExchangeReplies(request->token());
     } else {
@@ -507,16 +507,16 @@ void QCoapProtocol::cancelObserve(QPointer<QCoapReply> reply)
 {
     Q_D(QCoapProtocol);
 
-    if (reply.isNull() || !reply->request().isObserved())
+    if (reply.isNull())
         return;
 
-    QCoapInternalRequest *copyRequest = d->requestForToken(reply->request().token());
-    if (copyRequest) {
+    QCoapInternalRequest *request = d->requestForToken(reply->request().token());
+    if (request) {
         // Stop here if already cancelled
-        if (copyRequest->isObserveCancelled())
+        if (!request->isObserve() || request->isObserveCancelled())
             return;
 
-        copyRequest->setObserveCancelled();
+        request->setObserveCancelled();
     }
 
     // Set as cancelled even if request is not tracked anymore

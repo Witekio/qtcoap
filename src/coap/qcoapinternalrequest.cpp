@@ -502,6 +502,17 @@ QtCoap::Method QCoapInternalRequest::method() const
 
 /*!
     \internal
+    Returns true if the request is an Observe request.
+
+*/
+bool QCoapInternalRequest::isObserve() const
+{
+    Q_D(const QCoapInternalRequest);
+    return d->message.hasOption(QCoapOption::Observe);
+}
+
+/*!
+    \internal
     Returns true if the observe request needs to be cancelled.
 
     \sa setCancelObserve()

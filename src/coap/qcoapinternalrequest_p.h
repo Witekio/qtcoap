@@ -79,6 +79,7 @@ public:
     QCoapToken token() const;
     QUrl targetUri() const;
     QtCoap::Method method() const;
+    bool isObserve() const;
     bool isObserveCancelled() const;
     QCoapConnection *connection() const;
     uint retransmissionCounter() const;
