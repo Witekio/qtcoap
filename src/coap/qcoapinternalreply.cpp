@@ -32,11 +32,6 @@
 
 QT_BEGIN_NAMESPACE
 
-QCoapInternalReplyPrivate::QCoapInternalReplyPrivate():
-    statusCode(QtCoap::InvalidCode)
-{
-}
-
 /*!
     \internal
 
@@ -56,7 +51,7 @@ QCoapInternalReplyPrivate::QCoapInternalReplyPrivate():
     Constructs a new QCoapInternalReply with \a parent as the parent object.
 */
 QCoapInternalReply::QCoapInternalReply(QObject *parent) :
-    QCoapInternalMessage (*new QCoapInternalReplyPrivate, parent)
+    QCoapInternalMessage(*new QCoapInternalReplyPrivate, parent)
 {
 }
 
@@ -65,10 +60,8 @@ QCoapInternalReply::QCoapInternalReply(QObject *parent) :
     Constructs a copy of \a other with \a parent as the parent obect.
 */
 QCoapInternalReply::QCoapInternalReply(const QCoapInternalReply &other, QObject *parent) :
-    QCoapInternalMessage(other, parent)
+    QCoapInternalMessage(*new QCoapInternalReplyPrivate(*other.d_func()), parent)
 {
-    Q_D(QCoapInternalReply);
-    d->statusCode = other.statusCode();
 }
 
 /*!

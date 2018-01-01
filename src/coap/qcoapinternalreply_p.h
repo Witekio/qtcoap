@@ -72,7 +72,7 @@ private:
 class Q_AUTOTEST_EXPORT QCoapInternalReplyPrivate : public QCoapInternalMessagePrivate
 {
 public:
-    QCoapInternalReplyPrivate();
+    QCoapInternalReplyPrivate() = default;
 
     QtCoap::StatusCode statusCode;
 };
