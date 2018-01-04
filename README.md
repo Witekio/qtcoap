@@ -8,12 +8,12 @@ To contribute and test, you can use the following docker environments:
 
 Refer to the associated documentation if needed.
 
-### Setup
-#### The build environment
+## Setup
+### The build environment
 
 The build environment is provided in `qt-contribution-env` docker.
 
-- Run the docker with the command below.  You can then use a VNC client to connect on 127.0.0.1:5901, or browse to http://127.0.0.1:6901. The default password inherited from the base image is vncpassword.
+- Run the docker with the command below. You can then use a VNC client to connect on `127.0.0.1:5901`, or browse to `http://127.0.0.1:6901`. The default password inherited from the base image is `vncpassword`.
 ```bash
 docker run -d -p 5901:5901 -p 6901:6901 --privileged aleravat/qt-contribution-env:latest
 ```
@@ -30,8 +30,7 @@ In order to have automatic tests to work, you need a CoAP test server. The comma
 docker run --name coap-test-server -d --rm -p 5683:5683/udp aleravat/coap-test-server:latest
 ```
 
-For automatic tests to work, the test server should be accessible as with host name "coap-plugtest-server". You should use `docker inspect <container_id>` to get the test server IP, and map the host name to it.
-This can be done by:
+For automatic tests to work, the test server should be accessible as with host name `coap-plugtest-server`. You can use `docker inspect <container_id>` to get the test server IP, and map the IP to the host name by:
 
 - Editing `/etc/hosts` (or `C:\Windows\System32\drivers\etc\hosts` on Windows)
 - Adding `<container_ip> coap-plugtest-server` to it.
