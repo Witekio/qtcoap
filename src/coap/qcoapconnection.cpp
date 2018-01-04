@@ -56,7 +56,6 @@ QT_BEGIN_NAMESPACE
 QCoapConnection::QCoapConnection(QObject *parent) :
     QCoapConnection(*new QCoapConnectionPrivate, parent)
 {
-    createSocket();
 }
 
 /*!
@@ -69,6 +68,8 @@ QCoapConnection::QCoapConnection(QObject *parent) :
 QCoapConnection::QCoapConnection(QCoapConnectionPrivate &dd, QObject *parent) :
     QObject(dd, parent)
 {
+    createSocket();
+    qRegisterMetaType<QNetworkDatagram>();
 }
 
 /*!
