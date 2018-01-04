@@ -553,7 +553,7 @@ QByteArray QCoapProtocolPrivate::encode(QCoapInternalRequest *request)
 QCoapInternalReply *QCoapProtocolPrivate::decode(const QNetworkDatagram &frame)
 {
     Q_Q(QCoapProtocol);
-    QCoapInternalReply *reply = new QCoapInternalReply(QCoapInternalReply::fromQByteArray(frame.data()), q);
+    QCoapInternalReply *reply = QCoapInternalReply::createFromFrame(frame.data(), q);
     reply->setSenderAddress(frame.senderAddress());
 
     return reply;

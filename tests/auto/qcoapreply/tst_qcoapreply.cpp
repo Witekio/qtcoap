@@ -146,21 +146,21 @@ void tst_QCoapReply::parseReplyPdu()
     QFETCH(QString, payload);
     QFETCH(QString, pduHexa);
 
-    QCoapInternalReply reply = QCoapInternalReply::fromQByteArray(QByteArray::fromHex(pduHexa.toUtf8()));
+    QScopedPointer<QCoapInternalReply> reply(QCoapInternalReply::createFromFrame(QByteArray::fromHex(pduHexa.toUtf8())));
 
-    QCOMPARE(reply.message()->type(), type);
-    QCOMPARE(reply.message()->tokenLength(), tokenLength);
-    QCOMPARE(reply.statusCode(), statusCode);
-    QCOMPARE(reply.message()->messageId(), messageId);
-    QCOMPARE(reply.message()->token().toHex(), token);
-    QCOMPARE(reply.message()->optionCount(), optionsNames.count());
-    for (int i = 0; i < reply.message()->optionCount(); ++i) {
-        QCoapOption option = reply.message()->option(i);
+    QCOMPARE(reply->message()->type(), type);
+    QCOMPARE(reply->message()->tokenLength(), tokenLength);
+    QCOMPARE(reply->statusCode(), statusCode);
+    QCOMPARE(reply->message()->messageId(), messageId);
+    QCOMPARE(reply->message()->token().toHex(), token);
+    QCOMPARE(reply->message()->optionCount(), optionsNames.count());
+    for (int i = 0; i < reply->message()->optionCount(); ++i) {
+        QCoapOption option = reply->message()->option(i);
         QCOMPARE(option.name(), optionsNames.at(i));
         QCOMPARE(option.length(), optionsLengths.at(i));
         QCOMPARE(option.value(), optionsValues.at(i));
     }
-    QCOMPARE(reply.message()->payload(), payload);
+    QCOMPARE(reply->message()->payload(), payload);
 }
 
 #include <private/qcoapreply_p.h>

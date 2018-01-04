@@ -66,7 +66,7 @@ QCoapInternalReply::QCoapInternalReply(const QCoapInternalReply &other, QObject 
 
 /*!
     \internal
-    Creates a QCoapInternalReply from the CoAP \a reply frame, as a QByteArray.
+    Creates a QCoapInternalReply from the CoAP \a reply frame.
 
     For more details, refer to section
     \l{https://tools.ietf.org/html/rfc7252#section-3}{'Message format' of RFC 7252}.
@@ -82,10 +82,10 @@ QCoapInternalReply::QCoapInternalReply(const QCoapInternalReply &other, QObject 
 //! +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //! |1 1 1 1 1 1 1 1|    Payload (if any) ...
 //! +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-QCoapInternalReply QCoapInternalReply::fromQByteArray(const QByteArray &reply)
+QCoapInternalReply *QCoapInternalReply::createFromFrame(const QByteArray &reply, QObject *parent)
 {
-    QCoapInternalReply internalReply;
-    QCoapInternalReplyPrivate *d = internalReply.d_func();
+    QCoapInternalReply *internalReply = new QCoapInternalReply(parent);
+    QCoapInternalReplyPrivate *d = internalReply->d_func();
 
     const quint8 *pduData = reinterpret_cast<const quint8 *>(reply.data());
 
@@ -130,7 +130,7 @@ QCoapInternalReply QCoapInternalReply::fromQByteArray(const QByteArray &reply)
         }
 
         quint16 optionNumber = lastOptionNumber + optionDelta;
-        internalReply.addOption(QCoapOption::OptionName(optionNumber),
+        internalReply->addOption(QCoapOption::OptionName(optionNumber),
                                 QByteArray::fromRawData(reply.data() + i + 1,
                                                         optionLength));
         lastOptionNumber = optionNumber;

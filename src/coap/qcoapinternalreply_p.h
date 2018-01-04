@@ -57,7 +57,7 @@ public:
     explicit QCoapInternalReply(QObject *parent = nullptr);
     QCoapInternalReply(const QCoapInternalReply &other, QObject *parent = nullptr);
 
-    static QCoapInternalReply fromQByteArray(const QByteArray &reply);
+    static QCoapInternalReply *createFromFrame(const QByteArray &frame, QObject *parent = nullptr);
     void appendData(const QByteArray &data);
     int nextBlockWanted();
 
