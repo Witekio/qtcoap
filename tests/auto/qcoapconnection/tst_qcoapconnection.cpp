@@ -34,6 +34,7 @@
 #include <QtCoap/qcoapnamespace.h>
 #include <QtCore/qbuffer.h>
 #include <QtNetwork/qudpsocket.h>
+#include <QtNetwork/qnetworkdatagram.h>
 #include <QtCoap/qcoapglobal.h>
 #include <QtCoap/qcoapconnection.h>
 #include <QtCoap/qcoaprequest.h>
@@ -149,8 +150,8 @@ void tst_QCoapConnection::sendRequest()
 
     QCoapConnectionForTest connection;
 
-    QSignalSpy spySocketReadyRead(connection.socket(), SIGNAL(readyRead()));
-    QSignalSpy spyConnectionReadyRead(&connection, SIGNAL(readyRead(const QByteArray&)));
+    QSignalSpy spySocketReadyRead(connection.socket(), &QUdpSocket::readyRead);
+    QSignalSpy spyConnectionReadyRead(&connection, &QCoapConnection::readyRead);
 
     QCoapRequest request(protocol + host + path);
     request.setMessageId(24806);
@@ -163,10 +164,11 @@ void tst_QCoapConnection::sendRequest()
     QTRY_COMPARE(spySocketReadyRead.count(), 1);
     QTRY_COMPARE(spyConnectionReadyRead.count(), 1);
 
-    QByteArray reply = spyConnectionReadyRead.first().first().toByteArray();
+    QNetworkDatagram datagram = spyConnectionReadyRead.first()
+                                    .first().value<QNetworkDatagram>();
 
-    QVERIFY(QString(reply.toHex()).startsWith(dataHexaHeader));
-    QVERIFY(QString(reply.toHex()).endsWith(dataHexaPayload));
+    QVERIFY(QString(datagram.data().toHex()).startsWith(dataHexaHeader));
+    QVERIFY(QString(datagram.data().toHex()).endsWith(dataHexaPayload));
 }
 
 QTEST_MAIN(tst_QCoapConnection)

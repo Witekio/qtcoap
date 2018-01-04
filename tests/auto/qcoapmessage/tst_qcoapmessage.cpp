@@ -44,6 +44,7 @@ private Q_SLOTS:
     void addOption_uint_data();
     void addOption_uint();
     void removeOption();
+    void urlOptions();
 };
 
 void tst_QCoapMessage::copyAndDetach()
