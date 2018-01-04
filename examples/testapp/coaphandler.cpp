@@ -32,6 +32,7 @@ void CoapHandler::onNotified(QCoapReply *reply, QCoapMessage message)
 {
     Q_UNUSED(message)
     qDebug() << "Received OBSERVE notification: " << reply->readAll();
+    // You can alternatively use `message.payload();`
 }
 
 void CoapHandler::onDiscovered(QVector<QCoapResource> resources, QCoapDiscoveryReply *reply)
