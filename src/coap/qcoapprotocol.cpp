@@ -911,12 +911,26 @@ void QCoapProtocol::setMaxRetransmit(uint maxRetransmit)
 /*!
     Sets the max block size wanted to \a blockSize.
 
+    The \a blockSize should be zero, or range from 16 to 1024 and be a
+    power of 2. A size of 0 invites the server to chose the block size.
+
     \sa blockSize()
 */
 void QCoapProtocol::setBlockSize(quint16 blockSize)
 {
-    // A size of 0 invites the server to chose the block size.
     Q_D(QCoapProtocol);
+
+    if ((blockSize & (blockSize - 1)) != 0) {
+        qWarning() << "QtCoap: Block size should be a power of 2";
+        return;
+    }
+
+    if (blockSize != 0 && (blockSize < 16 || blockSize > 1024)) {
+        qWarning() << "QtCoap: Block size should be set to zero, or"
+                      " to a power of 2 in the [16;1024] range";
+        return;
+    }
+
     d->blockSize = blockSize;
 }
 

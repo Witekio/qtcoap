@@ -575,9 +575,6 @@ bool QCoapClientPrivate::send(QCoapReply *reply)
 void QCoapClient::setBlockSize(quint16 blockSize)
 {
     Q_D(QCoapClient);
-    // If it is not a power of two
-    if ((blockSize & (blockSize - 1)) != 0)
-        return;
 
     // FIXME: Done from the wrong thread
     d->protocol->setBlockSize(blockSize);
