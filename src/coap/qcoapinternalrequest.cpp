@@ -284,7 +284,7 @@ QCoapOption QCoapInternalRequest::blockOption(QCoapOption::OptionName name, uint
     // NUM field
     quint32 optionData = (blockNumber << 4);
 
-    // SZX field = log2(blockSize) - 4)
+    // SZX field = log2(blockSize - 4)
     optionData |= (blockSize >> 7)
                   ? ((blockSize >> 10) ? 6 : (3 + (blockSize >> 8)))
                   : (blockSize >> 5);
@@ -391,8 +391,6 @@ bool QCoapInternalRequest::addUriOptions(QUrl uri, const QUrl &proxyUri)
         uri.setPort(5683);
 
     // 7. Add port to options if it is not the default port
-    //! FIXME There is probably a port encoding error here, as value seem
-    //! too big by standard, and stored as a string
     if (uri.port() != 5683)
         addOption(QCoapOption::UriPort, uri.port());
 
