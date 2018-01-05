@@ -259,14 +259,13 @@ qint64 QCoapReply::readData(char *data, qint64 maxSize)
 
     QByteArray payload = d->message.payload();
 
-    qint64 len = qMin(maxSize, qint64(payload.size()) - pos());
-    if (len <= 0)
+    maxSize = qMin(maxSize, qint64(payload.size()) - pos());
+    if (maxSize <= 0)
         return qint64(0);
 
-    // Ensure memcpy is compatible with a qint64 length.
-    // FIXME Isn't it going to be a problem on ARM based platforms?
-    Q_STATIC_ASSERT(sizeof(size_t) >= sizeof(qint64));
-    memcpy(data, payload.constData() + pos(), static_cast<size_t>(len));
+    // Explicitly eccount for platform size_t limitations
+    size_t len = static_cast<size_t>(maxSize);
+    memcpy(data, payload.constData() + pos(), len);
 
     return len;
 }
