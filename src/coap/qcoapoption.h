@@ -64,6 +64,8 @@ public:
     };
 
     QCoapOption(OptionName name = Invalid, const QByteArray &value = QByteArray());
+    QCoapOption(OptionName name, const QString &value);
+    QCoapOption(OptionName name, const char* value);
     QCoapOption(OptionName name, quint32 value);
     QCoapOption(const QCoapOption &other);
     QCoapOption(QCoapOption &&other);
@@ -84,6 +86,8 @@ public:
 
 protected:
     void setValue(const QByteArray &value);
+    void setValue(const QString &value);
+    void setValue(const char *value);
     void setValue(quint32 value);
 
 private:

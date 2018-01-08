@@ -370,7 +370,7 @@ bool QCoapInternalRequest::addUriOptions(QUrl uri, const QUrl &proxyUri)
         if (!isUrlValid(proxyUri))
             return false;
 
-        addOption(QCoapOption::ProxyUri, proxyUri.toString().toUtf8());
+        addOption(QCoapOption(QCoapOption::ProxyUri, proxyUri.toString()));
         d->targetUri = proxyUri;
         return true;
     }
@@ -399,15 +399,15 @@ bool QCoapInternalRequest::addUriOptions(QUrl uri, const QUrl &proxyUri)
     const auto listPath = path.splitRef('/');
     for (const QStringRef &pathPart : listPath) {
         if (!pathPart.isEmpty())
-            addOption(QCoapOption::UriPath, pathPart.toUtf8());
+            addOption(QCoapOption(QCoapOption::UriPath, pathPart.toString()));
     }
 
     // 9. Add queries to options
     QString query = uri.query();
     const auto listQuery = query.splitRef('&');
-    for (const QStringRef &query : listQuery) {
-        if (!query.isEmpty())
-            addOption(QCoapOption::UriQuery, query.toUtf8());
+    for (const QStringRef &queryElement : listQuery) {
+        if (!queryElement.isEmpty())
+            addOption(QCoapOption(QCoapOption::UriQuery, queryElement.toString()));
     }
 
     d->targetUri = uri;
@@ -606,7 +606,7 @@ QCoapOption QCoapInternalRequest::uriHostOption(const QUrl &uri) const
     if (ipv4Regex.match(host).hasMatch())
         return QCoapOption();
 
-    return QCoapOption(QCoapOption::UriHost, host.toUtf8());
+    return QCoapOption(QCoapOption::UriHost, host);
 }
 
 QT_END_NAMESPACE

@@ -89,6 +89,36 @@ QCoapOption::QCoapOption(OptionName name, const QByteArray &value) :
 
 /*!
     Constructs a QCoapOption object with the given \a name
+    and the QString \a value.
+
+    \sa isValid()
+ */
+QCoapOption::QCoapOption(OptionName name, const QString &value) :
+    d_ptr(new QCoapOptionPrivate)
+{
+    //! TODO: Cover in tests
+    Q_D(QCoapOption);
+    d->name = name;
+    setValue(value);
+}
+
+/*!
+    Constructs a QCoapOption object with the given \a name
+    and the string \a value.
+
+    \sa isValid()
+ */
+QCoapOption::QCoapOption(OptionName name, const char *value) :
+    d_ptr(new QCoapOptionPrivate)
+{
+    //! TODO: Cover in tests
+    Q_D(QCoapOption);
+    d->name = name;
+    setValue(value);
+}
+
+/*!
+    Constructs a QCoapOption object with the given \a name
     and the unsigned integer \a value.
 
     \sa isValid()
@@ -288,7 +318,23 @@ void QCoapOption::setValue(const QByteArray &value)
 }
 
 /*!
-    Sets an integer value for the option.
+    Sets a QString \a value for the option.
+ */
+void QCoapOption::setValue(const QString &value)
+{
+    setValue(value.toUtf8());
+}
+
+/*!
+    Sets a string \a value for the option.
+ */
+void QCoapOption::setValue(const char *value)
+{
+    setValue(QString::fromUtf8(value));
+}
+
+/*!
+    Sets an integer \a value for the option.
  */
 void QCoapOption::setValue(quint32 value)
 {
