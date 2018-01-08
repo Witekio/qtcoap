@@ -48,7 +48,7 @@ public:
     QVector<QCoapResource> resources() const;
 
 Q_SIGNALS:
-    void discovered(QVector<QCoapResource> resources, QCoapDiscoveryReply *reply);
+    void discovered(QCoapDiscoveryReply *reply, QVector<QCoapResource> resources);
 
 private:
     Q_DECLARE_PRIVATE(QCoapDiscoveryReply)

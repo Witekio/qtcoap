@@ -20,7 +20,7 @@ public:
 public Q_SLOTS:
     void onGetFinished(QCoapReply *reply);
     void onNotified(QCoapReply *reply, QCoapMessage message);
-    void onDiscovered(QVector<QCoapResource> resources, QCoapDiscoveryReply *reply);
+    void onDiscovered(QCoapDiscoveryReply *reply, QVector<QCoapResource> resources);
     void onError(QCoapReply *reply, QtCoap::Error error);
 
 private:

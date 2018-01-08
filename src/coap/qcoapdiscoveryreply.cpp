@@ -58,7 +58,7 @@ void QCoapDiscoveryReplyPrivate::_q_setContent(const QCoapMessage &msg, QtCoap::
     } else {
         auto res = QCoapProtocol::resourcesFromCoreLinkList(message.payload());
         resources.append(res);
-        emit q->discovered(res, q);
+        emit q->discovered(q, res);
     }
 }
 

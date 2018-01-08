@@ -35,7 +35,7 @@ void CoapHandler::onNotified(QCoapReply *reply, QCoapMessage message)
     // You can alternatively use `message.payload();`
 }
 
-void CoapHandler::onDiscovered(QVector<QCoapResource> resources, QCoapDiscoveryReply *reply)
+void CoapHandler::onDiscovered(QCoapDiscoveryReply *reply, QVector<QCoapResource> resources)
 {
     Q_UNUSED(reply)
 
