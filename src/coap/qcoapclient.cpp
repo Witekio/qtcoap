@@ -281,7 +281,7 @@ QCoapReply *QCoapClient::get(const QCoapRequest &request)
 
     \sa post(), put(), deleteResource(), observe(), discover()
 */
-QCoapReply *QCoapClient::get(const QUrl& url)
+QCoapReply *QCoapClient::get(const QUrl &url)
 {
     QCoapRequest request(url);
     return get(request);
