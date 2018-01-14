@@ -57,6 +57,7 @@ tests/auto/qcoapmessage/qcoapmessage
 tests/auto/qcoapreply/qcoapreply
 tests/auto/qcoaprequest/qcoaprequest
 tests/auto/qcoapresource/qcoapresource
+examples/testapp/testapp
 
 # Other
 *.swp
