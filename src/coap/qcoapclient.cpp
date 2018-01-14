@@ -159,6 +159,11 @@ QtCoap::Error QtCoap::statusCodeError(QtCoap::StatusCode code)
         client->get(QCoapRequest(Qurl("coap://coap.me/test")));
     \endcode
 
+    \note After the request has finished, it is the responsibility of the user
+    to delete the QCoapReply object at an appropriate time. Do not directly
+    delete it inside the slot connected to finished(). You can use the
+    deleteLater() function.
+
     You can also use an "observe" request. This can be used as above, or more
     conveniently with the \l{QCoapReply::notified(const QByteArray&)}{notified(const QByteArray&)}
     signal:
