@@ -157,7 +157,7 @@ void QCoapConnectionPrivate::writeToSocket(const CoapFrame &frame)
     QHostAddress host(frame.host);
     if (host.isNull()) {
         qWarning() << "QtCoap: Invalid host IP address" << frame.host
-                   << ". Only IPv4/IPv6 destination adresses are supported.";
+                   << ". Only IPv4/IPv6 destination addresses are supported.";
         return;
     }
 

@@ -510,7 +510,7 @@ void QCoapProtocolPrivate::sendReset(QCoapInternalRequest *request)
     Cancels resource observation. The QCoapReply::notified() signal will not
     be emitted after cancellation.
 
-    A Reset (RST) message will be sent at the reception of the next mesage.
+    A Reset (RST) message will be sent at the reception of the next message.
 */
 void QCoapProtocol::cancelObserve(QPointer<QCoapReply> reply)
 {

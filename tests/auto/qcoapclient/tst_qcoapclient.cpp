@@ -274,7 +274,7 @@ void tst_QCoapClient::removeReply()
         QTimer::singleShot(2000, &eventLoop, &QEventLoop::quit);
         eventLoop.exec();
     } catch (...) {
-        QFAIL("Exception occured after destroying the QCoapReply");
+        QFAIL("Exception occurred after destroying the QCoapReply");
     }
 }
 
