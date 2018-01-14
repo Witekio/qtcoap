@@ -32,11 +32,6 @@
 
 QT_BEGIN_NAMESPACE
 
-QCoapInternalReplyPrivate::QCoapInternalReplyPrivate():
-    statusCode(QtCoap::Invalid)
-{
-}
-
 /*!
     \internal
 
@@ -56,7 +51,7 @@ QCoapInternalReplyPrivate::QCoapInternalReplyPrivate():
     Constructs a new QCoapInternalReply with \a parent as the parent object.
 */
 QCoapInternalReply::QCoapInternalReply(QObject *parent) :
-    QCoapInternalMessage (*new QCoapInternalReplyPrivate, parent)
+    QCoapInternalMessage(*new QCoapInternalReplyPrivate, parent)
 {
 }
 
@@ -65,21 +60,19 @@ QCoapInternalReply::QCoapInternalReply(QObject *parent) :
     Constructs a copy of \a other with \a parent as the parent obect.
 */
 QCoapInternalReply::QCoapInternalReply(const QCoapInternalReply &other, QObject *parent) :
-    QCoapInternalMessage(other, parent)
+    QCoapInternalMessage(*new QCoapInternalReplyPrivate(*other.d_func()), parent)
 {
-    Q_D(QCoapInternalReply);
-    d->statusCode = other.statusCode();
 }
 
 /*!
     \internal
-    Creates a QCoapInternalReply from the CoAP \a reply frame, as a QByteArray.
+    Creates a QCoapInternalReply from the CoAP \a reply frame.
 
     For more details, refer to section
     \l{https://tools.ietf.org/html/rfc7252#section-3}{'Message format' of RFC 7252}.
 */
-//! 0                   1                   2                   3
-//! 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
+//!  0                   1                   2                   3
+//!  0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
 //! +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //! |Ver| T |  TKL  |      Code     |          Message ID           |
 //! +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -89,10 +82,10 @@ QCoapInternalReply::QCoapInternalReply(const QCoapInternalReply &other, QObject 
 //! +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 //! |1 1 1 1 1 1 1 1|    Payload (if any) ...
 //! +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-QCoapInternalReply QCoapInternalReply::fromQByteArray(const QByteArray &reply)
+QCoapInternalReply *QCoapInternalReply::createFromFrame(const QByteArray &reply, QObject *parent)
 {
-    QCoapInternalReply internalReply;
-    QCoapInternalReplyPrivate *d = internalReply.d_func();
+    QCoapInternalReply *internalReply = new QCoapInternalReply(parent);
+    QCoapInternalReplyPrivate *d = internalReply->d_func();
 
     const quint8 *pduData = reinterpret_cast<const quint8 *>(reply.data());
 
@@ -137,7 +130,7 @@ QCoapInternalReply QCoapInternalReply::fromQByteArray(const QByteArray &reply)
         }
 
         quint16 optionNumber = lastOptionNumber + optionDelta;
-        internalReply.addOption(QCoapOption::OptionName(optionNumber),
+        internalReply->addOption(QCoapOption::OptionName(optionNumber),
                                 QByteArray::fromRawData(reply.data() + i + 1,
                                                         optionLength));
         lastOptionNumber = optionNumber;
@@ -178,10 +171,20 @@ void QCoapInternalReply::addOption(const QCoapOption &option)
 
 /*!
     \internal
+    Sets the sender address.
+*/
+void QCoapInternalReply::setSenderAddress(const QHostAddress &address)
+{
+    Q_D(QCoapInternalReply);
+    d->senderAddress = address;
+}
+
+/*!
+    \internal
     Returns the number of the next block if it is not the last block.
     If it is the last block, it returns -1.
 */
-int QCoapInternalReply::wantNextBlock()
+int QCoapInternalReply::nextBlockWanted()
 {
     Q_D(QCoapInternalReply);
 
@@ -212,6 +215,16 @@ QtCoap::StatusCode QCoapInternalReply::statusCode() const
 {
     Q_D(const QCoapInternalReply);
     return d->statusCode;
+}
+
+/*!
+    \internal
+    Returns the host address from which the reply was received.
+*/
+QHostAddress QCoapInternalReply::senderAddress() const
+{
+    Q_D(const QCoapInternalReply);
+    return d->senderAddress;
 }
 
 QT_END_NAMESPACE

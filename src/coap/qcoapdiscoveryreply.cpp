@@ -32,34 +32,9 @@
 
 QT_BEGIN_NAMESPACE
 
-/*!
-    \class QCoapDiscoveryReply
-    \brief A QCoapDiscoveryReply object is a QCoapReply that stores also a
-    list of QCoapResources.
-
-    \reentrant
-
-    This class is used for discovery requests.
-
-    \sa QCoapClient, QCoapRequest, QCoapReply, QCoapResource
-*/
-
-/*!
-    Constructs a new QCoapDiscoveryReply and sets \a parent as parent object.
-*/
-QCoapDiscoveryReply::QCoapDiscoveryReply(QObject *parent) :
-    QCoapReply (* new QCoapDiscoveryReplyPrivate, parent)
+QCoapDiscoveryReplyPrivate::QCoapDiscoveryReplyPrivate(const QCoapRequest &request) :
+    QCoapReplyPrivate (request)
 {
-
-}
-
-/*!
-    Returns the list of resources.
-*/
-QList<QCoapResource> QCoapDiscoveryReply::resourceList() const
-{
-    Q_D(const QCoapDiscoveryReply);
-    return d->resources;
 }
 
 /*!
@@ -68,28 +43,55 @@ QList<QCoapResource> QCoapDiscoveryReply::resourceList() const
     Updates the QCoapDiscoveryReply object, its message and list of resources
     with data of the internal reply \a internalReply.
 */
-void QCoapDiscoveryReply::updateFromInternalReply(const QCoapInternalReply &internalReply)
+void QCoapDiscoveryReplyPrivate::_q_setContent(const QCoapMessage &msg, QtCoap::StatusCode status)
 {
-    Q_D(QCoapDiscoveryReply);
+    Q_Q(QCoapDiscoveryReply);
 
-    if (!d->isAborted) {
-        const QCoapMessage *internalReplyMessage = internalReply.message();
+    if (q->isFinished())
+        return;
 
-        d->message.setPayload(internalReplyMessage->payload());
-        d->message.setType(internalReplyMessage->type());
-        d->message.setVersion(internalReplyMessage->version());
-        d->status = internalReply.statusCode();
+    message = msg;
+    statusCode = status;
 
-        d->isFinished = true;
-        d->isRunning = false;
-
-        if (d->status >= QtCoap::BadRequest)
-            replyError(d->status);
-        else
-            d->resources = QCoapProtocol::resourcesFromCoreLinkList(internalReplyMessage->payload());
-
-        emit finished();
+    if (QtCoap::isError(statusCode)) {
+        _q_setError(statusCode);
+    } else {
+        auto res = QCoapProtocol::resourcesFromCoreLinkList(message.payload());
+        resources.append(res);
+        emit q->discovered(q, res);
     }
+}
+
+/*!
+    \class QCoapDiscoveryReply
+    \brief A QCoapDiscoveryReply object is a QCoapReply that stores also a
+    list of QCoapResources.
+
+    \reentrant
+
+    This class is used for discovery requests, and emits the discovered()
+    signal if and when resources are discovered. When using a multicast
+    address for discovery, the discovered() signal will be emitted once
+    for each response received.
+
+    \sa QCoapClient, QCoapRequest, QCoapReply, QCoapResource
+*/
+
+/*!
+    Constructs a new QCoapDiscoveryReply and sets \a parent as parent object.
+*/
+QCoapDiscoveryReply::QCoapDiscoveryReply(const QCoapRequest &request, QObject *parent) :
+    QCoapReply (* new QCoapDiscoveryReplyPrivate(request), parent)
+{
+}
+
+/*!
+    Returns the list of resources.
+*/
+QVector<QCoapResource> QCoapDiscoveryReply::resources() const
+{
+    Q_D(const QCoapDiscoveryReply);
+    return d->resources;
 }
 
 QT_END_NAMESPACE

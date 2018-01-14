@@ -40,13 +40,17 @@ QT_BEGIN_NAMESPACE
 class QCoapDiscoveryReplyPrivate;
 class Q_COAP_EXPORT QCoapDiscoveryReply : public QCoapReply
 {
-public:
-    explicit QCoapDiscoveryReply(QObject *parent = nullptr);
+    Q_OBJECT
 
-    QList<QCoapResource> resourceList() const;
+public:
+    explicit QCoapDiscoveryReply(const QCoapRequest &request, QObject *parent = nullptr);
+
+    QVector<QCoapResource> resources() const;
+
+Q_SIGNALS:
+    void discovered(QCoapDiscoveryReply *reply, QVector<QCoapResource> resources);
 
 private:
-    void updateFromInternalReply(const QCoapInternalReply &internalReply) Q_DECL_OVERRIDE;
     Q_DECLARE_PRIVATE(QCoapDiscoveryReply)
 };
 

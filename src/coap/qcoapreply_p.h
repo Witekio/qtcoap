@@ -50,12 +50,20 @@ QT_BEGIN_NAMESPACE
 class Q_AUTOTEST_EXPORT QCoapReplyPrivate : public QIODevicePrivate
 {
 public:
-    QCoapReplyPrivate() = default;
+    QCoapReplyPrivate(const QCoapRequest &request);
+
+    void _q_setRunning(const QCoapToken &, QCoapMessageId);
+    virtual void _q_setContent(const QCoapMessage &, QtCoap::StatusCode);
+    void _q_setNotified();
+    void _q_setObserveCancelled();
+    void _q_setFinished(QtCoap::Error = QtCoap::NoError);
+    void _q_setError(QtCoap::StatusCode);
+    void _q_setError(QtCoap::Error);
 
     QCoapRequest request;
     QCoapMessage message;
-    QtCoap::StatusCode status = QtCoap::Invalid;
-    QCoapReply::NetworkError error = QCoapReply::NoError;
+    QtCoap::StatusCode statusCode = QtCoap::InvalidCode;
+    QtCoap::Error error = QtCoap::NoError;
     bool isRunning = false;
     bool isFinished = false;
     bool isAborted = false;

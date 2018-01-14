@@ -31,8 +31,7 @@
 #define QCOAPPROTOCOL_P_H
 
 #include <QtCoap/qcoapprotocol.h>
-#include <QtCore/qlist.h>
-#include <QtCore/qpair.h>
+#include <QtCore/qvector.h>
 #include <QtCore/qqueue.h>
 #include <QtCore/qpointer.h>
 #include <private/qobject_p.h>
@@ -50,39 +49,58 @@
 
 QT_BEGIN_NAMESPACE
 
-struct InternalMessagePair {
+struct CoapExchangeData {
     QPointer<QCoapReply> userReply;
-    QList<QCoapInternalReply*> replies;
+    QSharedPointer<QCoapInternalRequest> request;
+    QVector<QSharedPointer<QCoapInternalReply> > replies;
 };
 
-typedef QMap<QCoapInternalRequest*, InternalMessagePair> InternalMessageMap;
+typedef QMap<QByteArray, CoapExchangeData> CoapExchangeMap;
 
 class Q_AUTOTEST_EXPORT QCoapProtocolPrivate : public QObjectPrivate
 {
 public:
     QCoapProtocolPrivate() = default;
 
-    void handleFrame(const QByteArray &frame);
-    void onLastBlock(QCoapInternalRequest *request);
-    void onNextBlock(QCoapInternalRequest *request, uint currentBlockNumber, uint blockSize);
+    quint16 generateUniqueMessageId() const;
+    QCoapToken generateUniqueToken() const;
+
+    QByteArray encode(QCoapInternalRequest *request);
+    void onFrameReceived(const QNetworkDatagram &frame);
+    QCoapInternalReply *decode(const QNetworkDatagram &frame);
+
     void sendAcknowledgment(QCoapInternalRequest *request);
     void sendReset(QCoapInternalRequest *request);
-    QByteArray encode(QCoapInternalRequest *request);
-    QCoapInternalReply *decode(const QByteArray &message);
-
     void sendRequest(QCoapInternalRequest *request);
-    void resendRequest(QCoapInternalRequest *request);
-    bool containsMessageId(quint16 id);
-    bool containsToken(const QByteArray &token);
-    QCoapInternalRequest *findInternalRequestByToken(const QByteArray &token);
-    QCoapInternalRequest *findInternalRequestByMessageId(quint16 messageId);
-    QCoapInternalRequest *findInternalRequestByReply(const QCoapReply *reply);
 
-    void messageReceived(const QByteArray &frameReply);
-    void onAbortedRequest(const QCoapReply *reply);
+    void onBlockReceived(QCoapInternalRequest *request, uint currentBlockNumber, uint blockSize);
+    void onLastMessageReceived(QCoapInternalRequest *request);
+    void onConnectionError(QAbstractSocket::SocketError error);
+    void onRequestAborted(const QCoapToken &token);
+    void onRequestTimeout(QCoapInternalRequest *request);
+    void onRequestError(QCoapInternalRequest *request, QCoapInternalReply *reply);
+    void onRequestError(QCoapInternalRequest *request, QtCoap::Error error,
+                        QCoapInternalReply *reply = nullptr);
 
-    InternalMessageMap internalReplies;
-    QQueue<QByteArray> frameQueue;
+    bool isMessageIdRegistered(quint16 id);
+    bool isTokenRegistered(const QCoapToken &token);
+    bool isRequestRegistered(const QCoapInternalRequest *request);
+
+    QCoapInternalRequest *requestForToken(const QCoapToken &token);
+    QPointer<QCoapReply> userReplyForToken(const QCoapToken &token);
+    QVector<QSharedPointer<QCoapInternalReply> > repliesForToken(const QCoapToken &token);
+    QCoapInternalReply *lastReplyForToken(const QCoapToken &token);
+    QCoapInternalRequest *findRequestByMessageId(quint16 messageId);
+    QCoapInternalRequest *findRequestByUserReply(const QCoapReply *reply);
+
+    void registerExchange(const QCoapToken &token, QCoapReply *reply,
+                          QSharedPointer<QCoapInternalRequest> request);
+    bool addReply(const QCoapToken &token, QSharedPointer<QCoapInternalReply> reply);
+    bool forgetExchange(const QCoapToken &token);
+    bool forgetExchange(const QCoapInternalRequest *request);
+    bool forgetExchangeReplies(const QCoapToken &token);
+
+    CoapExchangeMap exchangeMap;
     quint16 blockSize = 0;
 
     uint ackTimeout = 2000;

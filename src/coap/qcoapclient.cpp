@@ -38,14 +38,14 @@ QT_BEGIN_NAMESPACE
 
 QRandomGenerator QtCoap::randomGenerator;
 
-QCoapClientPrivate::QCoapClientPrivate() :
-    protocol(new QCoapProtocol),
-    connection(new QCoapConnection),
+QCoapClientPrivate::QCoapClientPrivate(QCoapProtocol *protocol, QCoapConnection *connection) :
+    protocol(protocol),
+    connection(connection),
     workerThread(new QThread)
 {
-    workerThread->start();
     protocol->moveToThread(workerThread);
     connection->moveToThread(workerThread);
+    workerThread->start();
 }
 
 QCoapClientPrivate::~QCoapClientPrivate()
@@ -55,6 +55,86 @@ QCoapClientPrivate::~QCoapClientPrivate()
     delete workerThread;
     delete protocol;
     delete connection;
+}
+
+//! TODO Document all enum values
+/*!
+    \enum QtCoap::Error
+
+    Indicates all possible error conditions found during the
+    processing of the request.
+
+    \value NoError                  No error condition.
+
+    \value HostNotFoundError        The remote host name was not
+                                    found.
+
+    \value BadRequestError          The request was not recognized.
+
+    \value AddressInUseError        The address is already in use.
+
+    \value TimeOutError             The response did not arrive in time.
+
+    \value UnknownError             An unknown error was detected.
+
+    \sa error()
+*/
+/*!
+    \enum QtCoap::StatusCode
+
+    This enum maps the status code of the CoAP protocol, as defined in
+    the 'response' section of the
+    \l{https://tools.ietf.org/html/rfc7252#section-5.2}{RFC 7252}
+*/
+/*!
+    \class QtCoap
+
+    Returns the QtCoap::Error corresponding to the \a code passed to this
+    method.
+*/
+QtCoap::Error QtCoap::statusCodeError(QtCoap::StatusCode code)
+{
+    if (!isError(code))
+        return QtCoap::NoError;
+
+    switch (code) {
+    case QtCoap::BadRequest:
+        return BadRequestError;
+    case QtCoap::Unauthorized:
+        return UnauthorizedError;
+    case QtCoap::BadOption:
+        return BadOptionError;
+    case QtCoap::Forbidden:
+        return ForbiddenError;
+    case QtCoap::NotFound:
+        return NotFoundError;
+    case QtCoap::MethodNotAllowed:
+        return MethodNotAllowedError;
+    case QtCoap::NotAcceptable:
+        return NotAcceptableError;
+    case QtCoap::RequestEntityIncomplete:
+        return RequestEntityIncompleteError;
+    case QtCoap::PreconditionFailed:
+        return PreconditionFailedError;
+    case QtCoap::RequestEntityTooLarge:
+        return RequestEntityTooLargeError;
+    case QtCoap::UnsupportedContentFormat:
+        return UnsupportedContentFormatError;
+    case QtCoap::InternalServerError:
+        return InternalServerErrorError;
+    case QtCoap::NotImplemented:
+        return NotImplementedError;
+    case QtCoap::BadGateway:
+        return BadGatewayError;
+    case QtCoap::ServiceUnavailable:
+        return ServiceUnavailableError;
+    case QtCoap::GatewayTimeout:
+        return GatewayTimeoutError;
+    case QtCoap::ProxyingNotSupported:
+        return ProxyingNotSupportedError;
+    default:
+        return UnknownError;
+    }
 }
 
 /*!
@@ -79,6 +159,11 @@ QCoapClientPrivate::~QCoapClientPrivate()
         client->get(QCoapRequest(Qurl("coap://coap.me/test")));
     \endcode
 
+    \note After the request has finished, it is the responsibility of the user
+    to delete the QCoapReply object at an appropriate time. Do not directly
+    delete it inside the slot connected to finished(). You can use the
+    deleteLater() function.
+
     You can also use an "observe" request. This can be used as above, or more
     conveniently with the \l{QCoapReply::notified(const QByteArray&)}{notified(const QByteArray&)}
     signal:
@@ -89,10 +174,6 @@ QCoapClientPrivate::~QCoapClientPrivate()
     \endcode
 
     And the observation can be cancelled with:
-    \code
-        client->cancelObserve(request);
-    \endcode
-    or
     \code
         client->cancelObserve(reply);
     \endcode
@@ -110,30 +191,60 @@ QCoapClientPrivate::~QCoapClientPrivate()
     \fn void QCoapClient::finished(QCoapReply *reply)
 
     This signal is emitted along with the \l{QCoapReply::finished()} signal
-    whenever a CoAP reply is finished. The \a reply parameter will contain a
-    pointer to the reply that has just finished.
+    whenever a CoAP reply is finished, after either a success or an error.
+    The \a reply parameter will contain a pointer to the reply that has just
+    finished.
 
-    \sa QCoapReply::finished(), QCoapReply::error(QCoapReply::QCoapNetworkError)
+    \sa error(), QCoapReply::finished(), QCoapReply::error()
+*/
+
+/*!
+    \fn void QCoapClient::error(QCoapReply *reply, QtCoap::Error error)
+
+    This signal is emitted whenever an error occurs. The \a reply parameter
+    can be null if the error is not related to a specific QCoapReply.
+
+    \sa finished(), QCoapReply::error(), QCoapReply::finished()
 */
 
 /*!
     Constructs a QCoapClient object and sets \a parent as the parent object.
 */
 QCoapClient::QCoapClient(QObject *parent) :
-    QObject(* new QCoapClientPrivate, parent)
+    QCoapClient(new QCoapProtocol, new QCoapConnection, parent)
+{
+}
+
+/*!
+    Base constructor, taking the \a protocol, \a connection, and \a parent
+    as arguments.
+*/
+QCoapClient::QCoapClient(QCoapProtocol *protocol, QCoapConnection *connection, QObject *parent) :
+    QObject(* new QCoapClientPrivate(protocol, connection), parent)
 {
     Q_D(QCoapClient);
 
     qRegisterMetaType<QCoapReply*>();
+    qRegisterMetaType<QCoapMessage>();
     qRegisterMetaType<QPointer<QCoapReply>>();
     qRegisterMetaType<QPointer<QCoapDiscoveryReply>>();
     qRegisterMetaType<QCoapConnection*>();
-    qRegisterMetaType<QCoapReply::NetworkError>();
+    qRegisterMetaType<QtCoap::Error>();
+    qRegisterMetaType<QtCoap::StatusCode>();
+    // Requires a name, as this is a typedef
+    qRegisterMetaType<QCoapToken>("QCoapToken");
+    qRegisterMetaType<QCoapMessageId>("QCoapMessageId");
+    qRegisterMetaType<QAbstractSocket::SocketOption>();
 
-    connect(d->connection, SIGNAL(readyRead(const QByteArray&)),
-            d->protocol, SLOT(messageReceived(const QByteArray&)));
+    connect(d->connection, SIGNAL(readyRead(const QNetworkDatagram&)),
+            d->protocol, SLOT(onFrameReceived(const QNetworkDatagram&)));
+    connect(d->connection, SIGNAL(error(QAbstractSocket::SocketError)),
+            d->protocol, SLOT(onConnectionError(QAbstractSocket::SocketError)));
+
     connect(d->protocol, &QCoapProtocol::finished,
             this, &QCoapClient::finished);
+    connect(d->protocol, &QCoapProtocol::error,
+            this, &QCoapClient::error);
 }
 
 /*!
@@ -156,7 +267,7 @@ QCoapReply *QCoapClient::get(const QCoapRequest &request)
 {
     Q_D(QCoapClient);
 
-    if (request.method() != QtCoap::Empty
+    if (request.method() != QtCoap::Invalid
             && request.method() != QtCoap::Get) {
         qWarning("QCoapClient::get: Overriding method specified on request:"
                  "using 'Get' instead.");
@@ -165,6 +276,20 @@ QCoapReply *QCoapClient::get(const QCoapRequest &request)
     QCoapRequest copyRequest(request, QtCoap::Get);
 
     return d->sendRequest(copyRequest);
+}
+
+/*!
+    \overload
+
+    Sends request to \a url using the GET method and returns a new QCoapReply
+    object.
+
+    \sa post(), put(), deleteResource(), observe(), discover()
+*/
+QCoapReply *QCoapClient::get(const QUrl &url)
+{
+    QCoapRequest request(url);
+    return get(request);
 }
 
 /*!
@@ -177,10 +302,11 @@ QCoapReply *QCoapClient::put(const QCoapRequest &request, const QByteArray &data
 {
     Q_D(QCoapClient);
 
-    if (request.method() != QtCoap::Empty
-            && request.method() != QtCoap::Put)
+    if (request.method() != QtCoap::Invalid
+            && request.method() != QtCoap::Put) {
         qWarning("QCoapClient::put: Overriding method specified on request:"
                  "using 'Put' instead.");
+    }
 
     QCoapRequest copyRequest(request, QtCoap::Put);
     copyRequest.setPayload(data);
@@ -205,8 +331,21 @@ QCoapReply *QCoapClient::put(const QCoapRequest &request, QIODevice *device)
 }
 
 /*!
-    Posts a POST request sending the contents of the \a data byte array to the
-    target \a request and returns a new QCoapReply object.
+    \overload
+
+    Sends request to \a url using the PUT method and returns a new QCoapReply
+    object. Uses \a data as the payload for this request.
+
+    \sa get(), post(), deleteResource(), observe(), discover()
+*/
+QCoapReply *QCoapClient::put(const QUrl &url, const QByteArray &data)
+{
+     return put(QCoapRequest(url), data);
+}
+
+/*!
+    Posts a POST request sending the contents of the \a data QByteArray for the
+    \a request, and returns a new QCoapReply object.
 
     \sa get(), put(), deleteResource(), observe(), discover()
 */
@@ -214,10 +353,11 @@ QCoapReply *QCoapClient::post(const QCoapRequest &request, const QByteArray &dat
 {
     Q_D(QCoapClient);
 
-    if (request.method() != QtCoap::Empty
-            && request.method() != QtCoap::Post)
+    if (request.method() != QtCoap::Invalid
+            && request.method() != QtCoap::Post) {
         qWarning("QCoapClient::post: Overriding method specified on request:"
                  "using 'Post' instead.");
+    }
 
     QCoapRequest copyRequest(request, QtCoap::Post);
     copyRequest.setPayload(data);
@@ -244,6 +384,19 @@ QCoapReply *QCoapClient::post(const QCoapRequest &request, QIODevice *device)
 }
 
 /*!
+    \overload
+
+    Sends a POST request to the target \a url with the \a data QByteArray,
+    and returns a new QCoapReply object.
+
+    \sa get(), put(), deleteResource(), observe(), discover()
+*/
+QCoapReply *QCoapClient::post(const QUrl &url, const QByteArray &data)
+{
+    return post(QCoapRequest(url), data);
+}
+
+/*!
     Sends a DELETE request to the target of \a request.
 
     \sa get(), put(), post(), observe(), discover()
@@ -252,23 +405,33 @@ QCoapReply *QCoapClient::deleteResource(const QCoapRequest &request)
 {
     Q_D(QCoapClient);
 
-    if (request.method() != QtCoap::Empty
-            && request.method() != QtCoap::Delete)
+    if (request.method() != QtCoap::Invalid
+            && request.method() != QtCoap::Delete) {
         qWarning("QCoapClient::deleteResource: Overriding method specified on request:"
                  "using 'Delete' instead.");
+    }
 
     QCoapRequest copyRequest(request, QtCoap::Delete);
 
     return d->sendRequest(copyRequest);
 }
 
-//! TODO discover should probably use a signal different from
-//! 'finished', in order to be able to report multiple discovery
-//! answers, from different CoAP servers.
+/*!
+    \overload
+
+    Sends a DELETE request to the target \a url.
+
+    \sa get(), put(), post(), observe(), discover()
+ */
+QCoapReply *QCoapClient::deleteResource(const QUrl &url)
+{
+    return deleteResource(QCoapRequest(url));
+}
+
 /*!
     Discovers the resources available at the given \a url and returns
     a new QCoapDiscoveryReply object which emits the
-    \l{QCoapReply::finished()}{finished()} signal whenever the response
+    \l{QCoapReply::discovered()}{discovered()} signal whenever the response
     arrives.
 
     Discovery path defaults to "/.well-known/core", but can be changed
@@ -300,15 +463,31 @@ QCoapDiscoveryReply *QCoapClient::discover(const QUrl &url, const QString &disco
 */
 QCoapReply *QCoapClient::observe(const QCoapRequest &request)
 {
-    if (request.method() != QtCoap::Empty
-            && request.method() != QtCoap::Get)
+    if (request.method() != QtCoap::Invalid
+            && request.method() != QtCoap::Get) {
         qWarning("QCoapClient::observe: Overriding method specified on request:"
                  "using 'Get' instead.");
+    }
 
     QCoapRequest copyRequest(request, QtCoap::Get);
     copyRequest.enableObserve();
 
     return get(copyRequest);
+}
+
+/*!
+    \overload
+
+    Sends a request to observe the target \a url and returns
+    a new QCoapReply object which emits the
+    \l{QCoapReply::notified(const QByteArray&)}{notified(const QByteArray&)}
+    signal whenever a new notification arrives.
+
+    \sa cancelObserve(), get(), post(), put(), deleteResource(), discover()
+*/
+QCoapReply *QCoapClient::observe(const QUrl &url)
+{
+    return observe(QCoapRequest(url));
 }
 
 /*!
@@ -323,7 +502,7 @@ void QCoapClient::cancelObserve(QCoapReply *notifiedReply)
 {
     Q_D(QCoapClient);
     QMetaObject::invokeMethod(d->protocol, "cancelObserve",
-                              Q_ARG(QPointer<QCoapReply>, notifiedReply));
+                              Q_ARG(QPointer<QCoapReply>, QPointer<QCoapReply>(notifiedReply)));
 }
 
 /*!
@@ -337,8 +516,7 @@ QCoapReply *QCoapClientPrivate::sendRequest(QCoapRequest &request)
     Q_Q(QCoapClient);
 
     // Prepare the reply
-    QCoapReply *reply = new QCoapReply(q);
-    reply->setRequest(request);
+    QCoapReply *reply = new QCoapReply(request, q);
 
     if (!send(reply)) {
         delete reply;
@@ -359,8 +537,7 @@ QCoapDiscoveryReply *QCoapClientPrivate::sendDiscovery(QCoapRequest &request)
     Q_Q(QCoapClient);
 
     // Prepare the reply
-    QCoapDiscoveryReply *reply = new QCoapDiscoveryReply(q);
-    reply->setRequest(request);
+    QCoapDiscoveryReply *reply = new QCoapDiscoveryReply(request, q);
 
     if (!send(reply)) {
         delete reply;
@@ -384,14 +561,10 @@ bool QCoapClientPrivate::send(QCoapReply *reply)
         return false;
     }
 
-    // DirectConnection is used to process the signal before the QCoapReply is
-    // deleted, as aborted() is emitted in ~QCoapReply
-    q->connect(reply, SIGNAL(aborted(QCoapReply*)),
-               protocol, SLOT(onAbortedRequest(QCoapReply*)), Qt::DirectConnection);
-    q->connect(connection, SIGNAL(error(QAbstractSocket::SocketError)),
-               reply, SLOT(connectionError(QAbstractSocket::SocketError)));
+    q->connect(reply, SIGNAL(aborted(const QCoapToken&)),
+               protocol, SLOT(onRequestAborted(const QCoapToken&)));
 
-    QMetaObject::invokeMethod(protocol, "sendRequest",
+    QMetaObject::invokeMethod(protocol, "sendRequest", Qt::QueuedConnection,
                               Q_ARG(QPointer<QCoapReply>, QPointer<QCoapReply>(reply)),
                               Q_ARG(QCoapConnection*, connection));
 
@@ -405,41 +578,32 @@ bool QCoapClientPrivate::send(QCoapReply *reply)
 void QCoapClient::setBlockSize(quint16 blockSize)
 {
     Q_D(QCoapClient);
-    // If it is not a power of two
-    if ((blockSize & (blockSize - 1)) != 0)
-        return;
 
-    d->protocol->setBlockSize(blockSize);
+    QMetaObject::invokeMethod(d->protocol, "setBlockSize", Qt::QueuedConnection,
+                              Q_ARG(quint16, blockSize));
 }
 
 /*!
-    Sets the ttl option for multicast requests.
+    Sets the QUdpSocket socket \a option to \a value.
 */
-void QCoapClient::setMulticastTtlOption(int ttlValue)
+void QCoapClient::setSocketOption(QAbstractSocket::SocketOption option, const QVariant &value)
 {
     Q_D(QCoapClient);
-    QUdpSocket *udpSocket = d->connection->socket();
-    udpSocket->setSocketOption(QAbstractSocket::MulticastTtlOption, ttlValue);
-}
 
-/*!
-    Enables the loopback option for multicast requests.
-*/
-void QCoapClient::enableMulticastLoopbackOption()
-{
-    Q_D(QCoapClient);
-    QUdpSocket *udpSocket = d->connection->socket();
-    udpSocket->setSocketOption(QAbstractSocket::MulticastLoopbackOption, 1);
+    QMetaObject::invokeMethod(d->connection, "setSocketOption", Qt::QueuedConnection,
+                              Q_ARG(QAbstractSocket::SocketOption, option),
+                              Q_ARG(QVariant, value));
 }
 
 #if 0
 //! Disabled until fully supported
 /*!
-    Sets the protocol used by the client. Allows to use a custom protocol.
+    Sets the protocol used by the client. Allows use of a custom protocol.
 */
 void QCoapClient::setProtocol(QCoapProtocol *protocol)
 {
     Q_D(QCoapClient);
+    // FIXME: Protocol running on incorrect thread
     d->protocol = protocol;
 }
 #endif

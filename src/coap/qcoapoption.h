@@ -64,8 +64,19 @@ public:
     };
 
     QCoapOption(OptionName name = Invalid, const QByteArray &value = QByteArray());
+    QCoapOption(OptionName name, const QString &value);
+    QCoapOption(OptionName name, const char* value);
+    QCoapOption(OptionName name, quint32 value);
+    QCoapOption(const QCoapOption &other);
+    QCoapOption(QCoapOption &&other);
+    ~QCoapOption();
+
+    QCoapOption &operator=(const QCoapOption &other);
+    QCoapOption &operator=(QCoapOption &&other) Q_DECL_NOTHROW;
+    void swap(QCoapOption &other) Q_DECL_NOTHROW;
 
     QByteArray value() const;
+    quint32 valueToInt() const;
     int length() const;
     OptionName name() const;
     bool isValid() const;
@@ -75,8 +86,20 @@ public:
 
 protected:
     void setValue(const QByteArray &value);
+    void setValue(const QString &value);
+    void setValue(const char *value);
+    void setValue(quint32 value);
 
+private:
     QCoapOptionPrivate *d_ptr;
+
+    // Q_DECLARE_PRIVATE equivalent for shared data pointers
+    inline QCoapOptionPrivate* d_func() {
+        return d_ptr;
+    }
+    inline const QCoapOptionPrivate* d_func() const {
+        return d_ptr;
+    }
 };
 
 Q_DECLARE_METATYPE(QCoapOption::OptionName)

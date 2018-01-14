@@ -31,8 +31,15 @@
 #define QCOAPGLOBAL_H
 
 #include <QtCore/qglobal.h>
+#include <QtCore/qobject.h>
 
 QT_BEGIN_NAMESPACE
+
+typedef QByteArray QCoapToken;
+typedef quint16 QCoapMessageId;
+
+Q_DECLARE_METATYPE(QCoapToken)
+Q_DECLARE_METATYPE(QCoapMessageId)
 
 #ifndef QT_STATIC
 #  ifdef QT_BUILD_COAP_LIB

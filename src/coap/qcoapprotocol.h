@@ -35,6 +35,7 @@
 #include <QtCoap/qcoapreply.h>
 #include <QtCoap/qcoapresource.h>
 #include <QtCore/qobject.h>
+#include <QtNetwork/qudpsocket.h>
 
 QT_BEGIN_NAMESPACE
 
@@ -46,35 +47,40 @@ class Q_COAP_EXPORT QCoapProtocol : public QObject
     Q_OBJECT
 public:
     explicit QCoapProtocol(QObject *parent = nullptr);
+    ~QCoapProtocol();
 
     uint ackTimeout() const;
     double ackRandomFactor() const;
     uint maxRetransmit() const;
     quint16 blockSize() const;
-    uint maxRetransmitSpan() const;
-    uint maxRetransmitWait() const;
+    uint maxTransmitSpan() const;
+    uint maxTransmitWait() const;
     static constexpr uint maxLatency();
 
+    uint minTimeout() const;
+    uint maxTimeout() const;
+
+    static QVector<QCoapResource> resourcesFromCoreLinkList(const QByteArray &data);
+
+Q_SIGNALS:
+    void finished(QCoapReply *reply);
+    void error(QCoapReply *reply, QtCoap::Error error);
+
+public Q_SLOTS:
+    void sendRequest(QPointer<QCoapReply> reply, QCoapConnection *connection);
+    void cancelObserve(QPointer<QCoapReply> reply);
     void setAckTimeout(uint ackTimeout);
     void setAckRandomFactor(double ackRandomFactor);
     void setMaxRetransmit(uint maxRetransmit);
     void setBlockSize(quint16 blockSize);
 
-    static QList<QCoapResource> resourcesFromCoreLinkList(const QByteArray &data);
-
-Q_SIGNALS:
-    void finished(QCoapReply*);
-
-public Q_SLOTS:
-    void sendRequest(QPointer<QCoapReply> reply, QCoapConnection *connection);
-    void cancelObserve(QPointer<QCoapReply> reply);
-
 private:
     Q_DECLARE_PRIVATE(QCoapProtocol)
-    Q_PRIVATE_SLOT(d_func(), void resendRequest(QCoapInternalRequest*))
+    Q_PRIVATE_SLOT(d_func(), void onRequestTimeout(QCoapInternalRequest*))
     Q_PRIVATE_SLOT(d_func(), void sendRequest(QCoapInternalRequest*))
-    Q_PRIVATE_SLOT(d_func(), void messageReceived(const QByteArray&))
-    Q_PRIVATE_SLOT(d_func(), void onAbortedRequest(QCoapReply *reply))
+    Q_PRIVATE_SLOT(d_func(), void onFrameReceived(const QNetworkDatagram&))
+    Q_PRIVATE_SLOT(d_func(), void onRequestAborted(const QCoapToken&))
+    Q_PRIVATE_SLOT(d_func(), void onConnectionError(QAbstractSocket::SocketError))
 };
 
 QT_END_NAMESPACE

@@ -65,11 +65,10 @@ void QCoapRequestPrivate::setUrl(const QUrl &url)
     }
 
     QUrl finalizedUrl = url;
-    if (url.isRelative()) {
+    if (url.isRelative())
         finalizedUrl = url.toString().prepend(QLatin1String("coap://"));
-    } else if (url.scheme().isEmpty()) {
+    else if (url.scheme().isEmpty())
         finalizedUrl.setScheme(QLatin1String("coap"));
-    }
 
     if (url.port() == -1)
         finalizedUrl.setPort(5683);
@@ -108,6 +107,14 @@ QCoapRequest::QCoapRequest(const QUrl &url, MessageType type, const QUrl &proxyU
 }
 
 /*!
+    Constructs a QCoapRequest from a string literal
+*/
+QCoapRequest::QCoapRequest(const char *url, MessageType type) :
+    QCoapMessage(*new QCoapRequestPrivate(QUrl(QString::fromUtf8(url)), type))
+{
+}
+
+/*!
     Constructs a copy of the \a other QCoapRequest. Optionally allows to
     overwrite the QtCoap::Method of the request with the \a method
     argument.
@@ -117,7 +124,7 @@ QCoapRequest::QCoapRequest(const QCoapRequest &other, QtCoap::Method method) :
     //! and the d_ptr is a QSharedDataPointer<QCoapMessagePrivate>
     QCoapMessage(* new QCoapRequestPrivate(*other.d_func()))
 {
-    if (method != QtCoap::Empty)
+    if (method != QtCoap::Invalid)
         setMethod(method);
 }
 
@@ -167,10 +174,9 @@ QtCoap::Method QCoapRequest::method() const
 
     \sa enableObserve()
 */
-bool QCoapRequest::observe() const
+bool QCoapRequest::isObserve() const
 {
-    Q_D(const QCoapRequest);
-    return d->observe;
+    return hasOption(QCoapOption::Observe);
 }
 
 /*!
@@ -212,12 +218,12 @@ void QCoapRequest::setMethod(QtCoap::Method method)
 /*!
     Sets the observe to true to make an observe request.
 
-    \sa observe()
+    \sa isObserve()
 */
 void QCoapRequest::enableObserve()
 {
-    Q_D(QCoapRequest);
-    d->observe = true;
+    if (isObserve())
+        return;
 
     addOption(QCoapOption::Observe);
 }
@@ -236,7 +242,7 @@ QCoapRequest &QCoapRequest::operator=(const QCoapRequest &other)
 */
 bool QCoapRequest::isValid() const
 {
-    return isUrlValid(url()) && method() != QtCoap::Empty;
+    return isUrlValid(url()) && method() != QtCoap::Invalid;
 }
 
 /*!

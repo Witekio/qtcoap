@@ -40,7 +40,11 @@ private Q_SLOTS:
     void copyAndDetach();
     void setMessageType_data();
     void setMessageType();
+    void addOption_string();
+    void addOption_uint_data();
+    void addOption_uint();
     void removeOption();
+    void urlOptions();
 };
 
 void tst_QCoapMessage::copyAndDetach()
@@ -86,9 +90,46 @@ void tst_QCoapMessage::setMessageType()
     //! TODO extend QCoapMessage tests
 }
 
+void tst_QCoapMessage::addOption_string()
+{
+    //! TODO with one and more than one identical options
+}
+
+void tst_QCoapMessage::addOption_uint_data()
+{
+    QTest::addColumn<quint32>("value");
+    QTest::addColumn<int>("size");
+
+    QTest::newRow("4 bytes") << (quint32)0xF0aF0010 << 4;
+    QTest::newRow("3 bytes") << (quint32)0x300010 << 3;
+    QTest::newRow("2 bytes") << (quint32)0x5010 << 2;
+    QTest::newRow("1 byte")  << (quint32)0x80 << 1;
+}
+
+void tst_QCoapMessage::addOption_uint()
+{
+    QFETCH(quint32, value);
+    QFETCH(int, size);
+
+    QCoapOption option(QCoapOption::Block1, value);
+
+    QCOMPARE(option.valueToInt(), value);
+    QCOMPARE(option.value().size(), size);
+}
+
 void tst_QCoapMessage::removeOption()
 {
     //! TODO with one and more than one identical options
+}
+
+void tst_QCoapMessage::urlOptions()
+{
+    //! TODO Test the following from the RFC:
+    // For example, the following three URIs are equivalent and cause the
+    // same options and option values to appear in the CoAP messages:
+    // coap://example.com:5683/~sensors/temp.xml
+    // coap://EXAMPLE.com/%7Esensors/temp.xml
+    // coap://EXAMPLE.com:/%7esensors/temp.xml
 }
 
 QTEST_APPLESS_MAIN(tst_QCoapMessage)

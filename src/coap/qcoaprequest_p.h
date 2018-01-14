@@ -60,8 +60,7 @@ public:
 
     QUrl uri;
     QUrl proxyUri;
-    QtCoap::Method method = QtCoap::Empty;
-    bool observe = false;
+    QtCoap::Method method = QtCoap::Invalid;
 };
 
 QT_END_NAMESPACE

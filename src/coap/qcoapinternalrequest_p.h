@@ -68,7 +68,7 @@ public:
 
     QByteArray toQByteArray() const;
     quint16 generateMessageId();
-    QByteArray generateToken();
+    QCoapToken generateToken();
     void setRequestToAskBlock(uint blockNumber, uint blockSize);
     void setRequestToSendBlock(uint blockNumber, uint blockSize);
 
@@ -76,28 +76,27 @@ public:
     void addOption(const QCoapOption &option) Q_DECL_OVERRIDE;
     bool addUriOptions(QUrl uri, const QUrl &proxyUri = QUrl());
 
+    QCoapToken token() const;
     QUrl targetUri() const;
     QtCoap::Method method() const;
-    bool cancelObserve() const;
+    bool isObserve() const;
+    bool isObserveCancelled() const;
     QCoapConnection *connection() const;
     uint retransmissionCounter() const;
     void setMethod(QtCoap::Method method);
     void setConnection(QCoapConnection *connection);
-    void setCancelObserve(bool cancelObserve);
+    void setObserveCancelled();
 
     void setTargetUri(QUrl targetUri);
     void setTimeout(uint timeout);
-    void beginTransmission();
+    void startTransmission();
     void stopTransmission();
-
-    // To support use as keys in QMap
-    bool operator<(const QCoapInternalRequest &other) const;
 
 Q_SIGNALS:
     void timeout(QCoapInternalRequest*);
 
 protected:
-    QCoapOption uriHostOption(const QUrl& uri) const;
+    QCoapOption uriHostOption(const QUrl &uri) const;
     QCoapOption blockOption(QCoapOption::OptionName name, uint blockNumber, uint blockSize) const;
 
 private:
@@ -111,13 +110,13 @@ public:
     QCoapInternalRequestPrivate() = default;
 
     QUrl targetUri;
-    QtCoap::Method method = QtCoap::Empty;
+    QtCoap::Method method = QtCoap::Invalid;
     QCoapConnection *connection = nullptr;
     QByteArray fullPayload;
-    bool cancelObserve = false;
+    bool observeCancelled = false;
 
     int timeout = 0;
-    uint retransmissionCounter = 0;
+    uint retransmissionCounter = -1;
     QTimer *timer = nullptr;
 
     void _q_timeout();

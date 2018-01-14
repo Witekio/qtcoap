@@ -89,7 +89,7 @@ QCoapInternalRequest::QCoapInternalRequest(const QCoapRequest &request, QObject 
 bool QCoapInternalRequest::isValid() const
 {
     Q_D(const QCoapInternalRequest);
-    return isUrlValid(d->targetUri) && d->method != QtCoap::Empty;
+    return isUrlValid(d->targetUri) && d->method != QtCoap::Invalid;
 }
 
 /*!
@@ -102,7 +102,7 @@ void QCoapInternalRequest::initForAcknowledgment(quint16 messageId, const QByteA
 {
     Q_D(QCoapInternalRequest);
 
-    setMethod(QtCoap::Empty);
+    setMethod(QtCoap::Invalid);
     d->message.setType(QCoapMessage::Acknowledgment);
     d->message.setMessageId(messageId);
     d->message.setToken(token);
@@ -121,7 +121,7 @@ void QCoapInternalRequest::initForReset(quint16 messageId)
 {
     Q_D(QCoapInternalRequest);
 
-    setMethod(QtCoap::Empty);
+    setMethod(QtCoap::Invalid);
     d->message.setType(QCoapMessage::Reset);
     d->message.setMessageId(messageId);
     d->message.setToken(QByteArray());
@@ -284,7 +284,7 @@ QCoapOption QCoapInternalRequest::blockOption(QCoapOption::OptionName name, uint
     // NUM field
     quint32 optionData = (blockNumber << 4);
 
-    // SZX field = log2(blockSize) - 4)
+    // SZX field = log2(blockSize - 4)
     optionData |= (blockSize >> 7)
                   ? ((blockSize >> 10) ? 6 : (3 + (blockSize >> 8)))
                   : (blockSize >> 5);
@@ -322,7 +322,7 @@ quint16 QCoapInternalRequest::generateMessageId()
     \internal
     Generates a new token.
 */
-QByteArray QCoapInternalRequest::generateToken()
+QCoapToken QCoapInternalRequest::generateToken()
 {
     Q_D(QCoapInternalRequest);
 
@@ -370,7 +370,7 @@ bool QCoapInternalRequest::addUriOptions(QUrl uri, const QUrl &proxyUri)
         if (!isUrlValid(proxyUri))
             return false;
 
-        addOption(QCoapOption::ProxyUri, proxyUri.toString().toUtf8());
+        addOption(QCoapOption(QCoapOption::ProxyUri, proxyUri.toString()));
         d->targetUri = proxyUri;
         return true;
     }
@@ -391,25 +391,23 @@ bool QCoapInternalRequest::addUriOptions(QUrl uri, const QUrl &proxyUri)
         uri.setPort(5683);
 
     // 7. Add port to options if it is not the default port
-    //! FIXME There is probably a port encoding error here, as value seem
-    //! too big by standard, and stored as a string
     if (uri.port() != 5683)
-        addOption(QCoapOption::UriPort, QByteArray::number(uri.port()));
+        addOption(QCoapOption::UriPort, uri.port());
 
     // 8. Add path segments to options
     QString path = uri.path();
     const auto listPath = path.splitRef('/');
     for (const QStringRef &pathPart : listPath) {
         if (!pathPart.isEmpty())
-            addOption(QCoapOption::UriPath, pathPart.toUtf8());
+            addOption(QCoapOption(QCoapOption::UriPath, pathPart.toString()));
     }
 
     // 9. Add queries to options
     QString query = uri.query();
     const auto listQuery = query.splitRef('&');
-    for (const QStringRef &query : listQuery) {
-        if (!query.isEmpty())
-            addOption(QCoapOption::UriQuery, query.toUtf8());
+    for (const QStringRef &queryElement : listQuery) {
+        if (!queryElement.isEmpty())
+            addOption(QCoapOption(QCoapOption::UriQuery, queryElement.toString()));
     }
 
     d->targetUri = uri;
@@ -418,17 +416,27 @@ bool QCoapInternalRequest::addUriOptions(QUrl uri, const QUrl &proxyUri)
 
 /*!
     \internal
+    Returns the token of the request.
+*/
+QCoapToken QCoapInternalRequest::token() const
+{
+    return message()->token();
+}
+
+/*!
+    \internal
     Increments the retransmission counter, updates the timeout and
     starts a timer.
 */
-void QCoapInternalRequest::beginTransmission()
+void QCoapInternalRequest::startTransmission()
 {
     Q_D(QCoapInternalRequest);
 
+    // Should starts at -1
+    d->retransmissionCounter++;
     if (d->retransmissionCounter > 0)
         d->timeout *= 2;
 
-    d->retransmissionCounter++;
     if (d->timeout > 0)
         d->timer->start(d->timeout);
 }
@@ -440,9 +448,7 @@ void QCoapInternalRequest::beginTransmission()
 void QCoapInternalRequest::stopTransmission()
 {
     Q_D(QCoapInternalRequest);
-    d->retransmissionCounter = 0;
     d->timer->stop();
-    d->timer->setInterval(0);
 }
 
 /*!
@@ -494,14 +500,25 @@ QtCoap::Method QCoapInternalRequest::method() const
 
 /*!
     \internal
+    Returns true if the request is an Observe request.
+
+*/
+bool QCoapInternalRequest::isObserve() const
+{
+    Q_D(const QCoapInternalRequest);
+    return d->message.hasOption(QCoapOption::Observe);
+}
+
+/*!
+    \internal
     Returns true if the observe request needs to be cancelled.
 
     \sa setCancelObserve()
 */
-bool QCoapInternalRequest::cancelObserve() const
+bool QCoapInternalRequest::isObserveCancelled() const
 {
     Q_D(const QCoapInternalRequest);
-    return d->cancelObserve;
+    return d->observeCancelled;
 }
 
 /*!
@@ -540,14 +557,14 @@ void QCoapInternalRequest::setConnection(QCoapConnection *connection)
 
 /*!
     \internal
-    Sets the cancel observe parameter to the given \a cancelObserve value.
+    Set the observe request as cancelled.
 
-    \sa cancelObserve()
+    \sa isObserveCancelled()
 */
-void QCoapInternalRequest::setCancelObserve(bool cancelObserve)
+void QCoapInternalRequest::setObserveCancelled()
 {
     Q_D(QCoapInternalRequest);
-    d->cancelObserve = cancelObserve;
+    d->observeCancelled = true;
 }
 
 /*!
@@ -572,20 +589,7 @@ void QCoapInternalRequest::setTargetUri(QUrl targetUri)
 void QCoapInternalRequest::setTimeout(uint timeout)
 {
     Q_D(QCoapInternalRequest);
-    d->timeout = timeout;
-}
-
-/*!
-    \internal
-    Returns true if this QCoapInternalRequest has a lower message id than
-    \a other has.
-*/
-bool QCoapInternalRequest::operator<(const QCoapInternalRequest &other) const
-{
-    Q_D(const QCoapInternalRequest);
-    const QCoapInternalRequestPrivate *d_other = other.d_func();
-
-    return (d->message.messageId() < d_other->message.messageId());
+    d->timeout = static_cast<int>(timeout);
 }
 
 /*!
@@ -602,7 +606,7 @@ QCoapOption QCoapInternalRequest::uriHostOption(const QUrl &uri) const
     if (ipv4Regex.match(host).hasMatch())
         return QCoapOption();
 
-    return QCoapOption(QCoapOption::UriHost, host.toUtf8());
+    return QCoapOption(QCoapOption::UriHost, host);
 }
 
 QT_END_NAMESPACE

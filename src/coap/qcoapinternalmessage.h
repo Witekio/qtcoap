@@ -46,6 +46,7 @@ public:
     virtual ~QCoapInternalMessage() {}
 
     void addOption(QCoapOption::OptionName name, const QByteArray &value);
+    void addOption(QCoapOption::OptionName name, quint32 value);
     virtual void addOption(const QCoapOption &option);
     void removeOption(QCoapOption::OptionName name);
 
@@ -57,7 +58,7 @@ public:
     uint blockSize() const;
 
     virtual bool isValid() const;
-    static bool isUrlValid(const QUrl& url);
+    static bool isUrlValid(const QUrl &url);
 
 protected:
     explicit QCoapInternalMessage(QCoapInternalMessagePrivate &dd, QObject *parent = nullptr);

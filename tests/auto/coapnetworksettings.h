@@ -27,46 +27,42 @@
 **
 ****************************************************************************/
 
-#ifndef QCOAPCLIENT_P_H
-#define QCOAPCLIENT_P_H
+#include <QtCore/qstring.h>
+#include <QtNetwork/qhostinfo.h>
 
-#include <QtCoap/qcoapclient.h>
-#include <QtCoap/qcoapprotocol.h>
-#include <QtCoap/qcoapconnection.h>
-#include <QtCore/qthread.h>
-#include <QtCore/qpointer.h>
-#include <private/qobject_p.h>
+/*!
+    \internal
 
-//
-//  W A R N I N G
-//  -------------
-//
-// This file is not part of the Qt API. It exists purely as an
-// implementation detail. This header file may change from version to
-// version without notice, or even be removed.
-//
-// We mean it.
-//
+    This namespace provides URL and settings used in QtCoap tests.
 
-QT_BEGIN_NAMESPACE
+    Tests require a Californium plugtest server, accessible with
+    "coap-plugtest-server" host name. You create such server with Docker and
+    the following command line:
+    \code
+        docker run -d --rm -p 5683:5683/udp aleravat/coap-test-server:latest
+    \endcode
 
-class Q_AUTOTEST_EXPORT QCoapClientPrivate : public QObjectPrivate
-{
-public:
-    QCoapClientPrivate(QCoapProtocol *protocol, QCoapConnection *connection);
-    ~QCoapClientPrivate();
+    For more details, see
+    \l{https://github.com/Pixep/coap-testserver-docker}{https://github.com/Pixep/coap-testserver-docker}.
+*/
+namespace QtCoapNetworkSettings {
+    QString testServerHostName() {
+        return QStringLiteral("coap-plugtest-server");
+    }
+    QString testServerHost() {
+        QHostInfo host = QHostInfo::fromName(testServerHostName());
+        if (host.addresses().isEmpty()) {
+            QString error = "Host name " + testServerHostName() + " could not be resolved.";
+            QWARN(qPrintable(error));
+            return QString();
+        }
 
-    QCoapProtocol *protocol;
-    QCoapConnection *connection;
-    QThread *workerThread;
-
-    QCoapReply *sendRequest(QCoapRequest &request);
-    QCoapDiscoveryReply *sendDiscovery(QCoapRequest &request);
-    bool send(QCoapReply *reply);
-
-    Q_DECLARE_PUBLIC(QCoapClient)
-};
-
-QT_END_NAMESPACE
-
-#endif // QCOAPCLIENT_P_H
+        return host.addresses().first().toString();
+    }
+    QString testServerUrl() {
+        return QStringLiteral("coap://") + testServerHost() + QStringLiteral(":5683");
+    }
+    QString testServerResource() {
+        return testServerUrl() + QStringLiteral("/test");
+    }
+}

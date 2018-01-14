@@ -140,7 +140,7 @@ void tst_QCoapResource::parseCoreLink()
     QFETCH(QList<bool>, observableList);
     QFETCH(QByteArray, coreLinkList);
 
-    const QList<QCoapResource> resourceList = QCoapProtocol::resourcesFromCoreLinkList(coreLinkList);
+    const QVector<QCoapResource> resourceList = QCoapProtocol::resourcesFromCoreLinkList(coreLinkList);
 
     QCOMPARE(resourceList.size(), resourceNumber);
     for (int i = 0; i < resourceList.size(); ++i) {

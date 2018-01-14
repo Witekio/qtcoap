@@ -34,9 +34,7 @@
 #include <QtCoap/qcoaprequest.h>
 #include <QtCoap/qcoapglobal.h>
 #include <QtCoap/qcoapnamespace.h>
-#include <QtCore/qbytearray.h>
 #include <QtCore/qiodevice.h>
-#include <QtCore/qsharedpointer.h>
 
 QT_BEGIN_NAMESPACE
 
@@ -46,33 +44,8 @@ class Q_COAP_EXPORT QCoapReply : public QIODevice
 {
     Q_OBJECT
 public:
-    enum NetworkError {
-        NoError,
-        HostNotFoundError,
-        BadRequestError,
-        AddressInUseError,
-        TimeOutError,
-        UnauthorizedError,
-        BadOptionError,
-        ForbiddenError,
-        NotFoundError,
-        MethodNotAllowedError,
-        NotAcceptableError,
-        RequestEntityIncompleteError,
-        PreconditionFailedError,
-        RequestEntityTooLargeError,
-        UnsupportedContentFormatError,
-        InternalServerErrorError,
-        NotImplementedError,
-        BadGatewayError,
-        ServiceUnavailableError,
-        GatewayTimeoutError,
-        ProxyingNotSupportedError,
-        UnknownError
-    };
-    Q_ENUM(NetworkError)
 
-    explicit QCoapReply(QObject *parent = nullptr);
+    explicit QCoapReply(const QCoapRequest &request, QObject *parent = nullptr);
     ~QCoapReply();
 
     QtCoap::StatusCode statusCode() const;
@@ -80,24 +53,19 @@ public:
     QCoapRequest request() const;
     QUrl url() const;
     QtCoap::Method method() const;
-    NetworkError errorReceived() const;
+    QtCoap::Error errorReceived() const;
     bool isRunning() const;
     bool isFinished() const;
     bool isAborted() const;
-    void setRequest(const QCoapRequest &request);
-
-Q_SIGNALS:
-    void finished();
-    void notified(const QByteArray &payload);
-    void error(QCoapReply::NetworkError error);
-    void aborted(QCoapReply*);
-
-protected Q_SLOTS:
-    void connectionError(QAbstractSocket::SocketError error);
-    void replyError(QtCoap::StatusCode statusCode);
 
 public Q_SLOTS:
     void abortRequest();
+
+Q_SIGNALS:
+    void finished(QCoapReply *reply);
+    void notified(QCoapReply *reply, const QCoapMessage &message);
+    void error(QCoapReply *reply, QtCoap::Error error);
+    void aborted(const QCoapToken &token);
 
 protected:
     friend class QCoapProtocol;
@@ -105,13 +73,17 @@ protected:
 
     explicit QCoapReply(QCoapReplyPrivate &dd, QObject *parent = nullptr);
 
-    void setIsRunning(bool isRunning);
-    void setError(NetworkError error);
-    virtual void updateFromInternalReply(const QCoapInternalReply &internalReply);
     qint64 readData(char *data, qint64 maxSize) Q_DECL_OVERRIDE;
     qint64 writeData(const char *data, qint64 maxSize) Q_DECL_OVERRIDE;
 
     Q_DECLARE_PRIVATE(QCoapReply)
+    Q_PRIVATE_SLOT(d_func(), void _q_setRunning(const QCoapToken &, QCoapMessageId))
+    Q_PRIVATE_SLOT(d_func(), void _q_setContent(const QCoapMessage &, QtCoap::StatusCode))
+    Q_PRIVATE_SLOT(d_func(), void _q_setNotified())
+    Q_PRIVATE_SLOT(d_func(), void _q_setObserveCancelled())
+    Q_PRIVATE_SLOT(d_func(), void _q_setFinished(QtCoap::Error))
+    Q_PRIVATE_SLOT(d_func(), void _q_setError(QtCoap::StatusCode))
+    Q_PRIVATE_SLOT(d_func(), void _q_setError(QtCoap::Error))
 };
 
 QT_END_NAMESPACE

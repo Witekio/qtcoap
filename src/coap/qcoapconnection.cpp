@@ -56,7 +56,6 @@ QT_BEGIN_NAMESPACE
 QCoapConnection::QCoapConnection(QObject *parent) :
     QCoapConnection(*new QCoapConnectionPrivate, parent)
 {
-    createSocket();
 }
 
 /*!
@@ -69,6 +68,8 @@ QCoapConnection::QCoapConnection(QObject *parent) :
 QCoapConnection::QCoapConnection(QCoapConnectionPrivate &dd, QObject *parent) :
     QObject(dd, parent)
 {
+    createSocket();
+    qRegisterMetaType<QNetworkDatagram>();
 }
 
 /*!
@@ -135,6 +136,15 @@ void QCoapConnection::sendRequest(const QByteArray &request, const QString &host
 }
 
 /*!
+    Sets the QUdpSocket socket \a option to \a value.
+*/
+void QCoapConnection::setSocketOption(QAbstractSocket::SocketOption option, const QVariant &value)
+{
+    Q_D(QCoapConnection);
+    d->socket()->setSocketOption(option, value);
+}
+
+/*!
     \internal
 
     Writes the given \a data frame to the socket to the stored \a host and \a port.
@@ -143,6 +153,13 @@ void QCoapConnectionPrivate::writeToSocket(const CoapFrame &frame)
 {
     if (!socket()->isWritable())
         socket()->open(socket()->openMode() | QIODevice::WriteOnly);
+
+    QHostAddress host(frame.host);
+    if (host.isNull()) {
+        qWarning() << "QtCoap: Invalid host IP address" << frame.host
+                   << ". Only IPv4/IPv6 destination adresses are supported.";
+        return;
+    }
 
     socket()->writeDatagram(frame.currentPdu, QHostAddress(frame.host), frame.port);
 }
@@ -191,8 +208,8 @@ void QCoapConnectionPrivate::_q_socketReadyRead()
         socket()->open(socket()->openMode() | QIODevice::ReadOnly);
 
     while (socket()->hasPendingDatagrams()) {
-        QByteArray data = socket()->receiveDatagram().data();
-        emit q->readyRead(data);
+        QNetworkDatagram datagram = socket()->receiveDatagram();
+        emit q->readyRead(datagram);
     }
 }
 

@@ -27,46 +27,14 @@
 **
 ****************************************************************************/
 
-#ifndef QCOAPCLIENT_P_H
-#define QCOAPCLIENT_P_H
+#include "coaphandler.h"
 
-#include <QtCoap/qcoapclient.h>
-#include <QtCoap/qcoapprotocol.h>
-#include <QtCoap/qcoapconnection.h>
-#include <QtCore/qthread.h>
-#include <QtCore/qpointer.h>
-#include <private/qobject_p.h>
+#include <QCoreApplication>
 
-//
-//  W A R N I N G
-//  -------------
-//
-// This file is not part of the Qt API. It exists purely as an
-// implementation detail. This header file may change from version to
-// version without notice, or even be removed.
-//
-// We mean it.
-//
-
-QT_BEGIN_NAMESPACE
-
-class Q_AUTOTEST_EXPORT QCoapClientPrivate : public QObjectPrivate
+int main(int argc, char *argv[])
 {
-public:
-    QCoapClientPrivate(QCoapProtocol *protocol, QCoapConnection *connection);
-    ~QCoapClientPrivate();
+    QCoreApplication a(argc, argv);
+    CoapHandler handler;
 
-    QCoapProtocol *protocol;
-    QCoapConnection *connection;
-    QThread *workerThread;
-
-    QCoapReply *sendRequest(QCoapRequest &request);
-    QCoapDiscoveryReply *sendDiscovery(QCoapRequest &request);
-    bool send(QCoapReply *reply);
-
-    Q_DECLARE_PUBLIC(QCoapClient)
-};
-
-QT_END_NAMESPACE
-
-#endif // QCOAPCLIENT_P_H
+    return a.exec();
+}

@@ -34,11 +34,15 @@
 #include <QtCoap/qcoapnamespace.h>
 #include <QtCore/qbuffer.h>
 #include <QtNetwork/qudpsocket.h>
+#include <QtNetwork/qnetworkdatagram.h>
 #include <QtCoap/qcoapglobal.h>
 #include <QtCoap/qcoapconnection.h>
 #include <QtCoap/qcoaprequest.h>
 #include <private/qcoapconnection_p.h>
 #include <private/qcoapinternalrequest_p.h>
+#include "../coapnetworksettings.h"
+
+using namespace QtCoapNetworkSettings;
 
 class tst_QCoapConnection : public QObject
 {
@@ -80,8 +84,8 @@ void tst_QCoapConnection::connectToHost()
 
     connection.bindSocketForTest();
 
-    QTRY_COMPARE_WITH_TIMEOUT(spySocketStateChanged.count(), 1, 5000);
-    QTRY_COMPARE_WITH_TIMEOUT(spyConnectionBound.count(), 1, 5000);
+    QTRY_COMPARE(spySocketStateChanged.count(), 1);
+    QTRY_COMPARE(spyConnectionBound.count(), 1);
     QCOMPARE(connection.state(), QCoapConnection::Bound);
 }
 
@@ -97,14 +101,17 @@ void tst_QCoapConnection::sendRequest_data()
 
     QTest::newRow("simple_get_request")
         << "coap://"
-        << "172.17.0.3" << "/test" << quint16(5683)
-        << QtCoap::Get << "5445"
+        << testServerHost()
+        << "/test"
+        << quint16(5683)
+        << QtCoap::Get
+        << "5445"
         << "61626364c0211eff547970653a203120284e4f4e290a436f64653a2031202847"
            "4554290a4d49443a2032343830360a546f6b656e3a203631363236333634";
 
     QTest::newRow("simple_put_request")
         << "coap://"
-        << "172.17.0.3"
+        << testServerHost()
         << "/test"
         << quint16(5683)
         << QtCoap::Put
@@ -113,7 +120,7 @@ void tst_QCoapConnection::sendRequest_data()
 
     QTest::newRow("simple_post_request")
         << "coap://"
-        << "172.17.0.3"
+        << testServerHost()
         << "/test"
         << quint16(5683)
         << QtCoap::Post
@@ -123,7 +130,7 @@ void tst_QCoapConnection::sendRequest_data()
 
     QTest::newRow("simple_delete_request")
         << "coap://"
-        << "172.17.0.3"
+        << testServerHost()
         << "/test"
         << quint16(5683)
         << QtCoap::Delete
@@ -143,8 +150,8 @@ void tst_QCoapConnection::sendRequest()
 
     QCoapConnectionForTest connection;
 
-    QSignalSpy spySocketReadyRead(connection.socket(), SIGNAL(readyRead()));
-    QSignalSpy spyConnectionReadyRead(&connection, SIGNAL(readyRead(const QByteArray&)));
+    QSignalSpy spySocketReadyRead(connection.socket(), &QUdpSocket::readyRead);
+    QSignalSpy spyConnectionReadyRead(&connection, &QCoapConnection::readyRead);
 
     QCoapRequest request(protocol + host + path);
     request.setMessageId(24806);
@@ -154,13 +161,14 @@ void tst_QCoapConnection::sendRequest()
     QCoapInternalRequest internalRequest(request);
     connection.sendRequest(internalRequest.toQByteArray(), host, port);
 
-    QTRY_COMPARE_WITH_TIMEOUT(spySocketReadyRead.count(), 1, 5000);
-    QTRY_COMPARE_WITH_TIMEOUT(spyConnectionReadyRead.count(), 1, 5000);
+    QTRY_COMPARE(spySocketReadyRead.count(), 1);
+    QTRY_COMPARE(spyConnectionReadyRead.count(), 1);
 
-    QByteArray reply = spyConnectionReadyRead.first().first().toByteArray();
+    QNetworkDatagram datagram = spyConnectionReadyRead.first()
+                                    .first().value<QNetworkDatagram>();
 
-    QVERIFY(QString(reply.toHex()).startsWith(dataHexaHeader));
-    QVERIFY(QString(reply.toHex()).endsWith(dataHexaPayload));
+    QVERIFY(QString(datagram.data().toHex()).startsWith(dataHexaHeader));
+    QVERIFY(QString(datagram.data().toHex()).endsWith(dataHexaPayload));
 }
 
 QTEST_MAIN(tst_QCoapConnection)

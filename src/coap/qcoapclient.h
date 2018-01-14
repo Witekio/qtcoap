@@ -32,8 +32,10 @@
 
 #include <QtCore/qglobal.h>
 #include <QtCoap/qcoapglobal.h>
+#include <QtCoap/qcoapnamespace.h>
 #include <QtCore/qobject.h>
 #include <QtCore/qiodevice.h>
+#include <QtNetwork/qabstractsocket.h>
 
 QT_BEGIN_NAMESPACE
 
@@ -41,6 +43,7 @@ class QCoapReply;
 class QCoapDiscoveryReply;
 class QCoapRequest;
 class QCoapProtocol;
+class QCoapConnection;
 
 class QCoapClientPrivate;
 class Q_COAP_EXPORT QCoapClient : public QObject
@@ -51,33 +54,40 @@ public:
     ~QCoapClient();
 
     QCoapReply *get(const QCoapRequest &request);
+    QCoapReply *get(const QUrl &url);
     QCoapReply *put(const QCoapRequest &request, const QByteArray &data = QByteArray());
     QCoapReply *put(const QCoapRequest &request, QIODevice *device);
+    QCoapReply *put(const QUrl &url, const QByteArray &data = QByteArray());
     QCoapReply *post(const QCoapRequest &request, const QByteArray &data = QByteArray());
     QCoapReply *post(const QCoapRequest &request, QIODevice *device);
+    QCoapReply *post(const QUrl &url, const QByteArray &data = QByteArray());
     QCoapReply *deleteResource(const QCoapRequest &request);
+    QCoapReply *deleteResource(const QUrl &url);
     QCoapReply *observe(const QCoapRequest &request);
+    QCoapReply *observe(const QUrl &request);
     void cancelObserve(QCoapReply *notifiedReply);
 
 #if 0
-    //! TODO Add global discovery
+    //! TODO Add Multicast discovery
     QCoapDiscoveryReply *discover(const QString &discoveryPath = QLatin1String("/.well-known/core"));
 #endif
     QCoapDiscoveryReply *discover(const QUrl &baseUrl,
                                   const QString &discoveryPath = QLatin1String("/.well-known/core"));
 
     void setBlockSize(quint16 blockSize);
-    void enableMulticastLoopbackOption();
-    void setMulticastTtlOption(int ttlValue);
+    void setSocketOption(QAbstractSocket::SocketOption option, const QVariant &value);
 
 #if 0
     void setProtocol(QCoapProtocol *protocol);
 #endif
 
 Q_SIGNALS:
-    void finished(QCoapReply *);
+    void finished(QCoapReply *reply);
+    void error(QCoapReply *reply, QtCoap::Error error);
 
 protected:
+    explicit QCoapClient(QCoapProtocol *protocol, QCoapConnection *connection, QObject *parent = nullptr);
+
     Q_DECLARE_PRIVATE(QCoapClient)
 };
 

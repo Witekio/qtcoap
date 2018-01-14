@@ -260,7 +260,7 @@ QCoapOption QCoapMessage::option(QCoapOption::OptionName name) const
 QVector<QCoapOption>::const_iterator QCoapMessage::findOption(QCoapOption::OptionName name) const
 {
     Q_D(const QCoapMessage);
-    return std::find_if(d->options.begin(), d->options.end(), [name](const QCoapOption& option) {
+    return std::find_if(d->options.begin(), d->options.end(), [name](const QCoapOption &option) {
         return option.name() == name;
     });
 }

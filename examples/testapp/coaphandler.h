@@ -27,46 +27,33 @@
 **
 ****************************************************************************/
 
-#ifndef QCOAPCLIENT_P_H
-#define QCOAPCLIENT_P_H
+#ifndef COAPHANDLER_H
+#define COAPHANDLER_H
 
-#include <QtCoap/qcoapclient.h>
-#include <QtCoap/qcoapprotocol.h>
-#include <QtCoap/qcoapconnection.h>
-#include <QtCore/qthread.h>
-#include <QtCore/qpointer.h>
-#include <private/qobject_p.h>
+#include <QObject>
+#include <QCoapClient>
+#include <QCoapMessage>
+#include <QCoapResource>
+#include <qcoapnamespace.h>
 
-//
-//  W A R N I N G
-//  -------------
-//
-// This file is not part of the Qt API. It exists purely as an
-// implementation detail. This header file may change from version to
-// version without notice, or even be removed.
-//
-// We mean it.
-//
+class QCoapReply;
+class QCoapDiscoveryReply;
+class QCoapResource;
 
-QT_BEGIN_NAMESPACE
-
-class Q_AUTOTEST_EXPORT QCoapClientPrivate : public QObjectPrivate
+class CoapHandler : public QObject
 {
+    Q_OBJECT
 public:
-    QCoapClientPrivate(QCoapProtocol *protocol, QCoapConnection *connection);
-    ~QCoapClientPrivate();
+    explicit CoapHandler(QObject *parent = nullptr);
 
-    QCoapProtocol *protocol;
-    QCoapConnection *connection;
-    QThread *workerThread;
+public Q_SLOTS:
+    void onFinished(QCoapReply *reply);
+    void onNotified(QCoapReply *reply, QCoapMessage message);
+    void onDiscovered(QCoapDiscoveryReply *reply, QVector<QCoapResource> resources);
+    void onError(QCoapReply *reply, QtCoap::Error error);
 
-    QCoapReply *sendRequest(QCoapRequest &request);
-    QCoapDiscoveryReply *sendDiscovery(QCoapRequest &request);
-    bool send(QCoapReply *reply);
-
-    Q_DECLARE_PUBLIC(QCoapClient)
+private:
+    QCoapClient m_coapClient;
 };
 
-QT_END_NAMESPACE
-
-#endif // QCOAPCLIENT_P_H
+#endif // COAPHANDLER_H
