@@ -428,13 +428,10 @@ QCoapReply *QCoapClient::deleteResource(const QUrl &url)
     return deleteResource(QCoapRequest(url));
 }
 
-//! TODO discover should probably use a signal different from
-//! 'finished', in order to be able to report multiple discovery
-//! answers, from different CoAP servers.
 /*!
     Discovers the resources available at the given \a url and returns
     a new QCoapDiscoveryReply object which emits the
-    \l{QCoapReply::finished()}{finished()} signal whenever the response
+    \l{QCoapReply::discovered()}{discovered()} signal whenever the response
     arrives.
 
     Discovery path defaults to "/.well-known/core", but can be changed

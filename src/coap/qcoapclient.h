@@ -68,7 +68,7 @@ public:
     void cancelObserve(QCoapReply *notifiedReply);
 
 #if 0
-    //! TODO Add global discovery
+    //! TODO Add Multicast discovery
     QCoapDiscoveryReply *discover(const QString &discoveryPath = QLatin1String("/.well-known/core"));
 #endif
     QCoapDiscoveryReply *discover(const QUrl &baseUrl,
