@@ -268,10 +268,7 @@ void tst_QCoapClient::removeReply()
     QVERIFY2(reply != nullptr, "Request failed unexpectedly");
 
     try {
-        // Simulate user deletion the reply, and reset memory to ease any "crash"
-        reply->~QCoapReply();
-        memset(reply, 0, sizeof(QCoapReply));
-        reply = nullptr;
+        reply->deleteLater();
 
         QEventLoop eventLoop;
         QTimer::singleShot(2000, &eventLoop, &QEventLoop::quit);
