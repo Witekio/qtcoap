@@ -35,6 +35,7 @@
 #include <QtCoap/qcoapnamespace.h>
 #include <QtCore/qobject.h>
 #include <QtCore/qiodevice.h>
+#include <QtNetwork/qabstractsocket.h>
 
 QT_BEGIN_NAMESPACE
 
@@ -74,8 +75,7 @@ public:
                                   const QString &discoveryPath = QLatin1String("/.well-known/core"));
 
     void setBlockSize(quint16 blockSize);
-    void enableMulticastLoopbackOption();
-    void setMulticastTtlOption(int ttlValue);
+    void setSocketOption(QAbstractSocket::SocketOption option, const QVariant &value);
 
 #if 0
     void setProtocol(QCoapProtocol *protocol);

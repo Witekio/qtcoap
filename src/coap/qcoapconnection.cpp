@@ -136,6 +136,15 @@ void QCoapConnection::sendRequest(const QByteArray &request, const QString &host
 }
 
 /*!
+    Sets the QUdpSocket socket \a option to \a value.
+*/
+void QCoapConnection::setSocketOption(QAbstractSocket::SocketOption option, const QVariant& value)
+{
+    Q_D(QCoapConnection);
+    d->socket()->setSocketOption(option, value);
+}
+
+/*!
     \internal
 
     Writes the given \a data frame to the socket to the stored \a host and \a port.

@@ -60,11 +60,6 @@ public:
     uint minTimeout() const;
     uint maxTimeout() const;
 
-    void setAckTimeout(uint ackTimeout);
-    void setAckRandomFactor(double ackRandomFactor);
-    void setMaxRetransmit(uint maxRetransmit);
-    void setBlockSize(quint16 blockSize);
-
     static QVector<QCoapResource> resourcesFromCoreLinkList(const QByteArray &data);
 
 Q_SIGNALS:
@@ -74,6 +69,10 @@ Q_SIGNALS:
 public Q_SLOTS:
     void sendRequest(QPointer<QCoapReply> reply, QCoapConnection *connection);
     void cancelObserve(QPointer<QCoapReply> reply);
+    void setAckTimeout(uint ackTimeout);
+    void setAckRandomFactor(double ackRandomFactor);
+    void setMaxRetransmit(uint maxRetransmit);
+    void setBlockSize(quint16 blockSize);
 
 private:
     Q_DECLARE_PRIVATE(QCoapProtocol)

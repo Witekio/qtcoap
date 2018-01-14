@@ -57,6 +57,7 @@ private Q_SLOTS:
     void timeout();
     void abort();
     void removeReply();
+    void setBlockSize();
     void requestWithQIODevice_data();
     void requestWithQIODevice();
     void multipleRequests();
@@ -115,7 +116,10 @@ public:
         QCoapClientPrivate *privateClient = static_cast<QCoapClientPrivate*>(d_func());
         return privateClient->protocol;
     }
-
+    QCoapConnection *connection() {
+        QCoapClientPrivate *privateClient = static_cast<QCoapClientPrivate*>(d_func());
+        return privateClient->connection;
+    }
 };
 
 class Helper : public QObject
@@ -275,6 +279,19 @@ void tst_QCoapClient::removeReply()
     } catch (...) {
         QFAIL("Exception occured after destroying the QCoapReply");
     }
+}
+
+void tst_QCoapClient::setBlockSize()
+{
+    //! TODO cover invalid values
+    QCoapClientForTests client;
+    client.setBlockSize(128);
+
+    QEventLoop eventLoop;
+    QTimer::singleShot(1000, &eventLoop, &QEventLoop::quit);
+    eventLoop.exec();
+
+    QCOMPARE(client.protocol()->blockSize(), 128);
 }
 
 void tst_QCoapClient::requestWithQIODevice_data()

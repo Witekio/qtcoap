@@ -229,6 +229,7 @@ QCoapClient::QCoapClient(QCoapProtocol *protocol, QCoapConnection *connection, Q
     // Requires a name, as this is a typedef
     qRegisterMetaType<QCoapToken>("QCoapToken");
     qRegisterMetaType<QCoapMessageId>("QCoapMessageId");
+    qRegisterMetaType<QAbstractSocket::SocketOption>();
 
     connect(d->connection, SIGNAL(readyRead(const QNetworkDatagram&)),
             d->protocol, SLOT(onFrameReceived(const QNetworkDatagram&)));
@@ -576,30 +577,20 @@ void QCoapClient::setBlockSize(quint16 blockSize)
 {
     Q_D(QCoapClient);
 
-    // FIXME: Done from the wrong thread
-    d->protocol->setBlockSize(blockSize);
+    QMetaObject::invokeMethod(d->protocol, "setBlockSize", Qt::QueuedConnection,
+                              Q_ARG(quint16, blockSize));
 }
 
 /*!
-    Sets the ttl option for multicast requests.
+    Sets the QUdpSocket socket \a option to \a value.
 */
-void QCoapClient::setMulticastTtlOption(int ttlValue)
+void QCoapClient::setSocketOption(QAbstractSocket::SocketOption option, const QVariant &value)
 {
     Q_D(QCoapClient);
-    // FIXME: Done from the wrong thread
-    QUdpSocket *udpSocket = d->connection->socket();
-    udpSocket->setSocketOption(QAbstractSocket::MulticastTtlOption, ttlValue);
-}
 
-/*!
-    Enables the loopback option for multicast requests.
-*/
-void QCoapClient::enableMulticastLoopbackOption()
-{
-    Q_D(QCoapClient);
-    // FIXME: Done from the wrong thread
-    QUdpSocket *udpSocket = d->connection->socket();
-    udpSocket->setSocketOption(QAbstractSocket::MulticastLoopbackOption, 1);
+    QMetaObject::invokeMethod(d->connection, "setSocketOption", Qt::QueuedConnection,
+                              Q_ARG(QAbstractSocket::SocketOption, option),
+                              Q_ARG(QVariant, value));
 }
 
 #if 0
