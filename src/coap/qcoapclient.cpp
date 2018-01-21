@@ -292,8 +292,8 @@ QCoapReply *QCoapClient::get(const QUrl &url)
 }
 
 /*!
-    Sends \a request using the PUT method and returns a new QCoapReply object.
-    Uses \a data as the payload for this request.
+    Sends the \a request using the PUT method and returns a new QCoapReply
+    object. Uses \a data as the payload for this request.
 
     \sa get(), post(), deleteResource(), observe(), discover()
 */
@@ -316,9 +316,9 @@ QCoapReply *QCoapClient::put(const QCoapRequest &request, const QByteArray &data
 /*!
     \overload
 
-    Sends \a request using the PUT method and returns a new QCoapReply object.
-    Uses \a device content as the payload for this request. A null device is
-    treated as empty content.
+    Sends the \a request using the PUT method and returns a new QCoapReply
+    object. Uses \a device content as the payload for this request.
+    A null device is treated as empty content.
 
     \note The device has to be open and readable before calling this function.
 
@@ -332,7 +332,7 @@ QCoapReply *QCoapClient::put(const QCoapRequest &request, QIODevice *device)
 /*!
     \overload
 
-    Sends request to \a url using the PUT method and returns a new QCoapReply
+    Sends a request to \a url using the PUT method and returns a new QCoapReply
     object. Uses \a data as the payload for this request.
 
     \sa get(), post(), deleteResource(), observe(), discover()
@@ -343,8 +343,8 @@ QCoapReply *QCoapClient::put(const QUrl &url, const QByteArray &data)
 }
 
 /*!
-    Posts a POST request sending the contents of the \a data QByteArray for the
-    \a request, and returns a new QCoapReply object.
+    Sends the \a request using the POST method and returns a new QCoapReply
+    object. Uses \a data as the payload for this request.
 
     \sa get(), put(), deleteResource(), observe(), discover()
 */
@@ -367,8 +367,9 @@ QCoapReply *QCoapClient::post(const QCoapRequest &request, const QByteArray &dat
 /*!
     \overload
 
-    Posts a POST request sending the contents of the \a data device to the
-    target \a request. If the device is null, then it returns a nullptr.
+    Sends the \a request using the POST method and returns a new QCoapReply
+    object. Uses \a device content as the payload for this request.
+    A null device is treated as empty content.
 
     \note The device has to be open and readable before calling this function.
 
@@ -385,8 +386,8 @@ QCoapReply *QCoapClient::post(const QCoapRequest &request, QIODevice *device)
 /*!
     \overload
 
-    Sends a POST request to the target \a url with the \a data QByteArray,
-    and returns a new QCoapReply object.
+    Sends a request to \a url using the POST method and returns a new QCoapReply
+    object. Uses \a data as the payload for this request.
 
     \sa get(), put(), deleteResource(), observe(), discover()
 */
