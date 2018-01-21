@@ -30,11 +30,12 @@
 #include "coaphandler.h"
 
 #include <QCoreApplication>
+#include <QtNetwork/QHostAddress>
 
 int main(int argc, char *argv[])
 {
     QCoreApplication a(argc, argv);
-    CoapHandler handler;
+    CoapHandler handler(QHostAddress("172.17.0.3"));
 
     return a.exec();
 }

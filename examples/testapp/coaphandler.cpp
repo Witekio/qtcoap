@@ -33,20 +33,22 @@
 #include <QCoapClient>
 #include <QCoapReply>
 #include <QCoapDiscoveryReply>
+#include <QtNetwork/QHostInfo>
 
-CoapHandler::CoapHandler(QObject *parent) : QObject(parent)
+CoapHandler::CoapHandler(const QHostAddress& coapHost, QObject *parent) : QObject(parent)
 {
     qDebug() << "Started...";
+
     connect(&m_coapClient, &QCoapClient::error, this, &CoapHandler::onError);
 
-    QCoapReply *getReply = m_coapClient.get(QUrl("coap://172.17.0.3/test"));
+    QCoapReply *getReply = m_coapClient.get(QUrl("coap://" + coapHost.toString() + "/test"));
     connect(getReply, &QCoapReply::finished, this, &CoapHandler::onFinished);
 
-    QCoapReply *observeReply = m_coapClient.observe(QUrl("coap://172.17.0.3/obs"));
+    QCoapReply *observeReply = m_coapClient.observe(QUrl("coap://" + coapHost.toString() + "/obs"));
     connect(observeReply, &QCoapReply::notified, this, &CoapHandler::onNotified);
     connect(observeReply, &QCoapReply::finished, this, &CoapHandler::onFinished);
 
-    QCoapDiscoveryReply *discoveryReply = m_coapClient.discover(QUrl("coap://172.17.0.3"));
+    QCoapDiscoveryReply *discoveryReply = m_coapClient.discover(QUrl("coap://" + coapHost.toString()));
     connect(discoveryReply, &QCoapDiscoveryReply::discovered, this, &CoapHandler::onDiscovered);
     connect(discoveryReply, &QCoapReply::finished, this, &CoapHandler::onFinished);
 }
@@ -74,9 +76,8 @@ void CoapHandler::onDiscovered(QCoapDiscoveryReply *reply, QVector<QCoapResource
 {
     Q_UNUSED(reply)
 
-    foreach (const QCoapResource res, resources) {
+    for (const QCoapResource &res : qAsConst(resources))
         qDebug() << "Resource discovered: " << res.path() << res.title();
-    }
 }
 
 void CoapHandler::onError(QCoapReply *reply, QtCoap::Error error)
