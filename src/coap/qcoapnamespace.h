@@ -36,6 +36,14 @@
 
 QT_BEGIN_NAMESPACE
 
+#define FOR_EACH_COAP_ERROR(X) \
+    X(BadRequest, 0x80) X(Unauthorized, 0x81) X(BadOption, 0x82) X(Forbidden, 0x83)  \
+    X(NotFound, 0x84) X(MethodNotAllowed, 0x85) X(NotAcceptable, 0x86) \
+    X(RequestEntityIncomplete, 0x88) X(PreconditionFailed, 0x8C) X(RequestEntityTooLarge, 0x8D) \
+    X(UnsupportedContentFormat, 0x8E) X(InternalServerError, 0xA0) X(NotImplemented, 0xA1) \
+    X(BadGateway, 0xA2) X(ServiceUnavailable, 0xA3) X(GatewayTimeout, 0xA4) \
+    X(ProxyingNotSupported, 0xA5)
+
 class Q_COAP_EXPORT QtCoap : public QObject
 {
     Q_OBJECT
@@ -52,23 +60,11 @@ public:
         Changed = 0x44, // 2.04
         Content = 0x45, // 2.05
         Continue = 0x5F, // 2.31
-        BadRequest = 0x80, // 4.00
-        Unauthorized = 0x81, // 4.01
-        BadOption = 0x82, // 4.02
-        Forbidden = 0x83, // 4.03
-        NotFound = 0x84, // 4.04
-        MethodNotAllowed = 0x85, // 4.05
-        NotAcceptable = 0x86, // 4.06
-        RequestEntityIncomplete = 0x88, // 4.08
-        PreconditionFailed = 0x8C, // 4.12
-        RequestEntityTooLarge = 0x8D, // 4.13
-        UnsupportedContentFormat = 0x8E, // 4.14
-        InternalServerError = 0xA0, // 5.00
-        NotImplemented = 0xA1, // 5.01
-        BadGateway = 0xA2, // 5.02
-        ServiceUnavailable = 0xA3, // 5.03
-        GatewayTimeout = 0xA4, // 5.04
-        ProxyingNotSupported = 0xA5, // 5.05
+
+        #define SINGLE_CODE(name, value) name = value,
+        FOR_EACH_COAP_ERROR(SINGLE_CODE)
+        #undef SINGLE_CODE
+
         InvalidCode = 0xFF
     };
     Q_ENUM(StatusCode)
@@ -76,25 +72,13 @@ public:
     enum Error {
         NoError,
         HostNotFoundError,
-        BadRequestError,
         AddressInUseError,
         TimeOutError,
-        UnauthorizedError,
-        BadOptionError,
-        ForbiddenError,
-        NotFoundError,
-        MethodNotAllowedError,
-        NotAcceptableError,
-        RequestEntityIncompleteError,
-        PreconditionFailedError,
-        RequestEntityTooLargeError,
-        UnsupportedContentFormatError,
-        InternalServerErrorError,
-        NotImplementedError,
-        BadGatewayError,
-        ServiceUnavailableError,
-        GatewayTimeoutError,
-        ProxyingNotSupportedError,
+
+        #define SINGLE_ERROR(name, ignored) name ## Error,
+        FOR_EACH_COAP_ERROR(SINGLE_ERROR)
+        #undef SINGLE_ERROR
+
         UnknownError
     };
     Q_ENUM(Error)

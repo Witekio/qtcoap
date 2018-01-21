@@ -97,40 +97,9 @@ QtCoap::Error QtCoap::statusCodeError(QtCoap::StatusCode code)
         return QtCoap::NoError;
 
     switch (code) {
-    case BadRequest:
-        return BadRequestError;
-    case Unauthorized:
-        return UnauthorizedError;
-    case BadOption:
-        return BadOptionError;
-    case Forbidden:
-        return ForbiddenError;
-    case NotFound:
-        return NotFoundError;
-    case MethodNotAllowed:
-        return MethodNotAllowedError;
-    case NotAcceptable:
-        return NotAcceptableError;
-    case RequestEntityIncomplete:
-        return RequestEntityIncompleteError;
-    case PreconditionFailed:
-        return PreconditionFailedError;
-    case RequestEntityTooLarge:
-        return RequestEntityTooLargeError;
-    case UnsupportedContentFormat:
-        return UnsupportedContentFormatError;
-    case InternalServerError:
-        return InternalServerErrorError;
-    case NotImplemented:
-        return NotImplementedError;
-    case BadGateway:
-        return BadGatewayError;
-    case ServiceUnavailable:
-        return ServiceUnavailableError;
-    case GatewayTimeout:
-        return GatewayTimeoutError;
-    case ProxyingNotSupported:
-        return ProxyingNotSupportedError;
+#define SINGLE_CASE(name, ignored) case name: return name ## Error;
+    FOR_EACH_COAP_ERROR(SINGLE_CASE)
+#undef SINGLE_CASE
     default:
         return UnknownError;
     }
