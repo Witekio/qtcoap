@@ -874,13 +874,18 @@ void QCoapProtocol::setAckRandomFactor(double ackRandomFactor)
 
 /*!
     Sets the MAX_RETRANSMIT value to \a maxRetransmit. This value
-    defaults to 4.
+    defaults to 4, and is capped at 25.
 
     \sa maxRetransmit()
 */
 void QCoapProtocol::setMaxRetransmit(uint maxRetransmit)
 {
     Q_D(QCoapProtocol);
+    if (maxRetransmit > 25) {
+        qWarning("QtCoap: Max retransmit count is capped at 25.");
+        maxRetransmit = 25;
+    }
+
     d->maxRetransmit = maxRetransmit;
 }
 
