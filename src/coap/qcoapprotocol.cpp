@@ -239,9 +239,10 @@ void QCoapProtocolPrivate::onFrameReceived(const QNetworkDatagram &frame)
 
     //! TODO IPv6 not supported, as operator "!=" does not exist
     QHostAddress originalTarget(request->targetUri().host());
-    if (!originalTarget.isMulticast() && originalTarget.toIPv4Address() != frame.senderAddress().toIPv4Address()) {
-        qDebug() << "QtCoap: Answer received from incorrect host ("
-                 << frame.senderAddress() << "instead of" << originalTarget << ")";
+    if (!originalTarget.isMulticast()
+            && originalTarget.toIPv4Address() != frame.senderAddress().toIPv4Address()) {
+        qDebug().nospace() << "QtCoap: Answer received from incorrect host ("
+                           << frame.senderAddress() << " instead of " << originalTarget << ")";
         return;
     }
 
@@ -667,7 +668,7 @@ bool QCoapProtocolPrivate::addReply(const QCoapToken &token, QSharedPointer<QCoa
 */
 bool QCoapProtocolPrivate::forgetExchange(const QCoapToken &token)
 {
-    return (exchangeMap.remove(token) > 0);
+    return exchangeMap.remove(token) > 0;
 }
 
 /*!
