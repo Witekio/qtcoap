@@ -86,17 +86,13 @@ void QCoapProtocol::sendRequest(QPointer<QCoapReply> reply, QCoapConnection *con
     connect(reply, &QCoapReply::finished, this, &QCoapProtocol::finished);
 
     // Find a unique Message Id
-    if (requestMessage->messageId() == 0) {
-        do {
-            internalRequest->generateMessageId();
-        } while (d->isMessageIdRegistered(requestMessage->messageId()));
+    while (d->isMessageIdRegistered(requestMessage->messageId())) {
+        internalRequest->generateMessageId();
     }
 
     // Find a unique Token
-    if (requestMessage->token().isEmpty()) {
-        do {
-            internalRequest->generateToken();
-        } while (d->isTokenRegistered(requestMessage->token()));
+    while (d->isTokenRegistered(requestMessage->token())) {
+        internalRequest->generateToken();
     }
 
     internalRequest->setConnection(connection);
@@ -705,6 +701,10 @@ bool QCoapProtocolPrivate::forgetExchangeReplies(const QCoapToken &token)
 */
 bool QCoapProtocolPrivate::isTokenRegistered(const QCoapToken &token)
 {
+    // Reserved for empty messages and uninitialized tokens
+    if (token == QByteArray())
+        return true;
+
     return exchangeMap.contains(token);
 }
 
@@ -725,12 +725,15 @@ bool QCoapProtocolPrivate::isRequestRegistered(const QCoapInternalRequest *reque
 
 /*!
     \internal
-    \class QCoapProtocolPrivate
 
     Returns true if a request has a message id equal to \a id.
 */
 bool QCoapProtocolPrivate::isMessageIdRegistered(quint16 id)
 {
+    // Reserved for uninitialized message Id
+    if (id == 0)
+        return true;
+
     for (auto it = exchangeMap.constBegin(); it != exchangeMap.constEnd(); ++it) {
         if ((*it).request->message()->messageId() == id)
             return true;
