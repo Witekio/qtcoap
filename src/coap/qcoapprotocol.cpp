@@ -128,7 +128,6 @@ void QCoapProtocol::sendRequest(QPointer<QCoapReply> reply, QCoapConnection *con
 
 /*!
     \internal
-    \class QCoapProtocolPrivate
 
     Encodes and sends the given \a request to the server.
 */
@@ -150,7 +149,6 @@ void QCoapProtocolPrivate::sendRequest(QCoapInternalRequest *request)
 
 /*!
     \internal
-    \class QCoapProtocolPrivate
 
     This slot is used to send again the given \a request after a timeout or
     aborts the request and transfers a timeout error to the reply.
@@ -173,7 +171,6 @@ void QCoapProtocolPrivate::onRequestTimeout(QCoapInternalRequest *request)
 
 /*!
     \internal
-    \class QCoapProtocolPrivate
 
     Method triggered when a request fails.
 */
@@ -185,7 +182,6 @@ void QCoapProtocolPrivate::onRequestError(QCoapInternalRequest *request, QCoapIn
 
 /*!
     \internal
-    \class QCoapProtocolPrivate
 
     Method triggered when a request fails.
 */
@@ -217,7 +213,6 @@ void QCoapProtocolPrivate::onRequestError(QCoapInternalRequest *request, QtCoap:
 }
 /*!
     \internal
-    \class QCoapProtocolPrivate
 
     Decode and process the given \a frame after reception.
 */
@@ -281,7 +276,6 @@ void QCoapProtocolPrivate::onFrameReceived(const QNetworkDatagram &frame)
 
 /*!
     \internal
-    \class QCoapProtocolPrivate
 
     Returns the internal request for the given \a token.
 */
@@ -296,7 +290,6 @@ QCoapInternalRequest *QCoapProtocolPrivate::requestForToken(const QByteArray &to
 
 /*!
     \internal
-    \class QCoapProtocolPrivate
 
     Returns the QCoapReply instance of the given \a token.
 */
@@ -311,7 +304,6 @@ QPointer<QCoapReply> QCoapProtocolPrivate::userReplyForToken(const QCoapToken &t
 
 /*!
     \internal
-    \class QCoapProtocolPrivate
 
     Returns the replies for the exchange identified by \a token.
 */
@@ -326,7 +318,6 @@ QVector<QSharedPointer<QCoapInternalReply> > QCoapProtocolPrivate::repliesForTok
 
 /*!
     \internal
-    \class QCoapProtocolPrivate
 
     Returns the last reply for the exchange identified by \a token.
 */
@@ -373,7 +364,6 @@ QCoapInternalRequest *QCoapProtocolPrivate::findRequestByMessageId(quint16 messa
 
 /*!
     \internal
-    \class QCoapProtocolPrivate
 
     Handles what to do when we received the last block of a reply.
 
@@ -446,7 +436,6 @@ void QCoapProtocolPrivate::onLastMessageReceived(QCoapInternalRequest *request)
 
 /*!
     \internal
-    \class QCoapProtocolPrivate
 
     Handles what to do when we received a new block that is not the last.
 
@@ -464,7 +453,6 @@ void QCoapProtocolPrivate::onBlockReceived(QCoapInternalRequest *request,
 
 /*!
     \internal
-    \class QCoapProtocolPrivate
 
     Sends an internal request acknowledging the given \a request, reusing its
     URI and connection.
@@ -486,7 +474,6 @@ void QCoapProtocolPrivate::sendAcknowledgment(QCoapInternalRequest *request)
 
 /*!
     \internal
-    \class QCoapProtocolPrivate
 
     Sends a Reset message (RST), reusing the details of the given
     \a request. A Reset message indicates that a specific message has been
@@ -534,7 +521,6 @@ void QCoapProtocol::cancelObserve(QPointer<QCoapReply> reply)
 
 /*!
     \internal
-    \class QCoapProtocolPrivate
 
     Encodes the QCoapInternalRequest object \a request to a QByteArray frame.
 */
@@ -545,7 +531,6 @@ QByteArray QCoapProtocolPrivate::encode(QCoapInternalRequest *request)
 
 /*!
     \internal
-    \class QCoapProtocolPrivate
 
     Decodes the QByteArray \a message and returns a new unmanaged
     QCoapInternalReply object.
@@ -561,7 +546,6 @@ QCoapInternalReply *QCoapProtocolPrivate::decode(const QNetworkDatagram &frame)
 
 /*!
     \internal
-    \class QCoapProtocolPrivate
 
     Aborts the request corresponding to the given \a reply. It is triggered
     by the destruction of the QCoapReply object or a call to
@@ -579,7 +563,6 @@ void QCoapProtocolPrivate::onRequestAborted(const QCoapToken &token)
 
 /*!
     \internal
-    \class QCoapProtocolPrivate
 
     Triggered when an error occurs in the QCoapConnection.
 */
@@ -646,7 +629,6 @@ QVector<QCoapResource> QCoapProtocol::resourcesFromCoreLinkList(const QByteArray
 
 /*!
     \internal
-    \class QCoapProtocolPrivate
 
     Registers a new CoAP exchange using \a token.
 */
@@ -661,7 +643,6 @@ void QCoapProtocolPrivate::registerExchange(const QCoapToken &token, QCoapReply 
 
 /*!
     \internal
-    \class QCoapProtocolPrivate
 
     Adds \a reply to the list of replies of the exchange identified by
     \a token.
@@ -679,7 +660,6 @@ bool QCoapProtocolPrivate::addReply(const QCoapToken &token, QSharedPointer<QCoa
 
 /*!
     \internal
-    \class QCoapProtocolPrivate
 
     Remove the exchange, typically done when finished or aborted.
     This will delete the QCoapInternalRequest and QCoapInternalReplies
@@ -692,7 +672,6 @@ bool QCoapProtocolPrivate::forgetExchange(const QCoapToken &token)
 
 /*!
     \internal
-    \class QCoapProtocolPrivate
 
     Remove the exchange using a request.
 
@@ -705,7 +684,6 @@ bool QCoapProtocolPrivate::forgetExchange(const QCoapInternalRequest *request)
 
 /*!
     \internal
-    \class QCoapProtocolPrivate
 
     Remove all replies for the exchange corresponding to \a token.
 */
@@ -721,7 +699,6 @@ bool QCoapProtocolPrivate::forgetExchangeReplies(const QCoapToken &token)
 
 /*!
     \internal
-    \class QCoapProtocolPrivate
 
     Returns true if a request has a token equal to \a token.
 */
@@ -732,7 +709,6 @@ bool QCoapProtocolPrivate::isTokenRegistered(const QCoapToken &token)
 
 /*!
     \internal
-    \class QCoapProtocolPrivate
 
     Returns true the \a request is present in currently registered exchanges.
 */

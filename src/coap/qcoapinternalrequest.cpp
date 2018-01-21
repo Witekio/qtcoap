@@ -557,7 +557,7 @@ void QCoapInternalRequest::setConnection(QCoapConnection *connection)
 
 /*!
     \internal
-    Set the observe request as cancelled.
+    Marks the observe request as cancelled.
 
     \sa isObserveCancelled()
 */
