@@ -557,7 +557,7 @@ bool QCoapClientPrivate::send(QCoapReply *reply)
     Q_Q(QCoapClient);
 
     if (!QCoapRequest::isUrlValid(reply->request().url())) {
-        qWarning() << "QCoapClient: Failed to send request for an invalid URL.";
+        qWarning("QCoapClient: Failed to send request for an invalid URL.");
         return false;
     }
 

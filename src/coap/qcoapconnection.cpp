@@ -223,7 +223,7 @@ void QCoapConnectionPrivate::_q_socketError(QAbstractSocket::SocketError error)
 {
     Q_Q(QCoapConnection);
 
-    qWarning() << "CoAP UDP socket error " << error << socket()->errorString();
+    qWarning() << "CoAP UDP socket error" << error << socket()->errorString();
     emit q->error(error);
 }
 

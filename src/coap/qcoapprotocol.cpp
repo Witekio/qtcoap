@@ -138,7 +138,7 @@ void QCoapProtocolPrivate::sendRequest(QCoapInternalRequest *request)
     Q_ASSERT(QThread::currentThread() == q->thread());
 
     if (!request || !request->connection()) {
-        qWarning() << "QtCoap: Request null or not bound to any connection: aborted.";
+        qWarning("QtCoap: Request null or not bound to any connection: aborted.");
         return;
     }
 
@@ -921,13 +921,13 @@ void QCoapProtocol::setBlockSize(quint16 blockSize)
     Q_D(QCoapProtocol);
 
     if ((blockSize & (blockSize - 1)) != 0) {
-        qWarning() << "QtCoap: Block size should be a power of 2";
+        qWarning("QtCoap: Block size should be a power of 2");
         return;
     }
 
     if (blockSize != 0 && (blockSize < 16 || blockSize > 1024)) {
-        qWarning() << "QtCoap: Block size should be set to zero, or"
-                      " to a power of 2 in the [16;1024] range";
+        qWarning("QtCoap: Block size should be set to zero,"
+                 "or to a power of 2 from 16 through 1024");
         return;
     }
 
