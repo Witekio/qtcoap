@@ -61,8 +61,7 @@ QCoapClientPrivate::~QCoapClientPrivate()
 /*!
     \enum QtCoap::Error
 
-    Indicates all possible error conditions found during the
-    processing of the request.
+    Indicates and error condition found during the processing of the request.
 
     \value NoError                  No error condition.
 
@@ -83,7 +82,7 @@ QCoapClientPrivate::~QCoapClientPrivate()
     \enum QtCoap::StatusCode
 
     This enum maps the status code of the CoAP protocol, as defined in
-    the 'response' section of the
+    the 'response' section of
     \l{https://tools.ietf.org/html/rfc7252#section-5.2}{RFC 7252}
 */
 /*!
@@ -98,39 +97,39 @@ QtCoap::Error QtCoap::statusCodeError(QtCoap::StatusCode code)
         return QtCoap::NoError;
 
     switch (code) {
-    case QtCoap::BadRequest:
+    case BadRequest:
         return BadRequestError;
-    case QtCoap::Unauthorized:
+    case Unauthorized:
         return UnauthorizedError;
-    case QtCoap::BadOption:
+    case BadOption:
         return BadOptionError;
-    case QtCoap::Forbidden:
+    case Forbidden:
         return ForbiddenError;
-    case QtCoap::NotFound:
+    case NotFound:
         return NotFoundError;
-    case QtCoap::MethodNotAllowed:
+    case MethodNotAllowed:
         return MethodNotAllowedError;
-    case QtCoap::NotAcceptable:
+    case NotAcceptable:
         return NotAcceptableError;
-    case QtCoap::RequestEntityIncomplete:
+    case RequestEntityIncomplete:
         return RequestEntityIncompleteError;
-    case QtCoap::PreconditionFailed:
+    case PreconditionFailed:
         return PreconditionFailedError;
-    case QtCoap::RequestEntityTooLarge:
+    case RequestEntityTooLarge:
         return RequestEntityTooLargeError;
-    case QtCoap::UnsupportedContentFormat:
+    case UnsupportedContentFormat:
         return UnsupportedContentFormatError;
-    case QtCoap::InternalServerError:
+    case InternalServerError:
         return InternalServerErrorError;
-    case QtCoap::NotImplemented:
+    case NotImplemented:
         return NotImplementedError;
-    case QtCoap::BadGateway:
+    case BadGateway:
         return BadGatewayError;
-    case QtCoap::ServiceUnavailable:
+    case ServiceUnavailable:
         return ServiceUnavailableError;
-    case QtCoap::GatewayTimeout:
+    case GatewayTimeout:
         return GatewayTimeoutError;
-    case QtCoap::ProxyingNotSupported:
+    case ProxyingNotSupported:
         return ProxyingNotSupportedError;
     default:
         return UnknownError;

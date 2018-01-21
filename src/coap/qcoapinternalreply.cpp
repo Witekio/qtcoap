@@ -181,8 +181,8 @@ void QCoapInternalReply::setSenderAddress(const QHostAddress &address)
 
 /*!
     \internal
-    Returns the number of the next block if it is not the last block.
-    If it is the last block, it returns -1.
+    Returns the number of the next block, if there is another block to come,
+    otherwise -1.
 */
 int QCoapInternalReply::nextBlockWanted()
 {
