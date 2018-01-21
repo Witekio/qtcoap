@@ -44,7 +44,8 @@ QCoapReplyPrivate::QCoapReplyPrivate(const QCoapRequest &req) :
 
 /*!
     \internal
-    Sets the isRunning parameter to the given \a isRunning value.
+    Marks the reply as running, and sets the \a token and \a messageId of this
+    exchange.
 
     \sa isRunning()
 */
@@ -76,11 +77,16 @@ void QCoapReplyPrivate::_q_setObserveCancelled()
 /*!
     \internal
 
-    Updates the QCoapReply object and its message with data of the internal
-    reply \a internalReply, unless this QCoapReply object has been aborted.
+    Sets the message and status code of this reply, unless reply is
+    already finished.
 */
 void QCoapReplyPrivate::_q_setContent(const QCoapMessage &msg, QtCoap::StatusCode status)
 {
+    Q_Q(QCoapReply);
+
+    if (q->isFinished())
+        return;
+
     message = msg;
     statusCode = status;
     seekBuffer(0);
@@ -92,8 +98,9 @@ void QCoapReplyPrivate::_q_setContent(const QCoapMessage &msg, QtCoap::StatusCod
 /*!
     \internal
 
-    Updates the QCoapReply object and its message with data of the internal
-    reply \a internalReply, unless this QCoapReply object has been aborted.
+    For an Observe request, notifies that a new message was received
+    by emitting the notified() signal. If the reply is finished, no
+    signal will be emitted.
 */
 void QCoapReplyPrivate::_q_setNotified()
 {
@@ -161,7 +168,7 @@ void QCoapReplyPrivate::_q_setError(QtCoap::StatusCode statusCode)
     QCoapClient.
 
     The \l{QCoapReply::finished(QCoapReply*)}{finished(QCoapReply*)} signal is
-    emitted when the response is fully received and when request fails.
+    emitted when the response is fully received or when the request fails.
 
     For Observe requests specifically, the
     \l{QCoapReply::notified(QCoapReply*, const QByteArray&)}{notified(QCoapReply*, const QByteArray&)}
@@ -178,6 +185,11 @@ void QCoapReplyPrivate::_q_setError(QtCoap::StatusCode statusCode)
     be emitted only once, in the same conditions.
 
     The \a reply parameter is the QCoapReply itself for convenience.
+
+    \note If the QCoapReply is deleted while not finished, both aborted() and
+    finished() signal will be emitted immediately before the QCoapReply is
+    destroyed. Given the QCoapReply may have been deleted when receiving the
+    signal, you should not rely on the \a reply to be still valid.
 
     \sa QCoapClient::finished(), isFinished(), notified(), aborted()
 */
@@ -210,11 +222,13 @@ void QCoapReplyPrivate::_q_setError(QtCoap::StatusCode statusCode)
 /*!
     \fn void QCoapReply::aborted(const QCoapToken &token);
 
-    This signal is emitted when the request is aborted or the reply is deleted.
-    Given the QCoapReply may have been deleted at that point, you should not
-    rely on the sender() object to be still valid.
+    This signal is emitted when the request is aborted or the reply is deleted. 
+    Its \a token parameter is the token of the exchange that has been aborted.
 
-    Its \a token parameter is the token of the exchange that have been aborted.
+    \note If the QCoapReply is deleted while not finished, both aborted() and
+    finished() signal will be emitted immediately before the QCoapReply is
+    destroyed. Given the QCoapReply may have been deleted when receiving the
+    signal, you should not rely on the sender() object to be still valid.
 
     \sa finished(), error()
 */
@@ -263,11 +277,11 @@ qint64 QCoapReply::readData(char *data, qint64 maxSize)
     if (maxSize <= 0)
         return qint64(0);
 
-    // Explicitly eccount for platform size_t limitations
+    // Explicitly account for platform size_t limitations
     size_t len = static_cast<size_t>(maxSize);
     memcpy(data, payload.constData() + pos(), len);
 
-    return len;
+    return static_cast<qint64>(len);
 }
 
 /*!

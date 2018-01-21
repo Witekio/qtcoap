@@ -674,8 +674,6 @@ void tst_QCoapClient::observe()
         QString error = QString("Invalid payload for 'notified' signal: %1").arg(QString(payload));
         QVERIFY2(regexp.match(payload).hasMatch(), qPrintable(error));
     }
-
-
 }
 
 QTEST_MAIN(tst_QCoapClient)
