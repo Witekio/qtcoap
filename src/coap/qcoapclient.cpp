@@ -61,8 +61,7 @@ QCoapClientPrivate::~QCoapClientPrivate()
 /*!
     \enum QtCoap::Error
 
-    Indicates all possible error conditions found during the
-    processing of the request.
+    Indicates and error condition found during the processing of the request.
 
     \value NoError                  No error condition.
 
@@ -83,7 +82,7 @@ QCoapClientPrivate::~QCoapClientPrivate()
     \enum QtCoap::StatusCode
 
     This enum maps the status code of the CoAP protocol, as defined in
-    the 'response' section of the
+    the 'response' section of
     \l{https://tools.ietf.org/html/rfc7252#section-5.2}{RFC 7252}
 */
 /*!
@@ -98,40 +97,9 @@ QtCoap::Error QtCoap::statusCodeError(QtCoap::StatusCode code)
         return QtCoap::NoError;
 
     switch (code) {
-    case QtCoap::BadRequest:
-        return BadRequestError;
-    case QtCoap::Unauthorized:
-        return UnauthorizedError;
-    case QtCoap::BadOption:
-        return BadOptionError;
-    case QtCoap::Forbidden:
-        return ForbiddenError;
-    case QtCoap::NotFound:
-        return NotFoundError;
-    case QtCoap::MethodNotAllowed:
-        return MethodNotAllowedError;
-    case QtCoap::NotAcceptable:
-        return NotAcceptableError;
-    case QtCoap::RequestEntityIncomplete:
-        return RequestEntityIncompleteError;
-    case QtCoap::PreconditionFailed:
-        return PreconditionFailedError;
-    case QtCoap::RequestEntityTooLarge:
-        return RequestEntityTooLargeError;
-    case QtCoap::UnsupportedContentFormat:
-        return UnsupportedContentFormatError;
-    case QtCoap::InternalServerError:
-        return InternalServerErrorError;
-    case QtCoap::NotImplemented:
-        return NotImplementedError;
-    case QtCoap::BadGateway:
-        return BadGatewayError;
-    case QtCoap::ServiceUnavailable:
-        return ServiceUnavailableError;
-    case QtCoap::GatewayTimeout:
-        return GatewayTimeoutError;
-    case QtCoap::ProxyingNotSupported:
-        return ProxyingNotSupportedError;
+#define SINGLE_CASE(name, ignored) case name: return name ## Error;
+    FOR_EACH_COAP_ERROR(SINGLE_CASE)
+#undef SINGLE_CASE
     default:
         return UnknownError;
     }
@@ -293,8 +261,8 @@ QCoapReply *QCoapClient::get(const QUrl &url)
 }
 
 /*!
-    Sends \a request using the PUT method and returns a new QCoapReply object.
-    Uses \a data as the payload for this request.
+    Sends the \a request using the PUT method and returns a new QCoapReply
+    object. Uses \a data as the payload for this request.
 
     \sa get(), post(), deleteResource(), observe(), discover()
 */
@@ -317,9 +285,9 @@ QCoapReply *QCoapClient::put(const QCoapRequest &request, const QByteArray &data
 /*!
     \overload
 
-    Sends \a request using the PUT method and returns a new QCoapReply object.
-    Uses \a device content as the payload for this request. A null device is
-    treated as empty content.
+    Sends the \a request using the PUT method and returns a new QCoapReply
+    object. Uses \a device content as the payload for this request.
+    A null device is treated as empty content.
 
     \note The device has to be open and readable before calling this function.
 
@@ -333,7 +301,7 @@ QCoapReply *QCoapClient::put(const QCoapRequest &request, QIODevice *device)
 /*!
     \overload
 
-    Sends request to \a url using the PUT method and returns a new QCoapReply
+    Sends a request to \a url using the PUT method and returns a new QCoapReply
     object. Uses \a data as the payload for this request.
 
     \sa get(), post(), deleteResource(), observe(), discover()
@@ -344,8 +312,8 @@ QCoapReply *QCoapClient::put(const QUrl &url, const QByteArray &data)
 }
 
 /*!
-    Posts a POST request sending the contents of the \a data QByteArray for the
-    \a request, and returns a new QCoapReply object.
+    Sends the \a request using the POST method and returns a new QCoapReply
+    object. Uses \a data as the payload for this request.
 
     \sa get(), put(), deleteResource(), observe(), discover()
 */
@@ -368,8 +336,9 @@ QCoapReply *QCoapClient::post(const QCoapRequest &request, const QByteArray &dat
 /*!
     \overload
 
-    Posts a POST request sending the contents of the \a data device to the
-    target \a request. If the device is null, then it returns a nullptr.
+    Sends the \a request using the POST method and returns a new QCoapReply
+    object. Uses \a device content as the payload for this request.
+    A null device is treated as empty content.
 
     \note The device has to be open and readable before calling this function.
 
@@ -386,8 +355,8 @@ QCoapReply *QCoapClient::post(const QCoapRequest &request, QIODevice *device)
 /*!
     \overload
 
-    Sends a POST request to the target \a url with the \a data QByteArray,
-    and returns a new QCoapReply object.
+    Sends a request to \a url using the POST method and returns a new QCoapReply
+    object. Uses \a data as the payload for this request.
 
     \sa get(), put(), deleteResource(), observe(), discover()
 */
@@ -557,7 +526,7 @@ bool QCoapClientPrivate::send(QCoapReply *reply)
     Q_Q(QCoapClient);
 
     if (!QCoapRequest::isUrlValid(reply->request().url())) {
-        qWarning() << "QCoapClient: Failed to send request for an invalid URL.";
+        qWarning("QCoapClient: Failed to send request for an invalid URL.");
         return false;
     }
 

@@ -339,8 +339,8 @@ void QCoapOption::setValue(const char *value)
 void QCoapOption::setValue(quint32 value)
 {
     QByteArray data;
-    for (int i = 0; i < 4 && (value >> (8 * i) > 0); i++)
-        data.append(static_cast<quint8>((value >> (8 * i)) & 0xFF));
+    for (; value; value >>= 8)
+        data.append(static_cast<qint8>(value & 0xFF));
 
     setValue(data);
 }

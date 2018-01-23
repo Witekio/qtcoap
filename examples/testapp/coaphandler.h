@@ -44,7 +44,7 @@ class CoapHandler : public QObject
 {
     Q_OBJECT
 public:
-    explicit CoapHandler(QObject *parent = nullptr);
+    explicit CoapHandler(const QHostAddress& coapHost, QObject *parent = nullptr);
 
 public Q_SLOTS:
     void onFinished(QCoapReply *reply);

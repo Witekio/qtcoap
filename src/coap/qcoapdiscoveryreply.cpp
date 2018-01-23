@@ -33,7 +33,7 @@
 QT_BEGIN_NAMESPACE
 
 QCoapDiscoveryReplyPrivate::QCoapDiscoveryReplyPrivate(const QCoapRequest &request) :
-    QCoapReplyPrivate (request)
+    QCoapReplyPrivate(request)
 {
 }
 

@@ -1,5 +1,5 @@
 QT -= gui
-QT += coap
+QT += network coap
 
 TARGET = testapp
 

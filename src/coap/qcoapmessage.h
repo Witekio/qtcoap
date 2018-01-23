@@ -89,10 +89,7 @@ protected:
 
     //! For QSharedDataPointer
     QCoapMessagePrivate* d_func();
-    inline const QCoapMessagePrivate* d_func() const
-    {
-        return d_ptr.constData();
-    }
+    inline const QCoapMessagePrivate* d_func() const { return d_ptr.constData(); }
 };
 
 Q_DECLARE_SHARED(QCoapMessage)
