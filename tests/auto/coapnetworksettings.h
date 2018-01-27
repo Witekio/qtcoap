@@ -27,6 +27,7 @@
 **
 ****************************************************************************/
 
+#include <QtTest>
 #include <QtCore/qstring.h>
 #include <QtNetwork/qhostinfo.h>
 
@@ -45,11 +46,10 @@
     For more details, see
     \l{https://github.com/Pixep/coap-testserver-docker}{https://github.com/Pixep/coap-testserver-docker}.
 */
-namespace QtCoapNetworkSettings {
-    QString testServerHostName() {
-        return QStringLiteral("coap-plugtest-server");
-    }
+namespace QtCoapNetworkSettings
+{
     QString testServerHost() {
+#if 0
         QHostInfo host = QHostInfo::fromName(testServerHostName());
         if (host.addresses().isEmpty()) {
             QString error = "Host name " + testServerHostName() + " could not be resolved.";
@@ -58,6 +58,8 @@ namespace QtCoapNetworkSettings {
         }
 
         return host.addresses().first().toString();
+#endif
+        return QStringLiteral(COAP_TEST_SERVER_IP);
     }
     QString testServerUrl() {
         return QStringLiteral("coap://") + testServerHost() + QStringLiteral(":5683");
