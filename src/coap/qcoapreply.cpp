@@ -80,7 +80,7 @@ void QCoapReplyPrivate::_q_setObserveCancelled()
     Sets the message and status code of this reply, unless reply is
     already finished.
 */
-void QCoapReplyPrivate::_q_setContent(const QCoapMessage &msg, QtCoap::StatusCode status)
+void QCoapReplyPrivate::_q_setContent(const QHostAddress &, const QCoapMessage &msg, QtCoap::StatusCode status)
 {
     Q_Q(QCoapReply);
 

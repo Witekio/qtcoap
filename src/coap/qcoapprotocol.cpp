@@ -58,6 +58,7 @@ QCoapProtocol::QCoapProtocol(QObject *parent) :
     QObject(* new QCoapProtocolPrivate, parent)
 {
     qRegisterMetaType<QCoapInternalRequest*>();
+    qRegisterMetaType<QHostAddress>();
 }
 
 QCoapProtocol::~QCoapProtocol()
@@ -138,7 +139,7 @@ void QCoapProtocolPrivate::sendRequest(QCoapInternalRequest *request)
     request->startTransmission();
     QByteArray requestFrame = encode(request);
     QUrl uri = request->targetUri();
-    request->connection()->sendRequest(requestFrame, uri.host(), uri.port());
+    request->connection()->sendRequest(requestFrame, uri.host(), static_cast<quint16>(uri.port()));
 }
 
 /*!
@@ -191,6 +192,7 @@ void QCoapProtocolPrivate::onRequestError(QCoapInternalRequest *request, QtCoap:
         // Set error from content, or error enum
         if (reply) {
             QMetaObject::invokeMethod(userReply.data(), "_q_setContent", Qt::QueuedConnection,
+                                      Q_ARG(QHostAddress, reply->senderAddress()),
                                       Q_ARG(QCoapMessage, *reply->message()),
                                       Q_ARG(QtCoap::StatusCode, reply->statusCode()));
         } else {
@@ -414,6 +416,7 @@ void QCoapProtocolPrivate::onLastMessageReceived(QCoapInternalRequest *request)
 
     // Forward the answer
     QMetaObject::invokeMethod(userReply, "_q_setContent", Qt::QueuedConnection,
+            Q_ARG(QHostAddress, lastReply->senderAddress()),
             Q_ARG(QCoapMessage, *lastReply->message()),
             Q_ARG(QtCoap::StatusCode, lastReply->statusCode()));
 
@@ -583,7 +586,7 @@ void QCoapProtocolPrivate::onConnectionError(QAbstractSocket::SocketError socket
     Decodes the QByteArray \a data to a list of QCoapResource objects.
     The \a data byte array is a frame returned by a discovery request.
 */
-QVector<QCoapResource> QCoapProtocol::resourcesFromCoreLinkList(const QByteArray &data)
+QVector<QCoapResource> QCoapProtocol::resourcesFromCoreLinkList(const QHostAddress &sender, const QByteArray &data)
 {
     QVector<QCoapResource> resourceList;
 
@@ -592,6 +595,8 @@ QVector<QCoapResource> QCoapProtocol::resourcesFromCoreLinkList(const QByteArray
     for (QByteArray link : links)
     {
         QCoapResource resource;
+        resource.setHost(sender);
+
         const QList<QByteArray> parameterList = link.split(';');
         for (QByteArray parameter : parameterList)
         {

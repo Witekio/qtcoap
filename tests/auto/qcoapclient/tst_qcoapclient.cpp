@@ -35,6 +35,7 @@
 #include <QtCoap/qcoapreply.h>
 #include <QtCoap/qcoapdiscoveryreply.h>
 #include <QtCore/qbuffer.h>
+#include <QtNetwork/qnetworkdatagram.h>
 #include <private/qcoapclient_p.h>
 #include <private/qcoapconnection_p.h>
 

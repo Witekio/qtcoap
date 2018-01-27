@@ -175,7 +175,7 @@ public:
     }
     void setContentAndFinished(const QCoapInternalReply *internal) {
         Q_D(QCoapReply);
-        d->_q_setContent(*internal->message(), internal->statusCode());
+        d->_q_setContent(internal->senderAddress(), *internal->message(), internal->statusCode());
         d->_q_setFinished();
     }
 };

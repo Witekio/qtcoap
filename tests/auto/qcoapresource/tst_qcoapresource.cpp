@@ -45,6 +45,7 @@ private Q_SLOTS:
 void tst_QCoapResource::parseCoreLink_data()
 {
     QTest::addColumn<int>("resourceNumber");
+    QTest::addColumn<QString>("senderAddress");
     QTest::addColumn<QList<QString>>("pathList");
     QTest::addColumn<QList<QString>>("titleList");
     QTest::addColumn<QList<QString>>("resourceTypeList");
@@ -118,6 +119,7 @@ void tst_QCoapResource::parseCoreLink_data()
                      "seconds\",</shutdown>");
 
     QTest::newRow("parse") << 16
+                           << QString("10.20.30.40")
                            << pathList
                            << titleList
                            << resourceTypeList
@@ -131,6 +133,7 @@ void tst_QCoapResource::parseCoreLink_data()
 void tst_QCoapResource::parseCoreLink()
 {
     QFETCH(int, resourceNumber);
+    QFETCH(QString, senderAddress);
     QFETCH(QList<QString>, pathList);
     QFETCH(QList<QString>, titleList);
     QFETCH(QList<QString>, resourceTypeList);
@@ -140,10 +143,11 @@ void tst_QCoapResource::parseCoreLink()
     QFETCH(QList<bool>, observableList);
     QFETCH(QByteArray, coreLinkList);
 
-    const QVector<QCoapResource> resourceList = QCoapProtocol::resourcesFromCoreLinkList(coreLinkList);
+    const QVector<QCoapResource> resourceList = QCoapProtocol::resourcesFromCoreLinkList(QHostAddress(senderAddress), coreLinkList);
 
     QCOMPARE(resourceList.size(), resourceNumber);
     for (int i = 0; i < resourceList.size(); ++i) {
+        QCOMPARE(resourceList[i].host(), QHostAddress(senderAddress));
         QCOMPARE(resourceList[i].path(), pathList[i]);
         QCOMPARE(resourceList[i].title(), titleList[i]);
         QCOMPARE(resourceList[i].resourceType(), resourceTypeList[i]);

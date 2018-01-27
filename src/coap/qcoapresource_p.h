@@ -32,6 +32,7 @@
 
 #include <QtCoap/qcoapresource.h>
 #include <QtCore/qshareddata.h>
+#include <QtNetwork/qhostaddress.h>
 
 //
 //  W A R N I N G
@@ -50,16 +51,17 @@ class Q_AUTOTEST_EXPORT QCoapResourcePrivate : public QSharedData
 {
 public:
     QCoapResourcePrivate() {}
-    QCoapResourcePrivate(const QCoapResourcePrivate &other): QSharedData(other), maximumSize(other.maximumSize)
-      , contentFormat(other.contentFormat), resourceType(other.resourceType)
-      , interface(other.interface), path(other.path), title(other.title)
-      , observable(other.observable) {}
+    QCoapResourcePrivate(const QCoapResourcePrivate &other)
+      : QSharedData(other), maximumSize(other.maximumSize), contentFormat(other.contentFormat)
+      , resourceType(other.resourceType), interface(other.interface), host(other.host)
+      , path(other.path), title(other.title), observable(other.observable) {}
     ~QCoapResourcePrivate() {}
 
     int maximumSize = -1;    // sz field
     uint contentFormat = 0;  // ct field
     QString resourceType;    // rt field
     QString interface;       // if field
+    QHostAddress host;
     QString path;
     QString title;
     bool observable = false; // obs field

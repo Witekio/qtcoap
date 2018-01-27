@@ -43,7 +43,7 @@ QCoapDiscoveryReplyPrivate::QCoapDiscoveryReplyPrivate(const QCoapRequest &reque
     Updates the QCoapDiscoveryReply object, its message and list of resources
     with data of the internal reply \a internalReply.
 */
-void QCoapDiscoveryReplyPrivate::_q_setContent(const QCoapMessage &msg, QtCoap::StatusCode status)
+void QCoapDiscoveryReplyPrivate::_q_setContent(const QHostAddress &sender, const QCoapMessage &msg, QtCoap::StatusCode status)
 {
     Q_Q(QCoapDiscoveryReply);
 
@@ -56,7 +56,7 @@ void QCoapDiscoveryReplyPrivate::_q_setContent(const QCoapMessage &msg, QtCoap::
     if (QtCoap::isError(statusCode)) {
         _q_setError(statusCode);
     } else {
-        auto res = QCoapProtocol::resourcesFromCoreLinkList(message.payload());
+        auto res = QCoapProtocol::resourcesFromCoreLinkList(sender, message.payload());
         resources.append(res);
         emit q->discovered(q, res);
     }

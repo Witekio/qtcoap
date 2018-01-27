@@ -36,6 +36,7 @@
 #include <QtCoap/qcoapresource.h>
 #include <QtCore/qobject.h>
 #include <QtNetwork/qudpsocket.h>
+#include <QtNetwork/qhostaddress.h>
 
 QT_BEGIN_NAMESPACE
 
@@ -60,7 +61,7 @@ public:
     uint minTimeout() const;
     uint maxTimeout() const;
 
-    static QVector<QCoapResource> resourcesFromCoreLinkList(const QByteArray &data);
+    static QVector<QCoapResource> resourcesFromCoreLinkList(const QHostAddress &sender, const QByteArray &data);
 
 Q_SIGNALS:
     void finished(QCoapReply *reply);
@@ -82,6 +83,8 @@ private:
     Q_PRIVATE_SLOT(d_func(), void onRequestAborted(const QCoapToken&))
     Q_PRIVATE_SLOT(d_func(), void onConnectionError(QAbstractSocket::SocketError))
 };
+
+Q_DECLARE_METATYPE(QHostAddress)
 
 QT_END_NAMESPACE
 
