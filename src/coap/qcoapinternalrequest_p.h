@@ -89,7 +89,7 @@ public:
 
     void setTargetUri(QUrl targetUri);
     void setTimeout(uint timeout);
-    void startTransmission();
+    void restartTransmission();
     void stopTransmission();
 
 Q_SIGNALS:
@@ -113,11 +113,13 @@ public:
     QtCoap::Method method = QtCoap::Invalid;
     QCoapConnection *connection = nullptr;
     QByteArray fullPayload;
-    bool observeCancelled = false;
 
     int timeout = 0;
-    uint retransmissionCounter = -1;
-    QTimer *timer = nullptr;
+    int retransmissionCounter = 0;
+    QTimer *timeoutTimer = nullptr;
+
+    bool observeCancelled = false;
+    bool transmissionInProgress = false;
 
     void _q_timeout();
 

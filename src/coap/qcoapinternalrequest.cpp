@@ -56,8 +56,8 @@ QCoapInternalRequest::QCoapInternalRequest(QObject *parent) :
     QCoapInternalMessage(*new QCoapInternalRequestPrivate, parent)
 {
     Q_D(QCoapInternalRequest);
-    d->timer = new QTimer(this);
-    connect(d->timer, SIGNAL(timeout()), this, SLOT(_q_timeout()));
+    d->timeoutTimer = new QTimer(this);
+    connect(d->timeoutTimer, SIGNAL(timeout()), this, SLOT(_q_timeout()));
 }
 
 /*!
@@ -425,30 +425,37 @@ QCoapToken QCoapInternalRequest::token() const
 
 /*!
     \internal
-    Increments the retransmission counter, updates the timeout and
-    starts a timer.
+    Used to mark the transmission as "in progress", when starting or retrying
+    to transmit a message. This method manages the retransmission counter,
+    and the transmission timeout.
 */
-void QCoapInternalRequest::startTransmission()
+void QCoapInternalRequest::restartTransmission()
 {
     Q_D(QCoapInternalRequest);
 
-    // Should starts at -1
-    d->retransmissionCounter++;
-    if (d->retransmissionCounter > 0)
+    if (!d->transmissionInProgress) {
+        d->transmissionInProgress = true;
+    }
+    else {
+        d->retransmissionCounter++;
         d->timeout *= 2;
+    }
 
     if (d->timeout > 0)
-        d->timer->start(d->timeout);
+        d->timeoutTimer->start(d->timeout);
 }
 
 /*!
     \internal
-    Resets the retransmission counter to zero and stops the timer.
+    Marks the transmission as not running, after a successful reception, or an
+    error. It resets the retranmission count and stop all timeout timers.
 */
 void QCoapInternalRequest::stopTransmission()
 {
     Q_D(QCoapInternalRequest);
-    d->timer->stop();
+    d->transmissionInProgress = false;
+    d->retransmissionCounter = 0;
+    d->timeoutTimer->stop();
 }
 
 /*!

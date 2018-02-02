@@ -136,7 +136,7 @@ void QCoapProtocolPrivate::sendRequest(QCoapInternalRequest *request)
         return;
     }
 
-    request->startTransmission();
+    request->restartTransmission();
     QByteArray requestFrame = encode(request);
     QUrl uri = request->targetUri();
     request->connection()->sendRequest(requestFrame, uri.host(), static_cast<quint16>(uri.port()));
