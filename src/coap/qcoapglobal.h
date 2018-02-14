@@ -41,9 +41,10 @@ typedef quint16 QCoapMessageId;
 Q_DECLARE_METATYPE(QCoapToken)
 Q_DECLARE_METATYPE(QCoapMessageId)
 
+
 #ifndef QT_STATIC
 #  ifdef QT_BUILD_COAP_LIB
-#    define Q_COAP_EXPORT Q_AUTOTEST_EXPORT
+#    define Q_COAP_EXPORT Q_DECL_EXPORT
 #  else
 #    define Q_COAP_EXPORT Q_DECL_IMPORT
 #  endif
