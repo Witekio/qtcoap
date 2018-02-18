@@ -89,11 +89,13 @@ public:
 
     void setTargetUri(QUrl targetUri);
     void setTimeout(uint timeout);
+    void setMaxTransmissionWait(int timeout);
     void restartTransmission();
     void stopTransmission();
 
 Q_SIGNALS:
     void timeout(QCoapInternalRequest*);
+    void maxTransmissionSpanReached(QCoapInternalRequest*);
 
 protected:
     QCoapOption uriHostOption(const QUrl &uri) const;
@@ -102,6 +104,7 @@ protected:
 private:
     Q_DECLARE_PRIVATE(QCoapInternalRequest)
     Q_PRIVATE_SLOT(d_func(), void _q_timeout())
+    Q_PRIVATE_SLOT(d_func(), void _q_maxTransmissionSpanReached())
 };
 
 class Q_AUTOTEST_EXPORT QCoapInternalRequestPrivate : public QCoapInternalMessagePrivate
@@ -117,11 +120,13 @@ public:
     int timeout = 0;
     int retransmissionCounter = 0;
     QTimer *timeoutTimer = nullptr;
+    QTimer *maxTransmitWaitTimer = nullptr;
 
     bool observeCancelled = false;
     bool transmissionInProgress = false;
 
     void _q_timeout();
+    void _q_maxTransmissionSpanReached();
 
     Q_DECLARE_PUBLIC(QCoapInternalRequest)
 };

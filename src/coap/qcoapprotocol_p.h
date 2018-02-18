@@ -78,6 +78,7 @@ public:
     void onConnectionError(QAbstractSocket::SocketError error);
     void onRequestAborted(const QCoapToken &token);
     void onRequestTimeout(QCoapInternalRequest *request);
+    void onRequestMaxTransmissionSpanReached(QCoapInternalRequest *request);
     void onRequestError(QCoapInternalRequest *request, QCoapInternalReply *reply);
     void onRequestError(QCoapInternalRequest *request, QtCoap::Error error,
                         QCoapInternalReply *reply = nullptr);

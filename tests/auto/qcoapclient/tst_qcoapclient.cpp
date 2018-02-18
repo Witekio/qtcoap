@@ -72,7 +72,7 @@ private Q_SLOTS:
     void observe();
 };
 
-class QCoapConnectionForSocketErrorTestsPrivate : public QCoapConnectionPrivate
+class QCoapConnectionSocketTestsPrivate : public QCoapConnectionPrivate
 {
     bool bind() {
         // Force a socket binding error
@@ -82,24 +82,24 @@ class QCoapConnectionForSocketErrorTestsPrivate : public QCoapConnectionPrivate
     }
 };
 
-class QCoapConnectionForSocketErrorTests : public QCoapConnection
+class QCoapConnectionSocketTests : public QCoapConnection
 {
 public:
-    QCoapConnectionForSocketErrorTests() :
-        QCoapConnection (* new QCoapConnectionForSocketErrorTestsPrivate)
+    QCoapConnectionSocketTests() :
+        QCoapConnection (* new QCoapConnectionSocketTestsPrivate)
     {
         createSocket();
     }
 
 private:
-    Q_DECLARE_PRIVATE(QCoapConnectionForSocketErrorTests)
+    Q_DECLARE_PRIVATE(QCoapConnectionSocketTests)
 };
 
 class QCoapClientForSocketErrorTests : public QCoapClient
 {
 public:
     QCoapClientForSocketErrorTests() :
-        QCoapClient(new QCoapProtocol, new QCoapConnectionForSocketErrorTests)
+        QCoapClient(new QCoapProtocol, new QCoapConnectionSocketTests)
     {}
 
     QCoapConnection *connection() {
@@ -108,10 +108,24 @@ public:
     }
 };
 
+class QCoapTestConnection : public QCoapConnection
+{
+public:
+    QCoapTestConnection() :
+        QCoapConnection (* new QCoapConnectionPrivate) {}
+
+    void simulateInboundDatagram(const QNetworkDatagram &datagram) {
+        emit readyRead(datagram);
+    }
+};
+
 class QCoapClientForTests : public QCoapClient
 {
 public:
     QCoapClientForTests() {}
+    QCoapClientForTests(QCoapProtocol* protocol, QCoapConnection *connection) :
+        QCoapClient(protocol, connection)
+    {}
 
     QCoapProtocol *protocol() {
         QCoapClientPrivate *privateClient = static_cast<QCoapClientPrivate*>(d_func());
@@ -605,6 +619,7 @@ void tst_QCoapClient::discover()
     QSignalSpy spyReplyFinished(resourcesReply.data(), SIGNAL(finished(QCoapReply*)));
 
     QTRY_COMPARE_WITH_TIMEOUT(spyReplyFinished.count(), 1, 30000);
+
     QCOMPARE(resourcesReply->resources().length(), resourceNumber);
 
     //! TODO Test discovery content too

@@ -83,6 +83,7 @@ void QCoapProtocol::sendRequest(QPointer<QCoapReply> reply, QCoapConnection *con
         return;
 
     QSharedPointer<QCoapInternalRequest> internalRequest = QSharedPointer<QCoapInternalRequest>::create(reply->request(), this);
+    internalRequest->setMaxTransmissionWait(maxTransmitWait());
     QCoapMessage *requestMessage = internalRequest->message();
     connect(reply, &QCoapReply::finished, this, &QCoapProtocol::finished);
 
@@ -117,6 +118,8 @@ void QCoapProtocol::sendRequest(QPointer<QCoapReply> reply, QCoapConnection *con
 
     connect(internalRequest.data(), SIGNAL(timeout(QCoapInternalRequest*)),
             this, SLOT(onRequestTimeout(QCoapInternalRequest*)));
+    connect(internalRequest.data(), SIGNAL(maxTransmissionSpanReached(QCoapInternalRequest*)),
+            this, SLOT(onRequestMaxTransmissionSpanReached(QCoapInternalRequest*)));
 
     d->sendRequest(internalRequest.data());
 }
@@ -162,6 +165,23 @@ void QCoapProtocolPrivate::onRequestTimeout(QCoapInternalRequest *request)
     } else {
         sendRequest(request);
     }
+}
+
+/*!
+    \internal
+
+    This slot is called when the maximum span for this transmission has been
+    reached, and triggers a timeout error if the request is still running.
+*/
+void QCoapProtocolPrivate::onRequestMaxTransmissionSpanReached(QCoapInternalRequest *request)
+{
+    Q_Q(const QCoapProtocol);
+    Q_ASSERT(QThread::currentThread() == q->thread());
+
+    if (!isRequestRegistered(request))
+        return;
+
+    onRequestError(request, QtCoap::TimeOutError);
 }
 
 /*!

@@ -58,6 +58,9 @@ QCoapInternalRequest::QCoapInternalRequest(QObject *parent) :
     Q_D(QCoapInternalRequest);
     d->timeoutTimer = new QTimer(this);
     connect(d->timeoutTimer, SIGNAL(timeout()), this, SLOT(_q_timeout()));
+
+    d->maxTransmitWaitTimer = new QTimer(this);
+    connect(d->maxTransmitWaitTimer, SIGNAL(timeout()), this, SLOT(_q_maxTransmissionSpanReached()));
 }
 
 /*!
@@ -427,7 +430,7 @@ QCoapToken QCoapInternalRequest::token() const
     \internal
     Used to mark the transmission as "in progress", when starting or retrying
     to transmit a message. This method manages the retransmission counter,
-    and the transmission timeout.
+    the transmission timeout and the exchange timeout.
 */
 void QCoapInternalRequest::restartTransmission()
 {
@@ -435,6 +438,7 @@ void QCoapInternalRequest::restartTransmission()
 
     if (!d->transmissionInProgress) {
         d->transmissionInProgress = true;
+        d->maxTransmitWaitTimer->start();
     }
     else {
         d->retransmissionCounter++;
@@ -455,6 +459,7 @@ void QCoapInternalRequest::stopTransmission()
     Q_D(QCoapInternalRequest);
     d->transmissionInProgress = false;
     d->retransmissionCounter = 0;
+    d->maxTransmitWaitTimer->stop();
     d->timeoutTimer->stop();
 }
 
@@ -467,6 +472,17 @@ void QCoapInternalRequestPrivate::_q_timeout()
 {
     Q_Q(QCoapInternalRequest);
     emit q->timeout(q);
+}
+
+/*!
+    \internal
+    This slot emits a \l{QCoapInternalRequest::maxTransmissionSpanReached(QCoapInternalRequest*)}
+    {timeout(QCoapInternalRequest*)} signal.
+*/
+void QCoapInternalRequestPrivate::_q_maxTransmissionSpanReached()
+{
+    Q_Q(QCoapInternalRequest);
+    emit q->maxTransmissionSpanReached(q);
 }
 
 /*!
@@ -597,6 +613,17 @@ void QCoapInternalRequest::setTimeout(uint timeout)
 {
     Q_D(QCoapInternalRequest);
     d->timeout = static_cast<int>(timeout);
+}
+
+/*!
+    \internal
+    Sets the maximum transmission span for the request. If the request is
+    not finished at the end of the transmission span, the request will timeout.
+*/
+void QCoapInternalRequest::setMaxTransmissionWait(int duration)
+{
+    Q_D(QCoapInternalRequest);
+    d->maxTransmitWaitTimer->setInterval(duration);
 }
 
 /*!
