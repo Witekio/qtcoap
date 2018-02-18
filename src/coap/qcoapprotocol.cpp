@@ -768,7 +768,7 @@ bool QCoapProtocolPrivate::isMessageIdRegistered(quint16 id)
 
     \sa setAckTimeout()
 */
-uint QCoapProtocol::ackTimeout() const
+int QCoapProtocol::ackTimeout() const
 {
     Q_D(const QCoapProtocol);
     return d->ackTimeout;
@@ -790,7 +790,7 @@ double QCoapProtocol::ackRandomFactor() const
 
     \sa setMaxRetransmit()
 */
-uint QCoapProtocol::maxRetransmit() const
+int QCoapProtocol::maxRetransmit() const
 {
     Q_D(const QCoapProtocol);
     return d->maxRetransmit;
@@ -814,12 +814,12 @@ quint16 QCoapProtocol::blockSize() const
     It is the maximum time from the first transmission of a Confirmable
     message to its last retransmission.
 */
-uint QCoapProtocol::maxTransmitSpan() const
+int QCoapProtocol::maxTransmitSpan() const
 {
-    if (maxRetransmit() == 0)
+    if (maxRetransmit() <= 0)
         return 0;
 
-    return static_cast<uint>(ackTimeout() * (1u << (maxRetransmit() - 1)) * ackRandomFactor());
+    return static_cast<int>(ackTimeout() * (1u << (maxRetransmit() - 1)) * ackRandomFactor());
 }
 
 /*!
@@ -830,9 +830,12 @@ uint QCoapProtocol::maxTransmitSpan() const
     message to the time when the sender gives up on receiving an
     acknowledgment or reset.
 */
-uint QCoapProtocol::maxTransmitWait() const
+int QCoapProtocol::maxTransmitWait() const
 {
-    return static_cast<uint>(ackTimeout() * ((1u << (maxRetransmit() + 1)) - 1) * ackRandomFactor());
+    if (maxRetransmit() <= 0)
+        return 0;
+
+    return static_cast<int>(ackTimeout() * ((1u << (maxRetransmit() + 1)) - 1) * ackRandomFactor());
 }
 
 /*!
@@ -843,7 +846,7 @@ uint QCoapProtocol::maxTransmitWait() const
     It is the maximum time a datagram is expected to take from the start of
     its transmission to the completion of its reception.
 */
-constexpr uint QCoapProtocol::maxLatency()
+constexpr int QCoapProtocol::maxLatency()
 {
     return 100 * 1000;
 }
@@ -854,7 +857,7 @@ constexpr uint QCoapProtocol::maxLatency()
 
     \sa minTimeout(), setAckTimeout()
 */
-uint QCoapProtocol::minTimeout() const {
+int QCoapProtocol::minTimeout() const {
     Q_D(const QCoapProtocol);
     return d->ackTimeout;
 }
@@ -864,9 +867,9 @@ uint QCoapProtocol::minTimeout() const {
 
     \sa maxTimeout(), setAckTimeout(), setAckRandomFactor()
 */
-uint QCoapProtocol::maxTimeout() const {
+int QCoapProtocol::maxTimeout() const {
     Q_D(const QCoapProtocol);
-    return static_cast<uint>(d->ackTimeout * d->ackRandomFactor);
+    return static_cast<int>(d->ackTimeout * d->ackRandomFactor);
 }
 
 /*!
@@ -879,7 +882,7 @@ uint QCoapProtocol::maxTimeout() const {
 
     \sa ackTimeout(), setAckRandomFactor(), minTimeout(), maxTimeout()
 */
-void QCoapProtocol::setAckTimeout(uint ackTimeout)
+void QCoapProtocol::setAckTimeout(int ackTimeout)
 {
     Q_D(QCoapProtocol);
     d->ackTimeout = ackTimeout;
@@ -903,9 +906,14 @@ void QCoapProtocol::setAckRandomFactor(double ackRandomFactor)
 
     \sa maxRetransmit()
 */
-void QCoapProtocol::setMaxRetransmit(uint maxRetransmit)
+void QCoapProtocol::setMaxRetransmit(int maxRetransmit)
 {
     Q_D(QCoapProtocol);
+    if (maxRetransmit < 0) {
+        qWarning("QtCoap: Max retransmit cannot be negative.");
+        return;
+    }
+
     if (maxRetransmit > 25) {
         qWarning("QtCoap: Max retransmit count is capped at 25.");
         maxRetransmit = 25;

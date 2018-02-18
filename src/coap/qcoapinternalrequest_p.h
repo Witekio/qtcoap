@@ -82,7 +82,7 @@ public:
     bool isObserve() const;
     bool isObserveCancelled() const;
     QCoapConnection *connection() const;
-    uint retransmissionCounter() const;
+    int retransmissionCounter() const;
     void setMethod(QtCoap::Method method);
     void setConnection(QCoapConnection *connection);
     void setObserveCancelled();

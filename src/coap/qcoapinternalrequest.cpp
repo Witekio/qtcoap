@@ -184,7 +184,7 @@ QByteArray QCoapInternalRequest::toQByteArray() const
             bool isOptionDeltaExtended = false;
             quint8 optionDeltaExtended = 0;
 
-            quint16 optionLength = option.length();
+            quint16 optionLength = static_cast<quint16>(option.length());
             bool isOptionLengthExtended = false;
             quint8 optionLengthExtended = 0;
 
@@ -262,7 +262,7 @@ void QCoapInternalRequest::setRequestToSendBlock(uint blockNumber, uint blockSiz
     Q_D(QCoapInternalRequest);
 
     d->message.setMessageId(d->message.messageId() + 1);
-    d->message.setPayload(d->fullPayload.mid(blockNumber * blockSize, blockSize));
+    d->message.setPayload(d->fullPayload.mid(static_cast<int>(blockNumber * blockSize), static_cast<int>(blockSize)));
     d->message.removeOption(QCoapOption::Block1);
 
     addOption(blockOption(QCoapOption::Block1, blockNumber, blockSize));
@@ -395,7 +395,7 @@ bool QCoapInternalRequest::addUriOptions(QUrl uri, const QUrl &proxyUri)
 
     // 7. Add port to options if it is not the default port
     if (uri.port() != 5683)
-        addOption(QCoapOption::UriPort, uri.port());
+        addOption(QCoapOption::UriPort, static_cast<quint32>(uri.port()));
 
     // 8. Add path segments to options
     QString path = uri.path();
@@ -548,7 +548,7 @@ bool QCoapInternalRequest::isObserveCancelled() const
     \internal
     Returns the value of the retransmission counter.
 */
-uint QCoapInternalRequest::retransmissionCounter() const
+int QCoapInternalRequest::retransmissionCounter() const
 {
     Q_D(const QCoapInternalRequest);
     return d->retransmissionCounter;

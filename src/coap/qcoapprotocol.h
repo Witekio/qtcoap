@@ -50,16 +50,16 @@ public:
     explicit QCoapProtocol(QObject *parent = nullptr);
     ~QCoapProtocol();
 
-    uint ackTimeout() const;
+    int ackTimeout() const;
     double ackRandomFactor() const;
-    uint maxRetransmit() const;
+    int maxRetransmit() const;
     quint16 blockSize() const;
-    uint maxTransmitSpan() const;
-    uint maxTransmitWait() const;
-    static constexpr uint maxLatency();
+    int maxTransmitSpan() const;
+    int maxTransmitWait() const;
+    static constexpr int maxLatency();
 
-    uint minTimeout() const;
-    uint maxTimeout() const;
+    int minTimeout() const;
+    int maxTimeout() const;
 
     static QVector<QCoapResource> resourcesFromCoreLinkList(const QHostAddress &sender, const QByteArray &data);
 
@@ -70,9 +70,9 @@ Q_SIGNALS:
 public Q_SLOTS:
     void sendRequest(QPointer<QCoapReply> reply, QCoapConnection *connection);
     void cancelObserve(QPointer<QCoapReply> reply);
-    void setAckTimeout(uint ackTimeout);
+    void setAckTimeout(int ackTimeout);
     void setAckRandomFactor(double ackRandomFactor);
-    void setMaxRetransmit(uint maxRetransmit);
+    void setMaxRetransmit(int maxRetransmit);
     void setBlockSize(quint16 blockSize);
 
 private:
