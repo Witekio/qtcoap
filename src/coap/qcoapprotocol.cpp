@@ -57,7 +57,7 @@ QT_BEGIN_NAMESPACE
 QCoapProtocol::QCoapProtocol(QObject *parent) :
     QObject(* new QCoapProtocolPrivate, parent)
 {
-    qRegisterMetaType<QCoapInternalRequest*>();
+    qRegisterMetaType<QCoapInternalRequest *>();
     qRegisterMetaType<QHostAddress>();
 }
 
@@ -82,7 +82,8 @@ void QCoapProtocol::sendRequest(QPointer<QCoapReply> reply, QCoapConnection *con
     if (reply.isNull() || !reply->request().isValid())
         return;
 
-    QSharedPointer<QCoapInternalRequest> internalRequest = QSharedPointer<QCoapInternalRequest>::create(reply->request(), this);
+    QSharedPointer<QCoapInternalRequest> internalRequest = QSharedPointer<QCoapInternalRequest>::create(
+                                                               reply->request(), this);
     internalRequest->setMaxTransmissionWait(maxTransmitWait());
     QCoapMessage *requestMessage = internalRequest->message();
     connect(reply, &QCoapReply::finished, this, &QCoapProtocol::finished);
@@ -116,10 +117,10 @@ void QCoapProtocol::sendRequest(QPointer<QCoapReply> reply, QCoapConnection *con
     else
         internalRequest->setTimeout(maxTimeout());
 
-    connect(internalRequest.data(), SIGNAL(timeout(QCoapInternalRequest*)),
-            this, SLOT(onRequestTimeout(QCoapInternalRequest*)));
-    connect(internalRequest.data(), SIGNAL(maxTransmissionSpanReached(QCoapInternalRequest*)),
-            this, SLOT(onRequestMaxTransmissionSpanReached(QCoapInternalRequest*)));
+    connect(internalRequest.data(), SIGNAL(timeout(QCoapInternalRequest *)),
+            this, SLOT(onRequestTimeout(QCoapInternalRequest *)));
+    connect(internalRequest.data(), SIGNAL(maxTransmissionSpanReached(QCoapInternalRequest *)),
+            this, SLOT(onRequestMaxTransmissionSpanReached(QCoapInternalRequest *)));
 
     d->sendRequest(internalRequest.data());
 }
@@ -324,7 +325,8 @@ QPointer<QCoapReply> QCoapProtocolPrivate::userReplyForToken(const QCoapToken &t
 
     Returns the replies for the exchange identified by \a token.
 */
-QVector<QSharedPointer<QCoapInternalReply> > QCoapProtocolPrivate::repliesForToken(const QCoapToken &token)
+QVector<QSharedPointer<QCoapInternalReply> > QCoapProtocolPrivate::repliesForToken(
+    const QCoapToken &token)
 {
     auto it = exchangeMap.find(token);
     if (it != exchangeMap.constEnd())
@@ -389,7 +391,7 @@ QCoapInternalRequest *QCoapProtocolPrivate::findRequestByMessageId(quint16 messa
 void QCoapProtocolPrivate::onLastMessageReceived(QCoapInternalRequest *request)
 {
     Q_ASSERT(request);
-    if (!request ||!isRequestRegistered(request))
+    if (!request || !isRequestRegistered(request))
         return;
 
     auto replies = repliesForToken(request->token());
@@ -415,8 +417,8 @@ void QCoapProtocolPrivate::onLastMessageReceived(QCoapInternalRequest *request)
     // Merge payloads for blockwise transfers
     if (replies.size() > 1) {
         std::stable_sort(std::begin(replies), std::end(replies),
-            [](auto a, auto b) -> bool {
-                return (a->currentBlockNumber() < b->currentBlockNumber());
+        [](auto a, auto b) -> bool {
+            return (a->currentBlockNumber() < b->currentBlockNumber());
         });
 
         QByteArray finalPayload;
@@ -436,16 +438,16 @@ void QCoapProtocolPrivate::onLastMessageReceived(QCoapInternalRequest *request)
 
     // Forward the answer
     QMetaObject::invokeMethod(userReply, "_q_setContent", Qt::QueuedConnection,
-            Q_ARG(QHostAddress, lastReply->senderAddress()),
-            Q_ARG(QCoapMessage, *lastReply->message()),
-            Q_ARG(QtCoap::ResponseCode, lastReply->statusCode()));
+                              Q_ARG(QHostAddress, lastReply->senderAddress()),
+                              Q_ARG(QCoapMessage, *lastReply->message()),
+                              Q_ARG(QtCoap::ResponseCode, lastReply->responseCode()));
 
     if (request->isObserve()) {
         QMetaObject::invokeMethod(userReply, "_q_setNotified", Qt::QueuedConnection);
         forgetExchangeReplies(request->token());
     } else {
         QMetaObject::invokeMethod(userReply, "_q_setFinished", Qt::QueuedConnection,
-                Q_ARG(QtCoap::Error, QtCoap::NoError));
+                                  Q_ARG(QtCoap::Error, QtCoap::NoError));
         forgetExchange(request);
     }
 }
@@ -460,8 +462,8 @@ void QCoapProtocolPrivate::onLastMessageReceived(QCoapInternalRequest *request)
     and sends this new request.
 */
 void QCoapProtocolPrivate::onBlockReceived(QCoapInternalRequest *request,
-                                       uint currentBlockNumber,
-                                       uint blockSize)
+                                           uint currentBlockNumber,
+                                           uint blockSize)
 {
     request->setRequestToAskBlock(currentBlockNumber + 1, blockSize);
     sendRequest(request);
@@ -606,20 +608,19 @@ void QCoapProtocolPrivate::onConnectionError(QAbstractSocket::SocketError socket
     Decodes the QByteArray \a data to a list of QCoapResource objects.
     The \a data byte array is a frame returned by a discovery request.
 */
-QVector<QCoapResource> QCoapProtocol::resourcesFromCoreLinkList(const QHostAddress &sender, const QByteArray &data)
+QVector<QCoapResource> QCoapProtocol::resourcesFromCoreLinkList(const QHostAddress &sender,
+                                                                const QByteArray &data)
 {
     QVector<QCoapResource> resourceList;
 
     QLatin1String quote = QLatin1String("\"");
     const QList<QByteArray> links = data.split(',');
-    for (QByteArray link : links)
-    {
+    for (QByteArray link : links) {
         QCoapResource resource;
         resource.setHost(sender);
 
         const QList<QByteArray> parameterList = link.split(';');
-        for (QByteArray parameter : parameterList)
-        {
+        for (QByteArray parameter : parameterList) {
             QString parameterString = QString::fromUtf8(parameter);
             int length = parameterString.length();
             if (parameter.startsWith('<'))
@@ -654,7 +655,8 @@ void QCoapProtocolPrivate::registerExchange(const QCoapToken &token, QCoapReply 
                                             QSharedPointer<QCoapInternalRequest> request)
 {
     CoapExchangeData data = { reply, request,
-                              QVector<QSharedPointer<QCoapInternalReply> >() };
+                              QVector<QSharedPointer<QCoapInternalReply> >()
+                            };
 
     exchangeMap.insert(token, data);
 }
@@ -665,7 +667,8 @@ void QCoapProtocolPrivate::registerExchange(const QCoapToken &token, QCoapReply 
     Adds \a reply to the list of replies of the exchange identified by
     \a token.
 */
-bool QCoapProtocolPrivate::addReply(const QCoapToken &token, QSharedPointer<QCoapInternalReply> reply)
+bool QCoapProtocolPrivate::addReply(const QCoapToken &token,
+                                    QSharedPointer<QCoapInternalReply> reply)
 {
     if (!isTokenRegistered(token) || !reply) {
         qWarning() << "QtCoap: Reply token '" << token << "' not registered, or reply is null.";
@@ -857,7 +860,8 @@ constexpr int QCoapProtocol::maxLatency()
 
     \sa minTimeout(), setAckTimeout()
 */
-int QCoapProtocol::minTimeout() const {
+int QCoapProtocol::minTimeout() const
+{
     Q_D(const QCoapProtocol);
     return d->ackTimeout;
 }
@@ -867,7 +871,8 @@ int QCoapProtocol::minTimeout() const {
 
     \sa maxTimeout(), setAckTimeout(), setAckRandomFactor()
 */
-int QCoapProtocol::maxTimeout() const {
+int QCoapProtocol::maxTimeout() const
+{
     Q_D(const QCoapProtocol);
     return static_cast<int>(d->ackTimeout * d->ackRandomFactor);
 }

@@ -49,7 +49,8 @@ class QCoapReplyForTests : public QCoapReply
 public:
     QCoapReplyForTests(const QCoapRequest &req) : QCoapReply (req) {}
 
-    void setRunning(const QCoapToken &token, QCoapMessageId messageId) {
+    void setRunning(const QCoapToken &token, QCoapMessageId messageId)
+    {
         Q_D(QCoapReply);
         d->_q_setRunning(token, messageId);
     }

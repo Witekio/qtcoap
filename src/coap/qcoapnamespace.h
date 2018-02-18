@@ -61,9 +61,9 @@ public:
         Content = 0x45, // 2.05
         Continue = 0x5F, // 2.31
 
-        #define SINGLE_CODE(name, value) name = value,
+#define SINGLE_CODE(name, value) name = value,
         FOR_EACH_COAP_ERROR(SINGLE_CODE)
-        #undef SINGLE_CODE
+#undef SINGLE_CODE
 
         InvalidCode = 0xFF
     };
@@ -75,9 +75,9 @@ public:
         AddressInUseError,
         TimeOutError,
 
-        #define SINGLE_ERROR(name, ignored) name ## Error,
+#define SINGLE_ERROR(name, ignored) name ## Error,
         FOR_EACH_COAP_ERROR(SINGLE_ERROR)
-        #undef SINGLE_ERROR
+#undef SINGLE_ERROR
 
         UnknownError
     };

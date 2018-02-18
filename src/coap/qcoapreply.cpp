@@ -223,7 +223,7 @@ void QCoapReplyPrivate::_q_setError(QtCoap::ResponseCode code)
 /*!
     \fn void QCoapReply::aborted(const QCoapToken &token);
 
-    This signal is emitted when the request is aborted or the reply is deleted. 
+    This signal is emitted when the request is aborted or the reply is deleted.
     Its \a token parameter is the token of the exchange that has been aborted.
 
     \note If the QCoapReply is deleted while not finished, both aborted() and

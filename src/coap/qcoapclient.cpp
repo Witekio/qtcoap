@@ -192,11 +192,11 @@ QCoapClient::QCoapClient(QCoapProtocol *protocol, QCoapConnection *connection, Q
 {
     Q_D(QCoapClient);
 
-    qRegisterMetaType<QCoapReply*>();
+    qRegisterMetaType<QCoapReply *>();
     qRegisterMetaType<QCoapMessage>();
     qRegisterMetaType<QPointer<QCoapReply>>();
     qRegisterMetaType<QPointer<QCoapDiscoveryReply>>();
-    qRegisterMetaType<QCoapConnection*>();
+    qRegisterMetaType<QCoapConnection *>();
     qRegisterMetaType<QtCoap::Error>();
     qRegisterMetaType<QtCoap::ResponseCode>();
     // Requires a name, as this is a typedef
@@ -204,8 +204,8 @@ QCoapClient::QCoapClient(QCoapProtocol *protocol, QCoapConnection *connection, Q
     qRegisterMetaType<QCoapMessageId>("QCoapMessageId");
     qRegisterMetaType<QAbstractSocket::SocketOption>();
 
-    connect(d->connection, SIGNAL(readyRead(const QNetworkDatagram&)),
-            d->protocol, SLOT(onFrameReceived(const QNetworkDatagram&)));
+    connect(d->connection, SIGNAL(readyRead(const QNetworkDatagram &)),
+            d->protocol, SLOT(onFrameReceived(const QNetworkDatagram &)));
     connect(d->connection, SIGNAL(error(QAbstractSocket::SocketError)),
             d->protocol, SLOT(onConnectionError(QAbstractSocket::SocketError)));
 
@@ -223,11 +223,11 @@ QCoapClient::QCoapClient(QCoapProtocol *protocol, QCoapConnection *connection, Q
 */
 QCoapClient::~QCoapClient()
 {
-    qDeleteAll(findChildren<QCoapReply*>(QString(), Qt::FindDirectChildrenOnly));
+    qDeleteAll(findChildren<QCoapReply *>(QString(), Qt::FindDirectChildrenOnly));
 }
 
 /*!
-    Sends \a request using the GET method and returns a new QCoapReply object.
+    Sends the \a request using the GET method and returns a new QCoapReply object.
 
     \sa post(), put(), deleteResource(), observe(), discover()
 */
@@ -249,8 +249,7 @@ QCoapReply *QCoapClient::get(const QCoapRequest &request)
 /*!
     \overload
 
-    Sends request to \a url using the GET method and returns a new QCoapReply
-    object.
+    Sends a GET request to \a url and returns a new QCoapReply object.
 
     \sa post(), put(), deleteResource(), observe(), discover()
 */
@@ -295,20 +294,20 @@ QCoapReply *QCoapClient::put(const QCoapRequest &request, const QByteArray &data
 */
 QCoapReply *QCoapClient::put(const QCoapRequest &request, QIODevice *device)
 {
-     return put(request, device ? device->readAll() : QByteArray());
+    return put(request, device ? device->readAll() : QByteArray());
 }
 
 /*!
     \overload
 
-    Sends a request to \a url using the PUT method and returns a new QCoapReply
-    object. Uses \a data as the payload for this request.
+    Sends a PUT request to \a url and returns a new QCoapReply object.
+    Uses \a data as the payload for this request.
 
     \sa get(), post(), deleteResource(), observe(), discover()
 */
 QCoapReply *QCoapClient::put(const QUrl &url, const QByteArray &data)
 {
-     return put(QCoapRequest(url), data);
+    return put(QCoapRequest(url), data);
 }
 
 /*!
@@ -355,8 +354,8 @@ QCoapReply *QCoapClient::post(const QCoapRequest &request, QIODevice *device)
 /*!
     \overload
 
-    Sends a request to \a url using the POST method and returns a new QCoapReply
-    object. Uses \a data as the payload for this request.
+    Sends a POST request to \a url and returns a new QCoapReply object.
+    Uses \a data as the payload for this request.
 
     \sa get(), put(), deleteResource(), observe(), discover()
 */
@@ -530,12 +529,12 @@ bool QCoapClientPrivate::send(QCoapReply *reply)
         return false;
     }
 
-    q->connect(reply, SIGNAL(aborted(const QCoapToken&)),
-               protocol, SLOT(onRequestAborted(const QCoapToken&)));
+    q->connect(reply, SIGNAL(aborted(const QCoapToken &)),
+               protocol, SLOT(onRequestAborted(const QCoapToken &)));
 
     QMetaObject::invokeMethod(protocol, "sendRequest", Qt::QueuedConnection,
                               Q_ARG(QPointer<QCoapReply>, QPointer<QCoapReply>(reply)),
-                              Q_ARG(QCoapConnection*, connection));
+                              Q_ARG(QCoapConnection *, connection));
 
     return true;
 }

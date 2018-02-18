@@ -74,7 +74,8 @@ private Q_SLOTS:
 
 class QCoapConnectionSocketTestsPrivate : public QCoapConnectionPrivate
 {
-    bool bind() {
+    bool bind()
+    {
         // Force a socket binding error
         QUdpSocket anotherSocket;
         anotherSocket.bind(QHostAddress::Any, 6080);
@@ -102,8 +103,9 @@ public:
         QCoapClient(new QCoapProtocol, new QCoapConnectionSocketTests)
     {}
 
-    QCoapConnection *connection() {
-        QCoapClientPrivate *privateClient = static_cast<QCoapClientPrivate*>(d_func());
+    QCoapConnection *connection()
+    {
+        QCoapClientPrivate *privateClient = static_cast<QCoapClientPrivate *>(d_func());
         return privateClient->connection;
     }
 };
@@ -114,7 +116,8 @@ public:
     QCoapTestConnection() :
         QCoapConnection (* new QCoapConnectionPrivate) {}
 
-    void simulateInboundDatagram(const QNetworkDatagram &datagram) {
+    void simulateInboundDatagram(const QNetworkDatagram &datagram)
+    {
         emit readyRead(datagram);
     }
 };
@@ -123,16 +126,18 @@ class QCoapClientForTests : public QCoapClient
 {
 public:
     QCoapClientForTests() {}
-    QCoapClientForTests(QCoapProtocol* protocol, QCoapConnection *connection) :
+    QCoapClientForTests(QCoapProtocol *protocol, QCoapConnection *connection) :
         QCoapClient(protocol, connection)
     {}
 
-    QCoapProtocol *protocol() {
-        QCoapClientPrivate *privateClient = static_cast<QCoapClientPrivate*>(d_func());
+    QCoapProtocol *protocol()
+    {
+        QCoapClientPrivate *privateClient = static_cast<QCoapClientPrivate *>(d_func());
         return privateClient->protocol;
     }
-    QCoapConnection *connection() {
-        QCoapClientPrivate *privateClient = static_cast<QCoapClientPrivate*>(d_func());
+    QCoapConnection *connection()
+    {
+        QCoapClientPrivate *privateClient = static_cast<QCoapClientPrivate *>(d_func());
         return privateClient->connection;
     }
 };
@@ -144,7 +149,8 @@ public:
     Helper() {}
 
 public slots:
-    void onError(QCoapReply*, QtCoap::Error error) {
+    void onError(QCoapReply *, QtCoap::Error error)
+    {
         qWarning() << "Network error" << error << "occurred";
     }
 };
@@ -194,7 +200,8 @@ void tst_QCoapClient::methods_data()
     QTest::newRow("get_no_op")              << QUrl(testServerResource()) << QtCoap::Invalid;
     QTest::newRow("get")                    << QUrl(testServerResource()) << QtCoap::Get;
     QTest::newRow("get_incorrect_op")       << QUrl(testServerResource()) << QtCoap::Put;
-    QTest::newRow("get_no_port")            << QUrl("coap://" + testServerHost() + "/test") << QtCoap::Get;
+    QTest::newRow("get_no_port")            << QUrl("coap://" + testServerHost() + "/test") <<
+                                            QtCoap::Get;
     QTest::newRow("get_no_scheme_no_port")  << QUrl(testServerHost() + "/test") << QtCoap::Get;
     QTest::newRow("post_no_op")             << QUrl(testServerResource()) << QtCoap::Invalid;
     QTest::newRow("post")                   << QUrl(testServerResource()) << QtCoap::Post;
@@ -218,7 +225,7 @@ void tst_QCoapClient::methods()
     if (method != QtCoap::Invalid)
         request.setMethod(method);
 
-    QSignalSpy spyClientFinished(&client, SIGNAL(finished(QCoapReply*)));
+    QSignalSpy spyClientFinished(&client, SIGNAL(finished(QCoapReply *)));
 
     QScopedPointer<QCoapReply> reply;
     if (qstrncmp(QTest::currentDataTag(), "get", 3) == 0)
@@ -235,7 +242,7 @@ void tst_QCoapClient::methods()
     }
 
     QVERIFY2(!reply.isNull(), "Request failed unexpectedly");
-    QSignalSpy spyReplyFinished(reply.data(), SIGNAL(finished(QCoapReply*)));
+    QSignalSpy spyReplyFinished(reply.data(), SIGNAL(finished(QCoapReply *)));
     QTRY_COMPARE(spyReplyFinished.count(), 1);
     QTRY_COMPARE(spyClientFinished.count(), 1);
 
@@ -267,7 +274,7 @@ void tst_QCoapClient::separateMethod()
     QScopedPointer<QCoapReply> reply(client.get(QUrl(testServerUrl() + "/separate")));
 
     QVERIFY2(!reply.isNull(), "Request failed unexpectedly");
-    QSignalSpy spyReplyFinished(reply.data(), SIGNAL(finished(QCoapReply*)));
+    QSignalSpy spyReplyFinished(reply.data(), SIGNAL(finished(QCoapReply *)));
     QTRY_COMPARE(spyReplyFinished.count(), 1);
 
     QByteArray replyData = reply->readAll();
@@ -332,7 +339,7 @@ void tst_QCoapClient::requestWithQIODevice()
         reply.reset(client.put(request, &buffer));
 
     QVERIFY2(!reply.isNull(), "Request failed unexpectedly");
-    QSignalSpy spyReplyFinished(reply.data(), SIGNAL(finished(QCoapReply*)));
+    QSignalSpy spyReplyFinished(reply.data(), SIGNAL(finished(QCoapReply *)));
     QTRY_COMPARE(spyReplyFinished.count(), 1);
 
     QByteArray replyData = reply->readAll();
@@ -350,7 +357,7 @@ void tst_QCoapClient::multipleRequests()
 {
     QCoapClient client;
     QUrl url = QUrl(testServerResource());
-    QSignalSpy spyClientFinished(&client, SIGNAL(finished(QCoapReply*)));
+    QSignalSpy spyClientFinished(&client, SIGNAL(finished(QCoapReply *)));
 
     QScopedPointer<QCoapReply> replyGet1(client.get(url));
     QScopedPointer<QCoapReply> replyGet2(client.get(url));
@@ -362,10 +369,10 @@ void tst_QCoapClient::multipleRequests()
     QVERIFY2(!replyGet3.isNull(), "Request failed unexpectedly");
     QVERIFY2(!replyGet4.isNull(), "Request failed unexpectedly");
 
-    QSignalSpy spyReplyGet1Finished(replyGet1.data(), SIGNAL(finished(QCoapReply*)));
-    QSignalSpy spyReplyGet2Finished(replyGet2.data(), SIGNAL(finished(QCoapReply*)));
-    QSignalSpy spyReplyGet3Finished(replyGet3.data(), SIGNAL(finished(QCoapReply*)));
-    QSignalSpy spyReplyGet4Finished(replyGet4.data(), SIGNAL(finished(QCoapReply*)));
+    QSignalSpy spyReplyGet1Finished(replyGet1.data(), SIGNAL(finished(QCoapReply *)));
+    QSignalSpy spyReplyGet2Finished(replyGet2.data(), SIGNAL(finished(QCoapReply *)));
+    QSignalSpy spyReplyGet3Finished(replyGet3.data(), SIGNAL(finished(QCoapReply *)));
+    QSignalSpy spyReplyGet4Finished(replyGet4.data(), SIGNAL(finished(QCoapReply *)));
 
     QTRY_COMPARE(spyReplyGet1Finished.count(), 1);
     QTRY_COMPARE(spyReplyGet2Finished.count(), 1);
@@ -508,20 +515,20 @@ void tst_QCoapClient::blockwiseReply_data()
                                << QCoapMessage::NonConfirmable
                                << data;
     QTest::newRow("get_large_separate") << QUrl(testServerUrl() + "/large-separate")
-                               << QCoapMessage::NonConfirmable
-                               << data;
+                                        << QCoapMessage::NonConfirmable
+                                        << data;
     QTest::newRow("get_large_confirmable") << QUrl(testServerUrl() + "/large")
-                               << QCoapMessage::Confirmable
-                               << data;
+                                           << QCoapMessage::Confirmable
+                                           << data;
     QTest::newRow("get_large_separate_confirmable") << QUrl(testServerUrl() + "/large-separate")
-                               << QCoapMessage::Confirmable
-                               << data;
+                                                    << QCoapMessage::Confirmable
+                                                    << data;
     QTest::newRow("get_large_16bits") << QUrl(testServerUrl() + "/large")
-                               << QCoapMessage::NonConfirmable
-                               << data;
+                                      << QCoapMessage::NonConfirmable
+                                      << data;
     QTest::newRow("get_large_16bits_confirmable") << QUrl(testServerUrl() + "/large")
-                               << QCoapMessage::Confirmable
-                               << data;
+                                                  << QCoapMessage::Confirmable
+                                                  << data;
 }
 
 void tst_QCoapClient::blockwiseReply()
@@ -562,15 +569,15 @@ void tst_QCoapClient::blockwiseRequest_data()
         data.append(alphabet);
 
     QTest::newRow("large_post_empty_reply") << QUrl(testServerUrl() + "/query")
-                               << QCoapMessage::NonConfirmable
-                               << data
-                               << QtCoap::MethodNotAllowed
-                               << QByteArray();
+                                            << QCoapMessage::NonConfirmable
+                                            << data
+                                            << QtCoap::MethodNotAllowed
+                                            << QByteArray();
     QTest::newRow("large_post_large_reply") << QUrl(testServerUrl() + "/large-post")
-                               << QCoapMessage::NonConfirmable
-                               << data
-                               << QtCoap::Changed
-                               << data.toUpper();
+                                            << QCoapMessage::NonConfirmable
+                                            << data
+                                            << QtCoap::Changed
+                                            << data.toUpper();
 }
 
 void tst_QCoapClient::blockwiseRequest()
@@ -589,7 +596,7 @@ void tst_QCoapClient::blockwiseRequest()
     request.addOption(QCoapOption::ContentFormat);
 
     QScopedPointer<QCoapReply> reply(client.post(request, requestData));
-    QSignalSpy spyReplyFinished(reply.data(), SIGNAL(finished(QCoapReply*)));
+    QSignalSpy spyReplyFinished(reply.data(), SIGNAL(finished(QCoapReply *)));
 
     QTRY_COMPARE_WITH_TIMEOUT(spyReplyFinished.count(), 1, 30000);
 
@@ -616,7 +623,7 @@ void tst_QCoapClient::discover()
     QCoapClient client;
 
     QScopedPointer<QCoapDiscoveryReply> resourcesReply(client.discover(url)); // /.well-known/core
-    QSignalSpy spyReplyFinished(resourcesReply.data(), SIGNAL(finished(QCoapReply*)));
+    QSignalSpy spyReplyFinished(resourcesReply.data(), SIGNAL(finished(QCoapReply *)));
 
     QTRY_COMPARE_WITH_TIMEOUT(spyReplyFinished.count(), 1, 30000);
 
@@ -632,36 +639,36 @@ void tst_QCoapClient::observe_data()
     QTest::addColumn<QCoapMessage::MessageType>("type");
 
     QTest::newRow("observe")
-        << QUrl(testServerUrl() + "/obs")
-        << QCoapMessage::NonConfirmable;
+            << QUrl(testServerUrl() + "/obs")
+            << QCoapMessage::NonConfirmable;
 
     QTest::newRow("observe_confirmable")
-        << QUrl(testServerUrl() + "/obs")
-        << QCoapMessage::Confirmable;
+            << QUrl(testServerUrl() + "/obs")
+            << QCoapMessage::Confirmable;
 
     QTest::newRow("observe_receive")
-        << QUrl(testServerUrl() + "/obs-non")
-        << QCoapMessage::NonConfirmable;
+            << QUrl(testServerUrl() + "/obs-non")
+            << QCoapMessage::NonConfirmable;
 
     QTest::newRow("observe_receive_confirmable")
-        << QUrl(testServerUrl() + "/obs-non")
-        << QCoapMessage::Confirmable;
+            << QUrl(testServerUrl() + "/obs-non")
+            << QCoapMessage::Confirmable;
 
     QTest::newRow("observe_large")
-        << QUrl(testServerUrl() + "/obs-large")
-        << QCoapMessage::NonConfirmable;
+            << QUrl(testServerUrl() + "/obs-large")
+            << QCoapMessage::NonConfirmable;
 
     QTest::newRow("observe_large_confirmable")
-        << QUrl(testServerUrl() + "/obs-large")
-        << QCoapMessage::Confirmable;
+            << QUrl(testServerUrl() + "/obs-large")
+            << QCoapMessage::Confirmable;
 
     QTest::newRow("observe_pumping")
-        << QUrl(testServerUrl() + "/obs-pumping")
-        << QCoapMessage::NonConfirmable;
+            << QUrl(testServerUrl() + "/obs-pumping")
+            << QCoapMessage::NonConfirmable;
 
     QTest::newRow("observe_pumping_confirmable")
-        << QUrl(testServerUrl() + "/obs-pumping")
-        << QCoapMessage::Confirmable;
+            << QUrl(testServerUrl() + "/obs-pumping")
+            << QCoapMessage::Confirmable;
 }
 
 void tst_QCoapClient::observe()
