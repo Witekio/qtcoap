@@ -31,139 +31,19 @@
 #include <QCoreApplication>
 
 #include <QtCoap/qcoapreply.h>
-#include <private/qcoapinternalreply_p.h>
+#include <private/qcoapreply_p.h>
 
 class tst_QCoapReply : public QObject
 {
     Q_OBJECT
 
 private Q_SLOTS:
-    void parseReplyPdu_data();
-    void parseReplyPdu();
     void updateReply_data();
     void updateReply();
     void requestData();
     void abortRequest();
 };
 
-void tst_QCoapReply::parseReplyPdu_data()
-{
-    QTest::addColumn<QtCoap::StatusCode>("statusCode");
-    QTest::addColumn<QCoapMessage::MessageType>("type");
-    QTest::addColumn<quint16>("messageId");
-    QTest::addColumn<QByteArray>("token");
-    QTest::addColumn<quint8>("tokenLength");
-    QTest::addColumn<QList<QCoapOption::OptionName>>("optionsNames");
-    QTest::addColumn<QList<quint8>>("optionsLengths");
-    QTest::addColumn<QList<QByteArray>>("optionsValues");
-    QTest::addColumn<QString>("payload");
-    QTest::addColumn<QString>("pduHexa");
-
-    QList<QCoapOption::OptionName> optionsNamesReply({QCoapOption::ContentFormat,
-                                                          QCoapOption::MaxAge});
-    QList<quint8> optionsLengthsReply({0,1});
-    QList<QByteArray> optionsValuesReply({"", QByteArray::fromHex("1e")});
-
-    QList<QCoapOption::OptionName> bigOptionsNamesReply({QCoapOption::Size1});
-    QList<quint8> bigOptionsLengthsReply({26});
-    QList<QByteArray> bigOptionsValuesReply({QByteArray("abcdefghijklmnopqrstuvwxyz")});
-
-    QTest::newRow("reply_with_option_and_payload")
-        << QtCoap::Content
-        << QCoapMessage::NonConfirmable
-        << quint16(64463)
-        << QByteArray("4647f09b")
-        << quint8(4)
-        << optionsNamesReply
-        << optionsLengthsReply
-        << optionsValuesReply
-        << "Type: 1 (NON)\nCode: 1 (GET)\nMID: 56400\nToken: 4647f09b"
-        << "5445fbcf4647f09bc0211eff547970653a203120284e4f4e290a436f64653a20"
-           "312028474554290a4d49443a2035363430300a546f6b656e3a20343634376630"
-           "3962";
-
-    QTest::newRow("reply_without_options")
-        << QtCoap::Content
-        << QCoapMessage::NonConfirmable
-        << quint16(64463)
-        << QByteArray("4647f09b")
-        << quint8(4)
-        << QList<QCoapOption::OptionName>()
-        << QList<quint8>()
-        << QList<QByteArray>()
-        << "Type: 1 (NON)\nCode: 1 (GET)\nMID: 56400\nToken: 4647f09b"
-        << "5445fbcf4647f09bff547970653a203120284e4f4e290a436f64653a20312028"
-           "474554290a4d49443a2035363430300a546f6b656e3a203436343766303962";
-
-    QTest::newRow("reply_without_payload")
-        << QtCoap::Content
-        << QCoapMessage::NonConfirmable
-        << quint16(64463)
-        << QByteArray("4647f09b")
-        << quint8(4)
-        << optionsNamesReply
-        << optionsLengthsReply
-        << optionsValuesReply
-        << ""
-        << "5445fbcf4647f09bc0211e";
-
-    QTest::newRow("reply_only")
-        << QtCoap::Content
-        << QCoapMessage::NonConfirmable
-        << quint16(64463)
-        << QByteArray("4647f09b")
-        << quint8(4)
-        << QList<QCoapOption::OptionName>()
-        << QList<quint8>()
-        << QList<QByteArray>()
-        << ""
-        << "5445fbcf4647f09b";
-
-    QTest::newRow("reply_with_big_option")
-        << QtCoap::Content
-        << QCoapMessage::NonConfirmable
-        << quint16(64463)
-        << QByteArray("4647f09b")
-        << quint8(4)
-        << bigOptionsNamesReply
-        << bigOptionsLengthsReply
-        << bigOptionsValuesReply
-        << ""
-        << "5445fbcf4647f09bdd2f0d6162636465666768696a6b6c6d6e6f707172737475"
-           "767778797a";
-}
-
-void tst_QCoapReply::parseReplyPdu()
-{
-    QFETCH(QtCoap::StatusCode, statusCode);
-    QFETCH(QCoapMessage::MessageType, type);
-    QFETCH(quint16, messageId);
-    QFETCH(QByteArray, token);
-    QFETCH(quint8, tokenLength);
-    QFETCH(QList<QCoapOption::OptionName>, optionsNames);
-    QFETCH(QList<quint8>, optionsLengths);
-    QFETCH(QList<QByteArray>, optionsValues);
-    QFETCH(QString, payload);
-    QFETCH(QString, pduHexa);
-
-    QScopedPointer<QCoapInternalReply> reply(QCoapInternalReply::createFromFrame(QByteArray::fromHex(pduHexa.toUtf8())));
-
-    QCOMPARE(reply->message()->type(), type);
-    QCOMPARE(reply->message()->tokenLength(), tokenLength);
-    QCOMPARE(reply->statusCode(), statusCode);
-    QCOMPARE(reply->message()->messageId(), messageId);
-    QCOMPARE(reply->message()->token().toHex(), token);
-    QCOMPARE(reply->message()->optionCount(), optionsNames.count());
-    for (int i = 0; i < reply->message()->optionCount(); ++i) {
-        QCoapOption option = reply->message()->option(i);
-        QCOMPARE(option.name(), optionsNames.at(i));
-        QCOMPARE(option.length(), optionsLengths.at(i));
-        QCOMPARE(option.value(), optionsValues.at(i));
-    }
-    QCOMPARE(reply->message()->payload(), payload);
-}
-
-#include <private/qcoapreply_p.h>
 class QCoapReplyForTests : public QCoapReply
 {
 public:
@@ -173,33 +53,64 @@ public:
         Q_D(QCoapReply);
         d->_q_setRunning(token, messageId);
     }
-    void setContentAndFinished(const QCoapInternalReply *internal) {
-        Q_D(QCoapReply);
-        d->_q_setContent(internal->senderAddress(), *internal->message(), internal->statusCode());
-        d->_q_setFinished();
-    }
 };
 
 void tst_QCoapReply::updateReply_data()
 {
-    QTest::addColumn<QString>("data");
+    QTest::addColumn<QString>("payload");
+    QTest::addColumn<QtCoap::StatusCode>("status");
+    QTest::addColumn<QtCoap::Error>("error");
 
-    QTest::newRow("success") << "Data for the updating test";
+    QTest::newRow("success")
+            << "Some data"
+            << QtCoap::Content
+            << QtCoap::NoError;
+    QTest::newRow("content error")
+            << "Error"
+            << QtCoap::BadRequest
+            << QtCoap::NoError;
+    QTest::newRow("finished error")
+            << "Error"
+            << QtCoap::Content
+            << QtCoap::BadRequestError;
+    QTest::newRow("content & finished errors")
+            << "2Errors"
+            << QtCoap::BadGateway
+            << QtCoap::BadRequestError;
 }
 
 void tst_QCoapReply::updateReply()
 {
-    QFETCH(QString, data);
+    QFETCH(QString, payload);
+    QFETCH(QtCoap::StatusCode, status);
+    QFETCH(QtCoap::Error, error);
 
-    QCoapReplyForTests reply((QCoapRequest()));
-    QCoapInternalReply internalReply;
-    internalReply.message()->setPayload(data.toUtf8());
+    QCoapReply reply((QCoapRequest()));
+    QCoapMessage message;
+    message.setPayload(payload.toUtf8());
+
     QSignalSpy spyReplyFinished(&reply, &QCoapReply::finished);
+    QSignalSpy spyReplyNotified(&reply, &QCoapReply::notified);
+    QSignalSpy spyReplyError(&reply, &QCoapReply::error);
+    QSignalSpy spyReplyAborted(&reply, &QCoapReply::aborted);
 
-    reply.setContentAndFinished(&internalReply);
+    QMetaObject::invokeMethod(&reply, "_q_setContent",
+            Q_ARG(QHostAddress, QHostAddress()),
+            Q_ARG(QCoapMessage, message),
+            Q_ARG(QtCoap::StatusCode, status));
+    QMetaObject::invokeMethod(&reply, "_q_setFinished",
+            Q_ARG(QtCoap::Error, error));
 
-    QTRY_COMPARE_WITH_TIMEOUT(spyReplyFinished.count(), 1, 1000);
-    QCOMPARE(reply.readAll(), data.toUtf8());
+    QCOMPARE(spyReplyFinished.count(), 1);
+    QCOMPARE(spyReplyNotified.count(), 0);
+    QCOMPARE(spyReplyAborted.count(), 0);
+    if (error != QtCoap::NoError || QtCoap::isError(status))
+        QVERIFY(spyReplyError.count() > 0);
+    else
+        QCOMPARE(spyReplyError.count(), 0);
+
+    QCOMPARE(reply.readAll(), payload.toUtf8());
+    QCOMPARE(reply.readAll(), QByteArray());
 }
 
 void tst_QCoapReply::requestData()
