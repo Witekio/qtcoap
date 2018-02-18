@@ -444,16 +444,21 @@ void tst_QCoapClient::timeout()
     QSignalSpy spyReplyFinished(reply.data(), &QCoapReply::finished);
 
     // Check timeout upper limit
-    int transmissions = maxRetransmit+1;
-    QTRY_COMPARE_WITH_TIMEOUT(spyReplyError.count(), 1, client.protocol()->maxTransmitWait()
-                                                        + 200 * transmissions);
+    int transmissions = maxRetransmit + 1;
+
+    // 10% Precision expected at least, plus timer precision
+    QTRY_COMPARE_WITH_TIMEOUT(spyReplyError.count(), 1,
+                              static_cast<int>(1.1 * client.protocol()->maxTransmitWait()
+                                               + 20 * transmissions));
 
     // Check timeout lower limit
     qint64 elapsedTime = timeoutTimer.elapsed();
     QString errorMessage = QString("Timeout was triggered after %1ms, while expecting about %2ms")
-                                   .arg(QString::number(elapsedTime),
-                                        QString::number(client.protocol()->maxTransmitWait()));
-    QVERIFY2(elapsedTime > client.protocol()->maxTransmitWait() - 200 * transmissions,
+                           .arg(QString::number(elapsedTime),
+                                QString::number(client.protocol()->maxTransmitWait()));
+
+    // 10% Precision expected at least, minus timer precision
+    QVERIFY2(elapsedTime > 0.9 * client.protocol()->maxTransmitWait() - 20 * transmissions,
              qPrintable(errorMessage));
 
     QCOMPARE(spyReplyError.first().at(1), QtCoap::TimeOutError);
