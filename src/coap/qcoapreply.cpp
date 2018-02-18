@@ -77,10 +77,11 @@ void QCoapReplyPrivate::_q_setObserveCancelled()
 /*!
     \internal
 
-    Sets the message and status code of this reply, unless reply is
+    Sets the message and response code of this reply, unless reply is
     already finished.
 */
-void QCoapReplyPrivate::_q_setContent(const QHostAddress &, const QCoapMessage &msg, QtCoap::StatusCode status)
+void QCoapReplyPrivate::_q_setContent(const QHostAddress &, const QCoapMessage &msg,
+                                      QtCoap::ResponseCode code)
 {
     Q_Q(QCoapReply);
 
@@ -88,11 +89,11 @@ void QCoapReplyPrivate::_q_setContent(const QHostAddress &, const QCoapMessage &
         return;
 
     message = msg;
-    statusCode = status;
+    responseCode = code;
     seekBuffer(0);
 
-    if (QtCoap::isError(statusCode))
-        _q_setError(statusCode);
+    if (QtCoap::isError(responseCode))
+        _q_setError(responseCode);
 }
 
 /*!
@@ -153,9 +154,9 @@ void QCoapReplyPrivate::_q_setError(QtCoap::Error newError)
 
     Sets the error of the reply.
 */
-void QCoapReplyPrivate::_q_setError(QtCoap::StatusCode statusCode)
+void QCoapReplyPrivate::_q_setError(QtCoap::ResponseCode code)
 {
-    _q_setError(QtCoap::statusCodeError(statusCode));
+    _q_setError(QtCoap::responseCodeError(code));
 }
 
 /*!
@@ -298,12 +299,12 @@ qint64 QCoapReply::writeData(const char *data, qint64 maxSize)
 }
 
 /*!
-    Returns the status code of the request.
+    Returns the response code of the request.
 */
-QtCoap::StatusCode QCoapReply::statusCode() const
+QtCoap::ResponseCode QCoapReply::responseCode() const
 {
     Q_D(const QCoapReply);
-    return d->statusCode;
+    return d->responseCode;
 }
 
 /*!

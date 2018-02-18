@@ -58,7 +58,7 @@ public:
 void tst_QCoapReply::updateReply_data()
 {
     QTest::addColumn<QString>("payload");
-    QTest::addColumn<QtCoap::StatusCode>("status");
+    QTest::addColumn<QtCoap::ResponseCode>("responseCode");
     QTest::addColumn<QtCoap::Error>("error");
 
     QTest::newRow("success")
@@ -82,7 +82,7 @@ void tst_QCoapReply::updateReply_data()
 void tst_QCoapReply::updateReply()
 {
     QFETCH(QString, payload);
-    QFETCH(QtCoap::StatusCode, status);
+    QFETCH(QtCoap::ResponseCode, responseCode);
     QFETCH(QtCoap::Error, error);
 
     QCoapReply reply((QCoapRequest()));
@@ -95,16 +95,16 @@ void tst_QCoapReply::updateReply()
     QSignalSpy spyReplyAborted(&reply, &QCoapReply::aborted);
 
     QMetaObject::invokeMethod(&reply, "_q_setContent",
-            Q_ARG(QHostAddress, QHostAddress()),
-            Q_ARG(QCoapMessage, message),
-            Q_ARG(QtCoap::StatusCode, status));
+                              Q_ARG(QHostAddress, QHostAddress()),
+                              Q_ARG(QCoapMessage, message),
+                              Q_ARG(QtCoap::ResponseCode, responseCode));
     QMetaObject::invokeMethod(&reply, "_q_setFinished",
-            Q_ARG(QtCoap::Error, error));
+                              Q_ARG(QtCoap::Error, error));
 
     QCOMPARE(spyReplyFinished.count(), 1);
     QCOMPARE(spyReplyNotified.count(), 0);
     QCOMPARE(spyReplyAborted.count(), 0);
-    if (error != QtCoap::NoError || QtCoap::isError(status))
+    if (error != QtCoap::NoError || QtCoap::isError(responseCode))
         QVERIFY(spyReplyError.count() > 0);
     else
         QCOMPARE(spyReplyError.count(), 0);

@@ -79,11 +79,11 @@ QCoapClientPrivate::~QCoapClientPrivate()
     \sa error()
 */
 /*!
-    \enum QtCoap::StatusCode
+    \enum QtCoap::ResponseCode
 
-    This enum maps the status code of the CoAP protocol, as defined in
-    the 'response' section of
-    \l{https://tools.ietf.org/html/rfc7252#section-5.2}{RFC 7252}
+    This enum represents the response code from the CoAP protocol, as defined in
+    \l{https://tools.ietf.org/html/rfc7252#section-5.9}{RFC 7252} and
+    \l{https://tools.ietf.org/html/rfc7959#section-2.9}{RFC 7959}.
 */
 /*!
     \class QtCoap
@@ -91,14 +91,14 @@ QCoapClientPrivate::~QCoapClientPrivate()
     Returns the QtCoap::Error corresponding to the \a code passed to this
     method.
 */
-QtCoap::Error QtCoap::statusCodeError(QtCoap::StatusCode code)
+QtCoap::Error QtCoap::responseCodeError(QtCoap::ResponseCode code)
 {
     if (!isError(code))
         return QtCoap::NoError;
 
     switch (code) {
 #define SINGLE_CASE(name, ignored) case name: return name ## Error;
-    FOR_EACH_COAP_ERROR(SINGLE_CASE)
+        FOR_EACH_COAP_ERROR(SINGLE_CASE)
 #undef SINGLE_CASE
     default:
         return UnknownError;
@@ -198,7 +198,7 @@ QCoapClient::QCoapClient(QCoapProtocol *protocol, QCoapConnection *connection, Q
     qRegisterMetaType<QPointer<QCoapDiscoveryReply>>();
     qRegisterMetaType<QCoapConnection*>();
     qRegisterMetaType<QtCoap::Error>();
-    qRegisterMetaType<QtCoap::StatusCode>();
+    qRegisterMetaType<QtCoap::ResponseCode>();
     // Requires a name, as this is a typedef
     qRegisterMetaType<QCoapToken>("QCoapToken");
     qRegisterMetaType<QCoapMessageId>("QCoapMessageId");

@@ -52,7 +52,7 @@ private:
     QtCoap() {}
 
 public:
-    enum StatusCode {
+    enum ResponseCode {
         EmptyMessage = 0x00,
         Created = 0x41, // 2.01
         Deleted = 0x42, // 2.02
@@ -67,7 +67,7 @@ public:
 
         InvalidCode = 0xFF
     };
-    Q_ENUM(StatusCode)
+    Q_ENUM(ResponseCode)
 
     enum Error {
         NoError,
@@ -100,13 +100,16 @@ public:
     };
     Q_ENUM(Method)
 
-    static bool isError(StatusCode code) { return code >= 0x80; }
-    static Error statusCodeError(StatusCode code);
+    static bool isError(ResponseCode code)
+    {
+        return code >= 0x80;
+    }
+    static Error responseCodeError(ResponseCode code);
 
     static QRandomGenerator randomGenerator;
 };
 
-Q_DECLARE_METATYPE(QtCoap::StatusCode)
+Q_DECLARE_METATYPE(QtCoap::ResponseCode)
 Q_DECLARE_METATYPE(QtCoap::Error)
 Q_DECLARE_METATYPE(QtCoap::Method)
 

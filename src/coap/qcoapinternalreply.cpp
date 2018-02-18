@@ -93,7 +93,7 @@ QCoapInternalReply *QCoapInternalReply::createFromFrame(const QByteArray &reply,
     d->message.setVersion((pduData[0] >> 6) & 0x03);
     d->message.setType(QCoapMessage::MessageType((pduData[0] >> 4) & 0x03));
     quint8 tokenLength = (pduData[0]) & 0x0F;
-    d->statusCode = static_cast<QtCoap::StatusCode>(pduData[1]);
+    d->responseCode = static_cast<QtCoap::ResponseCode>(pduData[1]);
     d->message.setMessageId(static_cast<quint16>((static_cast<quint16>(pduData[2]) << 8)
                                                   | static_cast<quint16>(pduData[3])));
     d->message.setToken(QByteArray::fromRawData(reply.data() + 4, tokenLength));
@@ -209,12 +209,12 @@ int QCoapInternalReply::nextBlockWanted()
 
 /*!
     \internal
-    Returns the status code of the reply.
+    Returns the response code of the reply.
 */
-QtCoap::StatusCode QCoapInternalReply::statusCode() const
+QtCoap::ResponseCode QCoapInternalReply::responseCode() const
 {
     Q_D(const QCoapInternalReply);
-    return d->statusCode;
+    return d->responseCode;
 }
 
 /*!

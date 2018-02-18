@@ -65,7 +65,7 @@ public:
     void addOption(const QCoapOption &option);
     void setSenderAddress(const QHostAddress &address);
 
-    QtCoap::StatusCode statusCode() const;
+    QtCoap::ResponseCode responseCode() const;
     QHostAddress senderAddress() const;
 
 private:
@@ -77,7 +77,7 @@ class Q_AUTOTEST_EXPORT QCoapInternalReplyPrivate : public QCoapInternalMessageP
 public:
     QCoapInternalReplyPrivate() = default;
 
-    QtCoap::StatusCode statusCode = QtCoap::InvalidCode;
+    QtCoap::ResponseCode responseCode = QtCoap::InvalidCode;
     QHostAddress senderAddress;
 };
 

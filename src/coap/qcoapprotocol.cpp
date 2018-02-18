@@ -191,7 +191,7 @@ void QCoapProtocolPrivate::onRequestMaxTransmissionSpanReached(QCoapInternalRequ
 */
 void QCoapProtocolPrivate::onRequestError(QCoapInternalRequest *request, QCoapInternalReply *reply)
 {
-    QtCoap::Error error = QtCoap::statusCodeError(reply->statusCode());
+    QtCoap::Error error = QtCoap::responseCodeError(reply->responseCode());
     onRequestError(request, error, reply);
 }
 
@@ -214,7 +214,7 @@ void QCoapProtocolPrivate::onRequestError(QCoapInternalRequest *request, QtCoap:
             QMetaObject::invokeMethod(userReply.data(), "_q_setContent", Qt::QueuedConnection,
                                       Q_ARG(QHostAddress, reply->senderAddress()),
                                       Q_ARG(QCoapMessage, *reply->message()),
-                                      Q_ARG(QtCoap::StatusCode, reply->statusCode()));
+                                      Q_ARG(QtCoap::ResponseCode, reply->responseCode()));
         } else {
             QMetaObject::invokeMethod(userReply.data(), "_q_setError", Qt::QueuedConnection,
                                       Q_ARG(QtCoap::Error, error));
@@ -265,7 +265,7 @@ void QCoapProtocolPrivate::onFrameReceived(const QNetworkDatagram &frame)
     request->stopTransmission();
     addReply(request->token(), reply);
 
-    if (QtCoap::isError(reply->statusCode())) {
+    if (QtCoap::isError(reply->responseCode())) {
         onRequestError(request, reply.data());
         return;
     }
@@ -407,7 +407,7 @@ void QCoapProtocolPrivate::onLastMessageReceived(QCoapInternalRequest *request)
     auto lastReply = replies.last();
     // Ignore empty ACK messages
     if (lastReply->message()->type() == QCoapMessage::Acknowledgment
-            && lastReply->statusCode() == QtCoap::EmptyMessage) {
+            && lastReply->responseCode() == QtCoap::EmptyMessage) {
         exchangeMap[request->token()].replies.takeLast();
         return;
     }
@@ -438,7 +438,7 @@ void QCoapProtocolPrivate::onLastMessageReceived(QCoapInternalRequest *request)
     QMetaObject::invokeMethod(userReply, "_q_setContent", Qt::QueuedConnection,
             Q_ARG(QHostAddress, lastReply->senderAddress()),
             Q_ARG(QCoapMessage, *lastReply->message()),
-            Q_ARG(QtCoap::StatusCode, lastReply->statusCode()));
+            Q_ARG(QtCoap::ResponseCode, lastReply->statusCode()));
 
     if (request->isObserve()) {
         QMetaObject::invokeMethod(userReply, "_q_setNotified", Qt::QueuedConnection);
