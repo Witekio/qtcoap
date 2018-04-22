@@ -89,11 +89,11 @@ QCoapOption::QCoapOption(OptionName name, const QByteArray &value) :
 
 /*!
     Constructs a QCoapOption object with the given \a name
-    and the QString \a value.
+    and the QStringView \a value.
 
     \sa isValid()
  */
-QCoapOption::QCoapOption(OptionName name, const QString &value) :
+QCoapOption::QCoapOption(OptionName name, QStringView value) :
     d_ptr(new QCoapOptionPrivate)
 {
     //! TODO: Cover in tests
@@ -318,9 +318,9 @@ void QCoapOption::setValue(const QByteArray &value)
 }
 
 /*!
-    Sets a QString \a value for the option.
+    Sets value for the option from QStringView \a value.
  */
-void QCoapOption::setValue(const QString &value)
+void QCoapOption::setValue(QStringView value)
 {
     setValue(value.toUtf8());
 }
