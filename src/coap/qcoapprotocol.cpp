@@ -89,14 +89,12 @@ void QCoapProtocol::sendRequest(QPointer<QCoapReply> reply, QCoapConnection *con
     connect(reply, &QCoapReply::finished, this, &QCoapProtocol::finished);
 
     // Find a unique Message Id
-    while (d->isMessageIdRegistered(requestMessage->messageId())) {
+    while (d->isMessageIdRegistered(requestMessage->messageId()))
         internalRequest->generateMessageId();
-    }
 
     // Find a unique Token
-    while (d->isTokenRegistered(requestMessage->token())) {
+    while (d->isTokenRegistered(requestMessage->token()))
         internalRequest->generateToken();
-    }
 
     internalRequest->setConnection(connection);
 
@@ -249,12 +247,12 @@ void QCoapProtocolPrivate::onFrameReceived(const QNetworkDatagram &frame)
         request = findRequestByMessageId(messageReceived->messageId());
 
         // No matching request found, drop the frame.
-        if (!request) {
+        if (!request)
             return;
-        }
     }
 
-    //! TODO IPv6 not supported, as operator "!=" does not exist
+    //! TODO Support IPv6 for host verification. Currently IPv6 not supported,
+    //! operator "!=" does not exist for IPv6 addresses.
     QHostAddress originalTarget(request->targetUri().host());
     if (!originalTarget.isMulticast()
             && originalTarget.toIPv4Address() != frame.senderAddress().toIPv4Address()) {
@@ -550,7 +548,7 @@ QByteArray QCoapProtocolPrivate::encode(QCoapInternalRequest *request)
 /*!
     \internal
 
-    Decodes the QByteArray \a message and returns a new unmanaged
+    Decodes the QNetworkDatagram \a frame and returns a new unmanaged
     QCoapInternalReply object.
 */
 QCoapInternalReply *QCoapProtocolPrivate::decode(const QNetworkDatagram &frame)
@@ -666,6 +664,9 @@ void QCoapProtocolPrivate::registerExchange(const QCoapToken &token, QCoapReply 
 
     Adds \a reply to the list of replies of the exchange identified by
     \a token.
+    Returns \c if the reply was successfully added. This method will fail
+    and return \c false if not exchange is associated with the \a token
+    provided.
 */
 bool QCoapProtocolPrivate::addReply(const QCoapToken &token,
                                     QSharedPointer<QCoapInternalReply> reply)
@@ -682,9 +683,12 @@ bool QCoapProtocolPrivate::addReply(const QCoapToken &token,
 /*!
     \internal
 
-    Remove the exchange, typically done when finished or aborted.
-    This will delete the QCoapInternalRequest and QCoapInternalReplies
-    associated with it.
+    Remove the exchange identified by its QCoapToken \a token. This is
+    typically done when finished or aborted.
+    It will delete the QCoapInternalRequest and QCoapInternalReplies
+    associated with the exchange.
+
+    Returns \c true if the exchange was found and removed, \c false otherwise.
 */
 bool QCoapProtocolPrivate::forgetExchange(const QCoapToken &token)
 {
@@ -721,7 +725,8 @@ bool QCoapProtocolPrivate::forgetExchangeReplies(const QCoapToken &token)
 /*!
     \internal
 
-    Returns true if a request has a token equal to \a token.
+    Returns \c true if the \a token is reserved or in use; returns false if
+    this token can be used to identify a new exchange.
 */
 bool QCoapProtocolPrivate::isTokenRegistered(const QCoapToken &token)
 {
@@ -735,7 +740,8 @@ bool QCoapProtocolPrivate::isTokenRegistered(const QCoapToken &token)
 /*!
     \internal
 
-    Returns true the \a request is present in currently registered exchanges.
+    Returns \c true if the \a request is present in a currently registered
+    exchange.
 */
 bool QCoapProtocolPrivate::isRequestRegistered(const QCoapInternalRequest *request)
 {
@@ -750,7 +756,8 @@ bool QCoapProtocolPrivate::isRequestRegistered(const QCoapInternalRequest *reque
 /*!
     \internal
 
-    Returns true if a request has a message id equal to \a id.
+    Returns \c true if a request has a message id equal to \a id, or if \a id
+    is reserved.
 */
 bool QCoapProtocolPrivate::isMessageIdRegistered(quint16 id)
 {

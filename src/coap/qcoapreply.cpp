@@ -114,7 +114,8 @@ void QCoapReplyPrivate::_q_setNotified()
 /*!
     \internal
 
-    Sets the reply as finished, sending the finished() signal.
+    Sets the reply as finished, sending the finished() signal if it wasn't
+    already.
 */
 void QCoapReplyPrivate::_q_setFinished(QtCoap::Error newError)
 {
@@ -182,8 +183,8 @@ void QCoapReplyPrivate::_q_setError(QtCoap::ResponseCode code)
     \fn void QCoapReply::finished(QCoapReply* reply)
 
     This signal is emitted whenever the corresponding request finished,
-    either successfully or not. When a resource is observed, this signal will
-    be emitted only once, in the same conditions.
+    whether successfully or not. When a resource is observed, this signal
+    will only be emitted once, when the observation ends.
 
     The \a reply parameter is the QCoapReply itself for convenience.
 
