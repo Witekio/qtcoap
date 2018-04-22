@@ -328,7 +328,7 @@ void QCoapOption::setValue(QStringView value)
  */
 void QCoapOption::setValue(const char *value)
 {
-    setValue(QString::fromUtf8(value));
+    setValue(QByteArray::fromRawData(value, static_cast<int>(strlen(value))));
 }
 
 /*!
