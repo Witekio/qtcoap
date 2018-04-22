@@ -78,6 +78,7 @@ public:
     void onConnectionError(QAbstractSocket::SocketError error);
     void onRequestAborted(const QCoapToken &token);
     void onRequestTimeout(QCoapInternalRequest *request);
+    void onRequestMaxTransmissionSpanReached(QCoapInternalRequest *request);
     void onRequestError(QCoapInternalRequest *request, QCoapInternalReply *reply);
     void onRequestError(QCoapInternalRequest *request, QtCoap::Error error,
                         QCoapInternalReply *reply = nullptr);
@@ -103,9 +104,9 @@ public:
     CoapExchangeMap exchangeMap;
     quint16 blockSize = 0;
 
-    uint ackTimeout = 2000;
+    int maxRetransmit = 4;
+    int ackTimeout = 2000;
     double ackRandomFactor = 1.5;
-    uint maxRetransmit = 4;
 
     Q_DECLARE_PUBLIC(QCoapProtocol)
 };

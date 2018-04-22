@@ -57,7 +57,6 @@ QCoapClientPrivate::~QCoapClientPrivate()
     delete connection;
 }
 
-//! TODO Document all enum values
 /*!
     \enum QtCoap::Error
 
@@ -65,25 +64,87 @@ QCoapClientPrivate::~QCoapClientPrivate()
 
     \value NoError                  No error condition.
 
-    \value HostNotFoundError        The remote host name was not
-                                    found.
-
-    \value BadRequestError          The request was not recognized.
+    \value HostNotFoundError        The remote host name was not found.
 
     \value AddressInUseError        The address is already in use.
 
     \value TimeOutError             The response did not arrive in time.
 
-    \value UnknownError             An unknown error was detected.
+    \value BadRequestError          The request was not recognized.
+
+    \value Unauthorized             The client is not authorized to perform
+                                    the requested action.
+
+    \value BadOption                The request could not be understood by
+                                    the server due to one or more unrecognized
+                                    or malformed options.
+
+    \value Forbidden                The access to this resource is forbidden.
+                                    This Response Code is like HTTP 403
+                                    "Forbidden".
+
+    \value NotFound                 The resource requested was not found.
+                                    This Response Code is like HTTP 404
+                                    "Not Found".
+
+    \value MethodNotAllowed         The method used is not allow by the server.
+                                    This Response Code is like HTTP 405
+                                    "Method Not Allowed" but with no parallel
+                                    to the "Allow" header field.
+
+    \value NotAcceptable            This Response Code is like HTTP 406
+                                    "Not Acceptable", but with no response entity.
+
+    \value RequestEntityIncomplete  The server has not received the blocks of
+                                    the request body that it needs to proceed.
+                                    The client has not sent all blocks,
+                                    not sent them in the order required by the
+                                    server, or has sent them long enough ago
+                                    that the server has already discarded them.
+
+    \value PreconditionFailed       This Response Code is like HTTP 412
+                                    "Precondition Failed".
+
+    \value RequestEntityTooLarge    This Response Code is like HTTP 413
+                                    "Request Entity Too Large".
+
+    \value UnsupportedContentFormat This Response Code is like HTTP 415
+                                    "Unsupported Media Type".
+
+    \value InternalServerError      This Response Code is like HTTP 500
+                                    "Internal Server Error".
+
+    \value NotImplemented           This Response Code is like HTTP 501
+                                    "Not Implemented".
+
+    \value BadGateway               An error occured with an upstream
+                                    server.
+                                    This Response Code is like HTTP 502
+                                    "Bad Gateway".
+
+    \value ServiceUnavailable       Indicates that the service currently
+                                    Unavailable.
+                                    This Response Code is like HTTP 503
+                                    "Service Unavailable".
+
+    \value GatewayTimeout           This Response Code is like HTTP 504
+                                    "Gateway Timeout".
+
+    \value ProxyingNotSupported     The server is unable or unwilling to act
+                                    as a forward-proxy for the URI specified
+                                    in the Proxy-Uri Option or using
+                                    Proxy-Scheme.
+
+    \value UnknownError             An unknown error occured.
 
     \sa error()
 */
 /*!
-    \enum QtCoap::StatusCode
+    \enum QtCoap::ResponseCode
 
-    This enum maps the status code of the CoAP protocol, as defined in
-    the 'response' section of
-    \l{https://tools.ietf.org/html/rfc7252#section-5.2}{RFC 7252}
+    This enum represents the response code from the CoAP protocol, as defined in
+    \l{https://tools.ietf.org/html/rfc7252#section-5.9}{RFC 7252} and
+    \l{https://tools.ietf.org/html/rfc7959#section-2.9}{RFC 7959}.
 */
 /*!
     \class QtCoap
@@ -91,14 +152,14 @@ QCoapClientPrivate::~QCoapClientPrivate()
     Returns the QtCoap::Error corresponding to the \a code passed to this
     method.
 */
-QtCoap::Error QtCoap::statusCodeError(QtCoap::StatusCode code)
+QtCoap::Error QtCoap::responseCodeError(QtCoap::ResponseCode code)
 {
     if (!isError(code))
         return QtCoap::NoError;
 
     switch (code) {
 #define SINGLE_CASE(name, ignored) case name: return name ## Error;
-    FOR_EACH_COAP_ERROR(SINGLE_CASE)
+        FOR_EACH_COAP_ERROR(SINGLE_CASE)
 #undef SINGLE_CASE
     default:
         return UnknownError;
@@ -192,20 +253,20 @@ QCoapClient::QCoapClient(QCoapProtocol *protocol, QCoapConnection *connection, Q
 {
     Q_D(QCoapClient);
 
-    qRegisterMetaType<QCoapReply*>();
+    qRegisterMetaType<QCoapReply *>();
     qRegisterMetaType<QCoapMessage>();
     qRegisterMetaType<QPointer<QCoapReply>>();
     qRegisterMetaType<QPointer<QCoapDiscoveryReply>>();
-    qRegisterMetaType<QCoapConnection*>();
+    qRegisterMetaType<QCoapConnection *>();
     qRegisterMetaType<QtCoap::Error>();
-    qRegisterMetaType<QtCoap::StatusCode>();
+    qRegisterMetaType<QtCoap::ResponseCode>();
     // Requires a name, as this is a typedef
     qRegisterMetaType<QCoapToken>("QCoapToken");
     qRegisterMetaType<QCoapMessageId>("QCoapMessageId");
     qRegisterMetaType<QAbstractSocket::SocketOption>();
 
-    connect(d->connection, SIGNAL(readyRead(const QNetworkDatagram&)),
-            d->protocol, SLOT(onFrameReceived(const QNetworkDatagram&)));
+    connect(d->connection, SIGNAL(readyRead(const QNetworkDatagram &)),
+            d->protocol, SLOT(onFrameReceived(const QNetworkDatagram &)));
     connect(d->connection, SIGNAL(error(QAbstractSocket::SocketError)),
             d->protocol, SLOT(onConnectionError(QAbstractSocket::SocketError)));
 
@@ -223,11 +284,11 @@ QCoapClient::QCoapClient(QCoapProtocol *protocol, QCoapConnection *connection, Q
 */
 QCoapClient::~QCoapClient()
 {
-    qDeleteAll(findChildren<QCoapReply*>(QString(), Qt::FindDirectChildrenOnly));
+    qDeleteAll(findChildren<QCoapReply *>(QString(), Qt::FindDirectChildrenOnly));
 }
 
 /*!
-    Sends \a request using the GET method and returns a new QCoapReply object.
+    Sends the \a request using the GET method and returns a new QCoapReply object.
 
     \sa post(), put(), deleteResource(), observe(), discover()
 */
@@ -249,8 +310,7 @@ QCoapReply *QCoapClient::get(const QCoapRequest &request)
 /*!
     \overload
 
-    Sends request to \a url using the GET method and returns a new QCoapReply
-    object.
+    Sends a GET request to \a url and returns a new QCoapReply object.
 
     \sa post(), put(), deleteResource(), observe(), discover()
 */
@@ -295,20 +355,20 @@ QCoapReply *QCoapClient::put(const QCoapRequest &request, const QByteArray &data
 */
 QCoapReply *QCoapClient::put(const QCoapRequest &request, QIODevice *device)
 {
-     return put(request, device ? device->readAll() : QByteArray());
+    return put(request, device ? device->readAll() : QByteArray());
 }
 
 /*!
     \overload
 
-    Sends a request to \a url using the PUT method and returns a new QCoapReply
-    object. Uses \a data as the payload for this request.
+    Sends a PUT request to \a url and returns a new QCoapReply object.
+    Uses \a data as the payload for this request.
 
     \sa get(), post(), deleteResource(), observe(), discover()
 */
 QCoapReply *QCoapClient::put(const QUrl &url, const QByteArray &data)
 {
-     return put(QCoapRequest(url), data);
+    return put(QCoapRequest(url), data);
 }
 
 /*!
@@ -355,8 +415,8 @@ QCoapReply *QCoapClient::post(const QCoapRequest &request, QIODevice *device)
 /*!
     \overload
 
-    Sends a request to \a url using the POST method and returns a new QCoapReply
-    object. Uses \a data as the payload for this request.
+    Sends a POST request to \a url and returns a new QCoapReply object.
+    Uses \a data as the payload for this request.
 
     \sa get(), put(), deleteResource(), observe(), discover()
 */
@@ -366,7 +426,8 @@ QCoapReply *QCoapClient::post(const QUrl &url, const QByteArray &data)
 }
 
 /*!
-    Sends a DELETE request to the target of \a request.
+    Sends the \a request using the DELETE method and returns a new QCoapReply
+    object.
 
     \sa get(), put(), post(), observe(), discover()
  */
@@ -462,13 +523,14 @@ QCoapReply *QCoapClient::observe(const QUrl &url)
 /*!
     \overload
 
-    Sends a request to cancel the observation of the target used by the
-    reply \a notifiedReply
+    Cancels the observation of a resource using the reply returned by the
+    observe() method.
 
     \sa observe()
 */
 void QCoapClient::cancelObserve(QCoapReply *notifiedReply)
 {
+    // TODO: Plan to add an override to cancel observe with an URL
     Q_D(QCoapClient);
     QMetaObject::invokeMethod(d->protocol, "cancelObserve",
                               Q_ARG(QPointer<QCoapReply>, QPointer<QCoapReply>(notifiedReply)));
@@ -530,12 +592,12 @@ bool QCoapClientPrivate::send(QCoapReply *reply)
         return false;
     }
 
-    q->connect(reply, SIGNAL(aborted(const QCoapToken&)),
-               protocol, SLOT(onRequestAborted(const QCoapToken&)));
+    q->connect(reply, SIGNAL(aborted(const QCoapToken &)),
+               protocol, SLOT(onRequestAborted(const QCoapToken &)));
 
     QMetaObject::invokeMethod(protocol, "sendRequest", Qt::QueuedConnection,
                               Q_ARG(QPointer<QCoapReply>, QPointer<QCoapReply>(reply)),
-                              Q_ARG(QCoapConnection*, connection));
+                              Q_ARG(QCoapConnection *, connection));
 
     return true;
 }

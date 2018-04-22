@@ -53,16 +53,16 @@ public:
     QCoapReplyPrivate(const QCoapRequest &request);
 
     void _q_setRunning(const QCoapToken &, QCoapMessageId);
-    virtual void _q_setContent(const QCoapMessage &, QtCoap::StatusCode);
+    virtual void _q_setContent(const QHostAddress &sender, const QCoapMessage &, QtCoap::ResponseCode);
     void _q_setNotified();
     void _q_setObserveCancelled();
     void _q_setFinished(QtCoap::Error = QtCoap::NoError);
-    void _q_setError(QtCoap::StatusCode);
+    void _q_setError(QtCoap::ResponseCode code);
     void _q_setError(QtCoap::Error);
 
     QCoapRequest request;
     QCoapMessage message;
-    QtCoap::StatusCode statusCode = QtCoap::InvalidCode;
+    QtCoap::ResponseCode responseCode = QtCoap::InvalidCode;
     QtCoap::Error error = QtCoap::NoError;
     bool isRunning = false;
     bool isFinished = false;

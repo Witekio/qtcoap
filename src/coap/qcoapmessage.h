@@ -71,6 +71,7 @@ public:
     void setPayload(const QByteArray &payload);
 
     QCoapOption option(int index) const;
+    //! TODO: Add the possibility to retrieve multiple QCoapOption with the same OptionName.
     QCoapOption option(QCoapOption::OptionName name) const;
     QVector<QCoapOption>::const_iterator findOption(QCoapOption::OptionName name) const;
     bool hasOption(QCoapOption::OptionName name) const;
@@ -88,8 +89,11 @@ protected:
     QSharedDataPointer<QCoapMessagePrivate> d_ptr;
 
     //! For QSharedDataPointer
-    QCoapMessagePrivate* d_func();
-    inline const QCoapMessagePrivate* d_func() const { return d_ptr.constData(); }
+    QCoapMessagePrivate *d_func();
+    inline const QCoapMessagePrivate *d_func() const
+    {
+        return d_ptr.constData();
+    }
 };
 
 Q_DECLARE_SHARED(QCoapMessage)

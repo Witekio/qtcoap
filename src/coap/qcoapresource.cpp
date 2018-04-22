@@ -85,6 +85,16 @@ void QCoapResource::swap(QCoapResource &other) Q_DECL_NOTHROW
 }
 
 /*!
+    Returns the host of the resource.
+
+    \sa setHost()
+ */
+QHostAddress QCoapResource::host() const
+{
+    return d->host;
+}
+
+/*!
     Returns the path of the resource.
 
     \sa setPath()
@@ -166,6 +176,16 @@ int QCoapResource::maximumSize() const
 uint QCoapResource::contentFormat() const
 {
     return d->contentFormat;
+}
+
+/*!
+    Sets the host of the resource.
+
+    \sa host()
+ */
+void QCoapResource::setHost(const QHostAddress &host)
+{
+    d->host = host;
 }
 
 /*!

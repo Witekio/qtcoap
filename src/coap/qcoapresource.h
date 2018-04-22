@@ -32,6 +32,7 @@
 
 #include <QtCoap/qcoapglobal.h>
 #include <QtCore/qshareddata.h>
+#include <QtNetwork/qhostaddress.h>
 
 QT_BEGIN_NAMESPACE
 
@@ -47,6 +48,7 @@ public:
 
     void swap(QCoapResource &other) Q_DECL_NOTHROW;
 
+    QHostAddress host() const;
     QString path() const;
     QString title() const;
     bool observable() const;
@@ -55,6 +57,7 @@ public:
     int maximumSize() const;
     uint contentFormat() const;
 
+    void setHost(const QHostAddress &host);
     void setPath(const QString &path);
     void setTitle(const QString &title);
     void setObservable(bool observable);

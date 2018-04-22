@@ -77,10 +77,11 @@ void QCoapReplyPrivate::_q_setObserveCancelled()
 /*!
     \internal
 
-    Sets the message and status code of this reply, unless reply is
+    Sets the message and response code of this reply, unless reply is
     already finished.
 */
-void QCoapReplyPrivate::_q_setContent(const QCoapMessage &msg, QtCoap::StatusCode status)
+void QCoapReplyPrivate::_q_setContent(const QHostAddress &, const QCoapMessage &msg,
+                                      QtCoap::ResponseCode code)
 {
     Q_Q(QCoapReply);
 
@@ -88,11 +89,11 @@ void QCoapReplyPrivate::_q_setContent(const QCoapMessage &msg, QtCoap::StatusCod
         return;
 
     message = msg;
-    statusCode = status;
+    responseCode = code;
     seekBuffer(0);
 
-    if (QtCoap::isError(statusCode))
-        _q_setError(statusCode);
+    if (QtCoap::isError(responseCode))
+        _q_setError(responseCode);
 }
 
 /*!
@@ -113,7 +114,8 @@ void QCoapReplyPrivate::_q_setNotified()
 /*!
     \internal
 
-    Sets the reply as finished, sending the finished() signal.
+    Sets the reply as finished, sending the finished() signal if it wasn't
+    already.
 */
 void QCoapReplyPrivate::_q_setFinished(QtCoap::Error newError)
 {
@@ -153,9 +155,9 @@ void QCoapReplyPrivate::_q_setError(QtCoap::Error newError)
 
     Sets the error of the reply.
 */
-void QCoapReplyPrivate::_q_setError(QtCoap::StatusCode statusCode)
+void QCoapReplyPrivate::_q_setError(QtCoap::ResponseCode code)
 {
-    _q_setError(QtCoap::statusCodeError(statusCode));
+    _q_setError(QtCoap::responseCodeError(code));
 }
 
 /*!
@@ -181,8 +183,8 @@ void QCoapReplyPrivate::_q_setError(QtCoap::StatusCode statusCode)
     \fn void QCoapReply::finished(QCoapReply* reply)
 
     This signal is emitted whenever the corresponding request finished,
-    either successfully or not. When a resource is observed, this signal will
-    be emitted only once, in the same conditions.
+    whether successfully or not. When a resource is observed, this signal
+    will only be emitted once, when the observation ends.
 
     The \a reply parameter is the QCoapReply itself for convenience.
 
@@ -222,7 +224,7 @@ void QCoapReplyPrivate::_q_setError(QtCoap::StatusCode statusCode)
 /*!
     \fn void QCoapReply::aborted(const QCoapToken &token);
 
-    This signal is emitted when the request is aborted or the reply is deleted. 
+    This signal is emitted when the request is aborted or the reply is deleted.
     Its \a token parameter is the token of the exchange that has been aborted.
 
     \note If the QCoapReply is deleted while not finished, both aborted() and
@@ -279,6 +281,9 @@ qint64 QCoapReply::readData(char *data, qint64 maxSize)
 
     // Explicitly account for platform size_t limitations
     size_t len = static_cast<size_t>(maxSize);
+    if (sizeof(qint64) > sizeof(size_t))
+        len = std::numeric_limits<size_t>::max();
+
     memcpy(data, payload.constData() + pos(), len);
 
     return static_cast<qint64>(len);
@@ -298,12 +303,12 @@ qint64 QCoapReply::writeData(const char *data, qint64 maxSize)
 }
 
 /*!
-    Returns the status code of the request.
+    Returns the response code of the request.
 */
-QtCoap::StatusCode QCoapReply::statusCode() const
+QtCoap::ResponseCode QCoapReply::responseCode() const
 {
     Q_D(const QCoapReply);
-    return d->statusCode;
+    return d->responseCode;
 }
 
 /*!

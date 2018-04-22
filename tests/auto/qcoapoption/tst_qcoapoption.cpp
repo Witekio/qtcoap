@@ -27,30 +27,62 @@
 **
 ****************************************************************************/
 
-#ifndef QCOAPGLOBAL_H
-#define QCOAPGLOBAL_H
+#include <QtTest>
 
-#include <QtCore/qglobal.h>
-#include <QtCore/qobject.h>
+#include <QtCoap/qcoapoption.h>
 
-QT_BEGIN_NAMESPACE
+class tst_QCoapOption : public QObject
+{
+    Q_OBJECT
 
-typedef QByteArray QCoapToken;
-typedef quint16 QCoapMessageId;
+private Q_SLOTS:
+    void constructWithQByteArray();
+    void constructWithQStringView();
+    void constructWithCString();
+    void constructWithInteger();
+    void constructWithUtf8Characters();
+};
 
-Q_DECLARE_METATYPE(QCoapToken)
-Q_DECLARE_METATYPE(QCoapMessageId)
+void tst_QCoapOption::constructWithQByteArray()
+{
+    QByteArray ba = "some data";
+    QCoapOption option(QCoapOption::LocationPath, ba);
 
-#ifndef QT_STATIC
-#  ifdef QT_BUILD_COAP_LIB
-#    define Q_COAP_EXPORT Q_DECL_EXPORT
-#  else
-#    define Q_COAP_EXPORT Q_DECL_IMPORT
-#  endif
-#else
-#  define Q_COAP_EXPORT
-#endif
+    QCOMPARE(option.value(), ba);
+}
 
-QT_END_NAMESPACE
+void tst_QCoapOption::constructWithQStringView()
+{
+    QString str = "some data";
+    QCoapOption option(QCoapOption::LocationPath, str);
 
-#endif // QCOAPGLOBAL_H
+    QCOMPARE(option.value(), str.toUtf8());
+}
+
+void tst_QCoapOption::constructWithCString()
+{
+    const char *str = "some data";
+    QCoapOption option(QCoapOption::LocationPath, str);
+
+    QCOMPARE(option.value(), QByteArray(str));
+}
+
+void tst_QCoapOption::constructWithInteger()
+{
+    quint32 value = 64000;
+    QCoapOption option(QCoapOption::Size1, value);
+
+    QCOMPARE(option.valueToInt(), value);
+}
+
+void tst_QCoapOption::constructWithUtf8Characters()
+{
+    QByteArray ba = "é~λƧ";
+    QCoapOption option(QCoapOption::LocationPath, ba);
+
+    QCOMPARE(option.value(), ba);
+}
+
+QTEST_APPLESS_MAIN(tst_QCoapOption)
+
+#include "tst_qcoapoption.moc"

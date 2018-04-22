@@ -68,7 +68,7 @@ public:
     void cancelObserve(QCoapReply *notifiedReply);
 
 #if 0
-    //! TODO Add Multicast discovery
+    //! TODO Add Multicast discovery in a later submission.
     QCoapDiscoveryReply *discover(const QString &discoveryPath = QLatin1String("/.well-known/core"));
 #endif
     QCoapDiscoveryReply *discover(const QUrl &baseUrl,
@@ -86,7 +86,8 @@ Q_SIGNALS:
     void error(QCoapReply *reply, QtCoap::Error error);
 
 protected:
-    explicit QCoapClient(QCoapProtocol *protocol, QCoapConnection *connection, QObject *parent = nullptr);
+    explicit QCoapClient(QCoapProtocol *protocol, QCoapConnection *connection,
+                         QObject *parent = nullptr);
 
     Q_DECLARE_PRIVATE(QCoapClient)
 };

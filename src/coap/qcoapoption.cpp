@@ -74,8 +74,8 @@ QT_BEGIN_NAMESPACE
 
 /*!
     Constructs a QCoapOption object with the given \a name
-    and \a value. If no parameters are passed, constructs
-    an Invalid object.
+    and QByteArray \a value.
+    If no parameters are passed, constructs an Invalid object.
 
     \sa isValid()
  */
@@ -89,14 +89,13 @@ QCoapOption::QCoapOption(OptionName name, const QByteArray &value) :
 
 /*!
     Constructs a QCoapOption object with the given \a name
-    and the QString \a value.
+    and the QStringView \a value.
 
     \sa isValid()
  */
-QCoapOption::QCoapOption(OptionName name, const QString &value) :
+QCoapOption::QCoapOption(OptionName name, QStringView value) :
     d_ptr(new QCoapOptionPrivate)
 {
-    //! TODO: Cover in tests
     Q_D(QCoapOption);
     d->name = name;
     setValue(value);
@@ -111,7 +110,6 @@ QCoapOption::QCoapOption(OptionName name, const QString &value) :
 QCoapOption::QCoapOption(OptionName name, const char *value) :
     d_ptr(new QCoapOptionPrivate)
 {
-    //! TODO: Cover in tests
     Q_D(QCoapOption);
     d->name = name;
     setValue(value);
@@ -318,23 +316,23 @@ void QCoapOption::setValue(const QByteArray &value)
 }
 
 /*!
-    Sets a QString \a value for the option.
+    Sets the value of the option with the QStringView \a value provided.
  */
-void QCoapOption::setValue(const QString &value)
+void QCoapOption::setValue(QStringView value)
 {
     setValue(value.toUtf8());
 }
 
 /*!
-    Sets a string \a value for the option.
+    Sets the value of the option with the string \a value provided.
  */
 void QCoapOption::setValue(const char *value)
 {
-    setValue(QString::fromUtf8(value));
+    setValue(QByteArray::fromRawData(value, static_cast<int>(strlen(value))));
 }
 
 /*!
-    Sets an integer \a value for the option.
+    Sets the value of the option with the integer \a value provided.
  */
 void QCoapOption::setValue(quint32 value)
 {

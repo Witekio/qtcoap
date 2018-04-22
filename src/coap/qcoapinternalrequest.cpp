@@ -56,8 +56,11 @@ QCoapInternalRequest::QCoapInternalRequest(QObject *parent) :
     QCoapInternalMessage(*new QCoapInternalRequestPrivate, parent)
 {
     Q_D(QCoapInternalRequest);
-    d->timer = new QTimer(this);
-    connect(d->timer, SIGNAL(timeout()), this, SLOT(_q_timeout()));
+    d->timeoutTimer = new QTimer(this);
+    connect(d->timeoutTimer, SIGNAL(timeout()), this, SLOT(_q_timeout()));
+
+    d->maxTransmitWaitTimer = new QTimer(this);
+    connect(d->maxTransmitWaitTimer, SIGNAL(timeout()), this, SLOT(_q_maxTransmissionSpanReached()));
 }
 
 /*!
@@ -181,7 +184,7 @@ QByteArray QCoapInternalRequest::toQByteArray() const
             bool isOptionDeltaExtended = false;
             quint8 optionDeltaExtended = 0;
 
-            quint16 optionLength = option.length();
+            quint16 optionLength = static_cast<quint16>(option.length());
             bool isOptionLengthExtended = false;
             quint8 optionLengthExtended = 0;
 
@@ -259,7 +262,7 @@ void QCoapInternalRequest::setRequestToSendBlock(uint blockNumber, uint blockSiz
     Q_D(QCoapInternalRequest);
 
     d->message.setMessageId(d->message.messageId() + 1);
-    d->message.setPayload(d->fullPayload.mid(blockNumber * blockSize, blockSize));
+    d->message.setPayload(d->fullPayload.mid(static_cast<int>(blockNumber * blockSize), static_cast<int>(blockSize)));
     d->message.removeOption(QCoapOption::Block1);
 
     addOption(blockOption(QCoapOption::Block1, blockNumber, blockSize));
@@ -392,7 +395,7 @@ bool QCoapInternalRequest::addUriOptions(QUrl uri, const QUrl &proxyUri)
 
     // 7. Add port to options if it is not the default port
     if (uri.port() != 5683)
-        addOption(QCoapOption::UriPort, uri.port());
+        addOption(QCoapOption::UriPort, static_cast<quint32>(uri.port()));
 
     // 8. Add path segments to options
     QString path = uri.path();
@@ -425,30 +428,39 @@ QCoapToken QCoapInternalRequest::token() const
 
 /*!
     \internal
-    Increments the retransmission counter, updates the timeout and
-    starts a timer.
+    Used to mark the transmission as "in progress", when starting or retrying
+    to transmit a message. This method manages the retransmission counter,
+    the transmission timeout and the exchange timeout.
 */
-void QCoapInternalRequest::startTransmission()
+void QCoapInternalRequest::restartTransmission()
 {
     Q_D(QCoapInternalRequest);
 
-    // Should starts at -1
-    d->retransmissionCounter++;
-    if (d->retransmissionCounter > 0)
+    if (!d->transmissionInProgress) {
+        d->transmissionInProgress = true;
+        d->maxTransmitWaitTimer->start();
+    }
+    else {
+        d->retransmissionCounter++;
         d->timeout *= 2;
+    }
 
     if (d->timeout > 0)
-        d->timer->start(d->timeout);
+        d->timeoutTimer->start(d->timeout);
 }
 
 /*!
     \internal
-    Resets the retransmission counter to zero and stops the timer.
+    Marks the transmission as not running, after a successful reception, or an
+    error. It resets the retranmission count and stop all timeout timers.
 */
 void QCoapInternalRequest::stopTransmission()
 {
     Q_D(QCoapInternalRequest);
-    d->timer->stop();
+    d->transmissionInProgress = false;
+    d->retransmissionCounter = 0;
+    d->maxTransmitWaitTimer->stop();
+    d->timeoutTimer->stop();
 }
 
 /*!
@@ -460,6 +472,17 @@ void QCoapInternalRequestPrivate::_q_timeout()
 {
     Q_Q(QCoapInternalRequest);
     emit q->timeout(q);
+}
+
+/*!
+    \internal
+    This slot emits a \l{QCoapInternalRequest::maxTransmissionSpanReached(QCoapInternalRequest*)}
+    {timeout(QCoapInternalRequest*)} signal.
+*/
+void QCoapInternalRequestPrivate::_q_maxTransmissionSpanReached()
+{
+    Q_Q(QCoapInternalRequest);
+    emit q->maxTransmissionSpanReached(q);
 }
 
 /*!
@@ -525,7 +548,7 @@ bool QCoapInternalRequest::isObserveCancelled() const
     \internal
     Returns the value of the retransmission counter.
 */
-uint QCoapInternalRequest::retransmissionCounter() const
+int QCoapInternalRequest::retransmissionCounter() const
 {
     Q_D(const QCoapInternalRequest);
     return d->retransmissionCounter;
@@ -590,6 +613,17 @@ void QCoapInternalRequest::setTimeout(uint timeout)
 {
     Q_D(QCoapInternalRequest);
     d->timeout = static_cast<int>(timeout);
+}
+
+/*!
+    \internal
+    Sets the maximum transmission span for the request. If the request is
+    not finished at the end of the transmission span, the request will timeout.
+*/
+void QCoapInternalRequest::setMaxTransmissionWait(int duration)
+{
+    Q_D(QCoapInternalRequest);
+    d->maxTransmitWaitTimer->setInterval(duration);
 }
 
 /*!

@@ -36,6 +36,7 @@
 #include <QtCoap/qcoapresource.h>
 #include <QtCore/qobject.h>
 #include <QtNetwork/qudpsocket.h>
+#include <QtNetwork/qhostaddress.h>
 
 QT_BEGIN_NAMESPACE
 
@@ -49,18 +50,18 @@ public:
     explicit QCoapProtocol(QObject *parent = nullptr);
     ~QCoapProtocol();
 
-    uint ackTimeout() const;
+    int ackTimeout() const;
     double ackRandomFactor() const;
-    uint maxRetransmit() const;
+    int maxRetransmit() const;
     quint16 blockSize() const;
-    uint maxTransmitSpan() const;
-    uint maxTransmitWait() const;
-    static constexpr uint maxLatency();
+    int maxTransmitSpan() const;
+    int maxTransmitWait() const;
+    static constexpr int maxLatency();
 
-    uint minTimeout() const;
-    uint maxTimeout() const;
+    int minTimeout() const;
+    int maxTimeout() const;
 
-    static QVector<QCoapResource> resourcesFromCoreLinkList(const QByteArray &data);
+    static QVector<QCoapResource> resourcesFromCoreLinkList(const QHostAddress &sender, const QByteArray &data);
 
 Q_SIGNALS:
     void finished(QCoapReply *reply);
@@ -69,19 +70,22 @@ Q_SIGNALS:
 public Q_SLOTS:
     void sendRequest(QPointer<QCoapReply> reply, QCoapConnection *connection);
     void cancelObserve(QPointer<QCoapReply> reply);
-    void setAckTimeout(uint ackTimeout);
+    void setAckTimeout(int ackTimeout);
     void setAckRandomFactor(double ackRandomFactor);
-    void setMaxRetransmit(uint maxRetransmit);
+    void setMaxRetransmit(int maxRetransmit);
     void setBlockSize(quint16 blockSize);
 
 private:
     Q_DECLARE_PRIVATE(QCoapProtocol)
     Q_PRIVATE_SLOT(d_func(), void onRequestTimeout(QCoapInternalRequest*))
+    Q_PRIVATE_SLOT(d_func(), void onRequestMaxTransmissionSpanReached(QCoapInternalRequest*))
     Q_PRIVATE_SLOT(d_func(), void sendRequest(QCoapInternalRequest*))
     Q_PRIVATE_SLOT(d_func(), void onFrameReceived(const QNetworkDatagram&))
     Q_PRIVATE_SLOT(d_func(), void onRequestAborted(const QCoapToken&))
     Q_PRIVATE_SLOT(d_func(), void onConnectionError(QAbstractSocket::SocketError))
 };
+
+Q_DECLARE_METATYPE(QHostAddress)
 
 QT_END_NAMESPACE
 

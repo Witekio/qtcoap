@@ -57,7 +57,8 @@ QT_BEGIN_NAMESPACE
 QCoapProtocol::QCoapProtocol(QObject *parent) :
     QObject(* new QCoapProtocolPrivate, parent)
 {
-    qRegisterMetaType<QCoapInternalRequest*>();
+    qRegisterMetaType<QCoapInternalRequest *>();
+    qRegisterMetaType<QHostAddress>();
 }
 
 QCoapProtocol::~QCoapProtocol()
@@ -81,19 +82,19 @@ void QCoapProtocol::sendRequest(QPointer<QCoapReply> reply, QCoapConnection *con
     if (reply.isNull() || !reply->request().isValid())
         return;
 
-    QSharedPointer<QCoapInternalRequest> internalRequest = QSharedPointer<QCoapInternalRequest>::create(reply->request(), this);
+    QSharedPointer<QCoapInternalRequest> internalRequest = QSharedPointer<QCoapInternalRequest>::create(
+                                                               reply->request(), this);
+    internalRequest->setMaxTransmissionWait(maxTransmitWait());
     QCoapMessage *requestMessage = internalRequest->message();
     connect(reply, &QCoapReply::finished, this, &QCoapProtocol::finished);
 
     // Find a unique Message Id
-    while (d->isMessageIdRegistered(requestMessage->messageId())) {
+    while (d->isMessageIdRegistered(requestMessage->messageId()))
         internalRequest->generateMessageId();
-    }
 
     // Find a unique Token
-    while (d->isTokenRegistered(requestMessage->token())) {
+    while (d->isTokenRegistered(requestMessage->token()))
         internalRequest->generateToken();
-    }
 
     internalRequest->setConnection(connection);
 
@@ -114,8 +115,10 @@ void QCoapProtocol::sendRequest(QPointer<QCoapReply> reply, QCoapConnection *con
     else
         internalRequest->setTimeout(maxTimeout());
 
-    connect(internalRequest.data(), SIGNAL(timeout(QCoapInternalRequest*)),
-            this, SLOT(onRequestTimeout(QCoapInternalRequest*)));
+    connect(internalRequest.data(), SIGNAL(timeout(QCoapInternalRequest *)),
+            this, SLOT(onRequestTimeout(QCoapInternalRequest *)));
+    connect(internalRequest.data(), SIGNAL(maxTransmissionSpanReached(QCoapInternalRequest *)),
+            this, SLOT(onRequestMaxTransmissionSpanReached(QCoapInternalRequest *)));
 
     d->sendRequest(internalRequest.data());
 }
@@ -135,10 +138,10 @@ void QCoapProtocolPrivate::sendRequest(QCoapInternalRequest *request)
         return;
     }
 
-    request->startTransmission();
+    request->restartTransmission();
     QByteArray requestFrame = encode(request);
     QUrl uri = request->targetUri();
-    request->connection()->sendRequest(requestFrame, uri.host(), uri.port());
+    request->connection()->sendRequest(requestFrame, uri.host(), static_cast<quint16>(uri.port()));
 }
 
 /*!
@@ -166,11 +169,28 @@ void QCoapProtocolPrivate::onRequestTimeout(QCoapInternalRequest *request)
 /*!
     \internal
 
+    This slot is called when the maximum span for this transmission has been
+    reached, and triggers a timeout error if the request is still running.
+*/
+void QCoapProtocolPrivate::onRequestMaxTransmissionSpanReached(QCoapInternalRequest *request)
+{
+    Q_Q(const QCoapProtocol);
+    Q_ASSERT(QThread::currentThread() == q->thread());
+
+    if (!isRequestRegistered(request))
+        return;
+
+    onRequestError(request, QtCoap::TimeOutError);
+}
+
+/*!
+    \internal
+
     Method triggered when a request fails.
 */
 void QCoapProtocolPrivate::onRequestError(QCoapInternalRequest *request, QCoapInternalReply *reply)
 {
-    QtCoap::Error error = QtCoap::statusCodeError(reply->statusCode());
+    QtCoap::Error error = QtCoap::responseCodeError(reply->responseCode());
     onRequestError(request, error, reply);
 }
 
@@ -191,8 +211,9 @@ void QCoapProtocolPrivate::onRequestError(QCoapInternalRequest *request, QtCoap:
         // Set error from content, or error enum
         if (reply) {
             QMetaObject::invokeMethod(userReply.data(), "_q_setContent", Qt::QueuedConnection,
+                                      Q_ARG(QHostAddress, reply->senderAddress()),
                                       Q_ARG(QCoapMessage, *reply->message()),
-                                      Q_ARG(QtCoap::StatusCode, reply->statusCode()));
+                                      Q_ARG(QtCoap::ResponseCode, reply->responseCode()));
         } else {
             QMetaObject::invokeMethod(userReply.data(), "_q_setError", Qt::QueuedConnection,
                                       Q_ARG(QtCoap::Error, error));
@@ -226,12 +247,12 @@ void QCoapProtocolPrivate::onFrameReceived(const QNetworkDatagram &frame)
         request = findRequestByMessageId(messageReceived->messageId());
 
         // No matching request found, drop the frame.
-        if (!request) {
+        if (!request)
             return;
-        }
     }
 
-    //! TODO IPv6 not supported, as operator "!=" does not exist
+    //! TODO Support IPv6 for host verification. Currently IPv6 not supported,
+    //! operator "!=" does not exist for IPv6 addresses.
     QHostAddress originalTarget(request->targetUri().host());
     if (!originalTarget.isMulticast()
             && originalTarget.toIPv4Address() != frame.senderAddress().toIPv4Address()) {
@@ -243,7 +264,7 @@ void QCoapProtocolPrivate::onFrameReceived(const QNetworkDatagram &frame)
     request->stopTransmission();
     addReply(request->token(), reply);
 
-    if (QtCoap::isError(reply->statusCode())) {
+    if (QtCoap::isError(reply->responseCode())) {
         onRequestError(request, reply.data());
         return;
     }
@@ -302,13 +323,14 @@ QPointer<QCoapReply> QCoapProtocolPrivate::userReplyForToken(const QCoapToken &t
 
     Returns the replies for the exchange identified by \a token.
 */
-QVector<QSharedPointer<QCoapInternalReply> > QCoapProtocolPrivate::repliesForToken(const QCoapToken &token)
+QVector<QSharedPointer<QCoapInternalReply> > QCoapProtocolPrivate::repliesForToken(
+    const QCoapToken &token)
 {
     auto it = exchangeMap.find(token);
     if (it != exchangeMap.constEnd())
         return it->replies;
 
-    return QVector<QSharedPointer<QCoapInternalReply> >();
+    return {};
 }
 
 /*!
@@ -367,7 +389,7 @@ QCoapInternalRequest *QCoapProtocolPrivate::findRequestByMessageId(quint16 messa
 void QCoapProtocolPrivate::onLastMessageReceived(QCoapInternalRequest *request)
 {
     Q_ASSERT(request);
-    if (!request ||!isRequestRegistered(request))
+    if (!request || !isRequestRegistered(request))
         return;
 
     auto replies = repliesForToken(request->token());
@@ -385,7 +407,7 @@ void QCoapProtocolPrivate::onLastMessageReceived(QCoapInternalRequest *request)
     auto lastReply = replies.last();
     // Ignore empty ACK messages
     if (lastReply->message()->type() == QCoapMessage::Acknowledgment
-            && lastReply->statusCode() == QtCoap::EmptyMessage) {
+            && lastReply->responseCode() == QtCoap::EmptyMessage) {
         exchangeMap[request->token()].replies.takeLast();
         return;
     }
@@ -393,8 +415,8 @@ void QCoapProtocolPrivate::onLastMessageReceived(QCoapInternalRequest *request)
     // Merge payloads for blockwise transfers
     if (replies.size() > 1) {
         std::stable_sort(std::begin(replies), std::end(replies),
-            [](auto a, auto b) -> bool {
-                return (a->currentBlockNumber() < b->currentBlockNumber());
+        [](auto a, auto b) -> bool {
+            return (a->currentBlockNumber() < b->currentBlockNumber());
         });
 
         QByteArray finalPayload;
@@ -414,15 +436,16 @@ void QCoapProtocolPrivate::onLastMessageReceived(QCoapInternalRequest *request)
 
     // Forward the answer
     QMetaObject::invokeMethod(userReply, "_q_setContent", Qt::QueuedConnection,
-            Q_ARG(QCoapMessage, *lastReply->message()),
-            Q_ARG(QtCoap::StatusCode, lastReply->statusCode()));
+                              Q_ARG(QHostAddress, lastReply->senderAddress()),
+                              Q_ARG(QCoapMessage, *lastReply->message()),
+                              Q_ARG(QtCoap::ResponseCode, lastReply->responseCode()));
 
     if (request->isObserve()) {
         QMetaObject::invokeMethod(userReply, "_q_setNotified", Qt::QueuedConnection);
         forgetExchangeReplies(request->token());
     } else {
         QMetaObject::invokeMethod(userReply, "_q_setFinished", Qt::QueuedConnection,
-                Q_ARG(QtCoap::Error, QtCoap::NoError));
+                                  Q_ARG(QtCoap::Error, QtCoap::NoError));
         forgetExchange(request);
     }
 }
@@ -437,8 +460,8 @@ void QCoapProtocolPrivate::onLastMessageReceived(QCoapInternalRequest *request)
     and sends this new request.
 */
 void QCoapProtocolPrivate::onBlockReceived(QCoapInternalRequest *request,
-                                       uint currentBlockNumber,
-                                       uint blockSize)
+                                           uint currentBlockNumber,
+                                           uint blockSize)
 {
     request->setRequestToAskBlock(currentBlockNumber + 1, blockSize);
     sendRequest(request);
@@ -525,7 +548,7 @@ QByteArray QCoapProtocolPrivate::encode(QCoapInternalRequest *request)
 /*!
     \internal
 
-    Decodes the QByteArray \a message and returns a new unmanaged
+    Decodes the QNetworkDatagram \a frame and returns a new unmanaged
     QCoapInternalReply object.
 */
 QCoapInternalReply *QCoapProtocolPrivate::decode(const QNetworkDatagram &frame)
@@ -583,18 +606,19 @@ void QCoapProtocolPrivate::onConnectionError(QAbstractSocket::SocketError socket
     Decodes the QByteArray \a data to a list of QCoapResource objects.
     The \a data byte array is a frame returned by a discovery request.
 */
-QVector<QCoapResource> QCoapProtocol::resourcesFromCoreLinkList(const QByteArray &data)
+QVector<QCoapResource> QCoapProtocol::resourcesFromCoreLinkList(const QHostAddress &sender,
+                                                                const QByteArray &data)
 {
     QVector<QCoapResource> resourceList;
 
     QLatin1String quote = QLatin1String("\"");
     const QList<QByteArray> links = data.split(',');
-    for (QByteArray link : links)
-    {
+    for (QByteArray link : links) {
         QCoapResource resource;
+        resource.setHost(sender);
+
         const QList<QByteArray> parameterList = link.split(';');
-        for (QByteArray parameter : parameterList)
-        {
+        for (QByteArray parameter : parameterList) {
             QString parameterString = QString::fromUtf8(parameter);
             int length = parameterString.length();
             if (parameter.startsWith('<'))
@@ -629,7 +653,8 @@ void QCoapProtocolPrivate::registerExchange(const QCoapToken &token, QCoapReply 
                                             QSharedPointer<QCoapInternalRequest> request)
 {
     CoapExchangeData data = { reply, request,
-                              QVector<QSharedPointer<QCoapInternalReply> >() };
+                              QVector<QSharedPointer<QCoapInternalReply> >()
+                            };
 
     exchangeMap.insert(token, data);
 }
@@ -639,8 +664,12 @@ void QCoapProtocolPrivate::registerExchange(const QCoapToken &token, QCoapReply 
 
     Adds \a reply to the list of replies of the exchange identified by
     \a token.
+    Returns \c if the reply was successfully added. This method will fail
+    and return \c false if not exchange is associated with the \a token
+    provided.
 */
-bool QCoapProtocolPrivate::addReply(const QCoapToken &token, QSharedPointer<QCoapInternalReply> reply)
+bool QCoapProtocolPrivate::addReply(const QCoapToken &token,
+                                    QSharedPointer<QCoapInternalReply> reply)
 {
     if (!isTokenRegistered(token) || !reply) {
         qWarning() << "QtCoap: Reply token '" << token << "' not registered, or reply is null.";
@@ -654,9 +683,12 @@ bool QCoapProtocolPrivate::addReply(const QCoapToken &token, QSharedPointer<QCoa
 /*!
     \internal
 
-    Remove the exchange, typically done when finished or aborted.
-    This will delete the QCoapInternalRequest and QCoapInternalReplies
-    associated with it.
+    Remove the exchange identified by its QCoapToken \a token. This is
+    typically done when finished or aborted.
+    It will delete the QCoapInternalRequest and QCoapInternalReplies
+    associated with the exchange.
+
+    Returns \c true if the exchange was found and removed, \c false otherwise.
 */
 bool QCoapProtocolPrivate::forgetExchange(const QCoapToken &token)
 {
@@ -693,7 +725,8 @@ bool QCoapProtocolPrivate::forgetExchangeReplies(const QCoapToken &token)
 /*!
     \internal
 
-    Returns true if a request has a token equal to \a token.
+    Returns \c true if the \a token is reserved or in use; returns false if
+    this token can be used to identify a new exchange.
 */
 bool QCoapProtocolPrivate::isTokenRegistered(const QCoapToken &token)
 {
@@ -707,7 +740,8 @@ bool QCoapProtocolPrivate::isTokenRegistered(const QCoapToken &token)
 /*!
     \internal
 
-    Returns true the \a request is present in currently registered exchanges.
+    Returns \c true if the \a request is present in a currently registered
+    exchange.
 */
 bool QCoapProtocolPrivate::isRequestRegistered(const QCoapInternalRequest *request)
 {
@@ -722,7 +756,8 @@ bool QCoapProtocolPrivate::isRequestRegistered(const QCoapInternalRequest *reque
 /*!
     \internal
 
-    Returns true if a request has a message id equal to \a id.
+    Returns \c true if a request has a message id equal to \a id, or if \a id
+    is reserved.
 */
 bool QCoapProtocolPrivate::isMessageIdRegistered(quint16 id)
 {
@@ -743,7 +778,7 @@ bool QCoapProtocolPrivate::isMessageIdRegistered(quint16 id)
 
     \sa setAckTimeout()
 */
-uint QCoapProtocol::ackTimeout() const
+int QCoapProtocol::ackTimeout() const
 {
     Q_D(const QCoapProtocol);
     return d->ackTimeout;
@@ -765,7 +800,7 @@ double QCoapProtocol::ackRandomFactor() const
 
     \sa setMaxRetransmit()
 */
-uint QCoapProtocol::maxRetransmit() const
+int QCoapProtocol::maxRetransmit() const
 {
     Q_D(const QCoapProtocol);
     return d->maxRetransmit;
@@ -789,12 +824,12 @@ quint16 QCoapProtocol::blockSize() const
     It is the maximum time from the first transmission of a Confirmable
     message to its last retransmission.
 */
-uint QCoapProtocol::maxTransmitSpan() const
+int QCoapProtocol::maxTransmitSpan() const
 {
-    if (maxRetransmit() == 0)
+    if (maxRetransmit() <= 0)
         return 0;
 
-    return static_cast<uint>(ackTimeout() * (1u << (maxRetransmit() - 1)) * ackRandomFactor());
+    return static_cast<int>(ackTimeout() * (1u << (maxRetransmit() - 1)) * ackRandomFactor());
 }
 
 /*!
@@ -805,9 +840,13 @@ uint QCoapProtocol::maxTransmitSpan() const
     message to the time when the sender gives up on receiving an
     acknowledgment or reset.
 */
-uint QCoapProtocol::maxTransmitWait() const
+int QCoapProtocol::maxTransmitWait() const
 {
-    return static_cast<uint>(ackTimeout() * ((1u << (maxRetransmit() + 1)) - 1) * ackRandomFactor());
+    if (maxRetransmit() <= 0 || ackTimeout() <= 0)
+        return 0;
+
+    return static_cast<int>(static_cast<unsigned int>(ackTimeout())
+                            * ((1u << (maxRetransmit() + 1)) - 1) * ackRandomFactor());
 }
 
 /*!
@@ -818,7 +857,7 @@ uint QCoapProtocol::maxTransmitWait() const
     It is the maximum time a datagram is expected to take from the start of
     its transmission to the completion of its reception.
 */
-constexpr uint QCoapProtocol::maxLatency()
+constexpr int QCoapProtocol::maxLatency()
 {
     return 100 * 1000;
 }
@@ -829,7 +868,8 @@ constexpr uint QCoapProtocol::maxLatency()
 
     \sa minTimeout(), setAckTimeout()
 */
-uint QCoapProtocol::minTimeout() const {
+int QCoapProtocol::minTimeout() const
+{
     Q_D(const QCoapProtocol);
     return d->ackTimeout;
 }
@@ -839,9 +879,10 @@ uint QCoapProtocol::minTimeout() const {
 
     \sa maxTimeout(), setAckTimeout(), setAckRandomFactor()
 */
-uint QCoapProtocol::maxTimeout() const {
+int QCoapProtocol::maxTimeout() const
+{
     Q_D(const QCoapProtocol);
-    return static_cast<uint>(d->ackTimeout * d->ackRandomFactor);
+    return static_cast<int>(d->ackTimeout * d->ackRandomFactor);
 }
 
 /*!
@@ -854,7 +895,7 @@ uint QCoapProtocol::maxTimeout() const {
 
     \sa ackTimeout(), setAckRandomFactor(), minTimeout(), maxTimeout()
 */
-void QCoapProtocol::setAckTimeout(uint ackTimeout)
+void QCoapProtocol::setAckTimeout(int ackTimeout)
 {
     Q_D(QCoapProtocol);
     d->ackTimeout = ackTimeout;
@@ -862,14 +903,17 @@ void QCoapProtocol::setAckTimeout(uint ackTimeout)
 
 /*!
     Sets the ACK_RANDOM_FACTOR value to \a ackRandomFactor. This value
-    defaults to 1.5.
+    should be greater or equal to 1, and defaults to 1.5.
 
     \sa ackRandomFactor(), setAckTimeout()
 */
 void QCoapProtocol::setAckRandomFactor(double ackRandomFactor)
 {
     Q_D(QCoapProtocol);
-    d->ackRandomFactor = ackRandomFactor;
+    if (ackRandomFactor < 1)
+        qWarning() << "QtCoap: The Ack random factor should be >= 1";
+
+    d->ackRandomFactor = qMax(1., ackRandomFactor);
 }
 
 /*!
@@ -878,9 +922,14 @@ void QCoapProtocol::setAckRandomFactor(double ackRandomFactor)
 
     \sa maxRetransmit()
 */
-void QCoapProtocol::setMaxRetransmit(uint maxRetransmit)
+void QCoapProtocol::setMaxRetransmit(int maxRetransmit)
 {
     Q_D(QCoapProtocol);
+    if (maxRetransmit < 0) {
+        qWarning("QtCoap: Max retransmit cannot be negative.");
+        return;
+    }
+
     if (maxRetransmit > 25) {
         qWarning("QtCoap: Max retransmit count is capped at 25.");
         maxRetransmit = 25;

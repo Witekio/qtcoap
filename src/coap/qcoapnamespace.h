@@ -52,7 +52,7 @@ private:
     QtCoap() {}
 
 public:
-    enum StatusCode {
+    enum ResponseCode {
         EmptyMessage = 0x00,
         Created = 0x41, // 2.01
         Deleted = 0x42, // 2.02
@@ -61,13 +61,13 @@ public:
         Content = 0x45, // 2.05
         Continue = 0x5F, // 2.31
 
-        #define SINGLE_CODE(name, value) name = value,
+#define SINGLE_CODE(name, value) name = value,
         FOR_EACH_COAP_ERROR(SINGLE_CODE)
-        #undef SINGLE_CODE
+#undef SINGLE_CODE
 
         InvalidCode = 0xFF
     };
-    Q_ENUM(StatusCode)
+    Q_ENUM(ResponseCode)
 
     enum Error {
         NoError,
@@ -75,9 +75,9 @@ public:
         AddressInUseError,
         TimeOutError,
 
-        #define SINGLE_ERROR(name, ignored) name ## Error,
+#define SINGLE_ERROR(name, ignored) name ## Error,
         FOR_EACH_COAP_ERROR(SINGLE_ERROR)
-        #undef SINGLE_ERROR
+#undef SINGLE_ERROR
 
         UnknownError
     };
@@ -90,7 +90,7 @@ public:
         Put,
         Delete,
 #if 0
-        //! TODO, included in RFC 8132
+        //! TODO Support other methods included in RFC 8132
         //! https://tools.ietf.org/html/rfc8132
         Fetch,
         Patch,
@@ -100,13 +100,16 @@ public:
     };
     Q_ENUM(Method)
 
-    static bool isError(StatusCode code) { return code >= 0x80; }
-    static Error statusCodeError(StatusCode code);
+    static bool isError(ResponseCode code)
+    {
+        return code >= 0x80;
+    }
+    static Error responseCodeError(ResponseCode code);
 
     static QRandomGenerator randomGenerator;
 };
 
-Q_DECLARE_METATYPE(QtCoap::StatusCode)
+Q_DECLARE_METATYPE(QtCoap::ResponseCode)
 Q_DECLARE_METATYPE(QtCoap::Error)
 Q_DECLARE_METATYPE(QtCoap::Method)
 
