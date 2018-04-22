@@ -447,9 +447,8 @@ void tst_QCoapClient::timeout()
     int transmissions = maxRetransmit + 1;
 
     // 10% Precision expected at least, plus timer precision
-    QTRY_COMPARE_WITH_TIMEOUT(spyReplyError.count(), 1,
-                              static_cast<int>(1.1 * client.protocol()->maxTransmitWait()
-                                               + 20 * transmissions));
+    QTRY_COMPARE_WITH_TIMEOUT(spyReplyError.count(), 1, static_cast<int>(
+                                  1.1 * client.protocol()->maxTransmitWait() + 20 * transmissions));
 
     // Check timeout lower limit
     qint64 elapsedTime = timeoutTimer.elapsed();

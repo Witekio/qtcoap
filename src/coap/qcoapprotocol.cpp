@@ -330,7 +330,7 @@ QVector<QSharedPointer<QCoapInternalReply> > QCoapProtocolPrivate::repliesForTok
     if (it != exchangeMap.constEnd())
         return it->replies;
 
-    return QVector<QSharedPointer<QCoapInternalReply> >();
+    return {};
 }
 
 /*!
