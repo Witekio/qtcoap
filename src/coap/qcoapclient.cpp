@@ -365,7 +365,8 @@ QCoapReply *QCoapClient::post(const QUrl &url, const QByteArray &data)
 }
 
 /*!
-    Sends a DELETE request to the target of \a request.
+    Sends the \a request using the DELETE method and returns a new QCoapReply
+    object.
 
     \sa get(), put(), post(), observe(), discover()
  */
@@ -461,13 +462,14 @@ QCoapReply *QCoapClient::observe(const QUrl &url)
 /*!
     \overload
 
-    Sends a request to cancel the observation of the target used by the
-    reply \a notifiedReply
+    Cancels the observation of a resource using the reply returned by the
+    observe() method.
 
     \sa observe()
 */
 void QCoapClient::cancelObserve(QCoapReply *notifiedReply)
 {
+    // TODO: Plan to add an override to cancel observe with an URL
     Q_D(QCoapClient);
     QMetaObject::invokeMethod(d->protocol, "cancelObserve",
                               Q_ARG(QPointer<QCoapReply>, QPointer<QCoapReply>(notifiedReply)));
