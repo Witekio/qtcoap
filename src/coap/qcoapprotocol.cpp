@@ -842,10 +842,11 @@ int QCoapProtocol::maxTransmitSpan() const
 */
 int QCoapProtocol::maxTransmitWait() const
 {
-    if (maxRetransmit() <= 0)
+    if (maxRetransmit() <= 0 || ackTimeout() <= 0)
         return 0;
 
-    return static_cast<int>(ackTimeout() * ((1u << (maxRetransmit() + 1)) - 1) * ackRandomFactor());
+    return static_cast<int>(static_cast<unsigned int>(ackTimeout())
+                            * ((1u << (maxRetransmit() + 1)) - 1) * ackRandomFactor());
 }
 
 /*!
@@ -902,14 +903,17 @@ void QCoapProtocol::setAckTimeout(int ackTimeout)
 
 /*!
     Sets the ACK_RANDOM_FACTOR value to \a ackRandomFactor. This value
-    defaults to 1.5.
+    should be greater or equal to 1, and defaults to 1.5.
 
     \sa ackRandomFactor(), setAckTimeout()
 */
 void QCoapProtocol::setAckRandomFactor(double ackRandomFactor)
 {
     Q_D(QCoapProtocol);
-    d->ackRandomFactor = ackRandomFactor;
+    if (ackRandomFactor < 1)
+        qWarning() << "QtCoap: The Ack random factor should be >= 1";
+
+    d->ackRandomFactor = qMax(1., ackRandomFactor);
 }
 
 /*!
