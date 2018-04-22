@@ -57,7 +57,6 @@ QCoapClientPrivate::~QCoapClientPrivate()
     delete connection;
 }
 
-//! TODO Document all enum values
 /*!
     \enum QtCoap::Error
 
@@ -65,16 +64,78 @@ QCoapClientPrivate::~QCoapClientPrivate()
 
     \value NoError                  No error condition.
 
-    \value HostNotFoundError        The remote host name was not
-                                    found.
-
-    \value BadRequestError          The request was not recognized.
+    \value HostNotFoundError        The remote host name was not found.
 
     \value AddressInUseError        The address is already in use.
 
     \value TimeOutError             The response did not arrive in time.
 
-    \value UnknownError             An unknown error was detected.
+    \value BadRequestError          The request was not recognized.
+
+    \value Unauthorized             The client is not authorized to perform
+                                    the requested action.
+
+    \value BadOption                The request could not be understood by
+                                    the server due to one or more unrecognized
+                                    or malformed options.
+
+    \value Forbidden                The access to this resource is forbidden.
+                                    This Response Code is like HTTP 403
+                                    "Forbidden".
+
+    \value NotFound                 The resource requested was not found.
+                                    This Response Code is like HTTP 404
+                                    "Not Found".
+
+    \value MethodNotAllowed         The method used is not allow by the server.
+                                    This Response Code is like HTTP 405
+                                    "Method Not Allowed" but with no parallel
+                                    to the "Allow" header field.
+
+    \value NotAcceptable            This Response Code is like HTTP 406
+                                    "Not Acceptable", but with no response entity.
+
+    \value RequestEntityIncomplete  The server has not received the blocks of
+                                    the request body that it needs to proceed.
+                                    The client has not sent all blocks,
+                                    not sent them in the order required by the
+                                    server, or has sent them long enough ago
+                                    that the server has already discarded them.
+
+    \value PreconditionFailed       This Response Code is like HTTP 412
+                                    "Precondition Failed".
+
+    \value RequestEntityTooLarge    This Response Code is like HTTP 413
+                                    "Request Entity Too Large".
+
+    \value UnsupportedContentFormat This Response Code is like HTTP 415
+                                    "Unsupported Media Type".
+
+    \value InternalServerError      This Response Code is like HTTP 500
+                                    "Internal Server Error".
+
+    \value NotImplemented           This Response Code is like HTTP 501
+                                    "Not Implemented".
+
+    \value BadGateway               An error occured with an upstream
+                                    server.
+                                    This Response Code is like HTTP 502
+                                    "Bad Gateway".
+
+    \value ServiceUnavailable       Indicates that the service currently
+                                    Unavailable.
+                                    This Response Code is like HTTP 503
+                                    "Service Unavailable".
+
+    \value GatewayTimeout           This Response Code is like HTTP 504
+                                    "Gateway Timeout".
+
+    \value ProxyingNotSupported     The server is unable or unwilling to act
+                                    as a forward-proxy for the URI specified
+                                    in the Proxy-Uri Option or using
+                                    Proxy-Scheme.
+
+    \value UnknownError             An unknown error occured.
 
     \sa error()
 */
