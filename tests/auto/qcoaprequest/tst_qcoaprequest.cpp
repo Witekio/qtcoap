@@ -114,10 +114,10 @@ void tst_QCoapRequest::enableObserve()
 {
     QCoapRequest request;
 
-    QVERIFY(request.isObserve() == false);
+    QCOMPARE(request.isObserve(), false);
     request.enableObserve();
 
-    QVERIFY(request.isObserve() == true);
+    QCOMPARE(request.isObserve(), true);
 }
 
 void tst_QCoapRequest::copyAndDetach()
