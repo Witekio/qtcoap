@@ -96,7 +96,6 @@ QCoapOption::QCoapOption(OptionName name, const QByteArray &value) :
 QCoapOption::QCoapOption(OptionName name, QStringView value) :
     d_ptr(new QCoapOptionPrivate)
 {
-    //! TODO: Cover in tests
     Q_D(QCoapOption);
     d->name = name;
     setValue(value);
@@ -111,7 +110,6 @@ QCoapOption::QCoapOption(OptionName name, QStringView value) :
 QCoapOption::QCoapOption(OptionName name, const char *value) :
     d_ptr(new QCoapOptionPrivate)
 {
-    //! TODO: Cover in tests
     Q_D(QCoapOption);
     d->name = name;
     setValue(value);
