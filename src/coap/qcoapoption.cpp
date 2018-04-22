@@ -74,8 +74,8 @@ QT_BEGIN_NAMESPACE
 
 /*!
     Constructs a QCoapOption object with the given \a name
-    and \a value. If no parameters are passed, constructs
-    an Invalid object.
+    and QByteArray \a value.
+    If no parameters are passed, constructs an Invalid object.
 
     \sa isValid()
  */
@@ -318,7 +318,7 @@ void QCoapOption::setValue(const QByteArray &value)
 }
 
 /*!
-    Sets value for the option from QStringView \a value.
+    Sets the value of the option with the QStringView \a value provided.
  */
 void QCoapOption::setValue(QStringView value)
 {
@@ -326,7 +326,7 @@ void QCoapOption::setValue(QStringView value)
 }
 
 /*!
-    Sets a string \a value for the option.
+    Sets the value of the option with the string \a value provided.
  */
 void QCoapOption::setValue(const char *value)
 {
@@ -334,7 +334,7 @@ void QCoapOption::setValue(const char *value)
 }
 
 /*!
-    Sets an integer \a value for the option.
+    Sets the value of the option with the integer \a value provided.
  */
 void QCoapOption::setValue(quint32 value)
 {
