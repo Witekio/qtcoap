@@ -177,8 +177,8 @@ void QCoapConnectionPrivate::_q_socketBound()
     if (state == QCoapConnection::Bound)
         return;
 
-     setState(QCoapConnection::Bound);
-     emit q->bound();
+    setState(QCoapConnection::Bound);
+    emit q->bound();
 }
 
 /*!
