@@ -33,32 +33,59 @@
 #include <QCoapClient>
 #include <QCoapReply>
 #include <QCoapDiscoveryReply>
-#include <QtNetwork/QHostInfo>
 
-CoapHandler::CoapHandler(const QHostAddress& coapHost, QObject *parent) : QObject(parent)
+CoapHandler::CoapHandler(QObject *parent) : QObject(parent)
 {
-    qDebug() << "Started...";
-
+    connect(&m_coapClient, &QCoapClient::finished, this, &CoapHandler::onFinished);
     connect(&m_coapClient, &QCoapClient::error, this, &CoapHandler::onError);
+}
 
-    QCoapReply *getReply = m_coapClient.get(QUrl("coap://" + coapHost.toString() + "/test"));
-    connect(getReply, &QCoapReply::finished, this, &CoapHandler::onFinished);
+bool CoapHandler::runGet(const QUrl &url)
+{
+    return m_coapClient.get(url);
+}
 
-    QCoapReply *observeReply = m_coapClient.observe(QUrl("coap://" + coapHost.toString() + "/obs"));
+bool CoapHandler::runPost(const QUrl &url)
+{
+    return m_coapClient.post(url);
+}
+
+bool CoapHandler::runPut(const QUrl &url)
+{
+    return m_coapClient.put(url);
+}
+
+bool CoapHandler::runDelete(const QUrl &url)
+{
+    return m_coapClient.deleteResource(url);
+}
+
+bool CoapHandler::runObserve(const QUrl &url)
+{
+    QCoapReply *observeReply = m_coapClient.observe(url);
+    if (!observeReply)
+        return false;
+
     connect(observeReply, &QCoapReply::notified, this, &CoapHandler::onNotified);
-    connect(observeReply, &QCoapReply::finished, this, &CoapHandler::onFinished);
+    return true;
+}
 
-    QCoapDiscoveryReply *discoveryReply = m_coapClient.discover(QUrl("coap://" + coapHost.toString()));
-    connect(discoveryReply, &QCoapDiscoveryReply::discovered, this, &CoapHandler::onDiscovered);
-    connect(discoveryReply, &QCoapReply::finished, this, &CoapHandler::onFinished);
+bool CoapHandler::runDiscover(const QUrl &url)
+{
+    QCoapDiscoveryReply *discoverReply = m_coapClient.discover(url);
+    if (discoverReply)
+        return false;
+
+    connect(discoverReply, &QCoapDiscoveryReply::discovered, this, &CoapHandler::onDiscovered);
+    return true;
 }
 
 void CoapHandler::onFinished(QCoapReply *reply)
 {
     if (reply->errorReceived() == QtCoap::NoError)
-        qDebug() << "Reply finished with payload: " << reply->readAll();
+        qDebug() << "Request finished with payload: " << reply->readAll();
     else
-        qDebug() << "Reply failed";
+        qDebug() << "Request failed";
 
     // Don't forget to remove the reply
     reply->deleteLater();
@@ -69,7 +96,7 @@ void CoapHandler::onNotified(QCoapReply *reply, QCoapMessage message)
     Q_UNUSED(message)
 
     // You can alternatively use `message.payload();`
-    qDebug() << "Received OBSERVE notification: " << reply->readAll();
+    qDebug() << "Received Observe notification with payload: " << reply->readAll();
 }
 
 void CoapHandler::onDiscovered(QCoapDiscoveryReply *reply, QVector<QCoapResource> resources)
@@ -77,7 +104,7 @@ void CoapHandler::onDiscovered(QCoapDiscoveryReply *reply, QVector<QCoapResource
     Q_UNUSED(reply)
 
     for (const QCoapResource &res : qAsConst(resources))
-        qDebug() << "Resource discovered: " << res.path() << res.title();
+        qDebug() << "Discovered resource: " << res.path() << res.title();
 }
 
 void CoapHandler::onError(QCoapReply *reply, QtCoap::Error error)

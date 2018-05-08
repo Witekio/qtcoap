@@ -44,7 +44,14 @@ class CoapHandler : public QObject
 {
     Q_OBJECT
 public:
-    explicit CoapHandler(const QHostAddress& coapHost, QObject *parent = nullptr);
+    explicit CoapHandler(QObject *parent = nullptr);
+
+    bool runGet(const QUrl &url);
+    bool runPost(const QUrl &url);
+    bool runPut(const QUrl &url);
+    bool runDelete(const QUrl &url);
+    bool runObserve(const QUrl &url);
+    bool runDiscover(const QUrl &url);
 
 public Q_SLOTS:
     void onFinished(QCoapReply *reply);
