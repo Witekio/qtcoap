@@ -92,7 +92,9 @@ QCoapClientPrivate::~QCoapClientPrivate()
                                     "Method Not Allowed" but with no parallel
                                     to the "Allow" header field.
 
-    \value NotAcceptable            This Response Code is like HTTP 406
+    \value NotAcceptable            No resource satisfying the request's acceptance
+                                    criteria was found.
+                                    This Response Code is like HTTP 406
                                     "Not Acceptable", but with no response entity.
 
     \value RequestEntityIncomplete  The server has not received the blocks of
@@ -102,19 +104,35 @@ QCoapClientPrivate::~QCoapClientPrivate()
                                     server, or has sent them long enough ago
                                     that the server has already discarded them.
 
-    \value PreconditionFailed       This Response Code is like HTTP 412
+    \value PreconditionFailed       One or more conditions given in the request
+                                    header fields evaluated to false when tested
+                                    on the server.
+                                    This Response Code is like HTTP 412
                                     "Precondition Failed".
 
-    \value RequestEntityTooLarge    This Response Code is like HTTP 413
+    \value RequestEntityTooLarge    The server is refusing to process a request
+                                    because the request payload is larger than
+                                    the server is willing or able to process.
+                                    This Response Code is like HTTP 413
                                     "Request Entity Too Large".
 
-    \value UnsupportedContentFormat This Response Code is like HTTP 415
+    \value UnsupportedContentFormat The origin server is refusing to service
+                                    the request because the payload is in a
+                                    format not supported by this method on the
+                                    target resource.
+                                    This Response Code is like HTTP 415
                                     "Unsupported Media Type".
 
-    \value InternalServerError      This Response Code is like HTTP 500
+    \value InternalServerError      The server encountered an unexpected
+                                    condition that prevented it from
+                                    fulfilling the request.
+                                    This Response Code is like HTTP 500
                                     "Internal Server Error".
 
-    \value NotImplemented           This Response Code is like HTTP 501
+    \value NotImplemented           The server does not support the
+                                    functionality required to fulfill the
+                                    request.
+                                    This Response Code is like HTTP 501
                                     "Not Implemented".
 
     \value BadGateway               An error occurred with an upstream
@@ -127,7 +145,11 @@ QCoapClientPrivate::~QCoapClientPrivate()
                                     This Response Code is like HTTP 503
                                     "Service Unavailable".
 
-    \value GatewayTimeout           This Response Code is like HTTP 504
+    \value GatewayTimeout           The server, while acting as a gateway
+                                    or proxy, did not receive a timely
+                                    response from an upstream server it needed
+                                    to access in order to complete the request.
+                                    This Response Code is like HTTP 504
                                     "Gateway Timeout".
 
     \value ProxyingNotSupported     The server is unable or unwilling to act
