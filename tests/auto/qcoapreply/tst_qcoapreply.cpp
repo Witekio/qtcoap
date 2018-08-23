@@ -58,37 +58,37 @@ public:
 
 void tst_QCoapReply::updateReply_data()
 {
-    QTest::addColumn<QString>("payload");
+    QTest::addColumn<QByteArray>("payload");
     QTest::addColumn<QtCoap::ResponseCode>("responseCode");
     QTest::addColumn<QtCoap::Error>("error");
 
     QTest::newRow("success")
-            << "Some data"
+            << QByteArray("Some data")
             << QtCoap::Content
             << QtCoap::NoError;
     QTest::newRow("content error")
-            << "Error"
+            << QByteArray("Error")
             << QtCoap::BadRequest
             << QtCoap::NoError;
     QTest::newRow("finished error")
-            << "Error"
+            << QByteArray("Error")
             << QtCoap::Content
             << QtCoap::BadRequestError;
     QTest::newRow("content & finished errors")
-            << "2Errors"
+            << QByteArray("2Errors")
             << QtCoap::BadGateway
             << QtCoap::BadRequestError;
 }
 
 void tst_QCoapReply::updateReply()
 {
-    QFETCH(QString, payload);
+    QFETCH(QByteArray, payload);
     QFETCH(QtCoap::ResponseCode, responseCode);
     QFETCH(QtCoap::Error, error);
 
     QCoapReply reply((QCoapRequest()));
     QCoapMessage message;
-    message.setPayload(payload.toUtf8());
+    message.setPayload(payload);
 
     QSignalSpy spyReplyFinished(&reply, &QCoapReply::finished);
     QSignalSpy spyReplyNotified(&reply, &QCoapReply::notified);
@@ -110,7 +110,7 @@ void tst_QCoapReply::updateReply()
     else
         QCOMPARE(spyReplyError.count(), 0);
 
-    QCOMPARE(reply.readAll(), payload.toUtf8());
+    QCOMPARE(reply.readAll(), payload);
     QCOMPARE(reply.readAll(), QByteArray());
 }
 
