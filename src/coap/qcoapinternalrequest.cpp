@@ -367,7 +367,7 @@ bool QCoapInternalRequest::addUriOptions(QUrl uri, const QUrl &proxyUri)
     // Set to an invalid state
     d->targetUri = QUrl();
 
-    // When using a proxy uri, we SHOULD NOT incude Uri-Host/Port/Path/Query
+    // When using a proxy uri, we SHOULD NOT include Uri-Host/Port/Path/Query
     // options.
     if (!proxyUri.isEmpty()) {
         if (!isUrlValid(proxyUri))
