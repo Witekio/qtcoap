@@ -72,15 +72,17 @@ void tst_QCoapInternalRequest::requestToFrame_data()
         << "5401dc504647f09b3a646f6d61696e2e636f6d8474657374ff"
         << "Some payload";
 
+#if 0
     // TODO: Not passing yet, see QCoapInternalRequest::addUriHostOption
-    /*QTest::newRow("request_ipv6")
+    QTest::newRow("request_ipv6")
         << QUrl("coap://[::ffff:ac11:3]:5683/test")
         << QtCoap::Get
         << QCoapRequest::NonConfirmable
         << quint16(56400)
         << QByteArray::fromHex("4647f09b")
         << "5401dc504647f09bb474657374ff"
-        << "Some payload";*/
+        << "Some payload";
+#endif
 
     QTest::newRow("request_without_payload")
         << QUrl("coap://10.20.30.40:5683/test")
