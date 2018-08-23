@@ -41,7 +41,7 @@ int main(int argc, char *argv[])
     parser.setApplicationDescription("Qt CoAP test application");
     parser.addHelpOption();
     parser.addPositionalArgument("url",
-                                 "The targetted coap resource URL, e.g. 'coap://10.10.10.10/myresource'");
+                                 "The targeted coap resource URL, e.g. 'coap://10.10.10.10/myresource'");
     parser.addOption({"get", "Use GET method for the request. This is the default method"});
     parser.addOption({"post", "Use POST method for the request"});
     parser.addOption({"put", "Use PUT method for the request"});

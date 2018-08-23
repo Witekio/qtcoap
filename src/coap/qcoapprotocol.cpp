@@ -903,7 +903,7 @@ void QCoapProtocol::setAckTimeout(int ackTimeout)
 
 /*!
     Sets the ACK_RANDOM_FACTOR value to \a ackRandomFactor. This value
-    should be greater or equal to 1, and defaults to 1.5.
+    should be greater than or equal to 1, and defaults to 1.5.
 
     \sa ackRandomFactor(), setAckTimeout()
 */
