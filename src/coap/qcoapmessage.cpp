@@ -242,7 +242,7 @@ QCoapOption QCoapMessage::option(int index) const
 }
 
 /*!
-    Finds and returns the option with the given \a name.
+    Finds and returns the first option with the given \a name.
     If there is no such option, returns an Invalid CoapOption with an empty value.
 */
 QCoapOption QCoapMessage::option(QCoapOption::OptionName name) const
@@ -254,8 +254,9 @@ QCoapOption QCoapMessage::option(QCoapOption::OptionName name) const
 }
 
 /*!
-    Finds and returns the option with the given \a name.
-    If there is no such option, returns an Invalid CoapOption with an empty value.
+    Finds and returns a constant iterator to the first option
+    with the given \a name.
+    If there is no such option, returns \c d->options.end().
 */
 QVector<QCoapOption>::const_iterator QCoapMessage::findOption(QCoapOption::OptionName name) const
 {

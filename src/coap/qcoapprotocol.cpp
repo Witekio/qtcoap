@@ -538,7 +538,7 @@ void QCoapProtocol::cancelObserve(QPointer<QCoapReply> reply)
 /*!
     \internal
 
-    Encodes the QCoapInternalRequest object \a request to a QByteArray frame.
+    Encodes the \a request to a QByteArray frame.
 */
 QByteArray QCoapProtocolPrivate::encode(QCoapInternalRequest *request)
 {
@@ -548,7 +548,7 @@ QByteArray QCoapProtocolPrivate::encode(QCoapInternalRequest *request)
 /*!
     \internal
 
-    Decodes the QNetworkDatagram \a frame and returns a new unmanaged
+    Decodes the \a frame and returns a new unmanaged
     QCoapInternalReply object.
 */
 QCoapInternalReply *QCoapProtocolPrivate::decode(const QNetworkDatagram &frame)
@@ -603,7 +603,7 @@ void QCoapProtocolPrivate::onConnectionError(QAbstractSocket::SocketError socket
 }
 
 /*!
-    Decodes the QByteArray \a data to a list of QCoapResource objects.
+    Decodes the \a data to a list of QCoapResource objects.
     The \a data byte array is a frame returned by a discovery request.
 */
 QVector<QCoapResource> QCoapProtocol::resourcesFromCoreLinkList(const QHostAddress &sender,
@@ -664,8 +664,8 @@ void QCoapProtocolPrivate::registerExchange(const QCoapToken &token, QCoapReply 
 
     Adds \a reply to the list of replies of the exchange identified by
     \a token.
-    Returns \c if the reply was successfully added. This method will fail
-    and return \c false if not exchange is associated with the \a token
+    Returns \c true if the reply was successfully added. This method will fail
+    and return \c false if no exchange is associated with the \a token
     provided.
 */
 bool QCoapProtocolPrivate::addReply(const QCoapToken &token,
@@ -683,7 +683,7 @@ bool QCoapProtocolPrivate::addReply(const QCoapToken &token,
 /*!
     \internal
 
-    Remove the exchange identified by its QCoapToken \a token. This is
+    Remove the exchange identified by its \a token. This is
     typically done when finished or aborted.
     It will delete the QCoapInternalRequest and QCoapInternalReplies
     associated with the exchange.
@@ -774,9 +774,10 @@ bool QCoapProtocolPrivate::isMessageIdRegistered(quint16 id)
 }
 
 /*!
-    Returns the ACK_TIMEOUT value.
+    Returns the ACK_TIMEOUT value in milliseconds.
+    The default is 2000.
 
-    \sa setAckTimeout()
+    \sa minTimeout(), setAckTimeout()
 */
 int QCoapProtocol::ackTimeout() const
 {
@@ -786,6 +787,7 @@ int QCoapProtocol::ackTimeout() const
 
 /*!
     Returns the ACK_RANDOM_FACTOR value.
+    The default is 1.5.
 
     \sa setAckRandomFactor()
 */
@@ -796,7 +798,9 @@ double QCoapProtocol::ackRandomFactor() const
 }
 
 /*!
-    Returns the MAX_RETRANSMIT value.
+    Returns the MAX_RETRANSMIT value. This is the maximum number of
+    retransmissions of a message, before notifying a timeout error.
+    The default is 4.
 
     \sa setMaxRetransmit()
 */
@@ -808,6 +812,7 @@ int QCoapProtocol::maxRetransmit() const
 
 /*!
     Returns the max block size wanted.
+    The default is 0, which invites the server to choose the block size.
 
     \sa setBlockSize()
 */
@@ -864,9 +869,10 @@ constexpr int QCoapProtocol::maxLatency()
 
 /*!
     Returns the minimum duration for messages timeout. The timeout is defined
-    as a random value between minTimeout() and maxTimeout().
+    as a random value between minTimeout() and maxTimeout(). This is a
+    convenience method identical to ackTimeout().
 
-    \sa minTimeout(), setAckTimeout()
+    \sa ackTimeout(), setAckTimeout()
 */
 int QCoapProtocol::minTimeout() const
 {
@@ -875,7 +881,7 @@ int QCoapProtocol::minTimeout() const
 }
 
 /*!
-    Returns the maximum duration for messages timeout.
+    Returns the maximum duration for messages timeout in milliseconds.
 
     \sa maxTimeout(), setAckTimeout(), setAckRandomFactor()
 */
@@ -886,8 +892,8 @@ int QCoapProtocol::maxTimeout() const
 }
 
 /*!
-    Sets the ACK_TIMEOUT value to \a ackTimeout in milliseconds. This value
-    defauts to 2000 ms.
+    Sets the ACK_TIMEOUT value to \a ackTimeout in milliseconds.
+    The default is 2000 ms.
 
     Timeout only applies to Confirmable message. The actual timeout for
     reliable transmissions is a random value between ackTimeout() and
@@ -903,7 +909,8 @@ void QCoapProtocol::setAckTimeout(int ackTimeout)
 
 /*!
     Sets the ACK_RANDOM_FACTOR value to \a ackRandomFactor. This value
-    should be greater than or equal to 1, and defaults to 1.5.
+    should be greater than or equal to 1.
+    The default is 1.5.
 
     \sa ackRandomFactor(), setAckTimeout()
 */
@@ -917,8 +924,9 @@ void QCoapProtocol::setAckRandomFactor(double ackRandomFactor)
 }
 
 /*!
-    Sets the MAX_RETRANSMIT value to \a maxRetransmit. This value
-    defaults to 4, and is capped at 25.
+    Sets the MAX_RETRANSMIT value to \a maxRetransmit. The maximum number
+    of retransmission is 25.
+    The default is 4.
 
     \sa maxRetransmit()
 */
@@ -942,7 +950,7 @@ void QCoapProtocol::setMaxRetransmit(int maxRetransmit)
     Sets the max block size wanted to \a blockSize.
 
     The \a blockSize should be zero, or range from 16 to 1024 and be a
-    power of 2. A size of 0 invites the server to chose the block size.
+    power of 2. A size of 0 invites the server to choose the block size.
 
     \sa blockSize()
 */
