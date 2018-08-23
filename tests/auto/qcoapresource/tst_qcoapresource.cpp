@@ -146,15 +146,18 @@ void tst_QCoapResource::parseCoreLink()
     const QVector<QCoapResource> resourceList = QCoapProtocol::resourcesFromCoreLinkList(QHostAddress(senderAddress), coreLinkList);
 
     QCOMPARE(resourceList.size(), resourceNumber);
-    for (int i = 0; i < resourceList.size(); ++i) {
-        QCOMPARE(resourceList[i].host(), QHostAddress(senderAddress));
-        QCOMPARE(resourceList[i].path(), pathList[i]);
-        QCOMPARE(resourceList[i].title(), titleList[i]);
-        QCOMPARE(resourceList[i].resourceType(), resourceTypeList[i]);
-        QCOMPARE(resourceList[i].contentFormat(), contentFormatList[i]);
-        QCOMPARE(resourceList[i].interface(), interfaceList[i]);
-        QCOMPARE(resourceList[i].maximumSize(), maximumSizeList[i]);
-        QCOMPARE(resourceList[i].observable(), observableList[i]);
+
+    int resourceIndex = 0;
+    for (const auto &resource : resourceList) {
+        QCOMPARE(resource.host(), QHostAddress(senderAddress));
+        QCOMPARE(resource.path(), pathList[resourceIndex]);
+        QCOMPARE(resource.title(), titleList[resourceIndex]);
+        QCOMPARE(resource.resourceType(), resourceTypeList[resourceIndex]);
+        QCOMPARE(resource.contentFormat(), contentFormatList[resourceIndex]);
+        QCOMPARE(resource.interface(), interfaceList[resourceIndex]);
+        QCOMPARE(resource.maximumSize(), maximumSizeList[resourceIndex]);
+        QCOMPARE(resource.observable(), observableList[resourceIndex]);
+        ++resourceIndex;
     }
 }
 
