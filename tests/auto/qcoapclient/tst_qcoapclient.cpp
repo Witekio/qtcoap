@@ -110,18 +110,6 @@ public:
     }
 };
 
-class QCoapTestConnection : public QCoapConnection
-{
-public:
-    QCoapTestConnection() :
-        QCoapConnection (* new QCoapConnectionPrivate) {}
-
-    void simulateInboundDatagram(const QNetworkDatagram &datagram)
-    {
-        emit readyRead(datagram);
-    }
-};
-
 class QCoapClientForTests : public QCoapClient
 {
 public:
@@ -200,8 +188,8 @@ void tst_QCoapClient::methods_data()
     QTest::newRow("get_no_op")              << QUrl(testServerResource()) << QtCoap::Invalid;
     QTest::newRow("get")                    << QUrl(testServerResource()) << QtCoap::Get;
     QTest::newRow("get_incorrect_op")       << QUrl(testServerResource()) << QtCoap::Put;
-    QTest::newRow("get_no_port")            << QUrl("coap://" + testServerHost() + "/test") <<
-                                            QtCoap::Get;
+    QTest::newRow("get_no_port")
+                << QUrl("coap://" + testServerHost() + "/test") << QtCoap::Get;
     QTest::newRow("get_no_scheme_no_port")  << QUrl(testServerHost() + "/test") << QtCoap::Get;
     QTest::newRow("post_no_op")             << QUrl(testServerResource()) << QtCoap::Invalid;
     QTest::newRow("post")                   << QUrl(testServerResource()) << QtCoap::Post;
@@ -515,24 +503,30 @@ void tst_QCoapClient::blockwiseReply_data()
     data.append("|               [each line contains 64 bytes]                 |\n");
     data.append("\\-------------------------------------------------------------/\n");
 
-    QTest::newRow("get_large") << QUrl(testServerUrl() + "/large")
-                               << QCoapMessage::NonConfirmable
-                               << data;
-    QTest::newRow("get_large_separate") << QUrl(testServerUrl() + "/large-separate")
-                                        << QCoapMessage::NonConfirmable
-                                        << data;
-    QTest::newRow("get_large_confirmable") << QUrl(testServerUrl() + "/large")
-                                           << QCoapMessage::Confirmable
-                                           << data;
-    QTest::newRow("get_large_separate_confirmable") << QUrl(testServerUrl() + "/large-separate")
-                                                    << QCoapMessage::Confirmable
-                                                    << data;
-    QTest::newRow("get_large_16bits") << QUrl(testServerUrl() + "/large")
-                                      << QCoapMessage::NonConfirmable
-                                      << data;
-    QTest::newRow("get_large_16bits_confirmable") << QUrl(testServerUrl() + "/large")
-                                                  << QCoapMessage::Confirmable
-                                                  << data;
+    QTest::newRow("get_large")
+            << QUrl(testServerUrl() + "/large")
+            << QCoapMessage::NonConfirmable
+            << data;
+    QTest::newRow("get_large_separate")
+            << QUrl(testServerUrl() + "/large-separate")
+            << QCoapMessage::NonConfirmable
+            << data;
+    QTest::newRow("get_large_confirmable")
+            << QUrl(testServerUrl() + "/large")
+            << QCoapMessage::Confirmable
+            << data;
+    QTest::newRow("get_large_separate_confirmable")
+            << QUrl(testServerUrl() + "/large-separate")
+            << QCoapMessage::Confirmable
+            << data;
+    QTest::newRow("get_large_16bits")
+            << QUrl(testServerUrl() + "/large")
+            << QCoapMessage::NonConfirmable
+            << data;
+    QTest::newRow("get_large_16bits_confirmable")
+            << QUrl(testServerUrl() + "/large")
+            << QCoapMessage::Confirmable
+            << data;
 }
 
 void tst_QCoapClient::blockwiseReply()

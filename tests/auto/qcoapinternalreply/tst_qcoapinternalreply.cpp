@@ -31,6 +31,7 @@
 #include <QCoreApplication>
 
 #include <private/qcoapinternalreply_p.h>
+#include <private/qcoapreply_p.h>
 
 class tst_QCoapInternalReply : public QObject
 {
@@ -59,16 +60,15 @@ void tst_QCoapInternalReply::parseReplyPdu_data()
     QTest::addColumn<QString>("pduHexa");
 
     QList<QCoapOption::OptionName> optionsNamesReply({QCoapOption::ContentFormat,
-                                                      QCoapOption::MaxAge
-                                                     });
+                                                      QCoapOption::MaxAge});
     QList<quint8> optionsLengthsReply({0, 1});
     QList<QByteArray> optionsValuesReply({"", QByteArray::fromHex("1e")});
 
-    QList<QCoapOption::OptionName> bigOptionsNamesReply({QCoapOption::Size1});
-    QList<quint8> bigOptionsLengthsReply({26});
-    QList<QByteArray> bigOptionsValuesReply({QByteArray("abcdefghijklmnopqrstuvwxyz")});
+    QList<QCoapOption::OptionName> bigOptionNameReply({QCoapOption::Size1});
+    QList<quint8> bigOptionLengthReply({26});
+    QList<QByteArray> bigOptionValueReply({QByteArray("abcdefghijklmnopqrstuvwxyz")});
 
-    QTest::newRow("reply_with_option_and_payload")
+    QTest::newRow("reply_with_options_and_payload")
             << QtCoap::Content
             << QCoapMessage::NonConfirmable
             << quint16(64463)
@@ -79,10 +79,10 @@ void tst_QCoapInternalReply::parseReplyPdu_data()
             << optionsValuesReply
             << "Type: 1 (NON)\nCode: 1 (GET)\nMID: 56400\nToken: 4647f09b"
             << "5445fbcf4647f09bc0211eff547970653a203120284e4f4e290a436f64653a20"
-            "312028474554290a4d49443a2035363430300a546f6b656e3a20343634376630"
-            "3962";
+               "312028474554290a4d49443a2035363430300a546f6b656e3a20343634376630"
+               "3962";
 
-    QTest::newRow("reply_without_options")
+    QTest::newRow("reply_with_payload")
             << QtCoap::Content
             << QCoapMessage::NonConfirmable
             << quint16(64463)
@@ -93,9 +93,9 @@ void tst_QCoapInternalReply::parseReplyPdu_data()
             << QList<QByteArray>()
             << "Type: 1 (NON)\nCode: 1 (GET)\nMID: 56400\nToken: 4647f09b"
             << "5445fbcf4647f09bff547970653a203120284e4f4e290a436f64653a20312028"
-            "474554290a4d49443a2035363430300a546f6b656e3a203436343766303962";
+               "474554290a4d49443a2035363430300a546f6b656e3a203436343766303962";
 
-    QTest::newRow("reply_without_payload")
+    QTest::newRow("reply_with_options")
             << QtCoap::Content
             << QCoapMessage::NonConfirmable
             << quint16(64463)
@@ -125,12 +125,12 @@ void tst_QCoapInternalReply::parseReplyPdu_data()
             << quint16(64463)
             << QByteArray("4647f09b")
             << quint8(4)
-            << bigOptionsNamesReply
-            << bigOptionsLengthsReply
-            << bigOptionsValuesReply
+            << bigOptionNameReply
+            << bigOptionLengthReply
+            << bigOptionValueReply
             << ""
             << "5445fbcf4647f09bdd2f0d6162636465666768696a6b6c6d6e6f707172737475"
-            "767778797a";
+               "767778797a";
 }
 
 void tst_QCoapInternalReply::parseReplyPdu()
@@ -146,8 +146,8 @@ void tst_QCoapInternalReply::parseReplyPdu()
     QFETCH(QString, payload);
     QFETCH(QString, pduHexa);
 
-    QScopedPointer<QCoapInternalReply> reply(QCoapInternalReply::createFromFrame(QByteArray::fromHex(
-                                                                                     pduHexa.toUtf8())));
+    QScopedPointer<QCoapInternalReply>
+            reply(QCoapInternalReply::createFromFrame(QByteArray::fromHex(pduHexa.toUtf8())));
 
     QCOMPARE(reply->message()->type(), type);
     QCOMPARE(reply->message()->tokenLength(), tokenLength);
@@ -164,7 +164,6 @@ void tst_QCoapInternalReply::parseReplyPdu()
     QCOMPARE(reply->message()->payload(), payload);
 }
 
-#include <private/qcoapreply_p.h>
 class QCoapReplyForTests : public QCoapReply
 {
 public:
