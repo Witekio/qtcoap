@@ -1,6 +1,6 @@
 /****************************************************************************
 **
-** Copyright (C) 2017 Witekio.
+** Copyright (C) 2018 Witekio.
 ** Contact: https://witekio.com/contact/
 **
 ** This file is part of the QtCoap module.
