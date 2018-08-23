@@ -87,7 +87,7 @@ QCoapClientPrivate::~QCoapClientPrivate()
                                     This Response Code is like HTTP 404
                                     "Not Found".
 
-    \value MethodNotAllowed         The method used is not allow by the server.
+    \value MethodNotAllowed         The method used is not allowed by the server.
                                     This Response Code is like HTTP 405
                                     "Method Not Allowed" but with no parallel
                                     to the "Allow" header field.
@@ -117,12 +117,12 @@ QCoapClientPrivate::~QCoapClientPrivate()
     \value NotImplemented           This Response Code is like HTTP 501
                                     "Not Implemented".
 
-    \value BadGateway               An error occured with an upstream
+    \value BadGateway               An error occurred with an upstream
                                     server.
                                     This Response Code is like HTTP 502
                                     "Bad Gateway".
 
-    \value ServiceUnavailable       Indicates that the service currently
+    \value ServiceUnavailable       Indicates that the service is currently
                                     Unavailable.
                                     This Response Code is like HTTP 503
                                     "Service Unavailable".
@@ -135,7 +135,7 @@ QCoapClientPrivate::~QCoapClientPrivate()
                                     in the Proxy-Uri Option or using
                                     Proxy-Scheme.
 
-    \value UnknownError             An unknown error occured.
+    \value UnknownError             An unknown error occurred.
 
     \sa error()
 */
