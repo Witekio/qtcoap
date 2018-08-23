@@ -184,24 +184,24 @@ public:
 
 void tst_QCoapInternalReply::updateReply_data()
 {
-    QTest::addColumn<QString>("data");
+    QTest::addColumn<QByteArray>("data");
 
-    QTest::newRow("success") << "Data for the updating test";
+    QTest::newRow("success") << QByteArray("Data for the updating test");
 }
 
 void tst_QCoapInternalReply::updateReply()
 {
-    QFETCH(QString, data);
+    QFETCH(QByteArray, data);
 
     QCoapReplyForTests reply((QCoapRequest()));
     QCoapInternalReply internalReply;
-    internalReply.message()->setPayload(data.toUtf8());
+    internalReply.message()->setPayload(data);
     QSignalSpy spyReplyFinished(&reply, &QCoapReply::finished);
 
     reply.setContentAndFinished(&internalReply);
 
     QTRY_COMPARE_WITH_TIMEOUT(spyReplyFinished.count(), 1, 1000);
-    QCOMPARE(reply.readAll(), data.toUtf8());
+    QCOMPARE(reply.readAll(), data);
 }
 
 void tst_QCoapInternalReply::requestData()
