@@ -281,8 +281,13 @@ qint64 QCoapReply::readData(char *data, qint64 maxSize)
 
     // Explicitly account for platform size_t limitations
     size_t len = static_cast<size_t>(maxSize);
-    if (sizeof(qint64) > sizeof(size_t))
+    if (sizeof(qint64) > sizeof(size_t)
+            && maxSize > static_cast<qint64>(std::numeric_limits<size_t>::max())) {
+        qWarning() << "QCoapReply::readData: Cannot read more than"
+                   << std::numeric_limits<size_t>::max()
+                   << "at a time";
         len = std::numeric_limits<size_t>::max();
+    }
 
     memcpy(data, payload.constData() + pos(), len);
 
