@@ -177,10 +177,8 @@ void QCoapProtocolPrivate::onRequestMaxTransmissionSpanReached(QCoapInternalRequ
     Q_Q(const QCoapProtocol);
     Q_ASSERT(QThread::currentThread() == q->thread());
 
-    if (!isRequestRegistered(request))
-        return;
-
-    onRequestError(request, QtCoap::TimeOutError);
+    if (isRequestRegistered(request))
+        onRequestError(request, QtCoap::TimeOutError);
 }
 
 /*!

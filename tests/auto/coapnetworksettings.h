@@ -61,10 +61,14 @@ namespace QtCoapNetworkSettings
 #endif
         return QStringLiteral(COAP_TEST_SERVER_IP);
     }
-    QString testServerUrl() {
+
+    QString testServerUrl()
+    {
         return QStringLiteral("coap://") + testServerHost() + QStringLiteral(":5683");
     }
-    QString testServerResource() {
+
+    QString testServerResource()
+    {
         return testServerUrl() + QStringLiteral("/test");
     }
 }
