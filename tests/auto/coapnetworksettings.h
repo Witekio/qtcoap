@@ -48,18 +48,13 @@
 */
 namespace QtCoapNetworkSettings
 {
-    QString testServerHost() {
-#if 0
-        QHostInfo host = QHostInfo::fromName(testServerHostName());
-        if (host.addresses().isEmpty()) {
-            QString error = "Host name " + testServerHostName() + " could not be resolved.";
-            QWARN(qPrintable(error));
-            return QString();
-        }
-
-        return host.addresses().first().toString();
-#endif
+    QString testServerHost()
+    {
+#if defined(COAP_TEST_SERVER_IP)
         return QStringLiteral(COAP_TEST_SERVER_IP);
+#else
+        static_assert(false, "COAP_TEST_SERVER_IP variable must be set");
+#endif
     }
 
     QString testServerUrl()
