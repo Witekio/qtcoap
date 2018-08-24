@@ -439,8 +439,7 @@ void QCoapInternalRequest::restartTransmission()
     if (!d->transmissionInProgress) {
         d->transmissionInProgress = true;
         d->maxTransmitWaitTimer->start();
-    }
-    else {
+    } else {
         d->retransmissionCounter++;
         d->timeout *= 2;
     }
