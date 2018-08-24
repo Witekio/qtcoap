@@ -60,14 +60,27 @@ connect(reply, &QCoapReply::discovered, this, &MyClass::onDiscovered);
 The signal `discovered` can be triggered multiple times, and will provide the list of resources returns by the server(s).
 
 ## Automated tests
-Automated tests require Californium plugtest server. Plugtest is a CoAP server providing a way to test the main features of the CoAP protocol.
+Automated tests require a Californium plugtest server. Plugtest is a CoAP server used to test the main features of the CoAP protocol.
 The following command starts a plugtest server using Docker.
 
 ```bash
 docker run --name coap-test-server -d --rm -p 5683:5683/udp aleravat/coap-test-server:latest
 ```
 
-For automatic tests to work, the test server should be accessible with host name `coap-plugtest-server`. You can use `docker inspect <container_id>` to get the test server IP, and map the IP to the host name by:
+Automated tests require `COAP_TEST_SERVER_IP` environment variable to be set, containing Plugtest server IP address. This address will be used to connect to the Plugtest server on port 5683.
 
-- Editing `/etc/hosts` (or `C:\Windows\System32\drivers\etc\hosts` on Windows)
-- Adding `<container_ip> coap-plugtest-server` to it.
+The IP address of the docker container can found identified by:
+1. Retrieve the container id with `docker ps`
+```
+$ docker ps
+CONTAINER ID        IMAGE                                           [...]
+826073e84e7f        aleravat/coap-test-server:latest                [...]
+```
+2. Get the IP address with `docker inspect <container_id> | grep IPAddress`
+```
+$ docker inspect 826073e84e7f | grep IPAddress
+[...]
+        "IPAddress": "172.17.0.3",
+[...]
+```
+3. Set the environment variable in QtCreator, or in a the terminal used `export COAP_TEST_SERVER_IP="172.17.0.3"`
