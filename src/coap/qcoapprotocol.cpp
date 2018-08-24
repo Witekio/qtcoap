@@ -249,13 +249,11 @@ void QCoapProtocolPrivate::onFrameReceived(const QNetworkDatagram &frame)
             return;
     }
 
-    //! TODO Support IPv6 for host verification. Currently IPv6 not supported,
-    //! operator "!=" does not exist for IPv6 addresses.
     QHostAddress originalTarget(request->targetUri().host());
-    if (!originalTarget.isMulticast()
-            && originalTarget.toIPv4Address() != frame.senderAddress().toIPv4Address()) {
+    if (!originalTarget.isMulticast() && !originalTarget.isEqual(frame.senderAddress())) {
         qDebug().nospace() << "QtCoap: Answer received from incorrect host ("
-                           << frame.senderAddress() << " instead of " << originalTarget << ")";
+                           << frame.senderAddress() << " instead of "
+                           << originalTarget << ")";
         return;
     }
 
