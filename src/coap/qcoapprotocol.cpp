@@ -920,8 +920,8 @@ void QCoapProtocol::setAckRandomFactor(double ackRandomFactor)
 }
 
 /*!
-    Sets the MAX_RETRANSMIT value to \a maxRetransmit. The maximum number
-    of retransmission is 25.
+    Sets the MAX_RETRANSMIT value to \a maxRetransmit, but never
+    to more than 25.
     The default is 4.
 
     \sa maxRetransmit()

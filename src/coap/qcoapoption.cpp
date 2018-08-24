@@ -252,7 +252,7 @@ bool QCoapOption::operator!=(const QCoapOption &other) const
 }
 
 /*!
-    Sets the value for the option.
+    Sets the option's value to the \a value provided.
  */
 void QCoapOption::setValue(const QByteArray &value)
 {
@@ -316,7 +316,7 @@ void QCoapOption::setValue(const QByteArray &value)
 }
 
 /*!
-    Sets the value of the option with the QStringView \a value provided.
+    Sets the option's value to the QStringView \a value provided.
  */
 void QCoapOption::setValue(QStringView value)
 {
@@ -324,7 +324,7 @@ void QCoapOption::setValue(QStringView value)
 }
 
 /*!
-    Sets the value of the option with the string \a value provided.
+    Sets the option's value to the string \a value provided.
  */
 void QCoapOption::setValue(const char *value)
 {
@@ -332,7 +332,7 @@ void QCoapOption::setValue(const char *value)
 }
 
 /*!
-    Sets the value of the option with the integer \a value provided.
+    Sets the option's value to the integer \a value provided.
  */
 void QCoapOption::setValue(quint32 value)
 {

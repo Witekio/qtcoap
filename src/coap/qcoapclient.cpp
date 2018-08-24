@@ -110,16 +110,13 @@ QCoapClientPrivate::~QCoapClientPrivate()
                                     This Response Code is like HTTP 412
                                     "Precondition Failed".
 
-    \value RequestEntityTooLarge    The server is refusing to process a request
-                                    because the request payload is larger than
-                                    the server is willing or able to process.
+    \value RequestEntityTooLarge    The request payload is larger than the
+                                    server is willing or able to process.
                                     This Response Code is like HTTP 413
                                     "Request Entity Too Large".
 
-    \value UnsupportedContentFormat The origin server is refusing to service
-                                    the request because the payload is in a
-                                    format not supported by this method on the
-                                    target resource.
+    \value UnsupportedContentFormat The payload is in a format not supported
+                                    by this method on the target resource.
                                     This Response Code is like HTTP 415
                                     "Unsupported Media Type".
 
@@ -627,6 +624,8 @@ bool QCoapClientPrivate::send(QCoapReply *reply)
 /*!
     Sets the maximum block size used by the protocol when sending requests
     and receiving replies. The block size must be a power of two.
+
+    \sa QCoapProtocol::setBlockSize()
 */
 void QCoapClient::setBlockSize(quint16 blockSize)
 {
