@@ -102,7 +102,7 @@ public:
 
     static bool isError(ResponseCode code)
     {
-        return code >= 0x80;
+        return static_cast<int>(code) >= 0x80;
     }
     static Error responseCodeError(ResponseCode code);
 
