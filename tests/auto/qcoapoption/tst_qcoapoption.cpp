@@ -77,7 +77,7 @@ void tst_QCoapOption::constructWithInteger()
 
 void tst_QCoapOption::constructWithUtf8Characters()
 {
-    QByteArray ba = "\u00E9~\u03BB\u20B2";
+    QByteArray ba = "\xc3\xa9~\xce\xbb\xe2\x82\xb2";
     QCoapOption option(QCoapOption::LocationPath, ba);
 
     QCOMPARE(option.value(), ba);
