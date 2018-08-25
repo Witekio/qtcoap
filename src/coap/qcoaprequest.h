@@ -69,8 +69,8 @@ public:
 
 private:
     //! For QSharedDataPointer
-    QCoapRequestPrivate* d_func();
-    inline const QCoapRequestPrivate* d_func() const
+    inline QCoapRequestPrivate* d_func();
+    const QCoapRequestPrivate* d_func() const
     {
         return reinterpret_cast<const QCoapRequestPrivate*>(d_ptr.constData());
     }

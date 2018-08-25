@@ -94,11 +94,11 @@ private:
     QCoapOptionPrivate *d_ptr;
 
     // Q_DECLARE_PRIVATE equivalent for shared data pointers
-    inline QCoapOptionPrivate *d_func()
+    QCoapOptionPrivate *d_func()
     {
         return d_ptr;
     }
-    inline const QCoapOptionPrivate *d_func() const
+    const QCoapOptionPrivate *d_func() const
     {
         return d_ptr;
     }
