@@ -82,8 +82,8 @@ void QCoapProtocol::sendRequest(QPointer<QCoapReply> reply, QCoapConnection *con
     if (reply.isNull() || !reply->request().isValid())
         return;
 
-    QSharedPointer<QCoapInternalRequest> internalRequest = QSharedPointer<QCoapInternalRequest>::create(
-                                                               reply->request(), this);
+    auto internalRequest = QSharedPointer<QCoapInternalRequest>::create(
+                reply->request(), this);
     internalRequest->setMaxTransmissionWait(maxTransmitWait());
     QCoapMessage *requestMessage = internalRequest->message();
     connect(reply, &QCoapReply::finished, this, &QCoapProtocol::finished);
