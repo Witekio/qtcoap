@@ -58,6 +58,7 @@ private Q_SLOTS:
     void timeout();
     void abort();
     void removeReply();
+    void setBlockSize_data();
     void setBlockSize();
     void requestWithQIODevice_data();
     void requestWithQIODevice();
@@ -288,17 +289,32 @@ void tst_QCoapClient::removeReply()
     }
 }
 
+void tst_QCoapClient::setBlockSize_data()
+{
+    QTest::addColumn<int>("blockSizeSet");
+    QTest::addColumn<int>("blockSizeExpected");
+
+    QTest::newRow("valid_size_0")       << 0 << 0;
+    QTest::newRow("valid_size_16")      << 16 << 16;
+    QTest::newRow("valid_size_1024")    << 1024 << 1024;
+    QTest::newRow("invalid_size_8")     << 8 << 0;
+    QTest::newRow("invalid_size_350")   << 350 << 0;
+    QTest::newRow("invalid_size_2048")  << 2048 << 0;
+}
+
 void tst_QCoapClient::setBlockSize()
 {
-    //! TODO cover invalid values
+    QFETCH(int, blockSizeSet);
+    QFETCH(int, blockSizeExpected);
+
     QCoapClientForTests client;
-    client.setBlockSize(128);
+    client.setBlockSize(blockSizeSet);
 
     QEventLoop eventLoop;
     QTimer::singleShot(1000, &eventLoop, &QEventLoop::quit);
     eventLoop.exec();
 
-    QCOMPARE(client.protocol()->blockSize(), 128);
+    QCOMPARE(client.protocol()->blockSize(), blockSizeExpected);
 }
 
 void tst_QCoapClient::requestWithQIODevice_data()
