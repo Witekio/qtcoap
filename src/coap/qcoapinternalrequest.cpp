@@ -631,15 +631,13 @@ void QCoapInternalRequest::setMaxTransmissionWait(int duration)
 */
 QCoapOption QCoapInternalRequest::uriHostOption(const QUrl &uri) const
 {
-    //! TODO Should also check for IPv6
-    QRegularExpression ipv4Regex(QLatin1String("^([0-9]{1,3}.){3}([0-9]{1,3})$"));
-    QString host = uri.host();
+    QHostAddress address(uri.host());
 
-    // No need for Uri-Host option
-    if (ipv4Regex.match(host).hasMatch())
+    // No need for Uri-Host option with an IPv4 or IPv6 address
+    if (!address.isNull())
         return QCoapOption();
 
-    return QCoapOption(QCoapOption::UriHost, host);
+    return QCoapOption(QCoapOption::UriHost, uri.host());
 }
 
 QT_END_NAMESPACE
