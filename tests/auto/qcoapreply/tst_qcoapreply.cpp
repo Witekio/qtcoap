@@ -112,6 +112,7 @@ void tst_QCoapReply::updateReply()
 
     QCOMPARE(reply.readAll(), payload);
     QCOMPARE(reply.readAll(), QByteArray());
+    QCOMPARE(reply.responseCode(), responseCode);
 }
 
 void tst_QCoapReply::requestData()
