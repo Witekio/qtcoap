@@ -151,8 +151,13 @@ void QCoapConnection::setSocketOption(QAbstractSocket::SocketOption option, cons
 */
 void QCoapConnectionPrivate::writeToSocket(const CoapFrame &frame)
 {
-    if (!socket()->isWritable())
-        socket()->open(socket()->openMode() | QIODevice::WriteOnly);
+    if (!socket()->isWritable()) {
+        bool opened = socket()->open(socket()->openMode() | QIODevice::WriteOnly);
+        if (!opened) {
+            qWarning() << "QtCoap: Failed to open the UDP socket with write permission";
+            return;
+        }
+    }
 
     QHostAddress host(frame.host);
     if (host.isNull()) {
@@ -161,7 +166,12 @@ void QCoapConnectionPrivate::writeToSocket(const CoapFrame &frame)
         return;
     }
 
-    socket()->writeDatagram(frame.currentPdu, QHostAddress(frame.host), frame.port);
+    qint64 bytesWritten = socket()->writeDatagram(frame.currentPdu,
+                                                  QHostAddress(frame.host), frame.port);
+    if (bytesWritten < 0) {
+        qWarning() << "QtCoap: Failed to write datagram:"
+                   << socket()->errorString();
+    }
 }
 
 /*!
@@ -204,8 +214,13 @@ void QCoapConnectionPrivate::_q_socketReadyRead()
 {
     Q_Q(QCoapConnection);
 
-    if (!socket()->isReadable())
-        socket()->open(socket()->openMode() | QIODevice::ReadOnly);
+    if (!socket()->isReadable()) {
+        bool opened = socket()->open(socket()->openMode() | QIODevice::ReadOnly);
+        if (!opened) {
+            qWarning() << "QtCoap: Failed to open the UDP socket with read permission";
+            return;
+        }
+    }
 
     while (socket()->hasPendingDatagrams()) {
         emit q->readyRead(socket()->receiveDatagram());
