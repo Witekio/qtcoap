@@ -329,6 +329,7 @@ QCoapToken QCoapInternalRequest::generateToken()
 {
     Q_D(QCoapInternalRequest);
 
+    // TODO: Allow setting minimum token size as a security setting
     quint8 length = static_cast<quint8>(QtCoap::randomGenerator.bounded(1, 8));
 
     QByteArray token(length, 0);

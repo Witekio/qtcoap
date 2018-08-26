@@ -36,7 +36,7 @@
 
 QT_BEGIN_NAMESPACE
 
-QRandomGenerator QtCoap::randomGenerator;
+QRandomGenerator QtCoap::randomGenerator = QRandomGenerator::securelySeeded();
 
 QCoapClientPrivate::QCoapClientPrivate(QCoapProtocol *protocol, QCoapConnection *connection) :
     protocol(protocol),
