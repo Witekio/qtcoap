@@ -470,7 +470,7 @@ void QCoapInternalRequest::stopTransmission()
 void QCoapInternalRequestPrivate::_q_timeout()
 {
     Q_Q(QCoapInternalRequest);
-    emit q->timeout(q);
+    emit q->timeout(message.token());
 }
 
 /*!
@@ -481,7 +481,7 @@ void QCoapInternalRequestPrivate::_q_timeout()
 void QCoapInternalRequestPrivate::_q_maxTransmissionSpanReached()
 {
     Q_Q(QCoapInternalRequest);
-    emit q->maxTransmissionSpanReached(q);
+    emit q->maxTransmissionSpanReached(message.token());
 }
 
 /*!

@@ -94,8 +94,8 @@ public:
     void stopTransmission();
 
 Q_SIGNALS:
-    void timeout(QCoapInternalRequest*);
-    void maxTransmissionSpanReached(QCoapInternalRequest*);
+    void timeout(const QByteArray&);
+    void maxTransmissionSpanReached(const QByteArray&);
 
 protected:
     QCoapOption uriHostOption(const QUrl &uri) const;
