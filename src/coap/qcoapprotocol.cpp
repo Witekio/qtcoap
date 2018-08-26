@@ -55,7 +55,7 @@ QT_BEGIN_NAMESPACE
     Constructs a new QCoapProtocol and sets \a parent as the parent object.
 */
 QCoapProtocol::QCoapProtocol(QObject *parent) :
-    QObject(* new QCoapProtocolPrivate, parent)
+    QObject(*new QCoapProtocolPrivate, parent)
 {
     qRegisterMetaType<QCoapInternalRequest *>();
     qRegisterMetaType<QHostAddress>();

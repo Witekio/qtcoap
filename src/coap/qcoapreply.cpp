@@ -239,7 +239,7 @@ void QCoapReplyPrivate::_q_setError(QtCoap::ResponseCode code)
     Constructs a QCoapReply object and sets \a parent as the parent object.
 */
 QCoapReply::QCoapReply(const QCoapRequest &request, QObject *parent) :
-    QCoapReply(* new QCoapReplyPrivate(request), parent)
+    QCoapReply(*new QCoapReplyPrivate(request), parent)
 {
 }
 
