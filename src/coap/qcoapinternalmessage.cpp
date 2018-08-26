@@ -65,7 +65,7 @@ QCoapInternalMessagePrivate::~QCoapInternalMessagePrivate()
     object.
  */
 QCoapInternalMessage::QCoapInternalMessage(QObject *parent) :
-    QObject(* new QCoapInternalMessagePrivate, parent)
+    QObject(*new QCoapInternalMessagePrivate, parent)
 {
 }
 
@@ -88,7 +88,7 @@ QCoapInternalMessage::QCoapInternalMessage(const QCoapMessage &message, QObject 
     Constructs a copy of \a other and sets \a parent as the parent object.
 */
 QCoapInternalMessage::QCoapInternalMessage(const QCoapInternalMessage &other, QObject *parent) :
-    QObject(* new QCoapInternalMessagePrivate(*other.d_func()), parent)
+    QObject(*new QCoapInternalMessagePrivate(*other.d_func()), parent)
 {
 }
 

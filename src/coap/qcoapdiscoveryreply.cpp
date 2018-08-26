@@ -82,7 +82,7 @@ void QCoapDiscoveryReplyPrivate::_q_setContent(const QHostAddress &sender, const
     Constructs a new QCoapDiscoveryReply and sets \a parent as parent object.
 */
 QCoapDiscoveryReply::QCoapDiscoveryReply(const QCoapRequest &request, QObject *parent) :
-    QCoapReply (* new QCoapDiscoveryReplyPrivate(request), parent)
+    QCoapReply(*new QCoapDiscoveryReplyPrivate(request), parent)
 {
 }
 

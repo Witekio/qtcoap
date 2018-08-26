@@ -88,7 +88,7 @@ class QCoapConnectionSocketTests : public QCoapConnection
 {
 public:
     QCoapConnectionSocketTests() :
-        QCoapConnection (* new QCoapConnectionSocketTestsPrivate)
+        QCoapConnection(*new QCoapConnectionSocketTestsPrivate)
     {
         createSocket();
     }

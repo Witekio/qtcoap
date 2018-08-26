@@ -122,7 +122,7 @@ QCoapRequest::QCoapRequest(const char *url, MessageType type) :
 QCoapRequest::QCoapRequest(const QCoapRequest &other, QtCoap::Method method) :
     //! No private data sharing, as QCoapRequestPrivate!=QCoapMessagePrivate
     //! and the d_ptr is a QSharedDataPointer<QCoapMessagePrivate>
-    QCoapMessage(* new QCoapRequestPrivate(*other.d_func()))
+    QCoapMessage(*new QCoapRequestPrivate(*other.d_func()))
 {
     if (method != QtCoap::Invalid)
         setMethod(method);
