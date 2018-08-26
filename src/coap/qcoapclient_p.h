@@ -56,9 +56,9 @@ public:
     QCoapClientPrivate(QCoapProtocol *protocol, QCoapConnection *connection);
     ~QCoapClientPrivate();
 
-    QCoapProtocol *protocol;
-    QCoapConnection *connection;
-    QThread *workerThread;
+    QCoapProtocol *protocol = nullptr;
+    QCoapConnection *connection = nullptr;
+    QThread *workerThread = nullptr;
 
     QCoapReply *sendRequest(QCoapRequest &request);
     QCoapDiscoveryReply *sendDiscovery(QCoapRequest &request);
