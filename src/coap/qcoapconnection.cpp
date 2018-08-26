@@ -68,8 +68,15 @@ QCoapConnection::QCoapConnection(QObject *parent) :
 QCoapConnection::QCoapConnection(QCoapConnectionPrivate &dd, QObject *parent) :
     QObject(dd, parent)
 {
-    createSocket();
     qRegisterMetaType<QNetworkDatagram>();
+}
+
+/*!
+    Sets the QUdpSocket socket \a option to \a value.
+*/
+void QCoapConnection::init()
+{
+    createSocket();
 }
 
 /*!

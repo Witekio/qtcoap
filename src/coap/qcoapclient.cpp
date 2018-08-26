@@ -38,13 +38,16 @@ QT_BEGIN_NAMESPACE
 
 QRandomGenerator QtCoap::randomGenerator;
 
-QCoapClientPrivate::QCoapClientPrivate(QCoapProtocol *protocol, QCoapConnection *connection) :
-    protocol(protocol),
-    connection(connection),
+QCoapClientPrivate::QCoapClientPrivate(QCoapProtocol *_protocol, QCoapConnection *_connection) :
+    protocol(_protocol),
+    connection(_connection),
     workerThread(new QThread)
 {
     protocol->moveToThread(workerThread);
     connection->moveToThread(workerThread);
+
+    QObject::connect(workerThread, &QThread::started, connection, &QCoapConnection::init);
+    workerThread->setObjectName(QStringLiteral("coap"));
     workerThread->start();
 }
 

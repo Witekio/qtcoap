@@ -61,6 +61,7 @@ Q_SIGNALS:
     void readyRead(const QNetworkDatagram &datagram);
 
 public Q_SLOTS:
+    void init();
     void setSocketOption(QAbstractSocket::SocketOption, const QVariant &value);
 
 protected:
