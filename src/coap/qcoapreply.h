@@ -57,6 +57,7 @@ public:
     bool isRunning() const;
     bool isFinished() const;
     bool isAborted() const;
+    bool isSuccessful() const;
 
 public Q_SLOTS:
     void abortRequest();
