@@ -44,8 +44,8 @@ QT_BEGIN_NAMESPACE
     that is used to send the CoAP frames.
 
     When a reply is available, the QCoapConnection object emits a
-    \l{QCoapConnection::readyRead(const QByteArray&)}
-    {readyRead(const QByteArray&)} signal
+    \l{QCoapConnection::readyRead(const QNetworkDatagram&)}
+    {readyRead(const QNetworkDatagram&)} signal.
 
     \sa QCoapClient
 */
@@ -206,9 +206,8 @@ void QCoapConnectionPrivate::_q_startToSendRequest()
     \internal
 
     This slot reads all data stored in the socket and emits
-    \l{QCoapConnection::readyRead(const QByteArray&)}
-    {readyRead(const QByteArray&)} signal for each received
-    datagram.
+    \l{QCoapConnection::readyRead(const QNetworkDatagram&)}
+    {readyRead(const QNetworkDatagram&)} signal for each received datagram.
 */
 void QCoapConnectionPrivate::_q_socketReadyRead()
 {
