@@ -96,7 +96,7 @@ QCoapInternalReply *QCoapInternalReply::createFromFrame(const QByteArray &reply,
     d->responseCode = static_cast<QtCoap::ResponseCode>(pduData[1]);
     d->message.setMessageId(static_cast<quint16>((static_cast<quint16>(pduData[2]) << 8)
                                                  | static_cast<quint16>(pduData[3])));
-    d->message.setToken(QByteArray::fromRawData(reply.data() + 4, tokenLength));
+    d->message.setToken(QByteArray(reply.data() + 4, tokenLength));
 
     // Parse Options
     int i = 4 + tokenLength;
