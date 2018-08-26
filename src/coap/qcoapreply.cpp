@@ -366,6 +366,16 @@ bool QCoapReply::isAborted() const
 }
 
 /*!
+    Returns true if the request finished with no error.
+*/
+bool QCoapReply::isSuccessful() const
+{
+    Q_D(const QCoapReply);
+    return d->isFinished && !QtCoap::isError(d->responseCode)
+            && d->error == QtCoap::NoError;
+}
+
+/*!
     Returns the target uri of the associated request.
 */
 QUrl QCoapReply::url() const
