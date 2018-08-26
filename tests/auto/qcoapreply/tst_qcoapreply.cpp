@@ -105,14 +105,19 @@ void tst_QCoapReply::updateReply()
     QCOMPARE(spyReplyFinished.count(), 1);
     QCOMPARE(spyReplyNotified.count(), 0);
     QCOMPARE(spyReplyAborted.count(), 0);
-    if (error != QtCoap::NoError || QtCoap::isError(responseCode))
+    if (error != QtCoap::NoError || QtCoap::isError(responseCode)) {
         QVERIFY(spyReplyError.count() > 0);
-    else
+        QCOMPARE(reply.isSuccessful(), false);
+    } else {
         QCOMPARE(spyReplyError.count(), 0);
+        QCOMPARE(reply.isSuccessful(), true);
+    }
 
     QCOMPARE(reply.readAll(), payload);
     QCOMPARE(reply.readAll(), QByteArray());
     QCOMPARE(reply.responseCode(), responseCode);
+    QCOMPARE(reply.message().token(), token);
+    QCOMPARE(reply.message().messageId(), id);
 }
 
 void tst_QCoapReply::requestData()
@@ -137,6 +142,7 @@ void tst_QCoapReply::abortRequest()
     QList<QVariant> arguments = spyAborted.takeFirst();
     QTRY_COMPARE_WITH_TIMEOUT(spyFinished.count(), 1, 1000);
     QVERIFY(arguments.at(0).toByteArray() == "token");
+    QCOMPARE(reply.isSuccessful(), false);
 }
 
 QTEST_MAIN(tst_QCoapReply)
