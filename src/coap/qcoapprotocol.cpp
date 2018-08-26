@@ -391,7 +391,7 @@ void QCoapProtocolPrivate::onLastMessageReceived(QCoapInternalRequest *request)
     auto replies = repliesForToken(request->token());
     Q_ASSERT(!replies.isEmpty());
 
-    //! FIXME: Change QPointer<QCoapReply> into something independent from
+    //! TODO: Change QPointer<QCoapReply> into something independent from
     //! User. QSharedPointer(s)?
     QPointer<QCoapReply> userReply = userReplyForToken(request->token());
     if (userReply.isNull() || replies.isEmpty()
