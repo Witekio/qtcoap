@@ -158,11 +158,11 @@ void QCoapProtocolPrivate::onRequestTimeout(QCoapInternalRequest *request)
     if (!isRequestRegistered(request))
         return;
 
-    if (request->message()->type() != QCoapMessage::Confirmable
-            || request->retransmissionCounter() >= maxRetransmit) {
-        onRequestError(request, QtCoap::TimeOutError);
-    } else {
+    if (request->message()->type() == QCoapMessage::Confirmable
+            && request->retransmissionCounter() < maxRetransmit) {
         sendRequest(request);
+    } else {
+        onRequestError(request, QtCoap::TimeOutError);
     }
 }
 
