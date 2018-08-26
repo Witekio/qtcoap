@@ -268,7 +268,7 @@ QCoapClient::QCoapClient(QObject *parent) :
     as arguments.
 */
 QCoapClient::QCoapClient(QCoapProtocol *protocol, QCoapConnection *connection, QObject *parent) :
-    QObject(* new QCoapClientPrivate(protocol, connection), parent)
+    QObject(*new QCoapClientPrivate(protocol, connection), parent)
 {
     Q_D(QCoapClient);
 
