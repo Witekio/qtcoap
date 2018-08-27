@@ -168,10 +168,8 @@ void QCoapConnectionPrivate::writeToSocket(const CoapFrame &frame)
 
     qint64 bytesWritten = socket()->writeDatagram(frame.currentPdu,
                                                   QHostAddress(frame.host), frame.port);
-    if (bytesWritten < 0) {
-        qWarning() << "QtCoap: Failed to write datagram:"
-                   << socket()->errorString();
-    }
+    if (bytesWritten < 0)
+        qWarning() << "QtCoap: Failed to write datagram:" << socket()->errorString();
 }
 
 /*!
