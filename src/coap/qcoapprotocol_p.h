@@ -82,9 +82,9 @@ public:
     void onRequestError(QCoapInternalRequest *request, QtCoap::Error error,
                         QCoapInternalReply *reply = nullptr);
 
-    bool isMessageIdRegistered(quint16 id);
-    bool isTokenRegistered(const QCoapToken &token);
-    bool isRequestRegistered(const QCoapInternalRequest *request);
+    bool isMessageIdRegistered(quint16 id) const;
+    bool isTokenRegistered(const QCoapToken &token) const;
+    bool isRequestRegistered(const QCoapInternalRequest *request) const;
 
     QCoapInternalRequest *requestForToken(const QCoapToken &token);
     QPointer<QCoapReply> userReplyForToken(const QCoapToken &token);

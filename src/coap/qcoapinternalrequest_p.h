@@ -67,8 +67,8 @@ public:
     void initForReset(quint16 messageId);
 
     QByteArray toQByteArray() const;
-    quint16 generateMessageId();
-    QCoapToken generateToken();
+    void setMessageId(quint16);
+    void setToken(const QCoapToken&);
     void setToRequestBlock(int blockNumber, int blockSize);
     void setToSendBlock(int blockNumber, int blockSize);
 
