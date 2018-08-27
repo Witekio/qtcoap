@@ -275,11 +275,11 @@ void QCoapProtocolPrivate::onFrameReceived(const QNetworkDatagram &frame)
     }
 
     // Ask/Send next block or process the final reply
-    int nextBlockWanted = reply->nextBlockWanted();
+    int nextBlockWanted = reply->nextBlockToSend();
     if (nextBlockWanted >= 0) {
         request->setRequestToSendBlock(static_cast<uint>(nextBlockWanted), blockSize);
         sendRequest(request);
-    } else if (reply->hasNextBlock()) {
+    } else if (reply->hasMoreBlocksToReceive()) {
         onBlockReceived(request, reply->currentBlockNumber(), reply->blockSize());
     } else {
         onLastMessageReceived(request);

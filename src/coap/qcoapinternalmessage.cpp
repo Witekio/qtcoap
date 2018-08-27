@@ -218,7 +218,7 @@ uint QCoapInternalMessage::currentBlockNumber() const
 
     Returns \c true if it has a next block, \c false otherwise.
 */
-bool QCoapInternalMessage::hasNextBlock() const
+bool QCoapInternalMessage::hasMoreBlocksToReceive() const
 {
     Q_D(const QCoapInternalMessage);
     return d->hasNextBlock;

@@ -184,9 +184,9 @@ void QCoapInternalReply::setSenderAddress(const QHostAddress &address)
     Returns the number of the next block, if there is another block to come,
     otherwise -1.
 */
-int QCoapInternalReply::nextBlockWanted()
+int QCoapInternalReply::nextBlockToSend() const
 {
-    Q_D(QCoapInternalReply);
+    Q_D(const QCoapInternalReply);
 
     QCoapOption option = d->message.option(QCoapOption::Block1);
     if (option.isValid()) {

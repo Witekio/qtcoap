@@ -54,7 +54,7 @@ public:
     const QCoapMessage *message() const;
 
     uint currentBlockNumber() const;
-    bool hasNextBlock() const;
+    bool hasMoreBlocksToReceive() const;
     uint blockSize() const;
 
     virtual bool isValid() const;
