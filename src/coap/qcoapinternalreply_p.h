@@ -59,7 +59,7 @@ public:
 
     static QCoapInternalReply *createFromFrame(const QByteArray &frame, QObject *parent = nullptr);
     void appendData(const QByteArray &data);
-    int nextBlockWanted();
+    int nextBlockToSend() const;
 
     using QCoapInternalMessage::addOption;
     void addOption(const QCoapOption &option);
