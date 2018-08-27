@@ -248,7 +248,6 @@ void QCoapInternalRequest::setToRequestBlock(int blockNumber, int blockSize)
         return;
     }
 
-    d->message.setMessageId(d->message.messageId() + 1);
     d->message.removeOption(QCoapOption::Block1);
     d->message.removeOption(QCoapOption::Block2);
 
@@ -272,7 +271,6 @@ void QCoapInternalRequest::setToSendBlock(int blockNumber, int blockSize)
         return;
     }
 
-    d->message.setMessageId(d->message.messageId() + 1);
     d->message.setPayload(d->fullPayload.mid(blockNumber * blockSize, blockSize));
     d->message.removeOption(QCoapOption::Block1);
 
@@ -322,35 +320,22 @@ QCoapOption QCoapInternalRequest::blockOption(QCoapOption::OptionName name, uint
 
 /*!
     \internal
-    Generates a new message id.
+    Sets the request's message id.
 */
-quint16 QCoapInternalRequest::generateMessageId()
+void QCoapInternalRequest::setMessageId(quint16 id)
 {
     Q_D(QCoapInternalRequest);
-
-    quint16 id = static_cast<quint16>(QtCoap::randomGenerator.bounded(0x10000));
     d->message.setMessageId(id);
-    return id;
 }
 
 /*!
     \internal
-    Generates a new token.
+    Sets the request's token.
 */
-QCoapToken QCoapInternalRequest::generateToken()
+void QCoapInternalRequest::setToken(const QCoapToken &token)
 {
     Q_D(QCoapInternalRequest);
-
-    // TODO: Allow setting minimum token size as a security setting
-    quint8 length = static_cast<quint8>(QtCoap::randomGenerator.bounded(1, 8));
-
-    QByteArray token(length, 0);
-    quint8 *tokenData = reinterpret_cast<quint8 *>(token.data());
-    for (int i = 0; i < token.size(); ++i)
-        tokenData[i] = static_cast<quint8>(QtCoap::randomGenerator.bounded(256));
-
     d->message.setToken(token);
-    return token;
 }
 
 /*!
