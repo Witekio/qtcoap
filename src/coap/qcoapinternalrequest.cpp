@@ -72,13 +72,7 @@ QCoapInternalRequest::QCoapInternalRequest(const QCoapRequest &request, QObject 
     QCoapInternalRequest(parent)
 {
     Q_D(QCoapInternalRequest);
-    d->message.setVersion(request.version());
-    d->message.setType(request.type());
-    d->message.setMessageId(request.messageId());
-    d->message.setToken(request.token());
-    for (const QCoapOption &option : request.options())
-        d->message.addOption(option);
-    d->message.setPayload(request.payload());
+    d->message = request;
     d->method = request.method();
     d->fullPayload = request.payload();
 
