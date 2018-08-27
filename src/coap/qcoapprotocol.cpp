@@ -268,7 +268,7 @@ void QCoapProtocolPrivate::onFrameReceived(const QNetworkDatagram &frame)
         sendAcknowledgment(request);
     }
 
-    // Send next block, ask next block, or process the final reply
+    // Send next block, ask for next block, or process the final reply
     if (reply->hasMoreBlocksToSend()) {
         request->setToSendBlock(reply->nextBlockToSend(), blockSize);
         request->setMessageId(generateUniqueMessageId());
