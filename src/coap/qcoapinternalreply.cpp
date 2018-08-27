@@ -188,22 +188,23 @@ int QCoapInternalReply::nextBlockToSend() const
     Q_D(const QCoapInternalReply);
 
     QCoapOption option = d->message.option(QCoapOption::Block1);
-    if (option.isValid()) {
-        const quint8 *optionData = reinterpret_cast<const quint8 *>(option.value().data());
-        const quint8 lastByte = optionData[option.length() - 1];
+    if (!option.isValid())
+        return -1;
 
-        bool hasNextBlock = ((lastByte & 0x8) == 0x8);
+    const quint8 *optionData = reinterpret_cast<const quint8 *>(option.value().data());
+    const quint8 lastByte = optionData[option.length() - 1];
 
-        if (hasNextBlock) {
-            quint32 blockNumber = 0;
-            for (int i = 0; i < option.length() - 1; ++i)
-                blockNumber = (blockNumber << 8) | optionData[i];
-            blockNumber = (blockNumber << 4) | (lastByte >> 4);
-            return static_cast<int>(blockNumber) + 1;
-        }
-    }
+    // M field
+    bool hasNextBlock = ((lastByte & 0x8) == 0x8);
+    if (!hasNextBlock)
+        return -1;
 
-    return -1;
+    // NUM field
+    quint32 blockNumber = 0;
+    for (int i = 0; i < option.length() - 1; ++i)
+        blockNumber = (blockNumber << 8) | optionData[i];
+    blockNumber = (blockNumber << 4) | (lastByte >> 4);
+    return static_cast<int>(blockNumber) + 1;
 }
 
 /*!
