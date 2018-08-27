@@ -96,26 +96,23 @@ QCoapInternalReply *QCoapInternalReply::createFromFrame(const QByteArray &reply,
     d->responseCode = static_cast<QtCoap::ResponseCode>(pduData[1]);
     d->message.setMessageId(static_cast<quint16>((static_cast<quint16>(pduData[2]) << 8)
                                                  | static_cast<quint16>(pduData[3])));
-    d->message.setToken(QByteArray(reply.data() + 4, tokenLength));
+    d->message.setToken(reply.mid(4, tokenLength));
 
     // Parse Options
     int i = 4 + tokenLength;
     quint16 lastOptionNumber = 0;
     while (i != reply.length() && pduData[i] != 0xFF) {
         quint16 optionDelta = ((pduData[i] >> 4) & 0x0F);
-        quint8 optionDeltaExtended = 0;
         quint16 optionLength = (pduData[i] & 0x0F);
         quint8 optionLengthExtended = 0;
 
         // Delta value > 12 : special values
         if (optionDelta == 13) {
             ++i;
-            optionDeltaExtended = pduData[i];
-            optionDelta = optionDeltaExtended + 13;
+            optionDelta = pduData[i] + 13;
         } else if (optionDelta == 14) {
             ++i;
-            optionDeltaExtended = pduData[i];
-            optionDelta = optionDeltaExtended + 269;
+            optionDelta = pduData[i] + 269;
         }
 
         // Delta length > 12 : special values
@@ -140,7 +137,7 @@ QCoapInternalReply *QCoapInternalReply::createFromFrame(const QByteArray &reply,
     // Parse Payload
     if (pduData[i] == 0xFF) {
         // -1 because of 0xFF at the beginning
-        QByteArray currentPayload = reply.right(reply.length() - i - 1);
+        QByteArray currentPayload = reply.mid(i + 1);
         d->message.setPayload(d->message.payload().append(currentPayload));
     }
 
