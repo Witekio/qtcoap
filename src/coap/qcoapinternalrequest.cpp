@@ -294,15 +294,18 @@ QCoapOption QCoapInternalRequest::blockOption(QCoapOption::OptionName name, uint
     Q_ASSERT((blockSize & (blockSize - 1)) == 0); // is a power of two
     Q_ASSERT(!(blockSize >> 11)); // blockSize <= 1024
 
-    // NUM field
+    // NUM field: the relative number of the block within a sequence of blocks
+    // 4, 12 or 20 bits (as little as possible)
     quint32 optionData = (blockNumber << 4);
 
-    // SZX field = log2(blockSize - 4)
+    // SZX field: the size of the block
+    // 3 bits, set to log2(blockSize - 4)
     optionData |= (blockSize >> 7)
                   ? ((blockSize >> 10) ? 6 : (3 + (blockSize >> 8)))
                   : (blockSize >> 5);
 
-    // M field set when more data is available to send
+    // M field: whether more blocks are following
+    // 1 bit
     if (name == QCoapOption::Block1
             && static_cast<int>((blockNumber * blockSize) + blockSize) < d->fullPayload.length()) {
         optionData |= 8;

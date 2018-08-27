@@ -183,6 +183,8 @@ void QCoapInternalReply::setSenderAddress(const QHostAddress &address)
     \internal
     Returns the number of the next block, if there is another block to come,
     otherwise -1.
+    For more details, refer to the
+    \l{https://tools.ietf.org/html/rfc7959#section-2.2}{RFC 7959}.
 */
 int QCoapInternalReply::nextBlockToSend() const
 {
@@ -209,7 +211,7 @@ int QCoapInternalReply::nextBlockToSend() const
 
 /*!
     \internal
-    Returns \c true if the client has one or more block to send.
+    Returns \c true if the client has one or more blocks to send.
 */
 bool QCoapInternalReply::hasMoreBlocksToSend() const
 {
