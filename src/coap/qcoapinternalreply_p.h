@@ -59,6 +59,7 @@ public:
 
     static QCoapInternalReply *createFromFrame(const QByteArray &frame, QObject *parent = nullptr);
     void appendData(const QByteArray &data);
+    bool hasMoreBlocksToSend() const;
     int nextBlockToSend() const;
 
     using QCoapInternalMessage::addOption;
