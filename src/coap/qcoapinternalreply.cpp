@@ -209,6 +209,15 @@ int QCoapInternalReply::nextBlockToSend() const
 
 /*!
     \internal
+    Returns \c true if the client has one or more block to send.
+*/
+bool QCoapInternalReply::hasMoreBlocksToSend() const
+{
+    return nextBlockToSend() >= 0;
+}
+
+/*!
+    \internal
     Returns the response code of the reply.
 */
 QtCoap::ResponseCode QCoapInternalReply::responseCode() const
