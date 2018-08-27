@@ -73,7 +73,6 @@ public:
     void sendReset(QCoapInternalRequest *request);
     void sendRequest(QCoapInternalRequest *request);
 
-    void onBlockReceived(QCoapInternalRequest *request, uint currentBlockNumber, uint blockSize);
     void onLastMessageReceived(QCoapInternalRequest *request);
     void onConnectionError(QAbstractSocket::SocketError error);
     void onRequestAborted(const QCoapToken &token);

@@ -234,20 +234,26 @@ QByteArray QCoapInternalRequest::toQByteArray() const
 
 /*!
     \internal
-    Initializes block parameters and creates the options needed to ask the
-    block with the number \a blockNumber and with a size of \a blockSize.
+    Initializes block parameters and creates the options needed to request the
+    block \a blockNumber with a size of \a blockSize.
 
-    \sa blockOption()
+    \sa blockOption(), setToSendBlock()
 */
-void QCoapInternalRequest::setRequestToAskBlock(uint blockNumber, uint blockSize)
+void QCoapInternalRequest::setToRequestBlock(int blockNumber, int blockSize)
 {
     Q_D(QCoapInternalRequest);
+
+    if (blockNumber < 0) {
+        qWarning() << "QtCoap: Invalid block number" << blockNumber;
+        return;
+    }
 
     d->message.setMessageId(d->message.messageId() + 1);
     d->message.removeOption(QCoapOption::Block1);
     d->message.removeOption(QCoapOption::Block2);
 
-    addOption(blockOption(QCoapOption::Block2, blockNumber, blockSize));
+    addOption(blockOption(QCoapOption::Block2, static_cast<uint>(blockNumber),
+                          static_cast<uint>(blockSize)));
 }
 
 /*!
@@ -255,17 +261,23 @@ void QCoapInternalRequest::setRequestToAskBlock(uint blockNumber, uint blockSize
     Initialize blocks parameters and creates the options needed to send the block with
     the number \a blockNumber and with a size of \a blockSize.
 
-    \sa setRequestToAskBlock(), blockOption()
+    \sa blockOption(), setToRequestBlock()
 */
-void QCoapInternalRequest::setRequestToSendBlock(uint blockNumber, uint blockSize)
+void QCoapInternalRequest::setToSendBlock(int blockNumber, int blockSize)
 {
     Q_D(QCoapInternalRequest);
 
+    if (blockNumber < 0) {
+        qWarning() << "QtCoap: Invalid block number" << blockNumber;
+        return;
+    }
+
     d->message.setMessageId(d->message.messageId() + 1);
-    d->message.setPayload(d->fullPayload.mid(static_cast<int>(blockNumber * blockSize), static_cast<int>(blockSize)));
+    d->message.setPayload(d->fullPayload.mid(blockNumber * blockSize, blockSize));
     d->message.removeOption(QCoapOption::Block1);
 
-    addOption(blockOption(QCoapOption::Block1, blockNumber, blockSize));
+    addOption(blockOption(QCoapOption::Block1, static_cast<uint>(blockNumber),
+                          static_cast<uint>(blockSize)));
 }
 
 /*!
