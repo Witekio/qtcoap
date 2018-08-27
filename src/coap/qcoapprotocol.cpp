@@ -82,8 +82,7 @@ void QCoapProtocol::sendRequest(QPointer<QCoapReply> reply, QCoapConnection *con
     if (reply.isNull() || !reply->request().isValid())
         return;
 
-    auto internalRequest = QSharedPointer<QCoapInternalRequest>::create(
-                reply->request(), this);
+    auto internalRequest = QSharedPointer<QCoapInternalRequest>::create(reply->request(), this);
     internalRequest->setMaxTransmissionWait(maxTransmitWait());
     connect(reply, &QCoapReply::finished, this, &QCoapProtocol::finished);
 
@@ -521,9 +520,8 @@ quint16 QCoapProtocolPrivate::generateUniqueMessageId() const
     // TODO: Optimize message id generation for large sets
     // TODO: Store used message id for the period specified by CoAP spec
     quint16 id = 0;
-    while (isMessageIdRegistered(id)) {
+    while (isMessageIdRegistered(id))
         id = static_cast<quint16>(QtCoap::randomGenerator.bounded(0x10000));
-    }
 
     return id;
 }
