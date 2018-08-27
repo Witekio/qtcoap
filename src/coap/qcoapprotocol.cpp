@@ -85,10 +85,10 @@ void QCoapProtocol::sendRequest(QPointer<QCoapReply> reply, QCoapConnection *con
     auto internalRequest = QSharedPointer<QCoapInternalRequest>::create(
                 reply->request(), this);
     internalRequest->setMaxTransmissionWait(maxTransmitWait());
-    QCoapMessage *requestMessage = internalRequest->message();
     connect(reply, &QCoapReply::finished, this, &QCoapProtocol::finished);
 
     // Find a unique Message Id
+    QCoapMessage *requestMessage = internalRequest->message();
     while (d->isMessageIdRegistered(requestMessage->messageId()))
         internalRequest->generateMessageId();
 
@@ -103,11 +103,11 @@ void QCoapProtocol::sendRequest(QPointer<QCoapReply> reply, QCoapConnection *con
                               Q_ARG(QCoapToken, requestMessage->token()),
                               Q_ARG(QCoapMessageId, requestMessage->messageId()));
 
-    // If the user specified a size for blockwise request/replies
+    // Set block size for blockwise request/replies, if specified
     if (d->blockSize > 0) {
-        internalRequest->setRequestToAskBlock(0, d->blockSize);
+        internalRequest->setToRequestBlock(0, d->blockSize);
         if (requestMessage->payload().length() > d->blockSize)
-            internalRequest->setRequestToSendBlock(0, d->blockSize);
+            internalRequest->setToSendBlock(0, d->blockSize);
     }
 
     if (requestMessage->type() == QCoapMessage::Confirmable)
@@ -274,12 +274,13 @@ void QCoapProtocolPrivate::onFrameReceived(const QNetworkDatagram &frame)
         sendAcknowledgment(request);
     }
 
-    // Ask/Send next block or process the final reply
+    // Send next block, ask next block, or process the final reply
     if (reply->hasMoreBlocksToSend()) {
-        request->setRequestToSendBlock(static_cast<uint>(reply->nextBlockToSend()), blockSize);
+        request->setToSendBlock(reply->nextBlockToSend(), blockSize);
         sendRequest(request);
     } else if (reply->hasMoreBlocksToReceive()) {
-        onBlockReceived(request, reply->currentBlockNumber(), reply->blockSize());
+        request->setToRequestBlock(reply->currentBlockNumber() + 1, reply->blockSize());
+        sendRequest(request);
     } else {
         onLastMessageReceived(request);
     }
@@ -443,23 +444,6 @@ void QCoapProtocolPrivate::onLastMessageReceived(QCoapInternalRequest *request)
                                   Q_ARG(QtCoap::Error, QtCoap::NoError));
         forgetExchange(request);
     }
-}
-
-/*!
-    \internal
-
-    Handles what to do when we received a new block that is not the last.
-
-    Here it sets the given internal \a request to ask the block number
-    that follow \a currentBlockNumber with a size of \a blockSize
-    and sends this new request.
-*/
-void QCoapProtocolPrivate::onBlockReceived(QCoapInternalRequest *request,
-                                           uint currentBlockNumber,
-                                           uint blockSize)
-{
-    request->setRequestToAskBlock(currentBlockNumber + 1, blockSize);
-    sendRequest(request);
 }
 
 /*!

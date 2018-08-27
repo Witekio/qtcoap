@@ -69,8 +69,8 @@ public:
     QByteArray toQByteArray() const;
     quint16 generateMessageId();
     QCoapToken generateToken();
-    void setRequestToAskBlock(uint blockNumber, uint blockSize);
-    void setRequestToSendBlock(uint blockNumber, uint blockSize);
+    void setToRequestBlock(int blockNumber, int blockSize);
+    void setToSendBlock(int blockNumber, int blockSize);
 
     using QCoapInternalMessage::addOption;
     void addOption(const QCoapOption &option) Q_DECL_OVERRIDE;
