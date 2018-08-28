@@ -100,6 +100,8 @@ public:
     };
     Q_ENUM(Method)
 
+    static const int DefaultPort = 5683;
+
     static bool isError(ResponseCode code)
     {
         return static_cast<int>(code) >= 0x80;

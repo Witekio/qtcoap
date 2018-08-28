@@ -103,7 +103,7 @@ void tst_QCoapConnection::sendRequest_data()
         << "coap://"
         << testServerHost()
         << "/test"
-        << quint16(5683)
+        << quint16(QtCoap::DefaultPort)
         << QtCoap::Get
         << "5445"
         << "61626364c0211eff547970653a203120284e4f4e290a436f64653a2031202847"
@@ -113,7 +113,7 @@ void tst_QCoapConnection::sendRequest_data()
         << "coap://"
         << testServerHost()
         << "/test"
-        << quint16(5683)
+        << quint16(QtCoap::DefaultPort)
         << QtCoap::Put
         << "5444"
         << "61626364";
@@ -122,7 +122,7 @@ void tst_QCoapConnection::sendRequest_data()
         << "coap://"
         << testServerHost()
         << "/test"
-        << quint16(5683)
+        << quint16(QtCoap::DefaultPort)
         << QtCoap::Post
         << "5441"
         << "61626364896c6f636174696f6e31096c6f636174696f6e32096c6f636174696f"
@@ -132,7 +132,7 @@ void tst_QCoapConnection::sendRequest_data()
         << "coap://"
         << testServerHost()
         << "/test"
-        << quint16(5683)
+        << quint16(QtCoap::DefaultPort)
         << QtCoap::Delete
         << "5442"
         << "61626364";
