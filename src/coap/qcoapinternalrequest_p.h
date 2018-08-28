@@ -71,6 +71,7 @@ public:
     void setToken(const QCoapToken&);
     void setToRequestBlock(int blockNumber, int blockSize);
     void setToSendBlock(int blockNumber, int blockSize);
+    bool checkBlockNumber(int blockNumber);
 
     using QCoapInternalMessage::addOption;
     void addOption(const QCoapOption &option) Q_DECL_OVERRIDE;

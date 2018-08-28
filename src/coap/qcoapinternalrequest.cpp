@@ -239,10 +239,8 @@ void QCoapInternalRequest::setToRequestBlock(int blockNumber, int blockSize)
 {
     Q_D(QCoapInternalRequest);
 
-    if (blockNumber < 0) {
-        qWarning() << "QtCoap: Invalid block number" << blockNumber;
+    if (!checkBlockNumber(blockNumber))
         return;
-    }
 
     d->message.removeOption(QCoapOption::Block1);
     d->message.removeOption(QCoapOption::Block2);
@@ -262,16 +260,35 @@ void QCoapInternalRequest::setToSendBlock(int blockNumber, int blockSize)
 {
     Q_D(QCoapInternalRequest);
 
-    if (blockNumber < 0) {
-        qWarning() << "QtCoap: Invalid block number" << blockNumber;
+    if (!checkBlockNumber(blockNumber))
         return;
-    }
 
     d->message.setPayload(d->fullPayload.mid(blockNumber * blockSize, blockSize));
     d->message.removeOption(QCoapOption::Block1);
 
     addOption(blockOption(QCoapOption::Block1, static_cast<uint>(blockNumber),
                           static_cast<uint>(blockSize)));
+}
+
+/*!
+    \internal
+    Returns \c true if the block number is valid, false otherwise.
+    If the block number is not valid, logs a warning message.
+*/
+bool QCoapInternalRequest::checkBlockNumber(int blockNumber)
+{
+    if (blockNumber < 0) {
+        qWarning() << "QtCoap: Invalid block number" << blockNumber;
+        return false;
+    }
+
+    if (blockNumber >> 20) {
+        qWarning() << "QtCoap: Block number" << blockNumber << "is too large."
+                      " Block size is limited to 20 bits.";
+        return false;
+    }
+
+    return true;
 }
 
 /*!
@@ -292,6 +309,7 @@ QCoapOption QCoapInternalRequest::blockOption(QCoapOption::OptionName name, uint
 
     // NUM field: the relative number of the block within a sequence of blocks
     // 4, 12 or 20 bits (as little as possible)
+    Q_ASSERT(!(blockNumber >> 20)); // Fits in 20 bits
     quint32 optionData = (blockNumber << 4);
 
     // SZX field: the size of the block
