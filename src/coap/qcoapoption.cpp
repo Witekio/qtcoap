@@ -48,22 +48,22 @@ QT_BEGIN_NAMESPACE
     Indicates the name of an option.
     The value of each ID is as specified by the CoAP standard, with the
     exception of Invalid. You can refer to the
-    \l{https://tools.ietf.org/html/rfc7252#section-5.10}{RFC 7252} for more
-    details.
+    \l{https://tools.ietf.org/html/rfc7252#section-5.10}{RFC 7252} and the
+    \l{https://tools.ietf.org/html/rfc7959#section-2.1}{RFC 7959} for more details.
 
-    \value IfMatchCoapOption        If-match
+    \value IfMatchCoapOption        If-Match
     \value UriHostCoapOption        Uri-Host
     \value EtagCoapOption           Etag
-    \value IfNoneMatchCoapOption    If-none-match
+    \value IfNoneMatchCoapOption    If-None-Match
     \value ObserveCoapOption        Observe
     \value UriPortCoapOption        Uri-Port
-    \value LocationPathCoapOption   Location path
-    \value UriPathCoapOption        Uri-path
+    \value LocationPathCoapOption   Location-path
+    \value UriPathCoapOption        Uri-Path
     \value ContentFormatCoapOption  Content-Format
     \value MaxAgeCoapOption         Max-Age
     \value UriQueryCoapOption       Uri-Query
     \value AcceptCoapOption         Accept
-    \value LocationQueryCoapOption  Location Query
+    \value LocationQueryCoapOption  Location-Query
     \value Block2CoapOption         Block2
     \value Block1CoapOption         Block1
     \value Size2CoapOption          Size2

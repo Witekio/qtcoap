@@ -313,7 +313,7 @@ QCoapOption QCoapInternalRequest::blockOption(QCoapOption::OptionName name, uint
     quint32 optionData = (blockNumber << 4);
 
     // SZX field: the size of the block
-    // 3 bits, set to log2(blockSize - 4)
+    // 3 bits, set to "log2(blockSize) - 4"
     optionData |= (blockSize >> 7)
                   ? ((blockSize >> 10) ? 6 : (3 + (blockSize >> 8)))
                   : (blockSize >> 5);
@@ -466,7 +466,7 @@ void QCoapInternalRequest::restartTransmission()
 /*!
     \internal
     Marks the transmission as not running, after a successful reception, or an
-    error. It resets the retranmission count and stop all timeout timers.
+    error. It resets the retranmission count and stops all timeout timers.
 */
 void QCoapInternalRequest::stopTransmission()
 {
@@ -480,7 +480,8 @@ void QCoapInternalRequest::stopTransmission()
 /*!
     \internal
     This slot emits a \l{QCoapInternalRequest::timeout(QCoapInternalRequest*)}
-    {timeout(QCoapInternalRequest*)} signal.
+    {timeout(QCoapInternalRequest*)} signal, which gets forwarded to
+    QCoapProtocolPrivate::onRequestTimeout().
 */
 void QCoapInternalRequestPrivate::_q_timeout()
 {
