@@ -326,6 +326,7 @@ QCoapOption QCoapInternalRequest::blockOption(QCoapOption::OptionName name, uint
     }
 
     QByteArray optionValue;
+    Q_ASSERT(!(optionData >> 24));
     if (optionData > 0xFFFF)
         optionValue.append(static_cast<char>(optionData >> 16));
     if (optionData > 0xFF)
