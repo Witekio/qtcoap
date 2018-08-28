@@ -149,14 +149,15 @@ QByteArray QCoapInternalRequest::toQByteArray() const
 {
     Q_D(const QCoapInternalRequest);
     QByteArray pdu;
+    auto appendToPdu = [&pdu](char data) { pdu.append(static_cast<char>(data)); };
 
     // Insert header
-    pdu.append(static_cast<char>((d->message.version()   << 6)              // CoAP version
-                               | (d->message.type()      << 4)              // Message type
-                               |  d->message.token().length()));            // Token Length
-    pdu.append(static_cast<char>( d->method                    & 0xFF));    // Method type
-    pdu.append(static_cast<char>((d->message.messageId() >> 8) & 0xFF));    // Message ID
-    pdu.append(static_cast<char>( d->message.messageId()       & 0xFF));
+    appendToPdu((d->message.version()   << 6)           // CoAP version
+              | (d->message.type()      << 4)           // Message type
+              |  d->message.token().length());          // Token Length
+    appendToPdu( d->method                    & 0xFF);  // Method type
+    appendToPdu((d->message.messageId() >> 8) & 0xFF);  // Message ID
+    appendToPdu( d->message.messageId()       & 0xFF);
 
     // Insert Token
     pdu.append(d->message.token());
@@ -204,14 +205,15 @@ QByteArray QCoapInternalRequest::toQByteArray() const
                 isOptionLengthExtended = true;
             }
 
-            optionPdu = static_cast<quint8>((static_cast<quint8>(optionDelta) << 4)         // Option Delta
-                                            | (static_cast<quint8>(optionLength) & 0x0F));  // Option Length
-            pdu.append(static_cast<char>(optionPdu));
+            appendToPdu(static_cast<quint8>((static_cast<quint8>(optionDelta) << 4)
+                                          | (static_cast<quint8>(optionLength) & 0x0F)));
+
             if (isOptionDeltaExtended)
-                pdu.append(static_cast<char>(optionDeltaExtended));     // Option Delta Extended
+                appendToPdu(optionDeltaExtended);
             if (isOptionLengthExtended)
-                pdu.append(static_cast<char>(optionLengthExtended));    // Option Length Extended
-            pdu.append(option.value());                                 // Option Value
+                appendToPdu(optionLengthExtended);
+
+            pdu.append(option.value());
 
             lastOptionNumber = option.name();
         }
@@ -219,7 +221,7 @@ QByteArray QCoapInternalRequest::toQByteArray() const
 
     // Insert Payload
     if (!d->message.payload().isEmpty()) {
-        pdu.append(static_cast<char>(0xFF));
+        appendToPdu(0xFF);
         pdu.append(d->message.payload());
     }
 
