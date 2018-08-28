@@ -406,10 +406,10 @@ bool QCoapInternalRequest::addUriOptions(QUrl uri, const QUrl &proxyUri)
 
     // 6. Set default port
     if (uri.port() == -1)
-        uri.setPort(5683);
+        uri.setPort(QtCoap::DefaultPort);
 
     // 7. Add port to options if it is not the default port
-    if (uri.port() != 5683)
+    if (uri.port() != QtCoap::DefaultPort)
         addOption(QCoapOption::UriPort, static_cast<quint32>(uri.port()));
 
     // 8. Add path segments to options

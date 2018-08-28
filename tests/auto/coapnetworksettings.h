@@ -59,7 +59,8 @@ namespace QtCoapNetworkSettings
 
     QString testServerUrl()
     {
-        return QStringLiteral("coap://") + testServerHost() + QStringLiteral(":5683");
+        return QStringLiteral("coap://") + testServerHost() + QStringLiteral(":")
+                + QString::number(QtCoap::DefaultPort);
     }
 
     QString testServerResource()

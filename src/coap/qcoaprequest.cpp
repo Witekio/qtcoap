@@ -71,7 +71,7 @@ void QCoapRequestPrivate::setUrl(const QUrl &url)
         finalizedUrl.setScheme(QLatin1String("coap"));
 
     if (url.port() == -1)
-        finalizedUrl.setPort(5683);
+        finalizedUrl.setPort(QtCoap::DefaultPort);
 
     if (!QCoapRequest::isUrlValid(finalizedUrl)) {
         qWarning() << "QCoapRequest: Invalid CoAP url" << finalizedUrl.toString();
