@@ -155,7 +155,7 @@ QByteArray QCoapInternalRequest::toQByteArray() const
     appendToPdu((d->message.version()   << 6)           // CoAP version
               | (d->message.type()      << 4)           // Message type
               |  d->message.token().length());          // Token Length
-    appendToPdu( d->method                    & 0xFF);  // Method type
+    appendToPdu( d->method                    & 0xFF);  // Method code
     appendToPdu((d->message.messageId() >> 8) & 0xFF);  // Message ID
     appendToPdu( d->message.messageId()       & 0xFF);
 
