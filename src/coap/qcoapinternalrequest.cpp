@@ -165,6 +165,7 @@ QByteArray QCoapInternalRequest::toQByteArray() const
     // Insert Options
     if (!d->message.options().isEmpty()) {
         // Sort options by ascending order
+        // TODO: sort at insertion time in QCoapMessage, and assert that options are sorted here
         QVector<QCoapOption> options = d->message.options();
         std::sort(options.begin(), options.end(),
             [](const QCoapOption &a, const QCoapOption &b) -> bool {
