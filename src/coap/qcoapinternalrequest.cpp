@@ -321,7 +321,7 @@ QCoapOption QCoapInternalRequest::blockOption(QCoapOption::OptionName name, uint
     // M field: whether more blocks are following
     // 1 bit
     if (name == QCoapOption::Block1
-            && static_cast<int>((blockNumber * blockSize) + blockSize) < d->fullPayload.length()) {
+            && static_cast<int>((blockNumber + 1) * blockSize) < d->fullPayload.length()) {
         optionData |= 8;
     }
 
