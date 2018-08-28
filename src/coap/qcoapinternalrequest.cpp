@@ -174,15 +174,10 @@ QByteArray QCoapInternalRequest::toQByteArray() const
 
         quint8 lastOptionNumber = 0;
         for (const QCoapOption &option : qAsConst(options)) {
-            quint8 optionPdu;
 
             quint16 optionDelta = static_cast<quint16>(option.name()) - lastOptionNumber;
             bool isOptionDeltaExtended = false;
             quint8 optionDeltaExtended = 0;
-
-            quint16 optionLength = static_cast<quint16>(option.length());
-            bool isOptionLengthExtended = false;
-            quint8 optionLengthExtended = 0;
 
             // Delta value > 12 : special values
             if (optionDelta > 268) {
@@ -194,6 +189,10 @@ QByteArray QCoapInternalRequest::toQByteArray() const
                 optionDelta = 13;
                 isOptionDeltaExtended = true;
             }
+
+            quint16 optionLength = static_cast<quint16>(option.length());
+            bool isOptionLengthExtended = false;
+            quint8 optionLengthExtended = 0;
 
             // Length > 12 : special values
             if (optionLength > 268) {
