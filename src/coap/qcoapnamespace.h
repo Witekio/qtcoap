@@ -100,7 +100,11 @@ public:
     };
     Q_ENUM(Method)
 
-    static const int DefaultPort = 5683;
+    enum Port {
+        DefaultPort = 5683,
+        DtlsPort = 5684
+    };
+    Q_ENUM(Port)
 
     static bool isError(ResponseCode code)
     {
