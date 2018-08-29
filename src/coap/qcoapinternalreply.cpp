@@ -104,7 +104,6 @@ QCoapInternalReply *QCoapInternalReply::createFromFrame(const QByteArray &reply,
     while (i != reply.length() && pduData[i] != 0xFF) {
         quint16 optionDelta = ((pduData[i] >> 4) & 0x0F);
         quint16 optionLength = (pduData[i] & 0x0F);
-        quint8 optionLengthExtended = 0;
 
         // Delta value > 12 : special values
         if (optionDelta == 13) {
@@ -118,12 +117,10 @@ QCoapInternalReply *QCoapInternalReply::createFromFrame(const QByteArray &reply,
         // Delta length > 12 : special values
         if (optionLength == 13) {
             ++i;
-            optionLengthExtended = pduData[i];
-            optionLength = optionLengthExtended + 13;
+            optionLength = pduData[i] + 13;
         } else if (optionLength == 14) {
             ++i;
-            optionLengthExtended = pduData[i];
-            optionLength = optionLengthExtended + 269;
+            optionLength = pduData[i] + 269;
         }
 
         quint16 optionNumber = lastOptionNumber + optionDelta;
