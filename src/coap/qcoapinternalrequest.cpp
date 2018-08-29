@@ -128,6 +128,15 @@ void QCoapInternalRequest::initForReset(quint16 messageId)
 
 /*!
     \internal
+    Explicitly casts \a value to a char and appends it to the \a buffer.
+*/
+template<typename T>
+void appendByte(QByteArray *buffer, T value) {
+    buffer->append(static_cast<char>(value));
+}
+
+/*!
+    \internal
     Returns the CoAP frame corresponding to the QCoapInternalRequest into
     a QByteArray object.
 
@@ -149,15 +158,14 @@ QByteArray QCoapInternalRequest::toQByteArray() const
 {
     Q_D(const QCoapInternalRequest);
     QByteArray pdu;
-    auto appendToPdu = [&pdu](char data) { pdu.append(static_cast<char>(data)); };
 
     // Insert header
-    appendToPdu((d->message.version()   << 6)           // CoAP version
-              | (d->message.type()      << 4)           // Message type
-              |  d->message.token().length());          // Token Length
-    appendToPdu( d->method                    & 0xFF);  // Method code
-    appendToPdu((d->message.messageId() >> 8) & 0xFF);  // Message ID
-    appendToPdu( d->message.messageId()       & 0xFF);
+    appendByte(&pdu, (d->message.version()   << 6)           // CoAP version
+                   | (d->message.type()      << 4)           // Message type
+                   |  d->message.token().length());          // Token Length
+    appendByte(&pdu,  d->method                    & 0xFF);  // Method code
+    appendByte(&pdu, (d->message.messageId() >> 8) & 0xFF);  // Message ID
+    appendByte(&pdu,  d->message.messageId()       & 0xFF);
 
     // Insert Token
     pdu.append(d->message.token());
@@ -205,13 +213,12 @@ QByteArray QCoapInternalRequest::toQByteArray() const
                 isOptionLengthExtended = true;
             }
 
-            appendToPdu(static_cast<quint8>((static_cast<quint8>(optionDelta) << 4)
-                                          | (static_cast<quint8>(optionLength) & 0x0F)));
+            appendByte(&pdu, (optionDelta << 4) | (optionLength & 0x0F));
 
             if (isOptionDeltaExtended)
-                appendToPdu(optionDeltaExtended);
+                appendByte(&pdu, optionDeltaExtended);
             if (isOptionLengthExtended)
-                appendToPdu(optionLengthExtended);
+                appendByte(&pdu, optionLengthExtended);
 
             pdu.append(option.value());
 
@@ -221,7 +228,7 @@ QByteArray QCoapInternalRequest::toQByteArray() const
 
     // Insert Payload
     if (!d->message.payload().isEmpty()) {
-        appendToPdu(0xFF);
+        appendByte(&pdu, 0xFF);
         pdu.append(d->message.payload());
     }
 
