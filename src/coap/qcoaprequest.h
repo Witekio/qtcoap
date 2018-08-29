@@ -68,12 +68,10 @@ public:
     static bool isUrlValid(const QUrl &url);
 
 private:
-    //! For QSharedDataPointer
+    // Q_DECLARE_PRIVATE equivalent for shared data pointers
     inline QCoapRequestPrivate* d_func();
     const QCoapRequestPrivate* d_func() const
-    {
-        return reinterpret_cast<const QCoapRequestPrivate*>(d_ptr.constData());
-    }
+    { return reinterpret_cast<const QCoapRequestPrivate*>(d_ptr.constData()); }
 };
 
 QT_END_NAMESPACE

@@ -349,4 +349,14 @@ void QCoapOption::setValue(quint32 value)
     setValue(data);
 }
 
+/*!
+    \internal
+
+    For QSharedDataPointer.
+*/
+QCoapOptionPrivate *QCoapOption::d_func()
+{
+    return d_ptr;
+}
+
 QT_END_NAMESPACE
