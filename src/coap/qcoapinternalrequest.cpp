@@ -284,7 +284,7 @@ bool QCoapInternalRequest::checkBlockNumber(int blockNumber)
 
     if (blockNumber >> 20) {
         qWarning() << "QtCoap: Block number" << blockNumber << "is too large."
-                      " Block size is limited to 20 bits.";
+                      " It should fit in 20 bits.";
         return false;
     }
 
