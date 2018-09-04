@@ -29,6 +29,8 @@
 
 #include "qcoapmessage_p.h"
 
+#include <qdebug.h>
+
 QT_BEGIN_NAMESPACE
 
 QCoapMessagePrivate::QCoapMessagePrivate(QCoapMessage::MessageType _type) :
@@ -315,9 +317,14 @@ void QCoapMessage::setVersion(quint8 version)
 
     \sa type()
 */
-void QCoapMessage::setType(const MessageType &type)
+void QCoapMessage::setType(MessageType type)
 {
     Q_D(QCoapMessage);
+    if (type < Confirmable || type > Reset) {
+        qWarning() << "QtCoap: Invalid message type" << type;
+        return;
+    }
+
     d->type = type;
 }
 

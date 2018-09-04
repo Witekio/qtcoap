@@ -44,10 +44,10 @@ class Q_COAP_EXPORT QCoapMessage
 {
 public:
     enum MessageType {
-        Confirmable,
-        NonConfirmable,
-        Acknowledgment,
-        Reset
+        Confirmable = 0,
+        NonConfirmable = 1,
+        Acknowledgment = 2,
+        Reset = 3
     };
 
     QCoapMessage();
@@ -65,7 +65,7 @@ public:
     quint16 messageId() const;
     QByteArray payload() const;
     void setVersion(quint8 version);
-    void setType(const MessageType &type);
+    void setType(MessageType type);
     void setToken(const QByteArray &token);
     void setMessageId(quint16);
     void setPayload(const QByteArray &payload);
