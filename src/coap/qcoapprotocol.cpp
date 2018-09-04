@@ -782,6 +782,11 @@ bool QCoapProtocolPrivate::isMessageIdRegistered(quint16 id) const
     for (const CoapExchangeData& exchange : qAsConst(exchangeMap)) {
         if (exchange.request->message()->messageId() == id)
             return true;
+
+        for (auto answer : exchange.replies) {
+            if (answer->message()->messageId() == id)
+                return true;
+        }
     }
 
     return false;
