@@ -301,6 +301,12 @@ int QCoapMessage::optionCount() const
 void QCoapMessage::setVersion(quint8 version)
 {
     Q_D(QCoapMessage);
+
+    if (!version || version >> 2) {
+        qWarning("QtCoap: Version should be 1, 2 or 3");
+        return;
+    }
+
     d->version = version;
 }
 
