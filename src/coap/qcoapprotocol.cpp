@@ -759,8 +759,8 @@ bool QCoapProtocolPrivate::isTokenRegistered(const QCoapToken &token) const
 */
 bool QCoapProtocolPrivate::isRequestRegistered(const QCoapInternalRequest *request) const
 {
-    for (auto it = exchangeMap.constBegin(); it != exchangeMap.constEnd(); ++it) {
-        if (it->request.data() == request)
+    for (const CoapExchangeData& exchange : qAsConst(exchangeMap)) {
+        if (exchange.request == request)
             return true;
     }
 
@@ -779,8 +779,8 @@ bool QCoapProtocolPrivate::isMessageIdRegistered(quint16 id) const
     if (id == 0)
         return true;
 
-    for (auto it = exchangeMap.constBegin(); it != exchangeMap.constEnd(); ++it) {
-        if (it->request->message()->messageId() == id)
+    for (const CoapExchangeData& exchange : qAsConst(exchangeMap)) {
+        if (exchange.request->message()->messageId() == id)
             return true;
     }
 
