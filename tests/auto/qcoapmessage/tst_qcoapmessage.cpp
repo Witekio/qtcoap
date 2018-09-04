@@ -54,7 +54,7 @@ void tst_QCoapMessage::copyAndDetach()
     a.setPayload("payload");
     a.setToken("token");
     a.setType(QCoapMessage::Acknowledgment);
-    a.setVersion(5);
+    a.setVersion(2);
 
     // Test the copy
     QCoapMessage b(a);
@@ -62,7 +62,7 @@ void tst_QCoapMessage::copyAndDetach()
     QVERIFY2(b.payload() == "payload", "Message not copied correctly");
     QVERIFY2(b.token() == "token", "Message not copied correctly");
     QVERIFY2(b.type() == QCoapMessage::Acknowledgment, "Message not copied correctly");
-    QVERIFY2(b.version() == 5, "Message not copied correctly");
+    QVERIFY2(b.version() == 2, "Message not copied correctly");
 
     // Detach
     b.setMessageId(9);

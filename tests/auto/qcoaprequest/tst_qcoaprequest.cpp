@@ -127,7 +127,7 @@ void tst_QCoapRequest::copyAndDetach()
     a.setPayload("payload");
     a.setToken("token");
     a.setType(QCoapMessage::Acknowledgment);
-    a.setVersion(5);
+    a.setVersion(2);
     a.setMethod(QtCoap::Delete);
     QUrl testUrl("coap://url:500/resource");
     a.setUrl(testUrl);
@@ -140,7 +140,7 @@ void tst_QCoapRequest::copyAndDetach()
     QVERIFY2(b.payload() == "payload", "Message not copied correctly");
     QVERIFY2(b.token() == "token", "Message not copied correctly");
     QVERIFY2(b.type() == QCoapMessage::Acknowledgment, "Message not copied correctly");
-    QVERIFY2(b.version() == 5, "Message not copied correctly");
+    QVERIFY2(b.version() == 2, "Message not copied correctly");
 
     // Test the QCoapRequest copy
     QCoapRequest c(a);
