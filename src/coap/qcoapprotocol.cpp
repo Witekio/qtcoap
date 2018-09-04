@@ -745,7 +745,7 @@ bool QCoapProtocolPrivate::forgetExchangeReplies(const QCoapToken &token)
 bool QCoapProtocolPrivate::isTokenRegistered(const QCoapToken &token) const
 {
     // Reserved for empty messages and uninitialized tokens
-    if (token == QByteArray())
+    if (token.isEmpty())
         return true;
 
     return exchangeMap.contains(token);
