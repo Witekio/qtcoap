@@ -51,8 +51,7 @@ class Q_AUTOTEST_EXPORT QCoapInternalMessagePrivate : public QObjectPrivate
 {
 public:
     QCoapInternalMessagePrivate() = default;
-    QCoapInternalMessagePrivate(const QCoapInternalMessagePrivate &other) = default;
-    ~QCoapInternalMessagePrivate();
+    QCoapInternalMessagePrivate(const QCoapMessage&);
 
     QCoapMessage message;
 

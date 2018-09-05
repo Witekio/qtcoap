@@ -35,9 +35,10 @@ QT_BEGIN_NAMESPACE
 /*!
     \internal
 
-    Destructor of the private class.
+    Constructs a new QCoapInternalMessagePrivate from an existing \a message.
  */
-QCoapInternalMessagePrivate::~QCoapInternalMessagePrivate()
+QCoapInternalMessagePrivate::QCoapInternalMessagePrivate(const QCoapMessage &msg) :
+    message(msg)
 {
 }
 
@@ -76,10 +77,8 @@ QCoapInternalMessage::QCoapInternalMessage(QObject *parent) :
     \a parent as the parent object.
  */
 QCoapInternalMessage::QCoapInternalMessage(const QCoapMessage &message, QObject *parent) :
-    QCoapInternalMessage(parent)
+    QObject(*new QCoapInternalMessagePrivate(message), parent)
 {
-    Q_D(QCoapInternalMessage);
-    d->message = message;
 }
 
 /*!
@@ -98,7 +97,7 @@ QCoapInternalMessage::QCoapInternalMessage(const QCoapInternalMessage &other, QO
     This constructor must be used when subclassing internally
     the QCoapInternalMessage class.
 */
-QCoapInternalMessage::QCoapInternalMessage(QCoapInternalMessagePrivate &dd, QObject *parent):
+QCoapInternalMessage::QCoapInternalMessage(QCoapInternalMessagePrivate &dd, QObject *parent) :
     QObject(dd, parent)
 {
 }

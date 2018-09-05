@@ -56,6 +56,7 @@ class Q_AUTOTEST_EXPORT QCoapInternalReply : public QCoapInternalMessage
 public:
     explicit QCoapInternalReply(QObject *parent = nullptr);
     QCoapInternalReply(const QCoapInternalReply &other, QObject *parent = nullptr);
+    QCoapInternalReply(const QCoapMessage &message, QObject *parent = nullptr);
 
     static QCoapInternalReply *createFromFrame(const QByteArray &frame, QObject *parent = nullptr);
     void appendData(const QByteArray &data);
@@ -77,6 +78,7 @@ class Q_AUTOTEST_EXPORT QCoapInternalReplyPrivate : public QCoapInternalMessageP
 {
 public:
     QCoapInternalReplyPrivate() = default;
+    explicit QCoapInternalReplyPrivate(const QCoapMessage &message);
 
     QtCoap::ResponseCode responseCode = QtCoap::InvalidCode;
     QHostAddress senderAddress;

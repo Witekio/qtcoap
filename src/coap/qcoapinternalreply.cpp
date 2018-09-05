@@ -35,6 +35,16 @@ QT_BEGIN_NAMESPACE
 /*!
     \internal
 
+    Constructs a new QCoapInternalReplyPrivate from an existing \a message.
+*/
+QCoapInternalReplyPrivate::QCoapInternalReplyPrivate(const QCoapMessage &message) :
+    QCoapInternalMessagePrivate(message)
+{
+}
+
+/*!
+    \internal
+
     \class QCoapInternalReply
     \brief The QCoapInternalReply class contains data related to
     a received message.
@@ -57,7 +67,7 @@ QCoapInternalReply::QCoapInternalReply(QObject *parent) :
 
 /*!
     \internal
-    Constructs a copy of \a other with \a parent as the parent obect.
+    Constructs a copy of \a other with an optional \a parent.
 */
 QCoapInternalReply::QCoapInternalReply(const QCoapInternalReply &other, QObject *parent) :
     QCoapInternalMessage(*new QCoapInternalReplyPrivate(*other.d_func()), parent)
