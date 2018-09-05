@@ -76,6 +76,7 @@ QCoapInternalRequest::QCoapInternalRequest(const QCoapRequest &request, QObject 
     d->method = request.method();
     d->fullPayload = request.payload();
 
+    setFromDescriptiveBlockOption(message()->option(QCoapOption::Block1));
     addUriOptions(request.url(), request.proxyUrl());
 }
 
@@ -124,115 +125,6 @@ void QCoapInternalRequest::initForReset(quint16 messageId)
     d->message.setToken(QByteArray());
     d->message.setPayload(QByteArray());
     d->message.removeAllOptions();
-}
-
-/*!
-    \internal
-    Explicitly casts \a value to a char and appends it to the \a buffer.
-*/
-template<typename T>
-void appendByte(QByteArray *buffer, T value) {
-    buffer->append(static_cast<char>(value));
-}
-
-/*!
-    \internal
-    Returns the CoAP frame corresponding to the QCoapInternalRequest into
-    a QByteArray object.
-
-    For more details, refer to section
-    \l{https://tools.ietf.org/html/rfc7252#section-3}{'Message format' of RFC 7252}.
-*/
-//! 0                   1                   2                   3
-//! 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
-//! +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-//! |Ver| T |  TKL  |      Code     |          Message ID           |
-//! +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-//! |   Token (if any, TKL bytes) ...
-//! +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-//! |   Options (if any) ...
-//! +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-//! |1 1 1 1 1 1 1 1|    Payload (if any) ...
-//! +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-QByteArray QCoapInternalRequest::toQByteArray() const
-{
-    Q_D(const QCoapInternalRequest);
-    QByteArray pdu;
-
-    // Insert header
-    appendByte(&pdu, (d->message.version()   << 6)           // CoAP version
-                   | (d->message.type()      << 4)           // Message type
-                   |  d->message.token().length());          // Token Length
-    appendByte(&pdu,  d->method                    & 0xFF);  // Method code
-    appendByte(&pdu, (d->message.messageId() >> 8) & 0xFF);  // Message ID
-    appendByte(&pdu,  d->message.messageId()       & 0xFF);
-
-    // Insert Token
-    pdu.append(d->message.token());
-
-    // Insert Options
-    if (!d->message.options().isEmpty()) {
-        // Sort options by ascending order
-        // TODO: sort at insertion time in QCoapMessage, and assert that options are sorted here
-        QVector<QCoapOption> options = d->message.options();
-        std::sort(options.begin(), options.end(),
-            [](const QCoapOption &a, const QCoapOption &b) -> bool {
-                return a.name() < b.name();
-        });
-
-        quint8 lastOptionNumber = 0;
-        for (const QCoapOption &option : qAsConst(options)) {
-
-            quint16 optionDelta = static_cast<quint16>(option.name()) - lastOptionNumber;
-            bool isOptionDeltaExtended = false;
-            quint8 optionDeltaExtended = 0;
-
-            // Delta value > 12 : special values
-            if (optionDelta > 268) {
-                optionDeltaExtended = static_cast<quint8>(optionDelta - 269);
-                optionDelta = 14;
-                isOptionDeltaExtended = true;
-            } else if (optionDelta > 12) {
-                optionDeltaExtended = static_cast<quint8>(optionDelta - 13);
-                optionDelta = 13;
-                isOptionDeltaExtended = true;
-            }
-
-            quint16 optionLength = static_cast<quint16>(option.length());
-            bool isOptionLengthExtended = false;
-            quint8 optionLengthExtended = 0;
-
-            // Length > 12 : special values
-            if (optionLength > 268) {
-                optionLengthExtended = static_cast<quint8>(optionLength - 269);
-                optionLength = 14;
-                isOptionLengthExtended = true;
-            } else if (optionLength > 12) {
-                optionLengthExtended = static_cast<quint8>(optionLength - 13);
-                optionLength = 13;
-                isOptionLengthExtended = true;
-            }
-
-            appendByte(&pdu, (optionDelta << 4) | (optionLength & 0x0F));
-
-            if (isOptionDeltaExtended)
-                appendByte(&pdu, optionDeltaExtended);
-            if (isOptionLengthExtended)
-                appendByte(&pdu, optionLengthExtended);
-
-            pdu.append(option.value());
-
-            lastOptionNumber = option.name();
-        }
-    }
-
-    // Insert Payload
-    if (!d->message.payload().isEmpty()) {
-        appendByte(&pdu, 0xFF);
-        pdu.append(d->message.payload());
-    }
-
-    return pdu;
 }
 
 /*!
@@ -369,10 +261,10 @@ void QCoapInternalRequest::setToken(const QCoapToken &token)
 */
 void QCoapInternalRequest::addOption(const QCoapOption &option)
 {
-    if (option.name() == QCoapOption::Block1)
-        setFromDescriptiveBlockOption(option);
-
     QCoapInternalMessage::addOption(option);
+
+    if (option.name() == QCoapOption::Block1)
+        setFromDescriptiveBlockOption(QCoapOption::Block1);
 }
 
 /*!
