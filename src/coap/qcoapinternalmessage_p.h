@@ -56,8 +56,8 @@ public:
     QCoapMessage message;
 
     uint currentBlockNumber = 0;
-    bool hasNextBlock = false;
     uint blockSize = 0;
+    bool hasNextBlock = false;
 };
 
 QT_END_NAMESPACE
