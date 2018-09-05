@@ -54,6 +54,8 @@ public:
     QCoapMessage(const QCoapMessage &other);
     virtual ~QCoapMessage();
 
+    bool isValid() const { return messageId() != 0; }
+
     void swap(QCoapMessage &other) Q_DECL_NOTHROW;
     QCoapMessage &operator=(const QCoapMessage &other);
     QCoapMessage &operator=(QCoapMessage &&other) Q_DECL_NOTHROW;
