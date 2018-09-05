@@ -82,8 +82,6 @@ public:
     void onRequestError(QCoapInternalRequest *request, QtCoap::Error error,
                         QCoapInternalReply *reply = nullptr);
 
-    bool isMessageIdRegistered(quint16 id) const;
-    bool isTokenRegistered(const QCoapToken &token) const;
     bool isRequestRegistered(const QCoapInternalRequest *request) const;
 
     QCoapInternalRequest *requestForToken(const QCoapToken &token);
@@ -93,8 +91,7 @@ public:
     QCoapInternalRequest *findRequestByMessageId(quint16 messageId);
     QCoapInternalRequest *findRequestByUserReply(const QCoapReply *reply);
 
-    void registerExchange(const QCoapToken &token, QCoapReply *reply,
-                          QSharedPointer<QCoapInternalRequest> request);
+    void registerRequest(QSharedPointer<QCoapInternalRequest> request, QPointer<QCoapReply> reply);
     bool addReply(const QCoapToken &token, QSharedPointer<QCoapInternalReply> reply);
     bool forgetExchange(const QCoapToken &token);
     bool forgetExchange(const QCoapInternalRequest *request);

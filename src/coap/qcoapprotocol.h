@@ -61,7 +61,17 @@ public:
     int minTimeout() const;
     int maxTimeout() const;
 
+    virtual QCoapToken generateUniqueToken() const;
+    virtual quint16 generateUniqueMessageId() const;
+
+    bool isTokenInUse(const QCoapToken&) const;
+    bool isExchangeActive(const QCoapToken&) const;
+    bool isMessageIdInUse(quint16 messageId) const;
+
     static QVector<QCoapResource> resourcesFromCoreLinkList(const QHostAddress &sender, const QByteArray &data);
+
+protected:
+    void setupRequest(QSharedPointer<QCoapInternalRequest> request) const;
 
 Q_SIGNALS:
     void finished(QCoapReply *reply);

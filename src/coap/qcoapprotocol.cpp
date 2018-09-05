@@ -82,32 +82,16 @@ void QCoapProtocol::sendRequest(QPointer<QCoapReply> reply, QCoapConnection *con
     if (reply.isNull() || !reply->request().isValid())
         return;
 
-    auto internalRequest = QSharedPointer<QCoapInternalRequest>::create(reply->request(), this);
-    internalRequest->setMaxTransmissionWait(maxTransmitWait());
     connect(reply, &QCoapReply::finished, this, &QCoapProtocol::finished);
 
-    // Set a unique Message Id and Token
-    QCoapMessage *requestMessage = internalRequest->message();
-    internalRequest->setMessageId(d->generateUniqueMessageId());
-    internalRequest->setToken(d->generateUniqueToken());
+    auto internalRequest = QSharedPointer<QCoapInternalRequest>::create(reply->request());
+    setupRequest(internalRequest);
     internalRequest->setConnection(connection);
+    d->registerRequest(internalRequest, reply);
 
-    d->registerExchange(requestMessage->token(), reply, internalRequest);
     QMetaObject::invokeMethod(reply, "_q_setRunning", Qt::QueuedConnection,
-                              Q_ARG(QCoapToken, requestMessage->token()),
-                              Q_ARG(QCoapMessageId, requestMessage->messageId()));
-
-    // Set block size for blockwise request/replies, if specified
-    if (d->blockSize > 0) {
-        internalRequest->setToRequestBlock(0, d->blockSize);
-        if (requestMessage->payload().length() > d->blockSize)
-            internalRequest->setToSendBlock(0, d->blockSize);
-    }
-
-    if (requestMessage->type() == QCoapMessage::Confirmable)
-        internalRequest->setTimeout(QtCoap::randomGenerator.bounded(minTimeout(), maxTimeout()));
-    else
-        internalRequest->setTimeout(maxTimeout());
+                              Q_ARG(QCoapToken, internalRequest->token()),
+                              Q_ARG(QCoapMessageId, internalRequest->message()->messageId()));
 
     connect(internalRequest.data(), SIGNAL(timeout(QCoapInternalRequest *)),
             this, SLOT(onRequestTimeout(QCoapInternalRequest *)));
@@ -271,11 +255,11 @@ void QCoapProtocolPrivate::onFrameReceived(const QNetworkDatagram &frame)
     // Send next block, ask for next block, or process the final reply
     if (reply->hasMoreBlocksToSend()) {
         request->setToSendBlock(reply->nextBlockToSend(), blockSize);
-        request->setMessageId(generateUniqueMessageId());
+        request->setMessageId(q->generateUniqueMessageId());
         sendRequest(request);
     } else if (reply->hasMoreBlocksToReceive()) {
         request->setToRequestBlock(reply->currentBlockNumber() + 1, reply->blockSize());
-        request->setMessageId(generateUniqueMessageId());
+        request->setMessageId(q->generateUniqueMessageId());
         sendRequest(request);
     } else {
         onLastMessageReceived(request);
@@ -513,45 +497,6 @@ void QCoapProtocol::cancelObserve(QPointer<QCoapReply> reply)
 /*!
     \internal
 
-    Returns a currently unused message Id.
-*/
-quint16 QCoapProtocolPrivate::generateUniqueMessageId() const
-{
-    // TODO: Optimize message id generation for large sets
-    // TODO: Store used message id for the period specified by CoAP spec
-    quint16 id = 0;
-    while (isMessageIdRegistered(id))
-        id = static_cast<quint16>(QtCoap::randomGenerator.bounded(0x10000));
-
-    return id;
-}
-
-/*!
-    \internal
-
-    Returns a currently unused token.
-*/
-QCoapToken QCoapProtocolPrivate::generateUniqueToken() const
-{
-    // TODO: Optimize token generation for large sets
-    // TODO: Store used token for the period specified by CoAP spec
-    QCoapToken token;
-    while (isTokenRegistered(token)) {
-        // TODO: Allow setting minimum token size as a security setting
-        quint8 length = static_cast<quint8>(QtCoap::randomGenerator.bounded(1, 8));
-
-        token.resize(length);
-        quint8 *tokenData = reinterpret_cast<quint8 *>(token.data());
-        for (int i = 0; i < token.size(); ++i)
-            tokenData[i] = static_cast<quint8>(QtCoap::randomGenerator.bounded(256));
-    }
-
-    return token;
-}
-
-/*!
-    \internal
-
     Encodes the \a request to a QByteArray frame.
 */
 QByteArray QCoapProtocolPrivate::encode(QCoapInternalRequest *request)
@@ -659,18 +604,50 @@ QVector<QCoapResource> QCoapProtocol::resourcesFromCoreLinkList(const QHostAddre
 }
 
 /*!
+    Initializes a newly created internal request, from the \a userRequest provided.
+    It is namely responsible for setting the token, message ID, block options,
+    timeout duration and retransmission settings.
+*/
+void QCoapProtocol::setupRequest(QSharedPointer<QCoapInternalRequest> request) const
+{
+    Q_D(const QCoapProtocol);
+    Q_ASSERT(request);
+
+    // Set a unique Message Id and Token
+    QCoapMessage *message = request->message();
+    message->setMessageId(generateUniqueMessageId());
+    message->setToken(generateUniqueToken());
+
+    request->setMaxTransmissionWait(maxTransmitWait());
+
+    // Set block size for blockwise request/replies, if specified
+    if (d->blockSize > 0) {
+        request->setToRequestBlock(0, d->blockSize);
+        if (message->payload().length() > d->blockSize)
+            request->setToSendBlock(0, d->blockSize);
+    }
+
+    if (message->type() == QCoapMessage::Confirmable)
+        request->setTimeout(QtCoap::randomGenerator.bounded(minTimeout(), maxTimeout()));
+    else
+        request->setTimeout(maxTimeout());
+}
+
+/*!
     \internal
 
     Registers a new CoAP exchange using \a token.
 */
-void QCoapProtocolPrivate::registerExchange(const QCoapToken &token, QCoapReply *reply,
-                                            QSharedPointer<QCoapInternalRequest> request)
+void QCoapProtocolPrivate::registerRequest(QSharedPointer<QCoapInternalRequest> request, QPointer<QCoapReply> reply)
 {
-    CoapExchangeData data = { reply, request,
-                              QVector<QSharedPointer<QCoapInternalReply> >()
-                            };
+    Q_ASSERT(request);
+    if (!request)
+        return;
 
-    exchangeMap.insert(token, data);
+    exchangeMap.insert(request->token(),
+            { reply, request,
+              QVector<QSharedPointer<QCoapInternalReply> >()
+              });
 }
 
 /*!
@@ -685,7 +662,9 @@ void QCoapProtocolPrivate::registerExchange(const QCoapToken &token, QCoapReply 
 bool QCoapProtocolPrivate::addReply(const QCoapToken &token,
                                     QSharedPointer<QCoapInternalReply> reply)
 {
-    if (!isTokenRegistered(token) || !reply) {
+    Q_Q(const QCoapProtocol);
+
+    if (!q->isExchangeActive(token) || !reply) {
         qWarning() << "QtCoap: Reply token '" << token << "' not registered, or reply is null.";
         return false;
     }
@@ -739,21 +718,6 @@ bool QCoapProtocolPrivate::forgetExchangeReplies(const QCoapToken &token)
 /*!
     \internal
 
-    Returns \c true if the \a token is reserved or in use; returns false if
-    this token can be used to identify a new exchange.
-*/
-bool QCoapProtocolPrivate::isTokenRegistered(const QCoapToken &token) const
-{
-    // Reserved for empty messages and uninitialized tokens
-    if (token.isEmpty())
-        return true;
-
-    return exchangeMap.contains(token);
-}
-
-/*!
-    \internal
-
     Returns \c true if the \a request is present in a currently registered
     exchange.
 */
@@ -762,31 +726,6 @@ bool QCoapProtocolPrivate::isRequestRegistered(const QCoapInternalRequest *reque
     for (const CoapExchangeData& exchange : qAsConst(exchangeMap)) {
         if (exchange.request == request)
             return true;
-    }
-
-    return false;
-}
-
-/*!
-    \internal
-
-    Returns \c true if a request has a message id equal to \a id, or if \a id
-    is reserved.
-*/
-bool QCoapProtocolPrivate::isMessageIdRegistered(quint16 id) const
-{
-    // Reserved for uninitialized message Id
-    if (id == 0)
-        return true;
-
-    for (const CoapExchangeData& exchange : qAsConst(exchangeMap)) {
-        if (exchange.request->message()->messageId() == id)
-            return true;
-
-        for (auto answer : exchange.replies) {
-            if (answer->message()->messageId() == id)
-                return true;
-        }
     }
 
     return false;
@@ -908,6 +847,99 @@ int QCoapProtocol::maxTimeout() const
 {
     Q_D(const QCoapProtocol);
     return static_cast<int>(d->ackTimeout * d->ackRandomFactor);
+}
+
+/*!
+    Returns a unique token. The token is guaranteed to be unused at the time
+    of the method call. The token will not be tagged as "in use" until a
+    message with that token is sent or received.
+*/
+QCoapToken QCoapProtocol::generateUniqueToken() const
+{
+    // TODO: Optimize token generation for large sets
+    // TODO: Store used token for the period specified by CoAP spec
+    QCoapToken token;
+    while (isTokenInUse(token)) {
+        // TODO: Allow setting minimum token size as a security setting
+        quint8 length = static_cast<quint8>(QtCoap::randomGenerator.bounded(1, 8));
+
+        token.resize(length);
+        quint8 *tokenData = reinterpret_cast<quint8 *>(token.data());
+        for (int i = 0; i < token.size(); ++i)
+            tokenData[i] = static_cast<quint8>(QtCoap::randomGenerator.bounded(256));
+    }
+
+    return token;
+}
+
+/*!
+    Returns a unique message ID. The message ID is guaranteed to be unused at
+    the time of the method call. The message ID will not be tagged as "in use"
+    until a message with that message ID is sent or received.
+*/
+quint16 QCoapProtocol::generateUniqueMessageId() const
+{
+    // TODO: Optimize message id generation for large sets
+    // TODO: Store used message id for the period specified by CoAP spec
+    quint16 id = 0;
+    while (isMessageIdInUse(id))
+        id = static_cast<quint16>(QtCoap::randomGenerator.bounded(0x10000));
+
+    return id;
+}
+
+/*!
+    Returns \c true if \a token is reserved or in use; returns false if
+    this token can be used to identify a new exchange.
+
+    \sa generateUniqueToken()
+*/
+bool QCoapProtocol::isTokenInUse(const QCoapToken &token) const
+{
+    Q_D(const QCoapProtocol);
+
+    // Reserved for empty messages and uninitialized tokens
+    if (token.isEmpty())
+        return true;
+
+    return d->exchangeMap.contains(token);
+}
+
+/*!
+    Returns \c true if the exchange associated with the \a token is still
+    ongoing, false otherwise.
+*/
+bool QCoapProtocol::isExchangeActive(const QCoapToken &token) const
+{
+    // TODO: Differentiate token in use (=reservation time) and
+    // the fact an exchange is active/in progress
+    return isTokenInUse(token);
+}
+
+/*!
+    Returns \c true if the message \a id is already used by a message or if it
+    is reserved.
+
+    \sa generateUniqueMessageId()
+*/
+bool QCoapProtocol::isMessageIdInUse(quint16 id) const
+{
+    Q_D(const QCoapProtocol);
+    // Reserved for uninitialized message Id
+    if (id == 0)
+        return true;
+
+    for (const CoapExchangeData& exchange : qAsConst(d->exchangeMap)) {
+        if (exchange.request->message()->messageId() == id)
+            return true;
+
+        for (auto answer : exchange.replies) {
+            if (answer->message()->messageId() == id)
+                return true;
+        }
+    }
+
+    return false;
 }
 
 /*!
