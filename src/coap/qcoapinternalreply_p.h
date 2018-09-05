@@ -65,6 +65,7 @@ public:
 
     using QCoapInternalMessage::addOption;
     void addOption(const QCoapOption &option);
+    void setResponseCode(QtCoap::ResponseCode code);
     void setSenderAddress(const QHostAddress &address);
 
     QtCoap::ResponseCode responseCode() const;

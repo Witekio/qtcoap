@@ -175,6 +175,16 @@ void QCoapInternalReply::addOption(const QCoapOption &option)
 
 /*!
     \internal
+    Sets the response code.
+*/
+void QCoapInternalReply::setResponseCode(QtCoap::ResponseCode code)
+{
+    Q_D(QCoapInternalReply);
+    d->responseCode = code;
+}
+
+/*!
+    \internal
     Sets the sender address.
 */
 void QCoapInternalReply::setSenderAddress(const QHostAddress &address)
