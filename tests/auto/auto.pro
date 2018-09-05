@@ -8,6 +8,7 @@ SUBDIRS += \
     qcoapinternalrequest \
     qcoapmessage \
     qcoapoption \
+    qcoapprotocol \
     qcoapreply \
     qcoaprequest \
     qcoapresource
