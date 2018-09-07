@@ -219,8 +219,10 @@ void QCoapProtocolPrivate::onFrameReceived(const QNetworkDatagram &frame)
     Q_ASSERT(QThread::currentThread() == q->thread());
 
     QSharedPointer<QCoapInternalReply> reply(decode(frame));
-    const QCoapMessage *messageReceived = reply->message();
+    if (!reply)
+        return;
 
+    const QCoapMessage *messageReceived = reply->message();
     QCoapInternalRequest *request = nullptr;
     if (!messageReceived->token().isEmpty())
         request = requestForToken(messageReceived->token());
