@@ -115,6 +115,13 @@ QCoapInternalMessage::QCoapInternalMessage(QCoapInternalMessagePrivate &dd, QObj
 void QCoapInternalMessage::setFromDescriptiveBlockOption(const QCoapOption &option)
 {
     Q_D(QCoapInternalMessage);
+    if (!option.isValid())
+        return;
+
+    if (option.value().size() < 1) {
+        qWarning("QtCoap: Invalid empty block option");
+        return;
+    }
 
     //! TODO Cover with tests
     const quint8 *optionData = reinterpret_cast<const quint8 *>(option.value().data());
