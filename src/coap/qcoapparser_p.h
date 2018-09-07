@@ -50,6 +50,7 @@ public:
                                           const QCoapOption& option) const;
     QCoapOption generateBlockOption(QCoapOption::OptionName name, uint blockNumber,
                                     uint blockSize, int fullPayloadSize) const;
+    int nextBlockToSend(const QCoapOption &option) const;
 };
 
 QT_END_NAMESPACE
