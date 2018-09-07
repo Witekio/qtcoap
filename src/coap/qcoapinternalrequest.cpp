@@ -32,6 +32,7 @@
 #include <QtCore/qregularexpression.h>
 #include "qcoapinternalrequest_p.h"
 #include "qcoaprequest.h"
+#include "qcoapparser_p.h"
 
 QT_BEGIN_NAMESPACE
 
@@ -144,8 +145,9 @@ void QCoapInternalRequest::setToRequestBlock(int blockNumber, int blockSize)
     d->message.removeOption(QCoapOption::Block1);
     d->message.removeOption(QCoapOption::Block2);
 
-    addOption(blockOption(QCoapOption::Block2, static_cast<uint>(blockNumber),
-                          static_cast<uint>(blockSize)));
+    auto option = d->parser->generateBlockOption(QCoapOption::Block2, static_cast<uint>(blockNumber),
+                                                 static_cast<uint>(blockSize), d->fullPayload.length());
+    addOption(option);
 }
 
 /*!
@@ -165,8 +167,9 @@ void QCoapInternalRequest::setToSendBlock(int blockNumber, int blockSize)
     d->message.setPayload(d->fullPayload.mid(blockNumber * blockSize, blockSize));
     d->message.removeOption(QCoapOption::Block1);
 
-    addOption(blockOption(QCoapOption::Block1, static_cast<uint>(blockNumber),
-                          static_cast<uint>(blockSize)));
+    auto option = d->parser->generateBlockOption(QCoapOption::Block1, static_cast<uint>(blockNumber),
+                                                 static_cast<uint>(blockSize), d->fullPayload.length());
+    addOption(option);
 }
 
 /*!
@@ -188,51 +191,6 @@ bool QCoapInternalRequest::checkBlockNumber(int blockNumber)
     }
 
     return true;
-}
-
-/*!
-    \internal
-    Builds and returns a Block option.
-
-    The \a blockSize should range from 16 to 1024 and be a power of 2,
-    computed as 2^(SZX + 4), with SZX ranging from 0 to 6. For more details,
-    refer to the \l{https://tools.ietf.org/html/rfc7959#section-2.2}{RFC 7959}.
-*/
-QCoapOption QCoapInternalRequest::blockOption(QCoapOption::OptionName name, uint blockNumber, uint blockSize) const
-{
-    Q_D(const QCoapInternalRequest);
-
-    //! TODO Cover this in tests
-    Q_ASSERT((blockSize & (blockSize - 1)) == 0); // is a power of two
-    Q_ASSERT(!(blockSize >> 11)); // blockSize <= 1024
-
-    // NUM field: the relative number of the block within a sequence of blocks
-    // 4, 12 or 20 bits (as little as possible)
-    Q_ASSERT(!(blockNumber >> 20)); // Fits in 20 bits
-    quint32 optionData = (blockNumber << 4);
-
-    // SZX field: the size of the block
-    // 3 bits, set to "log2(blockSize) - 4"
-    optionData |= (blockSize >> 7)
-                  ? ((blockSize >> 10) ? 6 : (3 + (blockSize >> 8)))
-                  : (blockSize >> 5);
-
-    // M field: whether more blocks are following
-    // 1 bit
-    if (name == QCoapOption::Block1
-            && static_cast<int>((blockNumber + 1) * blockSize) < d->fullPayload.length()) {
-        optionData |= 8;
-    }
-
-    QByteArray optionValue;
-    Q_ASSERT(!(optionData >> 24));
-    if (optionData > 0xFFFF)
-        optionValue.append(static_cast<char>(optionData >> 16));
-    if (optionData > 0xFF)
-        optionValue.append(static_cast<char>((optionData >> 8) & 0xFF));
-    optionValue.append(static_cast<char>(optionData & 0xFF));
-
-    return QCoapOption(name, optionValue);
 }
 
 /*!

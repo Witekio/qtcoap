@@ -100,7 +100,6 @@ Q_SIGNALS:
 
 protected:
     QCoapOption uriHostOption(const QUrl &uri) const;
-    QCoapOption blockOption(QCoapOption::OptionName name, uint blockNumber, uint blockSize) const;
 
 private:
     Q_DECLARE_PRIVATE(QCoapInternalRequest)

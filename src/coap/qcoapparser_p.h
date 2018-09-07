@@ -48,6 +48,8 @@ public:
 
     void updateFromDescriptiveBlockOption(QCoapInternalMessage* message,
                                           const QCoapOption& option) const;
+    QCoapOption generateBlockOption(QCoapOption::OptionName name, uint blockNumber,
+                                    uint blockSize, int fullPayloadSize) const;
 };
 
 QT_END_NAMESPACE
