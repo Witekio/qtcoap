@@ -76,7 +76,7 @@ QCoapInternalRequest::QCoapInternalRequest(const QCoapRequest &request, QObject 
     d->method = request.method();
     d->fullPayload = request.payload();
 
-    setFromDescriptiveBlockOption(message()->option(QCoapOption::Block1));
+    updateFromDescriptiveBlockOption(message()->option(QCoapOption::Block1));
     addUriOptions(request.url(), request.proxyUrl());
 }
 
@@ -264,7 +264,7 @@ void QCoapInternalRequest::addOption(const QCoapOption &option)
     QCoapInternalMessage::addOption(option);
 
     if (option.name() == QCoapOption::Block1)
-        setFromDescriptiveBlockOption(QCoapOption::Block1);
+        updateFromDescriptiveBlockOption(QCoapOption::Block1);
 }
 
 /*!

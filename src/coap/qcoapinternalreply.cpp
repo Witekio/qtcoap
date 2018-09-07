@@ -81,7 +81,7 @@ QCoapInternalReply::QCoapInternalReply(const QCoapInternalReply &other, QObject 
 QCoapInternalReply::QCoapInternalReply(const QCoapMessage &msg, QObject *parent) :
     QCoapInternalMessage(*new QCoapInternalReplyPrivate(msg), parent)
 {
-    setFromDescriptiveBlockOption(message()->option(QCoapOption::Block2));
+    updateFromDescriptiveBlockOption(message()->option(QCoapOption::Block2));
 }
 
 /*!
@@ -103,7 +103,7 @@ void QCoapInternalReply::addOption(const QCoapOption &option)
     QCoapInternalMessage::addOption(option);
 
     if (option.name() == QCoapOption::Block2)
-        setFromDescriptiveBlockOption(QCoapOption::Block2);
+        updateFromDescriptiveBlockOption(QCoapOption::Block2);
 }
 
 /*!

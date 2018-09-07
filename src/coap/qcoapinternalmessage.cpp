@@ -28,9 +28,12 @@
 ****************************************************************************/
 
 #include "qcoapinternalmessage_p.h"
+#include "qcoapparser_p.h"
 #include <QtCoap/qcoaprequest.h>
 
 QT_BEGIN_NAMESPACE
+
+const QCoapParser *QCoapInternalMessagePrivate::parser = nullptr;
 
 /*!
     \internal
@@ -93,6 +96,16 @@ QCoapInternalMessage::QCoapInternalMessage(const QCoapInternalMessage &other, QO
 
 /*!
     \internal
+
+    Sets the global parser used by all internal message classes.
+*/
+void QCoapInternalMessage::setParser(const QCoapParser *p)
+{
+    QCoapInternalMessagePrivate::parser = p;
+}
+
+/*!
+    \internal
     Constructs a new QCoapInternalMessage with \a dd as the d_ptr.
     This constructor must be used when subclassing internally
     the QCoapInternalMessage class.
@@ -104,40 +117,13 @@ QCoapInternalMessage::QCoapInternalMessage(QCoapInternalMessagePrivate &dd, QObj
 
 /*!
     \internal
-    Set block information from a descriptive block option. See
-    \l {https://tools.ietf.org/html/rfc7959#section-2.3}{RFC 7959}.
-
-    \note For block-wise transfer, the size of the block is expressed by a power
-    of two. See
-    \l{https://tools.ietf.org/html/rfc7959#section-2.2}{'Structure of a Block Option'}
-    in RFC 7959 for more information.
+    Set block information from a descriptive block option, using the current
+    QCoapParser.
 */
-void QCoapInternalMessage::setFromDescriptiveBlockOption(const QCoapOption &option)
+void QCoapInternalMessage::updateFromDescriptiveBlockOption(const QCoapOption &option)
 {
-    Q_D(QCoapInternalMessage);
-    if (!option.isValid())
-        return;
-
-    if (option.value().size() < 1) {
-        qWarning("QtCoap: Invalid empty block option");
-        return;
-    }
-
-    //! TODO Cover with tests
-    const quint8 *optionData = reinterpret_cast<const quint8 *>(option.value().data());
-    const quint8 lastByte = optionData[option.length() - 1];
-    quint32 blockNumber = 0;
-
-    for (int i = 0; i < option.length() - 1; ++i)
-        blockNumber = (blockNumber << 8) | optionData[i];
-
-    blockNumber = (blockNumber << 4) | (lastByte >> 4);
-    d->currentBlockNumber = blockNumber;
-    d->hasNextBlock = ((lastByte & 0x8) == 0x8);
-    d->blockSize = static_cast<uint>(1u << ((lastByte & 0x7) + 4));
-
-    if (d->blockSize > 1024)
-        qWarning("QtCoap: Received a block size larger than 1024, something may be wrong.");
+    Q_D(const QCoapInternalMessage);
+    d->parser->updateFromDescriptiveBlockOption(this, option);
 }
 
 /*!
@@ -239,6 +225,39 @@ uint QCoapInternalMessage::blockSize() const
 {
     Q_D(const QCoapInternalMessage);
     return d->blockSize;
+}
+
+/*!
+    \internal
+
+    Sets the current block number.
+*/
+void QCoapInternalMessage::setCurrentBlockNumber(uint number)
+{
+    Q_D(QCoapInternalMessage);
+    d->currentBlockNumber = number;
+}
+
+/*!
+    \internal
+
+    Sets if we have still one or more block to receive.
+*/
+void QCoapInternalMessage::setHasNextBlock(bool hasNextBlock)
+{
+    Q_D(QCoapInternalMessage);
+    d->hasNextBlock = hasNextBlock;
+}
+
+/*!
+    \internal
+
+    Sets the block size.
+*/
+void QCoapInternalMessage::setBlockSize(uint size)
+{
+    Q_D(QCoapInternalMessage);
+    d->blockSize = size;
 }
 
 /*!

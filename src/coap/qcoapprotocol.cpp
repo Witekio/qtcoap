@@ -40,6 +40,7 @@ QT_BEGIN_NAMESPACE
 QCoapProtocolPrivate::QCoapProtocolPrivate() :
     parser{new QCoapParser()}
 {
+    QCoapInternalMessage::setParser(parser);
 }
 
 /*!

@@ -45,6 +45,9 @@ public:
 
     QByteArray encode(const QCoapMessage &message, QtCoap::Method method) const;
     std::pair<QCoapMessage, QtCoap::ResponseCode> decode(const QByteArray &frame) const;
+
+    void updateFromDescriptiveBlockOption(QCoapInternalMessage* message,
+                                          const QCoapOption& option) const;
 };
 
 QT_END_NAMESPACE

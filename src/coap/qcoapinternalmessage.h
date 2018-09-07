@@ -35,6 +35,8 @@
 
 QT_BEGIN_NAMESPACE
 
+class QCoapParser;
+
 class QCoapInternalMessagePrivate;
 class Q_AUTOTEST_EXPORT QCoapInternalMessage : public QObject
 {
@@ -44,6 +46,8 @@ public:
     explicit QCoapInternalMessage(const QCoapMessage &message, QObject *parent = nullptr);
     QCoapInternalMessage(const QCoapInternalMessage &other, QObject *parent = nullptr);
     virtual ~QCoapInternalMessage() {}
+
+    static void setParser(const QCoapParser*);
 
     void addOption(QCoapOption::OptionName name, const QByteArray &value);
     void addOption(QCoapOption::OptionName name, quint32 value);
@@ -56,6 +60,9 @@ public:
     uint currentBlockNumber() const;
     bool hasMoreBlocksToReceive() const;
     uint blockSize() const;
+    void setCurrentBlockNumber(uint);
+    void setHasNextBlock(bool);
+    void setBlockSize(uint);
 
     virtual bool isValid() const;
     static bool isUrlValid(const QUrl &url);
@@ -63,7 +70,7 @@ public:
 protected:
     explicit QCoapInternalMessage(QCoapInternalMessagePrivate &dd, QObject *parent = nullptr);
 
-    void setFromDescriptiveBlockOption(const QCoapOption &option);
+    void updateFromDescriptiveBlockOption(const QCoapOption &option);
 
     Q_DECLARE_PRIVATE(QCoapInternalMessage)
 };

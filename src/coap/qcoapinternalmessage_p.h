@@ -47,6 +47,8 @@
 
 QT_BEGIN_NAMESPACE
 
+class QCoapParser;
+
 class Q_AUTOTEST_EXPORT QCoapInternalMessagePrivate : public QObjectPrivate
 {
 public:
@@ -58,6 +60,8 @@ public:
     uint currentBlockNumber = 0;
     uint blockSize = 0;
     bool hasNextBlock = false;
+
+    static const QCoapParser *parser;
 };
 
 QT_END_NAMESPACE
