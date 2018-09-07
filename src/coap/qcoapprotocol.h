@@ -61,9 +61,6 @@ public:
     int minTimeout() const;
     int maxTimeout() const;
 
-    virtual QByteArray encode(const QCoapMessage &message, QtCoap::Method method) const;
-    virtual std::pair<QCoapMessage, QtCoap::ResponseCode>
-        decode(const QByteArray &frame) const;
     virtual QCoapToken generateUniqueToken() const;
     virtual quint16 generateUniqueMessageId() const;
 

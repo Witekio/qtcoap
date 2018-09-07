@@ -25,6 +25,7 @@ PRIVATE_HEADERS += \
     qcoapconnection_p.h \
     qcoapclient_p.h \
     qcoapresource_p.h \
+    qcoapparser_p.h \
     qcoapprotocol_p.h \
     qcoapinternalmessage_p.h \
     qcoapinternalrequest_p.h \
@@ -39,6 +40,7 @@ SOURCES += \
     qcoapreply.cpp \
     qcoaprequest.cpp \
     qcoapresource.cpp \
+    qcoapparser.cpp \
     qcoapprotocol.cpp \
     qcoapinternalmessage.cpp \
     qcoapinternalreply.cpp \

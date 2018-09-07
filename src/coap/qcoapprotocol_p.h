@@ -57,10 +57,12 @@ struct CoapExchangeData {
 
 typedef QMap<QByteArray, CoapExchangeData> CoapExchangeMap;
 
+class QCoapParser;
+
 class Q_AUTOTEST_EXPORT QCoapProtocolPrivate : public QObjectPrivate
 {
 public:
-    QCoapProtocolPrivate() = default;
+    QCoapProtocolPrivate();
 
     quint16 generateUniqueMessageId() const;
     QCoapToken generateUniqueToken() const;
@@ -102,6 +104,8 @@ public:
     int maxRetransmit = 4;
     int ackTimeout = 2000;
     double ackRandomFactor = 1.5;
+
+    const QCoapParser *parser = nullptr;
 
     Q_DECLARE_PUBLIC(QCoapProtocol)
 };
