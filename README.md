@@ -1,3 +1,7 @@
+## Merged into Qt, see [Qt Coap](https://github.com/qt/qtcoap)
+
+This repository contains the original work by Witekio to create a new Qt module adding CoAP protocol support. This work is not hosted and maintained by The Qt Company and community, [here](https://github.com/qt/qtcoap).
+
 ## Introduction
 This is the Qt CoAP module repository. CoAP is a protocol for IoT devices, and machine to machine communication.
 The full specification can be found in [RFC 7252](https://tools.ietf.org/html/rfc7252).
